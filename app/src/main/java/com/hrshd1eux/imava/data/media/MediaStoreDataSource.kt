@@ -61,10 +61,13 @@ class MediaStoreDataSource @Inject constructor(
     }
 
     private fun getMediaTypeCondition(mediaType: MediaTypeFilter): String {
+        val imageExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.gif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heic' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.bmp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.dng')"
+        val videoExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mkv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mov' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avi' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webm' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3gp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.ts' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.flv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m4v')"
+
         return when (mediaType) {
-            MediaTypeFilter.ALL -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR (${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'))"
-            MediaTypeFilter.IMAGES -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE} OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%')"
-            MediaTypeFilter.VIDEOS -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO} OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
+            MediaTypeFilter.ALL -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR (${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%') OR $imageExtensions OR $videoExtensions)"
+            MediaTypeFilter.IMAGES -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE} OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR $imageExtensions)"
+            MediaTypeFilter.VIDEOS -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO} OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%' OR $videoExtensions)"
         }
     }
 
@@ -476,14 +479,24 @@ class MediaStoreDataSource @Inject constructor(
 
             val secondaryPaths = listOf(
                 java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media"),
+                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Sent"),
+                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Private"),
+                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Sent"),
+                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Private"),
+                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Animated Gifs/Sent"),
                 java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media"),
+                java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Images/Sent"),
+                java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Video/Sent"),
                 java.io.File(externalStorage, "Android/media/org.telegram.messenger/Telegram"),
                 java.io.File(externalStorage, "Android/media/org.telegram.messenger.web/Telegram"),
                 java.io.File(externalStorage, "WhatsApp/Media"),
+                java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Images/Sent"),
+                java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Video/Sent"),
                 java.io.File(externalStorage, "Telegram"),
                 java.io.File(externalStorage, "Pictures"),
                 java.io.File(externalStorage, "DCIM"),
-                java.io.File(externalStorage, "Download")
+                java.io.File(externalStorage, "Download"),
+                java.io.File(externalStorage, "Movies")
             )
 
             val unindexedFiles = mutableListOf<String>()
@@ -501,10 +514,35 @@ class MediaStoreDataSource @Inject constructor(
             if (unindexedFiles.isNotEmpty()) {
                 scannedCount = unindexedFiles.size
                 unindexedFiles.chunked(500).forEach { chunk ->
+                    val mimeTypes = chunk.map { path ->
+                        val ext = path.substringAfterLast('.', "").lowercase(java.util.Locale.getDefault())
+                        android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+                            ?: when (ext) {
+                                "jpg", "jpeg" -> "image/jpeg"
+                                "png" -> "image/png"
+                                "webp" -> "image/webp"
+                                "gif" -> "image/gif"
+                                "heic" -> "image/heic"
+                                "heif" -> "image/heif"
+                                "dng" -> "image/x-adobe-dng"
+                                "bmp" -> "image/bmp"
+                                "mp4" -> "video/mp4"
+                                "mkv" -> "video/x-matroska"
+                                "mov" -> "video/quicktime"
+                                "avi" -> "video/x-msvideo"
+                                "webm" -> "video/webm"
+                                "3gp" -> "video/3gpp"
+                                "ts" -> "video/mp2t"
+                                "flv" -> "video/x-flv"
+                                "m4v" -> "video/x-m4v"
+                                else -> null
+                            }
+                    }.toTypedArray()
+
                     android.media.MediaScannerConnection.scanFile(
                         context,
                         chunk.toTypedArray(),
-                        null,
+                        mimeTypes,
                         null
                     )
                 }

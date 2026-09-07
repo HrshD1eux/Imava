@@ -268,6 +268,9 @@ class MainViewModel @Inject constructor(
         prefs.edit().putString("album_layout_mode", mode.name).apply()
     }
 
+    private val _lastDeletedMediaId = MutableStateFlow<Long?>(null)
+    val lastDeletedMediaId: StateFlow<Long?> = _lastDeletedMediaId.asStateFlow()
+
     private val _customAlbumCovers = MutableStateFlow<Map<Long, Long>>(loadCustomAlbumCovers())
     val customAlbumCovers: StateFlow<Map<Long, Long>> = _customAlbumCovers.asStateFlow()
 
@@ -613,18 +616,78 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val datePositionHeaders: StateFlow<List<com.hrshd1eux.imava.data.repository.DatePositionHeader>> = combine(
-        snapshotFlow { currentBucketId },
-        snapshotFlow { sortOrder },
-        refreshTrigger
-    ) { bucketId, order, _ ->
-        Pair(bucketId, order)
-    }.flatMapLatest { (bucketId, order) ->
-        flow {
-            emit(repository.getDatePositionIndex(bucketId, order))
+    val datePositionHeaders: StateFlow<List<com.hrshd1eux.imava.data.repository.DatePositionHeader>> = visibleMediaItems.map { items ->
+        if (items.isEmpty()) return@map emptyList()
+
+        val zoneId = ZoneId.systemDefault()
+        val today = LocalDate.now(zoneId)
+        val yesterday = today.minusDays(1)
+
+        val firstDate = items.first().dateTaken
+        val lastDate = items.last().dateTaken
+        val minDate = minOf(firstDate, lastDate)
+        val maxDate = maxOf(firstDate, lastDate)
+
+        val localMin = Instant.ofEpochMilli(if (minDate > 0) minDate else System.currentTimeMillis()).atZone(zoneId).toLocalDate()
+        val localMax = Instant.ofEpochMilli(if (maxDate > 0) maxDate else System.currentTimeMillis()).atZone(zoneId).toLocalDate()
+        val spanDays = kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(localMin, localMax))
+        val spanYears = kotlin.math.abs(localMax.year - localMin.year)
+
+        val mode = when {
+            spanYears >= 2 || spanDays > 730 -> "YEAR"
+            spanDays > 60 -> "MONTH"
+            else -> "DAY"
         }
-    }.flowOn(Dispatchers.IO)
+
+        val yearFormatter = DateTimeFormatter.ofPattern("yyyy", Locale.getDefault())
+        val yearShortFormatter = DateTimeFormatter.ofPattern("''yy", Locale.getDefault())
+        val monthFullFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
+        val monthShortWithYearFormatter = DateTimeFormatter.ofPattern("MMM ''yy", Locale.getDefault())
+        val monthShortFormatter = DateTimeFormatter.ofPattern("MMM", Locale.getDefault())
+        val dayFullFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
+        val dayShortFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
+
+        fun getHeaderAndLabel(dateMs: Long): Pair<String, String> {
+            val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
+            val localDate = Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
+            return when (mode) {
+                "YEAR" -> {
+                    val title = localDate.format(yearFormatter)
+                    val label = localDate.format(yearShortFormatter)
+                    Pair(title, label)
+                }
+                "MONTH" -> {
+                    val title = localDate.format(monthFullFormatter)
+                    val label = if (spanYears > 0) localDate.format(monthShortWithYearFormatter).uppercase()
+                                else localDate.format(monthShortFormatter).uppercase()
+                    Pair(title, label)
+                }
+                else -> {
+                    when (localDate) {
+                        today -> Pair("Today", "TD")
+                        yesterday -> Pair("Yesterday", "YS")
+                        else -> Pair(localDate.format(dayFullFormatter), localDate.format(dayShortFormatter))
+                    }
+                }
+            }
+        }
+
+        val result = mutableListOf<com.hrshd1eux.imava.data.repository.DatePositionHeader>()
+        var currentLabel = ""
+        val count = items.size
+        val sampleStep = (count / 80).coerceAtLeast(1)
+        var pos = 0
+        while (pos < count) {
+            val itemDate = items[pos].dateTaken
+            val (headerTitle, headerLabel) = getHeaderAndLabel(itemDate)
+            if (headerLabel != currentLabel) {
+                currentLabel = headerLabel
+                result.add(com.hrshd1eux.imava.data.repository.DatePositionHeader(headerTitle, pos, headerLabel))
+            }
+            pos += sampleStep
+        }
+        result
+    }.flowOn(Dispatchers.Default)
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -677,7 +740,7 @@ class MainViewModel @Inject constructor(
         }
         itemsFlow.map { pagingData ->
             val mapped: PagingData<TimelineItem> = pagingData.map { TimelineItem.Media(it) }
-            if (mode == TimelineSortMode.DATE_GROUPED) {
+            if (mode == TimelineSortMode.DATE_GROUPED && category != "Trash") {
                 mapped.insertSeparators { before: TimelineItem?, after: TimelineItem? ->
                     val zoneId = ZoneId.systemDefault()
                     val today = LocalDate.now(zoneId)
@@ -976,25 +1039,41 @@ class MainViewModel @Inject constructor(
                     )
                 }
 
+                if (currentBucketId == bucketId) {
+                    currentBucketId = null
+                    currentBucketName = null
+                    currentCategoryName = null
+                }
+
                 if (deleteMedia) {
                     if (itemsInAlbum.isNotEmpty()) {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                             pendingBatchActionItems = itemsInAlbum
-                            val pendingIntent = android.provider.MediaStore.createTrashRequest(
-                                context.contentResolver,
-                                itemsInAlbum.map { it.uri },
-                                true
-                            )
-                            val activity = context.findActivity()
-                            activity?.startIntentSenderForResult(pendingIntent.intentSender, 1005, null, 0, 0, 0)
+                            val validUris = itemsInAlbum.mapNotNull { it.uri.takeIf { u -> u.scheme == android.content.ContentResolver.SCHEME_CONTENT } }
+                            if (validUris.isNotEmpty()) {
+                                try {
+                                    val pendingIntent = android.provider.MediaStore.createTrashRequest(
+                                        context.contentResolver,
+                                        validUris,
+                                        true
+                                    )
+                                    val activity = context.findActivity()
+                                    activity?.startIntentSenderForResult(pendingIntent.intentSender, 1005, null, 0, 0, 0)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
                         } else {
                             itemsInAlbum.forEach { item ->
                                 toggleTrashed(context, item)
                             }
                         }
-                    }
-                    if (albumFolder.exists()) {
-                        albumFolder.deleteRecursively()
+                    } else {
+                        try {
+                            if (albumFolder.exists()) {
+                                albumFolder.delete()
+                            }
+                        } catch (_: Exception) {}
                     }
                 } else {
                     if (itemsInAlbum.isNotEmpty()) {
@@ -1005,9 +1084,11 @@ class MainViewModel @Inject constructor(
                         }
                         repository.moveOrCopyMedia(context, itemsInAlbum, targetDir, isCopy = false)
                     }
-                    if (albumFolder.exists()) {
-                        albumFolder.delete()
-                    }
+                    try {
+                        if (albumFolder.exists()) {
+                            albumFolder.delete()
+                        }
+                    } catch (_: Exception) {}
                 }
                 refreshAll()
             } catch (e: Exception) {
@@ -1837,6 +1918,7 @@ class MainViewModel @Inject constructor(
                         viewModelScope.launch {
                             repository.deleteMetadataPermanently(item.id)
                             advanceActiveMediaItem(item, pendingNextItem)
+                            _lastDeletedMediaId.value = item.id
                             pendingActionItem = null
                             pendingNextItem = null
                             refreshAll()
@@ -1848,6 +1930,7 @@ class MainViewModel @Inject constructor(
                         viewModelScope.launch {
                             repository.toggleTrashed(item)
                             advanceActiveMediaItem(item, pendingNextItem)
+                            _lastDeletedMediaId.value = item.id
                             pendingActionItem = null
                             pendingNextItem = null
                             refreshAll()

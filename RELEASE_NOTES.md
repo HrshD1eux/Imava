@@ -1,3 +1,89 @@
+## 🚀 What's New in Imava v1.1.30
+
+### 📅 Strictly Monotonic Adaptive Timeline Scrubber
+* **Strictly Ordered Dates**: Computed directly from sorted gallery items, eliminating SQLite null-date scrambles. Scrubber labels progress strictly chronologically (Today ➔ Yesterday ➔ Month ➔ Year) without out-of-order date jumps.
+* **Auto-Scaling Intervals**:
+  * **Year Mode** (`> 2 years`): Renders concise 2-digit years (`'24`, `'23`, `'22`) for expansive libraries.
+  * **Month Mode** (`> 60 days`): Displays uppercase month abbreviations (`AUG`, `JUL`, or `AUG '23` across multi-year intervals).
+  * **Day Mode** (`<= 60 days`): Shows calendar markers (`Today`, `Yesterday`, `d MMM`) for granular navigation.
+* **Refined Aesthetics**: Widened scrubber touch target (44dp) with semi-bold typography for effortless, pinpoint scrubbing across thousands of photos.
+
+---
+
+### ➡️ Smooth Auto-Advance on Confirmed Delete
+* **Zero Interruption Pagination**: Deleting or trashing a photo/video in full-screen preview smoothly advances to the next image to the right (or the previous one if deleting the last item).
+* **Confirmed-Only Advance**: Preview stays on the current photo while system or confirmation dialogs are open. Auto-advance strictly triggers when the action is confirmed—never prematurely on button tap.
+* **Instant Transitions**: Deleted items vanish from the pager immediately without flicker or navigation desync.
+
+---
+
+### 🛡️ Crash Elimination: Trash, Album Deletion & Scrolling
+* **Guaranteed Unique Compose Keys**: Resolved fatal `IllegalArgumentException` crashes in `LazyVerticalStaggeredGrid` by generating globally unique composite keys for all headers, items, and placeholders.
+* **Trash Key Collision Fix**: Eliminated duplicate capture date headers in Trash (which is sorted by deletion time).
+* **MediaStore & DB Trashed Deduplication**: Enforced strict ID deduplication across MediaStore and Room database trashed queries, preventing duplicate item crashes when opening Trash.
+* **Safe Scoped Storage Album Deletion**: Deleting an album no longer triggers synchronous recursive file wipes while MediaStore trash requests are pending. Reset active album if deleted.
+
+---
+
+### 🔍 WhatsApp Sent & Hidden Media Deep Scan
+* **Zero-Type MediaStore Fix**: Added full file extension pattern matching (`DISPLAY_NAME LIKE '%.jpg' ...`) so media in `.nomedia` directories (WhatsApp Sent, Private, Telegram) with `MEDIA_TYPE == 0` is recognized and displayed.
+* **Explicit MIME Type Registration**: Media scanning now resolves and registers explicit MIME types (`image/jpeg`, `video/mp4`) during scans, preventing `.nomedia` media from being marked as unreadable binary octet-streams.
+* **Deep Directory Paths**: Explicitly scans WhatsApp Sent, Private, Animated GIFs, WhatsApp Business, Telegram, and standard media paths up to depth 6.
+
+---
+
+### ✏️ Dedicated Single-Item Rename Dialog
+* **Solo vs Batch Distinction**: Selecting exactly 1 media item and tapping "Rename" now opens a clean, focused `SingleRenameDialog` instead of the multi-file batch template dialog.
+* **Smart File Protection**: Pre-fills current filename, preserves file extensions (`.jpg`, `.mp4`, `.png`) automatically, filters invalid filesystem characters (`/ \ : * ? " < > |`), and shows live dimensions and file size.
+
+---
+
+### 🗑️ Recency-First Trash Sorting
+* **True Deletion Order**: Items in Trash are now sorted strictly by deletion timestamp (`trashTime DESC`). Photos deleted seconds ago appear immediately at the very top of Trash, regardless of when the picture was originally captured.
+
+---
+
+### 🛡️ Android 10 Deletion & Trash Isolation
+* **Zero Ghost Files**: Fixed scoped storage deletion glitches on Android 10 (API 29). Trashed media is isolated into internal private app storage while purging MediaStore rows, preventing deleted items from lingering or reappearing in third-party gallery apps.
+* **Direct File Erasure**: Permanent deletions execute physical filesystem unlinking and trigger immediate `MediaScannerConnection` broadcasts.
+
+---
+
+### 📁 Delete Album Dual Choice ("Album Only" vs "Album & Media")
+* **Granular Folder Management**: Long-pressing or opening options on custom albums now includes "Delete Album 🗑️".
+* **Dual Choice Prompt**:
+  * **Delete Album Only**: Safely preserves all photos and videos by moving them to the parent directory and removes the empty folder.
+  * **Delete Album & Media**: Trashes all media inside the album and cleans up the folder.
+* **Root System Folder Guard**: Core system folders (`Camera`, `DCIM`, `Pictures`, `Download`, `Downloads`, `Movies`, `Screenshots`) are strictly protected against accidental deletion.
+
+---
+
+### 🏷️ Album Name & Path in Info Sheet
+* **Direct Album Attribution**: The info bottom sheet now features an Album row with a bookmark icon showing the album name (`bucketName`) and full directory path.
+
+---
+
+### 🚚 Lossless Move Destination & Row Deduplication
+* **Accurate Target Buckets**: Moving items to another album now targets the exact physical directory of the destination album rather than defaulting to `Pictures/`.
+* **Zero Phantom Rows**: Moved source items are hidden in Room metadata immediately, eliminating ghost duplicate rows before MediaStore completes its background rescan.
+
+---
+
+### 🎬 Video Player & ExoPlayer Enhancements
+* **Instant Video Replay**: Fixed an ExoPlayer freeze where tapping Play at `Player.STATE_ENDED` failed to seek back to 0. Both the centered 72dp button and transport bar replay immediately.
+* **Audio Focus Integration**: Configured `AudioAttributes` with `handleAudioFocus = true` to properly duck or pause background music (Spotify, podcasts) and handle phone calls during playback.
+* **Decoupled Tap Gestures**: Tapping the video surface strictly toggles chrome bars; playback is controlled via dedicated buttons and double-tap gestures.
+* **Lifecycle Audio Pause**: Automatically pauses video playback on `ON_PAUSE` when switching apps or locking the device.
+* **Screen Brightness Restoration**: Restores system default brightness upon exiting the video player instead of keeping the entire gallery at manual brightness.
+
+---
+
+### 📦 Downloads & Verification
+* Download the signed APK below.
+* Zero cloud dependencies, 100% offline, zero analytics.
+
+---
+
 ## 🚀 What's New in Imava v1.1.29
 
 ### ⚡ Butter-Smooth 120Hz Swiping & Video Player Controls

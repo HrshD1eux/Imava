@@ -29,4 +29,5 @@ secrets/
 *.aab
 app/File*
 .kotlin/
+release_body.md
 

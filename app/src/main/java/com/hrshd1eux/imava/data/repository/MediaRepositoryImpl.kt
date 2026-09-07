@@ -338,7 +338,7 @@ class MediaRepositoryImpl @Inject constructor(
                 items.map { item ->
                     val meta = metadataMap[item.id]
                     applyMetadata(item, meta)
-                }.filter { it.isFavorite && !it.isHidden && !it.isTrashed }
+                }.filter { it.isFavorite && !it.isHidden && !it.isTrashed }.distinctBy { it.id }
             }
             .flowOn(Dispatchers.IO)
     }
@@ -357,7 +357,7 @@ class MediaRepositoryImpl @Inject constructor(
                 val metadataList = getMetadataForMediaIdsChunked(allIds)
                 val metadataMap = metadataList.associateBy { it.mediaId }
                 
-                val combined = (storeTrashed + dbItems).map { item ->
+                val combined = (storeTrashed + dbItems).distinctBy { it.id }.map { item ->
                     applyMetadata(item, metadataMap[item.id])
                 }.filter { it.isTrashed }
                 combined.distinctBy { it.id }.sortedWith(
@@ -469,7 +469,7 @@ class MediaRepositoryImpl @Inject constructor(
                             bucketName = entity.bucketName
                         )
                     }
-                }
+                }.distinctBy { it.id }
             }
             .flowOn(Dispatchers.IO)
     }

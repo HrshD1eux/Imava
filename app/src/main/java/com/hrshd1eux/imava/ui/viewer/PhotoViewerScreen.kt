@@ -170,6 +170,14 @@ fun PhotoViewerScreen(
         pageCount = { mediaItems.size }
     )
 
+    val lastDeletedId by viewModel.lastDeletedMediaId.collectAsState()
+    LaunchedEffect(lastDeletedId) {
+        val delId = lastDeletedId
+        if (delId != null && delId !in deletedMediaIds) {
+            deletedMediaIds = deletedMediaIds + delId
+        }
+    }
+
     LaunchedEffect(viewModel.activeMediaItem?.id) {
         val target = viewModel.activeMediaItem ?: return@LaunchedEffect
         if (target.id in deletedMediaIds) {
@@ -849,8 +857,6 @@ fun PhotoViewerScreen(
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                                 val currentIndex = pagerState.currentPage
                                 val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
-                                deletedMediaIds = deletedMediaIds + item.id
-                                viewModel.activeMediaItem = nextItem
                                 viewModel.toggleTrashed(context, item, nextItem)
                             } else {
                                 showDeleteConfirmDialog = true

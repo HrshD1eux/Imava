@@ -198,8 +198,8 @@ fun TimelineScreen(
                         key = { index ->
                             val item = lazyPagingItems.peek(index)
                             when (item) {
-                                is TimelineItem.Header -> "header_${item.title}"
-                                is TimelineItem.Media -> item.item.id
+                                is TimelineItem.Header -> "header_${item.title}_$index"
+                                is TimelineItem.Media -> "media_${item.item.id}_$index"
                                 null -> "placeholder_$index"
                             }
                         },
