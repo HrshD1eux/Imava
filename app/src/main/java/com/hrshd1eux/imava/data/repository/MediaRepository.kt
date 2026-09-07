@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.Flow
 
 data class DatePositionHeader(
     val title: String,
-    val positionIndex: Int
+    val positionIndex: Int,
+    val label: String = ""
 )
 
 data class MoveCopyResult(

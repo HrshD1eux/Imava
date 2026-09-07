@@ -33,21 +33,21 @@ fun TimelineScrubber(
     if (headers.isEmpty()) return
 
     val displayHeaders = remember(headers) {
-        if (headers.size <= 6) {
+        if (headers.size <= 7) {
             headers
         } else {
-            val step = (headers.size - 1) / 5f
-            (0..5).map { i ->
+            val step = (headers.size - 1) / 6f
+            (0..6).map { i ->
                 val index = (i * step).toInt().coerceIn(0, headers.lastIndex)
                 headers[index]
-            }.distinctBy { it.title }
+            }.distinctBy { it.label.ifEmpty { it.title } }
         }
     }
 
     BoxWithConstraints(
         modifier = modifier
             .fillMaxHeight()
-            .width(40.dp)
+            .width(44.dp)
     ) {
         Column(
             modifier = Modifier
@@ -103,12 +103,15 @@ fun TimelineScrubber(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             displayHeaders.forEach { header ->
-                val title = header.title
-                val displayLabel = if (title == "Today") "TD" else if (title == "Yesterday") "YS" else title.take(3).uppercase()
+                val displayLabel = header.label.ifEmpty {
+                    val title = header.title
+                    if (title == "Today") "TD" else if (title == "Yesterday") "YS" else title.take(3).uppercase()
+                }
                 Text(
                     text = displayLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f)
                 )
             }
         }

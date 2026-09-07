@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
@@ -196,6 +197,20 @@ fun InfoBottomSheet(
                     icon = Icons.AutoMirrored.Filled.InsertDriveFile,
                     title = "File Name",
                     subtitle = info.fileName
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Album Name
+                val resolvedAlbumName = if (item.bucketName.isNotBlank() && item.bucketName != "Unknown") {
+                    item.bucketName
+                } else {
+                    java.io.File(item.path).parentFile?.name ?: "Unknown"
+                }
+                InfoRow(
+                    icon = Icons.Default.CollectionsBookmark,
+                    title = "Album",
+                    subtitle = resolvedAlbumName
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))

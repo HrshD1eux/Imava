@@ -163,8 +163,28 @@ fun VideoPlayerContainer(
         return
     }
 
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, exoPlayer) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_PAUSE) {
+                exoPlayer?.pause()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     DisposableEffect(uri, isSelectedPage) {
-        val player = ExoPlayer.Builder(context).build().apply {
+        val audioAttributes = androidx.media3.common.AudioAttributes.Builder()
+            .setUsage(androidx.media3.common.C.USAGE_MEDIA)
+            .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_MOVIE)
+            .build()
+
+        val player = ExoPlayer.Builder(context)
+            .setAudioAttributes(audioAttributes, true)
+            .build().apply {
             val path = uri.path
             if (path != null && (path.contains("/vault/") || path.contains("vault_") || uri.scheme == "vault")) {
                 val file = java.io.File(path)
@@ -197,6 +217,11 @@ fun VideoPlayerContainer(
         exoPlayer = player
 
         onDispose {
+            (context as? android.app.Activity)?.window?.let { window ->
+                val lp = window.attributes
+                lp.screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                window.attributes = lp
+            }
             player.removeListener(listener)
             player.release()
             exoPlayer = null
@@ -246,15 +271,6 @@ fun VideoPlayerContainer(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        exoPlayer?.let { player ->
-                            if (player.isPlaying) {
-                                player.pause()
-                                gestureOverlayText = "⏸️ Pause"
-                            } else {
-                                player.play()
-                                gestureOverlayText = "▶ Play"
-                            }
-                        }
                         onTap()
                     },
                     onDoubleTap = { offset ->
@@ -365,7 +381,12 @@ fun VideoPlayerContainer(
                     .size(72.dp)
                     .background(Color.Black.copy(alpha = 0.55f), CircleShape)
                     .clickable {
-                        exoPlayer?.play()
+                        exoPlayer?.let { player ->
+                            if (player.playbackState == Player.STATE_ENDED) {
+                                player.seekTo(0)
+                            }
+                            player.play()
+                        }
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -428,6 +449,9 @@ fun VideoPlayerContainer(
                                     if (player.isPlaying) {
                                         player.pause()
                                     } else {
+                                        if (player.playbackState == Player.STATE_ENDED) {
+                                            player.seekTo(0)
+                                        }
                                         player.play()
                                     }
                                 }

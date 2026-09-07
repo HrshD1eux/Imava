@@ -60,17 +60,21 @@ class MediaStoreDataSource @Inject constructor(
         }
     }
 
+    private fun getMediaTypeCondition(mediaType: MediaTypeFilter): String {
+        return when (mediaType) {
+            MediaTypeFilter.ALL -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR (${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'))"
+            MediaTypeFilter.IMAGES -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE} OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%')"
+            MediaTypeFilter.VIDEOS -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO} OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
+        }
+    }
+
     suspend fun getTotalMediaCount(
         bucketId: Long? = null,
         mediaType: MediaTypeFilter = MediaTypeFilter.ALL
     ): Int = withContext(Dispatchers.IO) {
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
-        val mediaTypeCondition = when (mediaType) {
-            MediaTypeFilter.ALL -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
-            MediaTypeFilter.IMAGES -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}"
-            MediaTypeFilter.VIDEOS -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}"
-        }
+        val mediaTypeCondition = getMediaTypeCondition(mediaType)
         val selection = if (bucketId != null) {
             "$mediaTypeCondition AND ${MediaStore.Files.FileColumns.BUCKET_ID} = ?"
         } else {
@@ -125,11 +129,7 @@ class MediaStoreDataSource @Inject constructor(
         }
         val projection = projectionList.toTypedArray()
 
-        val mediaTypeCondition = when (mediaType) {
-            MediaTypeFilter.ALL -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
-            MediaTypeFilter.IMAGES -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}"
-            MediaTypeFilter.VIDEOS -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}"
-        }
+        val mediaTypeCondition = getMediaTypeCondition(mediaType)
         val selection = if (bucketId != null) {
             "$mediaTypeCondition AND ${MediaStore.Files.FileColumns.BUCKET_ID} = ?"
         } else {
@@ -210,7 +210,7 @@ class MediaStoreDataSource @Inject constructor(
         val queryArgs = Bundle().apply {
             putString(
                 ContentResolver.QUERY_ARG_SQL_SELECTION,
-                "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+                getMediaTypeCondition(MediaTypeFilter.ALL)
             )
             putStringArray(
                 ContentResolver.QUERY_ARG_SORT_COLUMNS,
@@ -243,7 +243,7 @@ class MediaStoreDataSource @Inject constructor(
         val ids = mutableListOf<Long>()
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
-        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+        val selection = getMediaTypeCondition(MediaTypeFilter.ALL)
 
         val cursor = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -306,7 +306,7 @@ class MediaStoreDataSource @Inject constructor(
         // Chunk IDs to stay well within SQLite variable limits
         ids.chunked(500).forEach { chunk ->
             val placeholders = chunk.joinToString(",") { "?" }
-            val selection = "${MediaStore.Files.FileColumns._ID} IN ($placeholders) AND ${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+            val selection = "${MediaStore.Files.FileColumns._ID} IN ($placeholders) AND ${getMediaTypeCondition(MediaTypeFilter.ALL)}"
             val selectionArgs = chunk.map { it.toString() }.toTypedArray()
 
             val cursor = try {
@@ -351,7 +351,7 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
             MediaStore.Files.FileColumns.DATA
         )
-        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+        val selection = getMediaTypeCondition(MediaTypeFilter.ALL)
 
         val bucketCounts = mutableMapOf<Long, Int>()
         val bucketNames = mutableMapOf<Long, String>()
@@ -427,7 +427,8 @@ class MediaStoreDataSource @Inject constructor(
         val projection = projectionList.toTypedArray()
 
         val cleanQuery = "%${query.trim()}%"
-        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) AND (${MediaStore.Files.FileColumns.DATA} LIKE ? OR ${MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME} LIKE ? OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?)"
+        val mediaTypeCondition = getMediaTypeCondition(MediaTypeFilter.ALL)
+        val selection = "$mediaTypeCondition AND (${MediaStore.Files.FileColumns.DATA} LIKE ? OR ${MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME} LIKE ? OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?)"
         val selectionArgs = arrayOf(cleanQuery, cleanQuery, cleanQuery)
 
         val cursor = try {
@@ -479,14 +480,20 @@ class MediaStoreDataSource @Inject constructor(
                 java.io.File(externalStorage, "Android/media/org.telegram.messenger/Telegram"),
                 java.io.File(externalStorage, "Android/media/org.telegram.messenger.web/Telegram"),
                 java.io.File(externalStorage, "WhatsApp/Media"),
-                java.io.File(externalStorage, "Telegram")
+                java.io.File(externalStorage, "Telegram"),
+                java.io.File(externalStorage, "Pictures"),
+                java.io.File(externalStorage, "DCIM"),
+                java.io.File(externalStorage, "Download")
             )
 
             val unindexedFiles = mutableListOf<String>()
             secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
-                dir.walkTopDown().maxDepth(4).take(200).forEach { file ->
-                    if (file.isFile && validExtensions.contains(file.extension.lowercase(java.util.Locale.getDefault()))) {
-                        unindexedFiles.add(file.absolutePath)
+                dir.walkTopDown().maxDepth(6).forEach { file ->
+                    if (file.isFile) {
+                        val ext = file.extension.lowercase(java.util.Locale.getDefault())
+                        if (validExtensions.contains(ext)) {
+                            unindexedFiles.add(file.absolutePath)
+                        }
                     }
                 }
             }
@@ -515,10 +522,11 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_ADDED
         )
+        val mediaTypeCondition = getMediaTypeCondition(MediaTypeFilter.ALL)
         val selection = if (bucketId != null) {
-            "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) AND ${MediaStore.Files.FileColumns.BUCKET_ID} = ?"
+            "$mediaTypeCondition AND ${MediaStore.Files.FileColumns.BUCKET_ID} = ?"
         } else {
-            "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+            mediaTypeCondition
         }
         val selectionArgs = if (bucketId != null) arrayOf(bucketId.toString()) else null
 
@@ -550,22 +558,6 @@ class MediaStoreDataSource @Inject constructor(
         val zoneId = java.time.ZoneId.systemDefault()
         val today = java.time.LocalDate.now(zoneId)
         val yesterday = today.minusDays(1)
-        val sameYearFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE, d MMM", java.util.Locale.getDefault())
-        val otherYearFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE, d MMM yyyy", java.util.Locale.getDefault())
-
-        fun getHeaderTitle(dateMs: Long): String {
-            val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
-            val localDate = java.time.Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
-            return when (localDate) {
-                today -> "Today"
-                yesterday -> "Yesterday"
-                else -> if (localDate.year == today.year) {
-                    localDate.format(sameYearFormatter)
-                } else {
-                    localDate.format(otherYearFormatter)
-                }
-            }
-        }
 
         cursor?.use {
             val count = it.count
@@ -573,22 +565,74 @@ class MediaStoreDataSource @Inject constructor(
 
             val dateCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATE_TAKEN)
             val addedCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)
-            var currentHeader = ""
 
-            val sampleStep = (count / 50).coerceAtLeast(1)
+            fun readDateAt(rowPos: Int): Long {
+                if (!it.moveToPosition(rowPos)) return 0L
+                val rawDateTaken = if (dateCol != -1) it.getLong(dateCol) else 0L
+                val addedSecs = if (addedCol != -1) it.getLong(addedCol) else 0L
+                val addedMs = if (addedSecs > 0) addedSecs * 1000L else 0L
+                return if (rawDateTaken > 100000000000L) rawDateTaken else addedMs
+            }
+
+            val firstDate = readDateAt(0)
+            val lastDate = readDateAt(count - 1)
+            val validDates = listOf(firstDate, lastDate).filter { d -> d > 0 }
+            val minDate = validDates.minOrNull() ?: System.currentTimeMillis()
+            val maxDate = validDates.maxOrNull() ?: System.currentTimeMillis()
+
+            val localMin = java.time.Instant.ofEpochMilli(minDate).atZone(zoneId).toLocalDate()
+            val localMax = java.time.Instant.ofEpochMilli(maxDate).atZone(zoneId).toLocalDate()
+            val spanDays = kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(localMin, localMax))
+            val spanYears = kotlin.math.abs(localMax.year - localMin.year)
+
+            val mode = when {
+                spanYears >= 2 || spanDays > 730 -> "YEAR"
+                spanDays > 60 -> "MONTH"
+                else -> "DAY"
+            }
+
+            val yearFormatter = java.time.format.DateTimeFormatter.ofPattern("yyyy", java.util.Locale.getDefault())
+            val yearShortFormatter = java.time.format.DateTimeFormatter.ofPattern("''yy", java.util.Locale.getDefault())
+            val monthFullFormatter = java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale.getDefault())
+            val monthShortWithYearFormatter = java.time.format.DateTimeFormatter.ofPattern("MMM ''yy", java.util.Locale.getDefault())
+            val monthShortFormatter = java.time.format.DateTimeFormatter.ofPattern("MMM", java.util.Locale.getDefault())
+            val dayFullFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE, d MMM yyyy", java.util.Locale.getDefault())
+            val dayShortFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMM", java.util.Locale.getDefault())
+
+            fun getHeaderAndLabel(dateMs: Long): Pair<String, String> {
+                val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
+                val localDate = java.time.Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
+                return when (mode) {
+                    "YEAR" -> {
+                        val title = localDate.format(yearFormatter)
+                        val label = localDate.format(yearShortFormatter)
+                        Pair(title, label)
+                    }
+                    "MONTH" -> {
+                        val title = localDate.format(monthFullFormatter)
+                        val label = if (spanYears > 0) localDate.format(monthShortWithYearFormatter).uppercase()
+                                    else localDate.format(monthShortFormatter).uppercase()
+                        Pair(title, label)
+                    }
+                    else -> {
+                        when (localDate) {
+                            today -> Pair("Today", "TD")
+                            yesterday -> Pair("Yesterday", "YS")
+                            else -> Pair(localDate.format(dayFullFormatter), localDate.format(dayShortFormatter))
+                        }
+                    }
+                }
+            }
+
+            var currentLabel = ""
+            val sampleStep = (count / 80).coerceAtLeast(1)
             var pos = 0
             while (pos < count) {
-                if (it.moveToPosition(pos)) {
-                    val rawDateTaken = if (dateCol != -1) it.getLong(dateCol) else 0L
-                    val addedSecs = if (addedCol != -1) it.getLong(addedCol) else 0L
-                    val addedMs = if (addedSecs > 0) addedSecs * 1000L else 0L
-                    val dateTaken = if (rawDateTaken > 100000000000L) rawDateTaken else addedMs
-
-                    val headerTitle = getHeaderTitle(dateTaken)
-                    if (headerTitle != currentHeader) {
-                        currentHeader = headerTitle
-                        result.add(com.hrshd1eux.imava.data.repository.DatePositionHeader(headerTitle, pos))
-                    }
+                val dateTaken = readDateAt(pos)
+                val (headerTitle, headerLabel) = getHeaderAndLabel(dateTaken)
+                if (headerLabel != currentLabel) {
+                    currentLabel = headerLabel
+                    result.add(com.hrshd1eux.imava.data.repository.DatePositionHeader(headerTitle, pos, headerLabel))
                 }
                 pos += sampleStep
             }

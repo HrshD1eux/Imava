@@ -305,6 +305,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var showMoveToAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showTimeShiftDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showBatchRenameDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showSingleRenameDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var compareItems by remember { androidx.compose.runtime.mutableStateOf<Pair<com.hrshd1eux.imava.data.model.MediaItem, com.hrshd1eux.imava.data.model.MediaItem>?>(null) }
     var collageImageUris by remember { androidx.compose.runtime.mutableStateOf<List<Uri>?>(null) }
     var showStorageDoctor by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -761,7 +762,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     SelectionActionButton(
                                         icon = Icons.Default.Edit,
                                         label = "Rename",
-                                        onClick = { showBatchRenameDialog = true }
+                                        onClick = {
+                                            if (selectionState.selectedIds.size == 1) {
+                                                showSingleRenameDialog = true
+                                            } else {
+                                                showBatchRenameDialog = true
+                                            }
+                                        }
                                     )
 
                                     SelectionActionButton(
@@ -1077,6 +1084,27 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 showBatchRenameDialog = false
             }
         )
+    }
+
+    if (showSingleRenameDialog) {
+        val selectedIdsSet = selectionState.selectedIds.toSet()
+        val allVisible by viewModel.visibleMediaItems.collectAsState()
+        val singleItem = remember(selectedIdsSet, allVisible) {
+            allVisible.firstOrNull { selectedIdsSet.contains(it.id) }
+        }
+        if (singleItem != null) {
+            com.hrshd1eux.imava.ui.common.SingleRenameDialog(
+                item = singleItem,
+                onDismiss = { showSingleRenameDialog = false },
+                onConfirmRename = { newNameWithExt ->
+                    showSingleRenameDialog = false
+                    viewModel.renameMedia(context, singleItem, newNameWithExt)
+                    selectionState.clear()
+                }
+            )
+        } else {
+            showSingleRenameDialog = false
+        }
     }
 }
 

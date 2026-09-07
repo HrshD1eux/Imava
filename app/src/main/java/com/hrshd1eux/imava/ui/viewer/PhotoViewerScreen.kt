@@ -139,12 +139,26 @@ fun PhotoViewerScreen(
     val initialActiveItem = remember { activeItem }
     var isCurrentPageZoomed by remember { mutableStateOf(false) }
 
-    val mediaItems = remember(visibleMediaItems) {
-        if (visibleMediaItems.none { it.id == initialActiveItem.id }) {
-            listOf(initialActiveItem) + visibleMediaItems
-        } else {
-            visibleMediaItems
+    var deletedMediaIds by remember { mutableStateOf(emptySet<Long>()) }
+
+    LaunchedEffect(visibleMediaItems) {
+        if (deletedMediaIds.isNotEmpty()) {
+            val visibleIds = visibleMediaItems.map { it.id }.toSet()
+            deletedMediaIds = deletedMediaIds.intersect(visibleIds)
         }
+    }
+
+    val mediaItems = remember(visibleMediaItems, deletedMediaIds) {
+        val baseList = if (visibleMediaItems.isNotEmpty()) {
+            if (visibleMediaItems.none { it.id == initialActiveItem.id } && initialActiveItem.id !in deletedMediaIds) {
+                listOf(initialActiveItem) + visibleMediaItems
+            } else {
+                visibleMediaItems
+            }
+        } else {
+            if (initialActiveItem.id !in deletedMediaIds) listOf(initialActiveItem) else emptyList()
+        }
+        baseList.filter { it.id !in deletedMediaIds }
     }
 
     val initialIndex = remember {
@@ -155,6 +169,17 @@ fun PhotoViewerScreen(
         initialPage = initialIndex,
         pageCount = { mediaItems.size }
     )
+
+    LaunchedEffect(viewModel.activeMediaItem?.id) {
+        val target = viewModel.activeMediaItem ?: return@LaunchedEffect
+        if (target.id in deletedMediaIds) {
+            deletedMediaIds = deletedMediaIds - target.id
+        }
+        val targetIdx = mediaItems.indexOfFirst { it.id == target.id }
+        if (targetIdx != -1 && targetIdx != pagerState.currentPage) {
+            pagerState.scrollToPage(targetIdx)
+        }
+    }
 
     // Reset zoom state on page navigation
     LaunchedEffect(pagerState.currentPage) {
@@ -544,7 +569,11 @@ fun PhotoViewerScreen(
                                 onClick = {
                                     showMoreMenu = false
                                     if (item.isHidden) {
-                                        viewModel.toggleHidden(context, item)
+                                        val currentIndex = pagerState.currentPage
+                                        val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                                        deletedMediaIds = deletedMediaIds + item.id
+                                        viewModel.activeMediaItem = nextItem
+                                        viewModel.toggleHidden(context, item, nextItem)
                                     } else {
                                         showVaultConfirmDialog = true
                                     }
@@ -756,7 +785,11 @@ fun PhotoViewerScreen(
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            viewModel.toggleTrashed(context, item)
+                            val currentIndex = pagerState.currentPage
+                            val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            deletedMediaIds = deletedMediaIds + item.id
+                            viewModel.activeMediaItem = nextItem
+                            viewModel.toggleTrashed(context, item, nextItem)
                         }) {
                             Icon(
                                 imageVector = Icons.Default.RestoreFromTrash,
@@ -814,7 +847,11 @@ fun PhotoViewerScreen(
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                                viewModel.toggleTrashed(context, item)
+                                val currentIndex = pagerState.currentPage
+                                val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                                deletedMediaIds = deletedMediaIds + item.id
+                                viewModel.activeMediaItem = nextItem
+                                viewModel.toggleTrashed(context, item, nextItem)
                             } else {
                                 showDeleteConfirmDialog = true
                             }
@@ -893,7 +930,11 @@ fun PhotoViewerScreen(
                     Button(
                         onClick = {
                             showDeleteConfirmDialog = false
-                            viewModel.toggleTrashed(context, item)
+                            val currentIndex = pagerState.currentPage
+                            val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            deletedMediaIds = deletedMediaIds + item.id
+                            viewModel.activeMediaItem = nextItem
+                            viewModel.toggleTrashed(context, item, nextItem)
                         }
                     ) {
                         Text("Move to Trash")
@@ -917,7 +958,11 @@ fun PhotoViewerScreen(
                     Button(
                         onClick = {
                             showDeletePermanentlyConfirmDialog = false
-                            viewModel.deletePermanently(context, item)
+                            val currentIndex = pagerState.currentPage
+                            val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            deletedMediaIds = deletedMediaIds + item.id
+                            viewModel.activeMediaItem = nextItem
+                            viewModel.deletePermanently(context, item, nextItem)
                         }
                     ) {
                         Text("Delete")
@@ -1150,7 +1195,10 @@ fun PhotoViewerScreen(
                         showMoveToAlbumDialog = false
                         viewModel.moveOrCopyMedia(context, listOf(item), targetDir, isCopy) { count ->
                             if (!isCopy && count > 0) {
-                                viewModel.activeMediaItem = null
+                                val currentIndex = pagerState.currentPage
+                                val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                                deletedMediaIds = deletedMediaIds + item.id
+                                viewModel.activeMediaItem = nextItem
                             }
                         }
                     }
@@ -1188,7 +1236,11 @@ fun PhotoViewerScreen(
                     Button(
                         onClick = {
                             showVaultConfirmDialog = false
-                            viewModel.toggleHidden(context, item)
+                            val currentIndex = pagerState.currentPage
+                            val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            deletedMediaIds = deletedMediaIds + item.id
+                            viewModel.activeMediaItem = nextItem
+                            viewModel.toggleHidden(context, item, nextItem)
                         }
                     ) {
                         Text("Continue")

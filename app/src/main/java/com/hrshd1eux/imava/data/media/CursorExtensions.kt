@@ -30,7 +30,22 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
     val rawDateTaken = if (indices.dateCol != -1) getLong(indices.dateCol) else 0L
     val addedSecs = if (indices.addedCol != -1) getLong(indices.addedCol) else 0L
     val addedMs = if (addedSecs > 0) addedSecs * 1000L else 0L
-    val dateTaken = if (rawDateTaken > 100000000000L) rawDateTaken else if (addedMs > 0) addedMs else System.currentTimeMillis()
+    val fileLastModified = if (path.isNotBlank()) {
+        try {
+            val f = java.io.File(path)
+            if (f.exists()) f.lastModified() else 0L
+        } catch (_: Exception) { 0L }
+    } else 0L
+
+    val dateTaken = if (rawDateTaken > 100000000000L) {
+        rawDateTaken
+    } else if (fileLastModified > 100000000000L) {
+        fileLastModified
+    } else if (addedMs > 0) {
+        addedMs
+    } else {
+        System.currentTimeMillis()
+    }
 
     val size = if (indices.sizeCol != -1) getLong(indices.sizeCol) else 0L
     val width = if (indices.widthCol != -1) getInt(indices.widthCol) else 0

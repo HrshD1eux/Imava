@@ -18,6 +18,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
+import android.net.Uri
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import com.hrshd1eux.imava.data.media.MediaTypeFilter
 import dagger.hilt.android.qualifiers.ApplicationContext
 
@@ -357,7 +360,10 @@ class MediaRepositoryImpl @Inject constructor(
                 val combined = (storeTrashed + dbItems).map { item ->
                     applyMetadata(item, metadataMap[item.id])
                 }.filter { it.isTrashed }
-                combined.distinctBy { it.id }
+                combined.distinctBy { it.id }.sortedWith(
+                    compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }
+                        .thenByDescending { it.id }
+                )
             }
             .flowOn(Dispatchers.IO)
     }
@@ -936,6 +942,19 @@ class MediaRepositoryImpl @Inject constructor(
         deletedCount
     }
 
+    private suspend fun scanFileSuspend(context: Context, path: String): Uri? =
+        suspendCancellableCoroutine { continuation ->
+            android.media.MediaScannerConnection.scanFile(
+                context,
+                arrayOf(path),
+                null
+            ) { _, uri ->
+                if (continuation.isActive) {
+                    continuation.resume(uri)
+                }
+            }
+        }
+
     override suspend fun moveOrCopyMedia(
         context: Context,
         items: List<MediaItem>,
@@ -955,6 +974,13 @@ class MediaRepositoryImpl @Inject constructor(
                 val sourceFile = java.io.File(item.path)
                 if (!sourceFile.exists()) continue
 
+                // Avoid moving to the exact same folder
+                val sourceParent = sourceFile.parentFile?.canonicalPath
+                val targetCanonical = targetDirectory.canonicalPath
+                if (sourceParent != null && sourceParent == targetCanonical) {
+                    continue
+                }
+
                 val targetFile = java.io.File(targetDirectory, sourceFile.name)
                 var finalTarget = targetFile
                 var counter = 1
@@ -966,15 +992,27 @@ class MediaRepositoryImpl @Inject constructor(
                     counter++
                 }
 
-                val originalDate = if (item.dateTaken > 0) item.dateTaken else sourceFile.lastModified()
+                val originalDate = if (item.dateTaken > 0) item.dateTaken else if (sourceFile.lastModified() > 0) sourceFile.lastModified() else System.currentTimeMillis()
 
-                sourceFile.inputStream().use { input ->
-                    finalTarget.outputStream().use { output ->
-                        input.copyTo(output)
+                var isMoveRenamed = false
+                if (!isCopy) {
+                    // Try atomic OS filesystem move first (0ms latency, preserves inode & dates)
+                    try {
+                        isMoveRenamed = sourceFile.renameTo(finalTarget)
+                    } catch (_: Exception) {
+                        isMoveRenamed = false
                     }
                 }
 
-                if (finalTarget.exists() && finalTarget.length() == sourceFile.length()) {
+                if (!isMoveRenamed) {
+                    sourceFile.inputStream().use { input ->
+                        finalTarget.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                }
+
+                if (finalTarget.exists() && (isMoveRenamed || finalTarget.length() == sourceFile.length())) {
                     // 1. Explicitly ensure EXIF dates match originalDate
                     try {
                         val targetExif = androidx.exifinterface.media.ExifInterface(finalTarget.absolutePath)
@@ -1003,69 +1041,97 @@ class MediaRepositoryImpl @Inject constructor(
 
                     count++
 
-                    // 3. Scan new target into MediaStore, stamp original dates, and migrate Room metadata
+                    // 3. Scan new target into MediaStore SYNCHRONOUSLY
                     val oldMeta = if (!isCopy) metadataDao.getMetadataForMedia(item.id) else null
                     val customLoc = com.hrshd1eux.imava.core.util.ExifLocationUtil.getCustomLocation(context, item.id, item.path)
 
-                    android.media.MediaScannerConnection.scanFile(
-                        context,
-                        arrayOf(finalTarget.absolutePath),
-                        null
-                    ) { path, uri ->
-                        if (uri != null) {
-                            try {
-                                val contentValues = android.content.ContentValues().apply {
-                                    put(android.provider.MediaStore.MediaColumns.DATE_TAKEN, originalDate)
-                                    put(android.provider.MediaStore.MediaColumns.DATE_ADDED, originalDate / 1000L)
-                                    put(android.provider.MediaStore.MediaColumns.DATE_MODIFIED, originalDate / 1000L)
-                                }
-                                context.contentResolver.update(uri, contentValues, null, null)
-                            } catch (_: Exception) {}
-
-                            val newMediaId = try { android.content.ContentUris.parseId(uri) } catch (_: Exception) { 0L }
-                            if (newMediaId > 0L) {
-                                if (customLoc != null) {
-                                    kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
-                                        com.hrshd1eux.imava.core.util.ExifLocationUtil.setCustomLocation(
-                                            context, newMediaId, uri, path, customLoc
-                                        )
-                                    }
-                                }
-                                if (oldMeta != null) {
-                                    kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
-                                        try {
-                                            metadataDao.insertOrUpdate(
-                                                oldMeta.copy(
-                                                    mediaId = newMediaId,
-                                                    originalPath = path,
-                                                    dateTaken = originalDate
-                                                )
-                                            )
-                                            metadataDao.delete(oldMeta)
-                                        } catch (_: Exception) {}
-                                    }
-                                }
+                    val scannedUri = scanFileSuspend(context, finalTarget.absolutePath)
+                    if (scannedUri != null) {
+                        // Stamp MediaStore DATE_TAKEN isolated from read-only columns
+                        try {
+                            val contentValues = android.content.ContentValues().apply {
+                                put(android.provider.MediaStore.MediaColumns.DATE_TAKEN, originalDate)
                             }
+                            context.contentResolver.update(scannedUri, contentValues, null, null)
+                        } catch (_: Exception) {}
+
+                        val newMediaId = try { android.content.ContentUris.parseId(scannedUri) } catch (_: Exception) { 0L }
+                        if (newMediaId > 0L) {
+                            if (customLoc != null) {
+                                try {
+                                    com.hrshd1eux.imava.core.util.ExifLocationUtil.setCustomLocation(
+                                        context, newMediaId, scannedUri, finalTarget.absolutePath, customLoc
+                                    )
+                                } catch (_: Exception) {}
+                            }
+
+                            val targetBucketId = finalTarget.parentFile?.absolutePath?.lowercase()?.hashCode()?.toLong() ?: 0L
+                            val targetBucketName = finalTarget.parentFile?.name ?: ""
+
+                            // Always persist metadata with originalDate in Room to guarantee date never resets
+                            val newEntity = oldMeta?.copy(
+                                mediaId = newMediaId,
+                                originalPath = finalTarget.absolutePath,
+                                dateTaken = originalDate,
+                                bucketId = targetBucketId,
+                                bucketName = targetBucketName
+                            ) ?: MediaMetadataEntity(
+                                mediaId = newMediaId,
+                                isFavorite = item.isFavorite,
+                                isTrashed = false,
+                                isHidden = false,
+                                dateTaken = originalDate,
+                                originalPath = finalTarget.absolutePath,
+                                mimeType = item.mimeType,
+                                size = finalTarget.length(),
+                                width = item.width,
+                                height = item.height,
+                                durationMs = if (item is MediaItem.Video) item.durationMs else 0L,
+                                bucketId = targetBucketId,
+                                bucketName = targetBucketName
+                            )
+
+                            try {
+                                metadataDao.insertOrUpdate(newEntity)
+                                if (!isCopy && oldMeta != null) {
+                                    metadataDao.delete(oldMeta)
+                                }
+                            } catch (_: Exception) {}
                         }
                     }
 
+                    // 4. Source deletion and MediaStore purge for Move operation
                     if (!isCopy) {
                         val oldPath = sourceFile.absolutePath
-                        val directDeleted = sourceFile.delete()
+
+                        // Delete old MediaStore row directly via ContentResolver so it disappears from old album
                         var resolverDeleted = false
-                        if (!directDeleted) {
-                            try {
-                                val rows = context.contentResolver.delete(item.uri, null, null)
-                                if (rows > 0) resolverDeleted = true
-                            } catch (_: Exception) {}
+                        try {
+                            val rows = context.contentResolver.delete(item.uri, null, null)
+                            if (rows > 0) resolverDeleted = true
+                        } catch (_: Exception) {}
+
+                        val directDeleted = if (isMoveRenamed) {
+                            true
+                        } else if (sourceFile.exists()) {
+                            sourceFile.delete()
+                        } else {
+                            true
                         }
 
                         if (directDeleted || resolverDeleted) {
                             scannedPaths.add(oldPath)
-                            if (oldMeta == null) {
-                                deleteMetadataPermanently(item.id)
-                            }
+                            metadataDao.insertOrUpdate(
+                                MediaMetadataEntity(
+                                    mediaId = item.id,
+                                    isHidden = true,
+                                    bucketId = item.bucketId,
+                                    bucketName = item.bucketName,
+                                    originalPath = item.path
+                                )
+                            )
                         } else {
+                            // File deletion denied by Scoped Storage without user consent
                             failedDeleteItems.add(item)
                             createdTargetsForFailed.add(finalTarget)
                         }
@@ -1077,12 +1143,14 @@ class MediaRepositoryImpl @Inject constructor(
         }
 
         if (scannedPaths.isNotEmpty()) {
-            android.media.MediaScannerConnection.scanFile(
-                context,
-                scannedPaths.toTypedArray(),
-                null,
-                null
-            )
+            try {
+                android.media.MediaScannerConnection.scanFile(
+                    context,
+                    scannedPaths.toTypedArray(),
+                    null,
+                    null
+                )
+            } catch (_: Exception) {}
         }
 
         Result.success(MoveCopyResult(count, failedDeleteItems, createdTargetsForFailed))

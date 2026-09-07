@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hrshd1eux.imava.core.util.SharingUtils
+import com.hrshd1eux.imava.core.util.findActivity
 import com.hrshd1eux.imava.data.media.BucketInfo
 import com.hrshd1eux.imava.data.model.MediaItem
 import com.hrshd1eux.imava.data.repository.MediaRepository
@@ -83,7 +84,6 @@ class MainViewModel @Inject constructor(
     private val prefs = application.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
     val selectionState = SelectionState()
-    var pendingActionItem: MediaItem? = null
     
     var editingMediaItem by mutableStateOf<MediaItem.Photo?>(null)
 
@@ -443,10 +443,18 @@ class MainViewModel @Inject constructor(
                 !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
             }
         }
-        if (sortOrder == SortOrder.OLDEST_FIRST) {
-            list.sortedBy { it.dateTaken }
+        if (category == "Trash") {
+            if (sortOrder == SortOrder.OLDEST_FIRST) {
+                list.sortedWith(compareBy<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenBy { it.id })
+            } else {
+                list.sortedWith(compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenByDescending { it.id })
+            }
         } else {
-            list.sortedByDescending { it.dateTaken }
+            if (sortOrder == SortOrder.OLDEST_FIRST) {
+                list.sortedBy { it.dateTaken }
+            } else {
+                list.sortedByDescending { it.dateTaken }
+            }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -637,7 +645,11 @@ class MainViewModel @Inject constructor(
                 PagingData.from(sorted)
             }
             "Trash" -> trashed.map { list ->
-                val sorted = if (order == SortOrder.OLDEST_FIRST) list.sortedBy { it.dateTaken } else list.sortedByDescending { it.dateTaken }
+                val sorted = if (order == SortOrder.OLDEST_FIRST) {
+                    list.sortedWith(compareBy<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenBy { it.id })
+                } else {
+                    list.sortedWith(compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenByDescending { it.id })
+                }
                 PagingData.from(sorted)
             }
             "Hidden Vault" -> hidden.map { list ->
@@ -791,7 +803,7 @@ class MainViewModel @Inject constructor(
                     ?: e.cause as? android.app.RecoverableSecurityException
                 val isSec = e is SecurityException || e.cause is SecurityException
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && (isSec || recoverable != null)) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingRenameItem = item
                         pendingRenameName = newName
@@ -809,7 +821,7 @@ class MainViewModel @Inject constructor(
                         )
                     }
                 } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingRenameItem = item
                         pendingRenameName = newName
@@ -937,7 +949,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun deleteAlbum(context: Context, bucketId: Long, bucketName: String) {
+    fun deleteAlbum(
+        context: Context,
+        bucketId: Long,
+        bucketName: String,
+        bucketPath: String? = null,
+        deleteMedia: Boolean = false
+    ) {
         viewModelScope.launch {
             try {
                 val userPrefs = context.getSharedPreferences("user_albums", Context.MODE_PRIVATE)
@@ -947,29 +965,49 @@ class MainViewModel @Inject constructor(
                     userPrefs.edit().putStringSet("created_albums", updatedSet).commit()
                 }
 
-                val itemsInAlbum = repository.loadMediaPaged(limit = 2000, offset = 0, bucketId = bucketId)
-                if (itemsInAlbum.isNotEmpty()) {
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                        pendingBatchActionItems = itemsInAlbum
-                        val pendingIntent = android.provider.MediaStore.createTrashRequest(
-                            context.contentResolver,
-                            itemsInAlbum.map { it.uri },
-                            true
-                        )
-                        val activity = context as? android.app.Activity
-                        activity?.startIntentSenderForResult(pendingIntent.intentSender, 1005, null, 0, 0, 0)
-                    } else {
-                        itemsInAlbum.forEach { item ->
-                            repository.toggleTrashed(item)
+                val itemsInAlbum = repository.loadMediaPaged(limit = 5000, offset = 0, bucketId = bucketId)
+
+                val albumFolder = if (!bucketPath.isNullOrBlank()) {
+                    java.io.File(bucketPath)
+                } else {
+                    java.io.File(
+                        android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES),
+                        bucketName
+                    )
+                }
+
+                if (deleteMedia) {
+                    if (itemsInAlbum.isNotEmpty()) {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                            pendingBatchActionItems = itemsInAlbum
+                            val pendingIntent = android.provider.MediaStore.createTrashRequest(
+                                context.contentResolver,
+                                itemsInAlbum.map { it.uri },
+                                true
+                            )
+                            val activity = context.findActivity()
+                            activity?.startIntentSenderForResult(pendingIntent.intentSender, 1005, null, 0, 0, 0)
+                        } else {
+                            itemsInAlbum.forEach { item ->
+                                toggleTrashed(context, item)
+                            }
                         }
                     }
-                }
-                val albumFolder = java.io.File(
-                    android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES),
-                    bucketName
-                )
-                if (albumFolder.exists()) {
-                    albumFolder.deleteRecursively()
+                    if (albumFolder.exists()) {
+                        albumFolder.deleteRecursively()
+                    }
+                } else {
+                    if (itemsInAlbum.isNotEmpty()) {
+                        val targetDir = if (albumFolder.parentFile != null && albumFolder.parentFile?.exists() == true && albumFolder.parentFile?.canWrite() == true) {
+                            albumFolder.parentFile!!
+                        } else {
+                            android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES)
+                        }
+                        repository.moveOrCopyMedia(context, itemsInAlbum, targetDir, isCopy = false)
+                    }
+                    if (albumFolder.exists()) {
+                        albumFolder.delete()
+                    }
                 }
                 refreshAll()
             } catch (e: Exception) {
@@ -1075,6 +1113,7 @@ class MainViewModel @Inject constructor(
 
     private var pendingMoveSourceItems: List<MediaItem>? = null
     private var pendingMoveRollbackTargets: List<java.io.File>? = null
+    private var pendingMoveOnComplete: ((Int) -> Unit)? = null
 
     fun moveOrCopyMedia(
         context: Context,
@@ -1092,10 +1131,11 @@ class MainViewModel @Inject constructor(
             if (moveResult != null && moveResult.failedDeleteItems.isNotEmpty()) {
                 pendingMoveSourceItems = moveResult.failedDeleteItems
                 pendingMoveRollbackTargets = moveResult.createdTargetsForFailedDeletes
+                pendingMoveOnComplete = onComplete
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    val activity = context as? android.app.Activity
-                    if (activity != null) {
+                val activity = context.findActivity()
+                if (activity != null) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                         try {
                             val uris = moveResult.failedDeleteItems.map { it.uri }
                             val pendingIntent = android.provider.MediaStore.createDeleteRequest(
@@ -1115,11 +1155,41 @@ class MainViewModel @Inject constructor(
                             moveResult.createdTargetsForFailedDeletes.forEach { it.delete() }
                             pendingMoveSourceItems = null
                             pendingMoveRollbackTargets = null
+                            pendingMoveOnComplete = null
+                            android.widget.Toast.makeText(context, "Move failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
                         }
+                    } else if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.Q) {
+                        try {
+                            val firstUri = moveResult.failedDeleteItems.first().uri
+                            context.contentResolver.delete(firstUri, null, null)
+                        } catch (secEx: android.app.RecoverableSecurityException) {
+                            val intentSender = secEx.userAction.actionIntent.intentSender
+                            activity.startIntentSenderForResult(
+                                intentSender,
+                                1007,
+                                null,
+                                0,
+                                0,
+                                0
+                            )
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            moveResult.createdTargetsForFailedDeletes.forEach { it.delete() }
+                            pendingMoveSourceItems = null
+                            pendingMoveRollbackTargets = null
+                            pendingMoveOnComplete = null
+                        }
+                    } else {
+                        loadBuckets()
+                        refreshAll()
+                        onComplete(count)
                     }
-                } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                    loadBuckets()
-                    refreshAll()
+                } else {
+                    moveResult.createdTargetsForFailedDeletes.forEach { it.delete() }
+                    pendingMoveSourceItems = null
+                    pendingMoveRollbackTargets = null
+                    pendingMoveOnComplete = null
+                    android.widget.Toast.makeText(context, "Move failed: Activity context not found", android.widget.Toast.LENGTH_SHORT).show()
                 }
             } else {
                 loadBuckets()
@@ -1128,6 +1198,8 @@ class MainViewModel @Inject constructor(
                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                     val actionName = if (isCopy) "Copied" else "Moved"
                     android.widget.Toast.makeText(context, "$actionName $count items to ${targetDirectory.name}", android.widget.Toast.LENGTH_SHORT).show()
+                } else if (items.isNotEmpty()) {
+                    android.widget.Toast.makeText(context, "Items are already in this album", android.widget.Toast.LENGTH_SHORT).show()
                 }
                 onComplete(count)
             }
@@ -1211,7 +1283,28 @@ class MainViewModel @Inject constructor(
             return prefs.getBoolean("vault_disabled", false)
         }
 
-    fun toggleHidden(context: Context, item: MediaItem) {
+    var pendingActionItem: MediaItem? = null
+    var pendingNextItem: MediaItem? = null
+
+    fun advanceActiveMediaItem(deletedItem: MediaItem, targetNextItem: MediaItem? = null) {
+        if (activeMediaItem?.id == deletedItem.id) {
+            if (targetNextItem != null && targetNextItem.id != deletedItem.id) {
+                activeMediaItem = targetNextItem
+            } else {
+                val list = visibleMediaItems.value
+                val idx = list.indexOfFirst { it.id == deletedItem.id }
+                activeMediaItem = if (idx != -1) {
+                    if (idx + 1 < list.size) list[idx + 1]
+                    else if (idx - 1 >= 0) list[idx - 1]
+                    else null
+                } else {
+                    list.firstOrNull()
+                }
+            }
+        }
+    }
+
+    fun toggleHidden(context: Context, item: MediaItem, targetNextItem: MediaItem? = null) {
         viewModelScope.launch {
             try {
                 repository.toggleHidden(context, item)
@@ -1220,9 +1313,10 @@ class MainViewModel @Inject constructor(
                 val recoverable = e as? android.app.RecoverableSecurityException
                     ?: e.cause as? android.app.RecoverableSecurityException
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
+                        pendingNextItem = targetNextItem
                         val pendingIntent = android.provider.MediaStore.createDeleteRequest(
                             context.contentResolver,
                             listOf(item.uri)
@@ -1237,9 +1331,10 @@ class MainViewModel @Inject constructor(
                         )
                     }
                 } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
+                        pendingNextItem = targetNextItem
                         activity.startIntentSenderForResult(
                             recoverable.userAction.actionIntent.intentSender,
                             1004,
@@ -1251,19 +1346,18 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
-            if (activeMediaItem?.id == item.id) {
-                activeMediaItem = null
-            }
+            advanceActiveMediaItem(item, targetNextItem)
         }
     }
 
-    fun toggleTrashed(context: Context, item: MediaItem) {
+    fun toggleTrashed(context: Context, item: MediaItem, targetNextItem: MediaItem? = null) {
         viewModelScope.launch {
             try {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
+                        pendingNextItem = targetNextItem
                         val pendingIntent = android.provider.MediaStore.createTrashRequest(
                             context.contentResolver,
                             listOf(item.uri),
@@ -1274,19 +1368,68 @@ class MainViewModel @Inject constructor(
                         )
                     }
                 } else {
-                    repository.toggleTrashed(item)
-                    if (activeMediaItem?.id == item.id) {
-                        activeMediaItem = null
+                    // Android <= 10 isolation for Trash
+                    val trashDir = java.io.File(context.filesDir, "imava_trash").apply { mkdirs() }
+                    if (!item.isTrashed) {
+                        val srcFile = java.io.File(item.path)
+                        if (srcFile.exists()) {
+                            val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
+                            try {
+                                srcFile.copyTo(destFile, overwrite = true)
+                                srcFile.delete()
+                            } catch (_: Exception) {}
+                        }
+                        try {
+                            context.contentResolver.delete(item.uri, null, null)
+                        } catch (e: Exception) {
+                            val recoverable = e as? android.app.RecoverableSecurityException
+                                ?: e.cause as? android.app.RecoverableSecurityException
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
+                                val activity = context.findActivity()
+                                if (activity != null) {
+                                    pendingActionItem = item
+                                    pendingNextItem = targetNextItem
+                                    activity.startIntentSenderForResult(
+                                        recoverable.userAction.actionIntent.intentSender,
+                                        1002,
+                                        null,
+                                        0,
+                                        0,
+                                        0
+                                    )
+                                    return@launch
+                                }
+                            }
+                        }
+                        try {
+                            android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
+                        } catch (_: Exception) {}
+                    } else {
+                        val trashedFile = java.io.File(trashDir, "${item.id}_${java.io.File(item.path).name}")
+                        val origFile = java.io.File(item.path)
+                        if (trashedFile.exists()) {
+                            try {
+                                origFile.parentFile?.mkdirs()
+                                trashedFile.copyTo(origFile, overwrite = true)
+                                trashedFile.delete()
+                            } catch (_: Exception) {}
+                        }
+                        try {
+                            android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
+                        } catch (_: Exception) {}
                     }
+                    repository.toggleTrashed(item)
+                    advanceActiveMediaItem(item, targetNextItem)
                     refreshAll()
                 }
             } catch (e: Exception) {
                 val recoverable = e as? android.app.RecoverableSecurityException
                     ?: e.cause as? android.app.RecoverableSecurityException
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
+                        pendingNextItem = targetNextItem
                         activity.startIntentSenderForResult(
                             recoverable.userAction.actionIntent.intentSender,
                             1002,
@@ -1313,8 +1456,21 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val trashedItems = trashed.value
             if (trashedItems.isNotEmpty()) {
+                val trashDir = java.io.File(context.filesDir, "imava_trash")
                 trashedItems.forEach { item ->
                     repository.deleteMetadataPermanently(item.id)
+                    val trashedFile = java.io.File(trashDir, "${item.id}_${java.io.File(item.path).name}")
+                    if (trashedFile.exists()) {
+                        try { trashedFile.delete() } catch (_: Exception) {}
+                    }
+                    val srcFile = java.io.File(item.path)
+                    if (srcFile.exists()) {
+                        try { srcFile.delete() } catch (_: Exception) {}
+                    }
+                    try {
+                        context.contentResolver.delete(item.uri, null, null)
+                        android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
+                    } catch (_: Exception) {}
                 }
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     pendingBatchActionItems = trashedItems
@@ -1322,7 +1478,7 @@ class MainViewModel @Inject constructor(
                         context.contentResolver,
                         trashedItems.map { it.uri }
                     )
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     activity?.startIntentSenderForResult(pendingIntent.intentSender, 1003, null, 0, 0, 0)
                 }
                 refreshAll()
@@ -1386,13 +1542,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun deletePermanently(context: Context, item: MediaItem) {
+    fun deletePermanently(context: Context, item: MediaItem, targetNextItem: MediaItem? = null) {
         viewModelScope.launch {
             try {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
+                        pendingNextItem = targetNextItem
                         val pendingIntent = android.provider.MediaStore.createDeleteRequest(context.contentResolver, listOf(item.uri))
                         activity.startIntentSenderForResult(
                             pendingIntent.intentSender,
@@ -1404,20 +1561,52 @@ class MainViewModel @Inject constructor(
                         )
                     }
                 } else {
-                    context.contentResolver.delete(item.uri, null, null)
-                    repository.deleteMetadataPermanently(item.id)
-                    if (activeMediaItem?.id == item.id) {
-                        activeMediaItem = null
+                    val file = java.io.File(item.path)
+                    if (file.exists()) {
+                        try { file.delete() } catch (_: Exception) {}
                     }
+                    val trashDir = java.io.File(context.filesDir, "imava_trash")
+                    val trashedFile = java.io.File(trashDir, "${item.id}_${file.name}")
+                    if (trashedFile.exists()) {
+                        try { trashedFile.delete() } catch (_: Exception) {}
+                    }
+                    try {
+                        context.contentResolver.delete(item.uri, null, null)
+                    } catch (e: Exception) {
+                        val recoverable = e as? android.app.RecoverableSecurityException
+                            ?: e.cause as? android.app.RecoverableSecurityException
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
+                            val activity = context.findActivity()
+                            if (activity != null) {
+                                pendingActionItem = item
+                                pendingNextItem = targetNextItem
+                                activity.startIntentSenderForResult(
+                                    recoverable.userAction.actionIntent.intentSender,
+                                    1001,
+                                    null,
+                                    0,
+                                    0,
+                                    0
+                                )
+                                return@launch
+                            }
+                        }
+                    }
+                    try {
+                        android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
+                    } catch (_: Exception) {}
+                    repository.deleteMetadataPermanently(item.id)
+                    advanceActiveMediaItem(item, targetNextItem)
                     refreshAll()
                 }
             } catch (e: Exception) {
                 val recoverable = e as? android.app.RecoverableSecurityException
                     ?: e.cause as? android.app.RecoverableSecurityException
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
-                    val activity = context as? android.app.Activity
+                    val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
+                        pendingNextItem = targetNextItem
                         activity.startIntentSenderForResult(
                             recoverable.userAction.actionIntent.intentSender,
                             1001,
@@ -1602,7 +1791,7 @@ class MainViewModel @Inject constructor(
                             val recoverable = e as? android.app.RecoverableSecurityException
                                 ?: e.cause as? android.app.RecoverableSecurityException
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
-                                val activity = context as? android.app.Activity
+                                val activity = context.findActivity()
                                 if (activity != null) {
                                     pendingBatchActionItems = selectedItems
                                     activity.startIntentSenderForResult(
@@ -1647,10 +1836,9 @@ class MainViewModel @Inject constructor(
                     } else if (item != null) {
                         viewModelScope.launch {
                             repository.deleteMetadataPermanently(item.id)
-                            if (activeMediaItem?.id == item.id) {
-                                activeMediaItem = null
-                            }
+                            advanceActiveMediaItem(item, pendingNextItem)
                             pendingActionItem = null
+                            pendingNextItem = null
                             refreshAll()
                         }
                     }
@@ -1659,10 +1847,9 @@ class MainViewModel @Inject constructor(
                     if (item != null) {
                         viewModelScope.launch {
                             repository.toggleTrashed(item)
-                            if (activeMediaItem?.id == item.id) {
-                                activeMediaItem = null
-                            }
+                            advanceActiveMediaItem(item, pendingNextItem)
                             pendingActionItem = null
+                            pendingNextItem = null
                             refreshAll()
                         }
                     }
@@ -1731,6 +1918,7 @@ class MainViewModel @Inject constructor(
                 1007 -> {
                     val sourceItems = pendingMoveSourceItems
                     val rollbackTargets = pendingMoveRollbackTargets
+                    val onCompleteCallback = pendingMoveOnComplete
                     if (sourceItems != null) {
                         viewModelScope.launch {
                             val scanned = mutableListOf<String>()
@@ -1749,14 +1937,22 @@ class MainViewModel @Inject constructor(
                                     null
                                 )
                             }
+                            if (activeMediaItem != null && sourceItems.any { it.id == activeMediaItem?.id }) {
+                                val currentActive = activeMediaItem
+                                if (currentActive != null) {
+                                    advanceActiveMediaItem(currentActive)
+                                }
+                            }
                             pendingMoveSourceItems = null
                             pendingMoveRollbackTargets = null
+                            pendingMoveOnComplete = null
                             loadBuckets()
                             refreshAll()
                             if (context != null) {
                                 com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                                 android.widget.Toast.makeText(context, "Moved ${sourceItems.size} items successfully", android.widget.Toast.LENGTH_SHORT).show()
                             }
+                            onCompleteCallback?.invoke(sourceItems.size)
                         }
                     }
                 }
@@ -1797,11 +1993,19 @@ class MainViewModel @Inject constructor(
                     }
                     pendingMoveSourceItems = null
                     pendingMoveRollbackTargets = null
+                    pendingMoveOnComplete = null
                     loadBuckets()
                     refreshAll()
+                    if (context != null) {
+                        android.widget.Toast.makeText(context, "Move cancelled: Permission to remove original was denied", android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 }
             } else {
+                if (pendingActionItem != null && activeMediaItem?.id == pendingNextItem?.id) {
+                    activeMediaItem = pendingActionItem
+                }
                 pendingActionItem = null
+                pendingNextItem = null
                 pendingBatchActionItems = null
                 pendingRenameItem = null
                 pendingRenameName = null

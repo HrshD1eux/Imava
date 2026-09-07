@@ -193,8 +193,12 @@ fun MoveCopyAlbumDialog(
             Button(
                 onClick = {
                     val bucket = selectedBucket ?: return@Button
-                    val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                    val targetDir = File(picturesDir, bucket.name)
+                    val targetDir = if (!bucket.path.isNullOrBlank() && File(bucket.path).exists()) {
+                        File(bucket.path)
+                    } else {
+                        val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                        File(picturesDir, bucket.name)
+                    }
                     onConfirm(targetDir, currentIsCopy)
                 },
                 enabled = selectedBucket != null

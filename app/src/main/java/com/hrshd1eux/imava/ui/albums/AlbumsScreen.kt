@@ -750,7 +750,21 @@ fun AlbumsScreen(
                                     Text("Share Album 📤")
                                 }
                             }
+                        }
 
+                        val isRootSystemAlbum = bucket.name.equals("Camera", ignoreCase = true) ||
+                                bucket.name.equals("DCIM", ignoreCase = true) ||
+                                bucket.name.equals("Pictures", ignoreCase = true) ||
+                                bucket.name.equals("Download", ignoreCase = true) ||
+                                bucket.name.equals("Downloads", ignoreCase = true) ||
+                                bucket.name.equals("Movies", ignoreCase = true) ||
+                                bucket.name.equals("Screenshots", ignoreCase = true) ||
+                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES).absolutePath, ignoreCase = true) ||
+                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DCIM).absolutePath, ignoreCase = true) ||
+                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).absolutePath, ignoreCase = true) ||
+                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_MOVIES).absolutePath, ignoreCase = true)
+
+                        if (!isRootSystemAlbum) {
                             TextButton(
                                 onClick = {
                                     showDeleteAlbumConfirm = true
@@ -760,7 +774,7 @@ fun AlbumsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                     Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                                     Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Delete Custom Album 🗑️", color = MaterialTheme.colorScheme.error)
+                                    Text("Delete Album 🗑️", color = MaterialTheme.colorScheme.error)
                                 }
                             }
                         }
@@ -799,19 +813,52 @@ fun AlbumsScreen(
                     onDismissRequest = { showDeleteAlbumConfirm = false },
                     icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
                     title = { Text("Delete Album '${bucket.name}'?") },
-                    text = { Text("All photos and videos inside '${bucket.name}' will be moved to Trash.") },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                showDeleteAlbumConfirm = false
-                                viewModel.deleteAlbum(context, bucket.id, bucket.name)
-                                activeOptionsBucket = null
-                            },
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                        ) {
-                            Text("Delete Folder")
+                    text = {
+                        Column {
+                            Text("Choose how you want to delete this album:")
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = {
+                                    showDeleteAlbumConfirm = false
+                                    viewModel.deleteAlbum(context, bucket.id, bucket.name, bucket.path, deleteMedia = false)
+                                    activeOptionsBucket = null
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                                    Text("Delete Album Only", style = MaterialTheme.typography.titleSmall)
+                                    Text(
+                                        "Keep photos & videos safe (moved to Pictures)",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Button(
+                                onClick = {
+                                    showDeleteAlbumConfirm = false
+                                    viewModel.deleteAlbum(context, bucket.id, bucket.name, bucket.path, deleteMedia = true)
+                                    activeOptionsBucket = null
+                                },
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                                    Text("Delete Album & Media", style = MaterialTheme.typography.titleSmall)
+                                    Text(
+                                        "Move all photos & videos to Trash",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onError.copy(alpha = 0.9f)
+                                    )
+                                }
+                            }
                         }
                     },
+                    confirmButton = {},
                     dismissButton = {
                         TextButton(onClick = { showDeleteAlbumConfirm = false }) { Text("Cancel") }
                     }
