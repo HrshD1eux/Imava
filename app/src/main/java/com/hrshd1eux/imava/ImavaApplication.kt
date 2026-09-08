@@ -1,11 +1,9 @@
 package com.hrshd1eux.imava
 
 import android.app.Application
-import android.os.Build
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
 import coil.decode.VideoFrameDecoder
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
@@ -56,9 +54,6 @@ class ImavaApplication : Application(), ImageLoaderFactory {
         return ImageLoader.Builder(this)
             .components {
                 add(com.hrshd1eux.imava.core.util.VaultFetcher.Factory())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    add(ImageDecoderDecoder.Factory())
-                }
                 add(VideoFrameDecoder.Factory())
                 add(GifDecoder.Factory())
             }

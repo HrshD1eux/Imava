@@ -632,7 +632,7 @@ class MediaStoreDataSource @Inject constructor(
 
             secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
                 try {
-                    dir.walkTopDown().maxDepth(5).forEach { file ->
+                    dir.walkTopDown().maxDepth(2).forEach { file ->
                         if (file.isFile && file.length() > 0L) {
                             val ext = file.extension.lowercase(java.util.Locale.ROOT)
                             if (validMediaExtensions.contains(ext)) {

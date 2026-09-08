@@ -623,8 +623,10 @@ class MainViewModel @Inject constructor(
         val today = LocalDate.now(zoneId)
         val yesterday = today.minusDays(1)
 
-        val firstDate = items.first().dateTaken
-        val lastDate = items.last().dateTaken
+        val firstItem = items.first()
+        val lastItem = items.last()
+        val firstDate = if (firstItem.trashTime > 0L) firstItem.trashTime else firstItem.dateTaken
+        val lastDate = if (lastItem.trashTime > 0L) lastItem.trashTime else lastItem.dateTaken
         val minDate = minOf(firstDate, lastDate)
         val maxDate = maxOf(firstDate, lastDate)
 
@@ -678,7 +680,8 @@ class MainViewModel @Inject constructor(
         val sampleStep = (count / 80).coerceAtLeast(1)
         var pos = 0
         while (pos < count) {
-            val itemDate = items[pos].dateTaken
+            val item = items[pos]
+            val itemDate = if (item.trashTime > 0L) item.trashTime else item.dateTaken
             val (headerTitle, headerLabel) = getHeaderAndLabel(itemDate)
             if (headerLabel != currentLabel) {
                 currentLabel = headerLabel
@@ -740,13 +743,17 @@ class MainViewModel @Inject constructor(
         }
         itemsFlow.map { pagingData ->
             val mapped: PagingData<TimelineItem> = pagingData.map { TimelineItem.Media(it) }
-            if (mode == TimelineSortMode.DATE_GROUPED && category != "Trash") {
+            if (mode == TimelineSortMode.DATE_GROUPED) {
                 mapped.insertSeparators { before: TimelineItem?, after: TimelineItem? ->
                     val zoneId = ZoneId.systemDefault()
                     val today = LocalDate.now(zoneId)
                     val yesterday = today.minusDays(1)
                     val sameYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())
                     val otherYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
+
+                    fun getItemTime(media: MediaItem): Long {
+                        return if (category == "Trash" && media.trashTime > 0L) media.trashTime else media.dateTaken
+                    }
 
                     fun getHeaderTitle(dateMs: Long): String {
                         val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
@@ -763,10 +770,10 @@ class MainViewModel @Inject constructor(
                     }
 
                     if (before == null && after is TimelineItem.Media) {
-                        TimelineItem.Header(getHeaderTitle(after.item.dateTaken))
+                        TimelineItem.Header(getHeaderTitle(getItemTime(after.item)))
                     } else if (before is TimelineItem.Media && after is TimelineItem.Media) {
-                        val beforeTitle = getHeaderTitle(before.item.dateTaken)
-                        val afterTitle = getHeaderTitle(after.item.dateTaken)
+                        val beforeTitle = getHeaderTitle(getItemTime(before.item))
+                        val afterTitle = getHeaderTitle(getItemTime(after.item))
                         if (beforeTitle != afterTitle) {
                             TimelineItem.Header(afterTitle)
                         } else {

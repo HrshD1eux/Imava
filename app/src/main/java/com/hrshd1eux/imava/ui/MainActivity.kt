@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.icons.filled.MoreVert
@@ -303,6 +304,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     val scope = rememberCoroutineScope()
     var showSelectionShareDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var stripMetadataOnShare by remember { androidx.compose.runtime.mutableStateOf(true) }
+    var showSelectionDeleteConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showSelectionDeletePermanentlyConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showMoveToAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showTimeShiftDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showBatchRenameDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -634,7 +637,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     icon = Icons.Default.DeleteForever,
                                     label = "Delete Forever",
                                     tint = MaterialTheme.colorScheme.error,
-                                    onClick = { viewModel.deleteSelectedMediaPermanently(context) }
+                                    onClick = { showSelectionDeletePermanentlyConfirmDialog = true }
                                 )
                             } else {
                                 SelectionActionButton(
@@ -789,7 +792,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     icon = Icons.Default.Delete,
                                     label = "Delete",
                                     tint = MaterialTheme.colorScheme.error,
-                                    onClick = { viewModel.deleteSelectedMedia(context) }
+                                    onClick = { showSelectionDeleteConfirmDialog = true }
                                 )
                             }
                         }
@@ -843,7 +846,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             ) {
                 HorizontalPager(
                     state = mainPagerState,
-                    beyondBoundsPageCount = 2,
+                    beyondBoundsPageCount = 0,
                     modifier = Modifier.fillMaxSize(),
                     userScrollEnabled = viewModel.activeMediaItem == null
                 ) { page ->
@@ -1047,6 +1050,57 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             }
         )
     }
+
+    if (showSelectionDeleteConfirmDialog) {
+        val count = selectionState.selectedIds.size
+        AlertDialog(
+            onDismissRequest = { showSelectionDeleteConfirmDialog = false },
+            title = { Text("Move to Trash?") },
+            text = { Text("Are you sure you want to move $count ${if (count == 1) "item" else "items"} to Trash?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showSelectionDeleteConfirmDialog = false
+                        viewModel.deleteSelectedMedia(context)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Move to Trash")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSelectionDeleteConfirmDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showSelectionDeletePermanentlyConfirmDialog) {
+        val count = selectionState.selectedIds.size
+        AlertDialog(
+            onDismissRequest = { showSelectionDeletePermanentlyConfirmDialog = false },
+            title = { Text("Delete Permanently?") },
+            text = { Text("Are you sure you want to permanently delete $count ${if (count == 1) "item" else "items"}? This action is irreversible and cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showSelectionDeletePermanentlyConfirmDialog = false
+                        viewModel.deleteSelectedMediaPermanently(context)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete Permanently")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSelectionDeletePermanentlyConfirmDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     if (showMoveToAlbumDialog) {
         val bucketList by viewModel.buckets.collectAsState()
         com.hrshd1eux.imava.ui.common.MoveCopyAlbumDialog(

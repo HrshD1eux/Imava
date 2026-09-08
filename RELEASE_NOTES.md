@@ -1,3 +1,12 @@
+## 🚀 What's New in Imava v1.1.34
+
+* **Delete Confirmations**: Added explicit confirmation dialogs with item counts before moving selected items to Trash or deleting permanently from Trash.
+* **Trash Dated / Flat View Toggle**: Fixed the date grouping toggle in Trash, accurately grouping deleted items by deletion date.
+* **Viewer Swipe Glitch Fix**: Fixed photo viewer swiping stutter by guarding page transitions, resetting zoom on page settlement, and trimming memory bounds.
+* **Performance Boost & Bloat Removal**: Switched from heavy ImageDecoder to native BitmapFactory, stabilized grid keys to prevent recompositions, and stopped idle tab retention in RAM.
+
+---
+
 ## 🚀 What's New in Imava v1.1.32
 
 ### 🔍 WhatsApp Sent, Telegram & Hidden Media Deep Discovery

@@ -185,7 +185,7 @@ fun PhotoViewerScreen(
             deletedMediaIds = deletedMediaIds - target.id
         }
         val targetIdx = mediaItems.indexOfFirst { it.id == target.id }
-        if (targetIdx != -1 && targetIdx != pagerState.currentPage) {
+        if (targetIdx != -1 && targetIdx != pagerState.currentPage && targetIdx != pagerState.settledPage && !pagerState.isScrollInProgress) {
             pagerState.scrollToPage(targetIdx)
         }
     }
@@ -311,7 +311,7 @@ fun PhotoViewerScreen(
             state = pagerState,
             key = { page -> mediaItems.getOrNull(page)?.id ?: page },
             userScrollEnabled = !isCurrentPageZoomed && !isSlideshowActive,
-            beyondBoundsPageCount = 2,
+            beyondBoundsPageCount = 1,
             pageSpacing = 16.dp,
             modifier = Modifier
                 .fillMaxSize()
@@ -383,8 +383,8 @@ fun PhotoViewerScreen(
 
                         val pageZoomState = rememberZoomState()
 
-                        LaunchedEffect(pagerState.currentPage) {
-                            if (page != pagerState.currentPage) {
+                        LaunchedEffect(pagerState.settledPage) {
+                            if (page != pagerState.settledPage) {
                                 pageZoomState.reset()
                             }
                         }
