@@ -841,6 +841,9 @@ class MainViewModel @Inject constructor(
                 repository.purgeExpiredTrashMedia()
                 kotlinx.coroutines.delay(2000) // defer scan for cold boot performance
                 repository.scanSecondaryMediaDirectories()
+                // Give MediaScanner time to index any newly discovered files (Android 10)
+                kotlinx.coroutines.delay(1500)
+                refreshAll()
                 val activeIds = repository.getActiveMediaIds()
                 if (activeIds.isNotEmpty()) {
                     repository.deleteOrphanedMetadata(activeIds)

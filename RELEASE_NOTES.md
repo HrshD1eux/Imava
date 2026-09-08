@@ -1,3 +1,15 @@
+## 🚀 What's New in Imava v1.1.32
+
+### 🔍 WhatsApp Sent, Telegram & Hidden Media Deep Discovery
+* **Generic Files Content URI (`content://media/external/file/{id}`)**: Fixed a critical MediaStore URI mismatch where media in `.nomedia` directories (indexed with `media_type = 0`) was assigned invalid `images/media/` or `videos/media/` URIs that failed to load in Coil. `MediaStore.Files` URI resolves any media type seamlessly.
+* **Hybrid Discovery Engine**: WhatsApp Sent, Private, Animated GIFs, WhatsApp Business, Telegram, and `.nomedia` media are now retrieved both via direct MediaStore database path queries (`DATA LIKE`) and direct filesystem scanning fallback with `Uri.fromFile()`.
+* **Accurate Media Classification**: Videos indexed with `media_type = 0` are now accurately identified as `MediaItem.Video` using file extension inspection and MIME type resolution instead of erroneously falling back to `image/jpeg`.
+* **Automatic Album Grouping**: Folders containing `.nomedia` files (e.g. `Sent`, `Private`, `Telegram Images`) are automatically registered as distinct albums in the Albums tab, dynamically deriving names and bucket IDs from directory structures.
+* **All Files Access Setting**: Added a dedicated "Deep Media Scan & Storage" card in Settings with manual "Deep Scan Now" trigger and "Grant Access" shortcut on Android 11+ (`MANAGE_EXTERNAL_STORAGE`).
+* **Auto-Refreshed UI**: Deep scan automatically notifies the gallery and refreshes all views upon background completion.
+
+---
+
 ## 🚀 What's New in Imava v1.1.30
 
 ### 📅 Strictly Monotonic Adaptive Timeline Scrubber

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Permissions for media access across Android versions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
@@ -8,6 +9,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <!-- Required for Android 14+ selected photos visual access selection -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <!-- Required on Android 11+ to scan WhatsApp Sent, Telegram & other hidden .nomedia folders -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
     
     <!-- Required to check for app updates & download releases from GitHub -->
     <uses-permission android:name="android.permission.INTERNET" />

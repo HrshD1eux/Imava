@@ -379,24 +379,46 @@ class MediaStoreDataSource @Inject constructor(
             val nameCol = it.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME)
             val pathCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
 
-            if (idCol != -1 && nameCol != -1) {
+            if (idCol != -1) {
                 while (it.moveToNext()) {
-                    val bucketId = it.getLong(idCol)
-                    val bucketName = it.getString(nameCol) ?: "Unknown"
+                    var bucketId = it.getLong(idCol)
+                    var bucketName = if (nameCol != -1) it.getString(nameCol) else null
+                    val filePath = if (pathCol != -1) it.getString(pathCol) else null
+                    val parentFile = if (!filePath.isNullOrBlank()) java.io.File(filePath).parentFile else null
+                    if (bucketId == 0L && parentFile != null) {
+                        bucketId = parentFile.absolutePath.lowercase(java.util.Locale.ROOT).hashCode().toLong()
+                    }
+                    if (bucketName.isNullOrBlank() || bucketName == "Unknown") {
+                        bucketName = parentFile?.name ?: "Unknown"
+                    }
                     bucketCounts[bucketId] = (bucketCounts[bucketId] ?: 0) + 1
                     bucketNames[bucketId] = bucketName
-                    if (pathCol != -1 && !bucketPaths.containsKey(bucketId)) {
-                        val filePath = it.getString(pathCol)
-                        if (!filePath.isNullOrBlank()) {
-                            val parent = java.io.File(filePath).parent
-                            if (parent != null) {
-                                bucketPaths[bucketId] = parent
-                            }
-                        }
+                    if (parentFile != null && !bucketPaths.containsKey(bucketId)) {
+                        bucketPaths[bucketId] = parentFile.absolutePath
                     }
                 }
             }
         }
+
+        // Also ensure known secondary directories (WhatsApp Sent, etc.) are included as buckets if they have files
+        try {
+            val thirdPartyMedia = fetchThirdPartyAppMedia()
+            thirdPartyMedia.groupBy { it.bucketId }.forEach { (bId, items) ->
+                val currentCount = bucketCounts[bId] ?: 0
+                if (items.size > currentCount) {
+                    bucketCounts[bId] = items.size
+                    if (!bucketNames.containsKey(bId) || bucketNames[bId] == "Unknown") {
+                        bucketNames[bId] = items.firstOrNull()?.bucketName ?: "Unknown"
+                    }
+                    if (!bucketPaths.containsKey(bId)) {
+                        val p = items.firstOrNull()?.path
+                        if (!p.isNullOrBlank()) {
+                            bucketPaths[bId] = java.io.File(p).parent ?: ""
+                        }
+                    }
+                }
+            }
+        } catch (_: Exception) {}
 
         val buckets = mutableListOf<BucketInfo>()
         bucketCounts.forEach { (id, count) ->
@@ -468,54 +490,208 @@ class MediaStoreDataSource @Inject constructor(
         mediaList
     }
 
+    private val validMediaExtensions = setOf(
+        "jpg", "jpeg", "png", "webp", "gif", "heic", "heif", "bmp", "dng",
+        "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v"
+    )
+
+    private fun getSecondaryTargetDirectories(): List<java.io.File> {
+        val externalStorage = android.os.Environment.getExternalStorageDirectory() ?: return emptyList()
+        return listOf(
+            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Sent"),
+            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Sent"),
+            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Private"),
+            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Private"),
+            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Animated Gifs"),
+            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Animated Gifs/Sent"),
+            java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Images/Sent"),
+            java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Video/Sent"),
+            java.io.File(externalStorage, "Android/media/org.telegram.messenger/Telegram"),
+            java.io.File(externalStorage, "Android/media/org.telegram.messenger.web/Telegram"),
+            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Images/Sent"),
+            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Video/Sent"),
+            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Images/Private"),
+            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Video/Private"),
+            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Animated Gifs"),
+            java.io.File(externalStorage, "WhatsApp Business/Media/WhatsApp Business Images/Sent"),
+            java.io.File(externalStorage, "WhatsApp Business/Media/WhatsApp Business Video/Sent"),
+            java.io.File(externalStorage, "Telegram")
+        )
+    }
+
+    /**
+     * Query MediaStore directly for media from third-party apps (WhatsApp, Telegram, etc.)
+     * that may have media_type=0 due to .nomedia directories.
+     * Also performs direct filesystem fallback discovery for files not yet indexed by MediaStore.
+     */
+    suspend fun fetchThirdPartyAppMedia(): List<MediaItem> = withContext(Dispatchers.IO) {
+        val mediaList = mutableListOf<MediaItem>()
+        val collection = MediaStore.Files.getContentUri("external")
+
+        val projectionList = mutableListOf(
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.Files.FileColumns.DATA,
+            MediaStore.Files.FileColumns.MIME_TYPE,
+            MediaStore.Files.FileColumns.DATE_TAKEN,
+            MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.SIZE,
+            MediaStore.Files.FileColumns.WIDTH,
+            MediaStore.Files.FileColumns.HEIGHT,
+            MediaStore.Files.FileColumns.DURATION,
+            MediaStore.Files.FileColumns.BUCKET_ID,
+            MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
+            MediaStore.Files.FileColumns.MEDIA_TYPE
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            projectionList.add("is_trashed")
+        }
+        val projection = projectionList.toTypedArray()
+
+        val pathPatterns = listOf(
+            "%/WhatsApp/%Sent/%",
+            "%/WhatsApp/%Private/%",
+            "%/WhatsApp/%Animated Gifs/%",
+            "%/WhatsApp Business/%Sent/%",
+            "%/WhatsApp Business/%Private/%",
+            "%/Telegram/%",
+            "%.nomedia/%"
+        )
+
+        val pathConditions = pathPatterns.joinToString(" OR ") {
+            "${MediaStore.Files.FileColumns.DATA} LIKE ?"
+        }
+
+        val imageExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.gif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heic' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.bmp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.dng')"
+        val videoExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mkv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mov' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avi' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webm' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3gp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m4v')"
+
+        val selection = "($pathConditions) AND ($imageExtensions OR $videoExtensions OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
+        val selectionArgs = pathPatterns.toTypedArray()
+
+        val cursor = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val queryArgs = Bundle().apply {
+                    putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
+                    putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, selectionArgs)
+                    putStringArray(
+                        ContentResolver.QUERY_ARG_SORT_COLUMNS,
+                        arrayOf(MediaStore.Files.FileColumns.DATE_TAKEN, MediaStore.Files.FileColumns.DATE_ADDED)
+                    )
+                    putInt(
+                        ContentResolver.QUERY_ARG_SORT_DIRECTION,
+                        ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
+                    )
+                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_DEFAULT)
+                    putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
+                }
+                contentResolver.query(collection, projection, queryArgs, null)
+            } else {
+                val sortOrder = "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC, ${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+                contentResolver.query(collection, projection, selection, selectionArgs, sortOrder)
+            }
+        } catch (_: Exception) {
+            null
+        }
+
+        cursor?.use {
+            val indices = MediaCursorIndices(it)
+            while (it.moveToNext()) {
+                mediaList.add(it.extractMediaItem(indices))
+            }
+        }
+
+        // Direct filesystem scan fallback: if files exist in WhatsApp/Telegram directories
+        // but were NOT indexed in MediaStore (due to .nomedia), discover and include them directly.
+        try {
+            val existingPaths = mediaList.mapTo(HashSet()) { it.path }
+            val diskItems = mutableListOf<MediaItem>()
+
+            getSecondaryTargetDirectories().filter { it.exists() && it.isDirectory }.forEach { dir ->
+                try {
+                    dir.walkTopDown().maxDepth(4).forEach { file ->
+                        if (file.isFile && file.length() > 0L) {
+                            val ext = file.extension.lowercase(java.util.Locale.ROOT)
+                            if (validMediaExtensions.contains(ext) && file.absolutePath !in existingPaths) {
+                                existingPaths.add(file.absolutePath)
+                                val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+                                    ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")) "video/$ext" else "image/jpeg"
+                                val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")
+                                val parent = file.parentFile
+                                val bucketId = parent?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L
+                                val bucketName = parent?.name ?: "Sent"
+                                val id = kotlin.math.abs(file.absolutePath.hashCode().toLong()).coerceAtLeast(1L)
+                                val uri = android.net.Uri.fromFile(file)
+                                val dateTaken = file.lastModified()
+                                val size = file.length()
+
+                                val item = if (isVideo) {
+                                    MediaItem.Video(
+                                        id = id,
+                                        uri = uri,
+                                        path = file.absolutePath,
+                                        mimeType = mimeType,
+                                        dateTaken = dateTaken,
+                                        size = size,
+                                        width = 0,
+                                        height = 0,
+                                        durationMs = 0L,
+                                        bucketId = bucketId,
+                                        bucketName = bucketName
+                                    )
+                                } else {
+                                    MediaItem.Photo(
+                                        id = id,
+                                        uri = uri,
+                                        path = file.absolutePath,
+                                        mimeType = mimeType,
+                                        dateTaken = dateTaken,
+                                        size = size,
+                                        width = 0,
+                                        height = 0,
+                                        bucketId = bucketId,
+                                        bucketName = bucketName
+                                    )
+                                }
+                                diskItems.add(item)
+                            }
+                        }
+                    }
+                } catch (_: Exception) {}
+            }
+            mediaList.addAll(diskItems)
+        } catch (_: Exception) {}
+
+        mediaList
+    }
+
+    /**
+     * Filesystem scan that walks WhatsApp Sent, Private, and Telegram media folders,
+     * submitting unindexed files to MediaScannerConnection.
+     * Returns count of files scanned.
+     */
     suspend fun scanSecondaryMediaDirectories(): Int = withContext(Dispatchers.IO) {
         var scannedCount = 0
         try {
-            val externalStorage = android.os.Environment.getExternalStorageDirectory() ?: return@withContext 0
-            val validExtensions = setOf(
-                "jpg", "jpeg", "png", "webp", "gif", "heic", "heif", "bmp", "dng",
-                "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v"
-            )
-
-            val secondaryPaths = listOf(
-                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Sent"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Private"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Sent"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Private"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Animated Gifs/Sent"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Images/Sent"),
-                java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Video/Sent"),
-                java.io.File(externalStorage, "Android/media/org.telegram.messenger/Telegram"),
-                java.io.File(externalStorage, "Android/media/org.telegram.messenger.web/Telegram"),
-                java.io.File(externalStorage, "WhatsApp/Media"),
-                java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Images/Sent"),
-                java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Video/Sent"),
-                java.io.File(externalStorage, "Telegram"),
-                java.io.File(externalStorage, "Pictures"),
-                java.io.File(externalStorage, "DCIM"),
-                java.io.File(externalStorage, "Download"),
-                java.io.File(externalStorage, "Movies")
-            )
-
+            val secondaryPaths = getSecondaryTargetDirectories()
             val unindexedFiles = mutableListOf<String>()
+
             secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
-                dir.walkTopDown().maxDepth(6).forEach { file ->
-                    if (file.isFile) {
-                        val ext = file.extension.lowercase(java.util.Locale.getDefault())
-                        if (validExtensions.contains(ext)) {
-                            unindexedFiles.add(file.absolutePath)
+                try {
+                    dir.walkTopDown().maxDepth(5).forEach { file ->
+                        if (file.isFile && file.length() > 0L) {
+                            val ext = file.extension.lowercase(java.util.Locale.ROOT)
+                            if (validMediaExtensions.contains(ext)) {
+                                unindexedFiles.add(file.absolutePath)
+                            }
                         }
                     }
-                }
+                } catch (_: Exception) {}
             }
 
             if (unindexedFiles.isNotEmpty()) {
                 scannedCount = unindexedFiles.size
                 unindexedFiles.chunked(500).forEach { chunk ->
                     val mimeTypes = chunk.map { path ->
-                        val ext = path.substringAfterLast('.', "").lowercase(java.util.Locale.getDefault())
+                        val ext = path.substringAfterLast('.', "").lowercase(java.util.Locale.ROOT)
                         android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
                             ?: when (ext) {
                                 "jpg", "jpeg" -> "image/jpeg"

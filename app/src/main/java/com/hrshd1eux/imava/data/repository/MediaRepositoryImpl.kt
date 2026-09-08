@@ -84,6 +84,20 @@ class MediaRepositoryImpl @Inject constructor(
                 break
             }
         }
+
+        // Merge third-party app media (WhatsApp Sent, Telegram, etc.) that may have
+        // media_type=0 due to .nomedia directories. Deduplicate by id to avoid dupes.
+        if (bucketId == null && offset == 0) {
+            try {
+                val thirdPartyMedia = fetchThirdPartyAppMedia()
+                if (thirdPartyMedia.isNotEmpty()) {
+                    val existingIds = resultList.mapTo(HashSet()) { it.id }
+                    val newItems = thirdPartyMedia.filter { it.id !in existingIds }
+                    resultList.addAll(newItems)
+                }
+            } catch (_: Exception) { }
+        }
+
         if (isAscending) {
             resultList.sortedBy { it.dateTaken }
         } else {
@@ -649,6 +663,15 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun scanSecondaryMediaDirectories(): Int = mediaStoreDataSource.scanSecondaryMediaDirectories()
+
+    override suspend fun fetchThirdPartyAppMedia(): List<MediaItem> = withContext(Dispatchers.IO) {
+        val rawMedia = mediaStoreDataSource.fetchThirdPartyAppMedia()
+        if (rawMedia.isEmpty()) return@withContext emptyList()
+        val ids = rawMedia.map { it.id }
+        val metadataMap = getMetadataForMediaIdsChunked(ids).associateBy { it.mediaId }
+        rawMedia.map { applyMetadata(it, metadataMap[it.id]) }
+            .filter { !it.isHidden && !it.isTrashed }
+    }
 
     override suspend fun getDatePositionIndex(bucketId: Long?, sortOrder: com.hrshd1eux.imava.ui.SortOrder, mediaType: MediaTypeFilter): List<DatePositionHeader> = mediaStoreDataSource.getDatePositionIndex(bucketId, isAscending = (sortOrder == com.hrshd1eux.imava.ui.SortOrder.OLDEST_FIRST))
 

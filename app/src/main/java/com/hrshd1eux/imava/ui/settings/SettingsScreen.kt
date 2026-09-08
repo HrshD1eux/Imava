@@ -416,6 +416,116 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
+        item {
+            SettingsCategoryHeader(title = "Deep Media Scan & Storage", icon = Icons.Default.SdCard)
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    var isScanning by remember { mutableStateOf(false) }
+                    val coroutineScope = rememberCoroutineScope()
+
+                    Text(
+                        text = "Deep Media Discovery",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Scan WhatsApp Sent, Private, Telegram, GIFs, and other hidden .nomedia media across your device.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R &&
+                        !android.os.Environment.isExternalStorageManager()
+                    ) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "All Files Access Recommended",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Android 11+ restricts access to app media folders like WhatsApp Sent. Grant All Files Access to discover all hidden media.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(
+                                    onClick = {
+                                        try {
+                                            val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                                                data = android.net.Uri.parse("package:${context.packageName}")
+                                            }
+                                            context.startActivity(intent)
+                                        } catch (_: Exception) {
+                                            try {
+                                                val intent = Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                                                context.startActivity(intent)
+                                            } catch (e: Exception) {
+                                                android.widget.Toast.makeText(context, "Could not open storage settings: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.align(Alignment.End)
+                                ) {
+                                    Text("Grant Access")
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
+                    Button(
+                        onClick = {
+                            if (!isScanning) {
+                                isScanning = true
+                                coroutineScope.launch {
+                                    try {
+                                        val count = viewModel.scanSecondaryMediaDirectories()
+                                        kotlinx.coroutines.delay(1500)
+                                        viewModel.refreshAll()
+                                        android.widget.Toast.makeText(
+                                            context,
+                                            if (count > 0) "Deep scan complete: $count media items scanned" else "Deep scan complete",
+                                            android.widget.Toast.LENGTH_SHORT
+                                        ).show()
+                                    } catch (e: Exception) {
+                                        android.widget.Toast.makeText(context, "Scan error: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                                    } finally {
+                                        isScanning = false
+                                    }
+                                }
+                            }
+                        },
+                        enabled = !isScanning,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (isScanning) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Scanning device...")
+                        } else {
+                            Text("Deep Scan Now")
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         item {
             SettingsCategoryHeader(title = "About", icon = Icons.Default.Info)
@@ -572,7 +682,7 @@ fun SettingsScreen(
                                         if (apkUrl != null) {
                                             isDownloadingUpdate = true
                                             scope.launch {
-                                                val success = com.hrshd1eux.imava.core.util.AppUpdateManager.downloadAndInstallApk(
+                                                com.hrshd1eux.imava.core.util.AppUpdateManager.downloadAndInstallApk(
                                                     context = context,
                                                     downloadUrl = apkUrl,
                                                     onProgress = { progress -> downloadProgress = progress }
