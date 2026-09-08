@@ -121,6 +121,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.core.util.findActivity
 import com.hrshd1eux.imava.data.model.MediaItem
 import com.hrshd1eux.imava.data.model.isVideo
 import com.hrshd1eux.imava.ui.MainViewModel
@@ -795,8 +796,6 @@ fun PhotoViewerScreen(
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                             val currentIndex = pagerState.currentPage
                             val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
-                            deletedMediaIds = deletedMediaIds + item.id
-                            viewModel.activeMediaItem = nextItem
                             viewModel.toggleTrashed(context, item, nextItem)
                         }) {
                             Icon(
@@ -854,13 +853,7 @@ fun PhotoViewerScreen(
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                                val currentIndex = pagerState.currentPage
-                                val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
-                                viewModel.toggleTrashed(context, item, nextItem)
-                            } else {
-                                showDeleteConfirmDialog = true
-                            }
+                            showDeleteConfirmDialog = true
                         }) {
                             Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
                         }
@@ -938,8 +931,6 @@ fun PhotoViewerScreen(
                             showDeleteConfirmDialog = false
                             val currentIndex = pagerState.currentPage
                             val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
-                            deletedMediaIds = deletedMediaIds + item.id
-                            viewModel.activeMediaItem = nextItem
                             viewModel.toggleTrashed(context, item, nextItem)
                         }
                     ) {
@@ -966,8 +957,6 @@ fun PhotoViewerScreen(
                             showDeletePermanentlyConfirmDialog = false
                             val currentIndex = pagerState.currentPage
                             val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
-                            deletedMediaIds = deletedMediaIds + item.id
-                            viewModel.activeMediaItem = nextItem
                             viewModel.deletePermanently(context, item, nextItem)
                         }
                     ) {
@@ -1439,7 +1428,7 @@ fun PhotoViewerScreen(
 
         if (showSetAsDialog) {
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
-            val activity = context as? android.app.Activity
+            val activity = context.findActivity()
             AlertDialog(
                 onDismissRequest = { showSetAsDialog = false },
                 icon = {
@@ -1495,7 +1484,7 @@ fun PhotoViewerScreen(
 
         if (showWallpaperDialog) {
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
-            val activity = context as? android.app.Activity
+            val activity = context.findActivity()
             var isSettingWallpaper by remember { mutableStateOf(false) }
 
             AlertDialog(

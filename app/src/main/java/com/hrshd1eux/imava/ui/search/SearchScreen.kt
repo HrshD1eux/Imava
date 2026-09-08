@@ -1,6 +1,7 @@
 package com.hrshd1eux.imava.ui.search
 
 import android.content.Context
+import com.hrshd1eux.imava.core.util.findActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -145,7 +146,7 @@ fun SearchScreen(
                     val isBiometricEnabled = prefs.getBoolean("vault_biometric_enabled", false)
                     val query = searchQuery.trim()
                     if (!isVaultDisabled && query.isNotEmpty() && query.equals(secretTrigger.trim(), ignoreCase = true)) {
-                        val activity = context as? android.app.Activity
+                        val activity = context.findActivity()
                         if (isBiometricEnabled && activity != null) {
                             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                 activity = activity,

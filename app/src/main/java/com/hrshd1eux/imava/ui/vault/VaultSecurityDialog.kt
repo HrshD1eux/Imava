@@ -2,6 +2,7 @@ package com.hrshd1eux.imava.ui.vault
 
 import android.content.Context
 import android.widget.Toast
+import com.hrshd1eux.imava.core.util.findActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -245,7 +246,7 @@ fun VaultSecurityDialog(
                     Switch(
                         checked = isBiometricEnabled,
                         onCheckedChange = { enabled ->
-                            val activity = context as? android.app.Activity
+                            val activity = context.findActivity()
                             if (enabled && activity != null) {
                                 com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                     activity = activity,

@@ -599,19 +599,44 @@ class MediaStoreDataSource @Inject constructor(
             }
         }
 
-        // Direct filesystem scan fallback: if files exist in WhatsApp/Telegram directories
-        // but were NOT indexed in MediaStore (due to .nomedia), discover and include them directly.
-        try {
+        // Fast in-memory merge: include any files discovered during secondary directory background scans
+        // without performing blocking synchronous disk I/O on every query.
+        if (secondaryDiskMediaCache.isNotEmpty()) {
             val existingPaths = mediaList.mapTo(HashSet()) { it.path }
-            val diskItems = mutableListOf<MediaItem>()
+            for (cachedItem in secondaryDiskMediaCache) {
+                if (!java.io.File(cachedItem.path).exists()) {
+                    secondaryDiskMediaCache.remove(cachedItem)
+                } else if (cachedItem.path !in existingPaths) {
+                    existingPaths.add(cachedItem.path)
+                    mediaList.add(cachedItem)
+                }
+            }
+        }
 
-            getSecondaryTargetDirectories().filter { it.exists() && it.isDirectory }.forEach { dir ->
+        mediaList
+    }
+
+    private val secondaryDiskMediaCache = java.util.concurrent.CopyOnWriteArrayList<MediaItem>()
+
+    /**
+     * Filesystem scan that walks WhatsApp Sent, Private, and Telegram media folders in the background,
+     * populates secondaryDiskMediaCache, and submits unindexed files to MediaScannerConnection.
+     * Returns count of files scanned.
+     */
+    suspend fun scanSecondaryMediaDirectories(): Int = withContext(Dispatchers.IO) {
+        var scannedCount = 0
+        try {
+            val secondaryPaths = getSecondaryTargetDirectories()
+            val unindexedFiles = mutableListOf<String>()
+            val discoveredItems = mutableListOf<MediaItem>()
+
+            secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
                 try {
-                    dir.walkTopDown().maxDepth(4).forEach { file ->
+                    dir.walkTopDown().maxDepth(5).forEach { file ->
                         if (file.isFile && file.length() > 0L) {
                             val ext = file.extension.lowercase(java.util.Locale.ROOT)
-                            if (validMediaExtensions.contains(ext) && file.absolutePath !in existingPaths) {
-                                existingPaths.add(file.absolutePath)
+                            if (validMediaExtensions.contains(ext)) {
+                                unindexedFiles.add(file.absolutePath)
                                 val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
                                     ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")) "video/$ext" else "image/jpeg"
                                 val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")
@@ -651,40 +676,16 @@ class MediaStoreDataSource @Inject constructor(
                                         bucketName = bucketName
                                     )
                                 }
-                                diskItems.add(item)
+                                discoveredItems.add(item)
                             }
                         }
                     }
                 } catch (_: Exception) {}
             }
-            mediaList.addAll(diskItems)
-        } catch (_: Exception) {}
 
-        mediaList
-    }
-
-    /**
-     * Filesystem scan that walks WhatsApp Sent, Private, and Telegram media folders,
-     * submitting unindexed files to MediaScannerConnection.
-     * Returns count of files scanned.
-     */
-    suspend fun scanSecondaryMediaDirectories(): Int = withContext(Dispatchers.IO) {
-        var scannedCount = 0
-        try {
-            val secondaryPaths = getSecondaryTargetDirectories()
-            val unindexedFiles = mutableListOf<String>()
-
-            secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
-                try {
-                    dir.walkTopDown().maxDepth(5).forEach { file ->
-                        if (file.isFile && file.length() > 0L) {
-                            val ext = file.extension.lowercase(java.util.Locale.ROOT)
-                            if (validMediaExtensions.contains(ext)) {
-                                unindexedFiles.add(file.absolutePath)
-                            }
-                        }
-                    }
-                } catch (_: Exception) {}
+            if (discoveredItems.isNotEmpty()) {
+                secondaryDiskMediaCache.clear()
+                secondaryDiskMediaCache.addAll(discoveredItems)
             }
 
             if (unindexedFiles.isNotEmpty()) {

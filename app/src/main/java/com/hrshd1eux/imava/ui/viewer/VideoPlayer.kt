@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.net.Uri
 import com.hrshd1eux.imava.core.util.HapticUtil
+import com.hrshd1eux.imava.core.util.findActivity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.OptIn
@@ -143,7 +144,7 @@ fun VideoPlayerContainer(
     val audioManager = remember(context) { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     val maxVolume = remember(audioManager) { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1) }
     var currentBrightness by remember {
-        val window = (context as? android.app.Activity)?.window
+        val window = context.findActivity()?.window
         val cur = window?.attributes?.screenBrightness ?: -1f
         mutableFloatStateOf(if (cur >= 0f) cur else 0.5f)
     }
@@ -217,7 +218,7 @@ fun VideoPlayerContainer(
         exoPlayer = player
 
         onDispose {
-            (context as? android.app.Activity)?.window?.let { window ->
+            context.findActivity()?.window?.let { window ->
                 val lp = window.attributes
                 lp.screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                 window.attributes = lp
@@ -325,7 +326,7 @@ fun VideoPlayerContainer(
                         val delta = -dragAmount / 600f
                         val newBrightness = (currentBrightness + delta).coerceIn(0.01f, 1f)
                         currentBrightness = newBrightness
-                        (context as? android.app.Activity)?.window?.let { window ->
+                        context.findActivity()?.window?.let { window ->
                             val lp = window.attributes
                             lp.screenBrightness = newBrightness
                             window.attributes = lp

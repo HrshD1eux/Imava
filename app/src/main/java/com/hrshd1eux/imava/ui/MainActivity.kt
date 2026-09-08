@@ -1,6 +1,7 @@
 package com.hrshd1eux.imava.ui
 
 import android.Manifest
+import com.hrshd1eux.imava.core.util.findActivity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -314,7 +315,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     val isVaultUnlocked by viewModel.isVaultUnlocked.collectAsState()
     val isVaultActive = (isVaultUnlocked && viewModel.currentCategoryName == "Hidden Vault") ||
             viewModel.activeMediaItem?.isHidden == true
-    val activity = context as? android.app.Activity
+    val activity = context.findActivity()
 
     DisposableEffect(isVaultActive) {
         if (isVaultActive) {

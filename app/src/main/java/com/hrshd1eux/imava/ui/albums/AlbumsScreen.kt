@@ -2,6 +2,7 @@ package com.hrshd1eux.imava.ui.albums
 
 import android.content.Context
 import android.net.Uri
+import com.hrshd1eux.imava.core.util.findActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -345,7 +346,7 @@ fun AlbumsScreen(
                                 return@AlbumRowItem
                             }
 
-                            val activity = context as? android.app.Activity
+                            val activity = context.findActivity()
                             val isBiometricEnabled = vaultPrefs.getBoolean("vault_biometric_enabled", false)
                             if (isBiometricEnabled && activity != null) {
                                 com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
