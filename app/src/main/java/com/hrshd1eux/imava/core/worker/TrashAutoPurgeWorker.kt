@@ -15,8 +15,15 @@ class TrashAutoPurgeWorker(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
+            val prefs = applicationContext.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
+            val retentionDays = prefs.getInt("trash_retention_days", 30)
+            if (retentionDays <= 0) {
+                // User disabled auto-purge ("Never")
+                return@withContext Result.success()
+            }
+
             val db = GalleryDatabase.getInstance(applicationContext)
-            val cutoff = System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000L)
+            val cutoff = System.currentTimeMillis() - (retentionDays.toLong() * 24 * 60 * 60 * 1000L)
             val expiredItems = db.metadataDao().getExpiredTrashItems(cutoff)
 
             expiredItems.forEach { entity ->

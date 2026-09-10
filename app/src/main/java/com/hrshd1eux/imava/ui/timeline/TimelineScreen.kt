@@ -11,6 +11,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import com.hrshd1eux.imava.ui.MediaFilterType
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -158,117 +164,164 @@ fun TimelineScreen(
         }
     } else Modifier
 
+    val currentFilter by viewModel.selectedFilter.collectAsState()
+    val showFilterChips = !selectionState.inSelectionMode && viewModel.currentCategoryName == null && viewModel.currentBucketId == null
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .clipToBounds()
             .then(pinchGestureModifier)
     ) {
-        if (lazyPagingItems.itemCount == 0) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No media found on device",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (showFilterChips) {
+                TimelineFilterChips(
+                    selectedFilter = currentFilter,
+                    onFilterSelected = { filter ->
+                        viewModel.setSelectedFilter(filter)
+                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                    }
                 )
             }
-        } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(viewModel.gridColumnCount),
-                    state = gridState,
-                    contentPadding = PaddingValues(
-                        start = 2.dp,
-                        end = 2.dp,
-                        top = 8.dp,
-                        bottom = 100.dp
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    verticalItemSpacing = 2.dp,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .then(dragSelectionModifier)
-                ) {
 
-                    items(
-                        count = lazyPagingItems.itemCount,
-                        key = { index ->
-                            val item = lazyPagingItems.peek(index)
-                            when (item) {
-                                is TimelineItem.Header -> "header_${item.title}"
-                                is TimelineItem.Media -> "media_${item.item.id}"
-                                null -> "placeholder_$index"
-                            }
-                        },
-                        span = { index ->
-                            val item = lazyPagingItems.peek(index)
-                            if (item is TimelineItem.Header) {
-                                StaggeredGridItemSpan.FullLine
-                            } else {
-                                StaggeredGridItemSpan.SingleLane
-                            }
-                        }
-                    ) { index ->
-                        val item = lazyPagingItems[index]
-                        if (item != null) {
-                            when (item) {
-                                is TimelineItem.Header -> {
-                                    TimelineHeader(title = item.title)
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                if (lazyPagingItems.itemCount == 0) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No media found on device",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(viewModel.gridColumnCount),
+                        state = gridState,
+                        contentPadding = PaddingValues(
+                            start = 2.dp,
+                            end = 2.dp,
+                            top = 8.dp,
+                            bottom = 100.dp
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalItemSpacing = 2.dp,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .then(dragSelectionModifier)
+                    ) {
+
+                        items(
+                            count = lazyPagingItems.itemCount,
+                            key = { index ->
+                                val item = lazyPagingItems.peek(index)
+                                when (item) {
+                                    is TimelineItem.Header -> "header_${item.title}"
+                                    is TimelineItem.Media -> "media_${item.item.id}"
+                                    null -> "placeholder_$index"
                                 }
-                                is TimelineItem.Media -> {
-                                    val mediaItem = item.item
-                                    val isSelected = selectionState.selectedIds.contains(mediaItem.id)
-                                    val naturalRatio = if (mediaItem.width > 0 && mediaItem.height > 0) {
-                                        mediaItem.width.toFloat() / mediaItem.height.toFloat()
-                                    } else {
-                                        1f
+                            },
+                            span = { index ->
+                                val item = lazyPagingItems.peek(index)
+                                if (item is TimelineItem.Header) {
+                                    StaggeredGridItemSpan.FullLine
+                                } else {
+                                    StaggeredGridItemSpan.SingleLane
+                                }
+                            }
+                        ) { index ->
+                            val item = lazyPagingItems[index]
+                            if (item != null) {
+                                when (item) {
+                                    is TimelineItem.Header -> {
+                                        TimelineHeader(title = item.title)
                                     }
-                                    val cellRatio = if (viewModel.gridStyle == com.hrshd1eux.imava.ui.GridStyle.SQUARE) 1f else naturalRatio
-                                    MediaGridCell(
-                                        item = mediaItem,
-                                        isSelected = isSelected,
-                                        inSelectionMode = selectionState.inSelectionMode,
-                                        aspectRatio = cellRatio,
-                                        onClick = {
-                                            if (selectionState.inSelectionMode) {
-                                                selectionState.toggle(mediaItem.id)
-                                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                            } else {
-                                                viewModel.activeMediaItem = mediaItem
-                                            }
-                                        },
-                                        onLongClick = {
-                                            selectionState.toggle(mediaItem.id)
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
+                                    is TimelineItem.Media -> {
+                                        val mediaItem = item.item
+                                        val isSelected = selectionState.selectedIds.contains(mediaItem.id)
+                                        val naturalRatio = if (mediaItem.width > 0 && mediaItem.height > 0) {
+                                            mediaItem.width.toFloat() / mediaItem.height.toFloat()
+                                        } else {
+                                            1f
                                         }
-                                    )
+                                        val cellRatio = if (viewModel.gridStyle == com.hrshd1eux.imava.ui.GridStyle.SQUARE) 1f else naturalRatio
+                                        MediaGridCell(
+                                            item = mediaItem,
+                                            isSelected = isSelected,
+                                            inSelectionMode = selectionState.inSelectionMode,
+                                            aspectRatio = cellRatio,
+                                            onClick = {
+                                                if (selectionState.inSelectionMode) {
+                                                    selectionState.toggle(mediaItem.id)
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                                } else {
+                                                    viewModel.activeMediaItem = mediaItem
+                                                }
+                                            },
+                                            onLongClick = {
+                                                selectionState.toggle(mediaItem.id)
+                                                com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
+                                            }
+                                        )
+                                    }
                                 }
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                                )
                             }
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                            )
                         }
                     }
-                }
 
-                // Floating scroll scrubber on the right edge
-                val dateHeaders by viewModel.datePositionHeaders.collectAsState()
-                TimelineScrubber(
-                    gridState = gridState,
-                    headers = dateHeaders,
-                    totalItemCount = lazyPagingItems.itemCount,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(vertical = 16.dp)
-                )
+                    // Floating scroll scrubber on the right edge
+                    val dateHeaders by viewModel.datePositionHeaders.collectAsState()
+                    TimelineScrubber(
+                        gridState = gridState,
+                        headers = dateHeaders,
+                        totalItemCount = lazyPagingItems.itemCount,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(vertical = 16.dp)
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun TimelineFilterChips(
+    selectedFilter: MediaFilterType,
+    onFilterSelected: (MediaFilterType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(MediaFilterType.values()) { filter ->
+            val isSelected = filter == selectedFilter
+            FilterChip(
+                selected = isSelected,
+                onClick = { onFilterSelected(filter) },
+                label = {
+                    Text(
+                        text = filter.label,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
         }
     }
 }

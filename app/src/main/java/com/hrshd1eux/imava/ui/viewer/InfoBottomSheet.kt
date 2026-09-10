@@ -3,6 +3,7 @@ package com.hrshd1eux.imava.ui.viewer
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.palette.graphics.Palette
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -131,6 +138,40 @@ fun InfoBottomSheet(
                 displayedPlaceName = name
             } else {
                 displayedPlaceName = null
+            }
+        }
+    }
+
+    var paletteColors by remember(item.id) { mutableStateOf<List<Int>>(emptyList()) }
+
+    LaunchedEffect(item.id) {
+        if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val bitmap = context.contentResolver.openInputStream(item.uri)?.use { stream ->
+                        val options = BitmapFactory.Options().apply {
+                            inSampleSize = 8
+                            inPreferredConfig = Bitmap.Config.RGB_565
+                        }
+                        BitmapFactory.decodeStream(stream, null, options)
+                    }
+                    if (bitmap != null) {
+                        val palette = Palette.from(bitmap).maximumColorCount(8).generate()
+                        val colors = mutableListOf<Int>()
+                        palette.dominantSwatch?.rgb?.let { colors.add(it) }
+                        palette.vibrantSwatch?.rgb?.let { if (!colors.contains(it)) colors.add(it) }
+                        palette.darkVibrantSwatch?.rgb?.let { if (!colors.contains(it)) colors.add(it) }
+                        palette.lightVibrantSwatch?.rgb?.let { if (!colors.contains(it)) colors.add(it) }
+                        palette.mutedSwatch?.rgb?.let { if (!colors.contains(it)) colors.add(it) }
+                        palette.darkMutedSwatch?.rgb?.let { if (!colors.contains(it)) colors.add(it) }
+                        palette.lightMutedSwatch?.rgb?.let { if (!colors.contains(it)) colors.add(it) }
+                        if (colors.isEmpty() && palette.swatches.isNotEmpty()) {
+                            colors.addAll(palette.swatches.map { it.rgb })
+                        }
+                        paletteColors = colors.distinct().take(6)
+                        bitmap.recycle()
+                    }
+                } catch (_: Exception) {}
             }
         }
     }
@@ -267,6 +308,40 @@ fun InfoBottomSheet(
                     title = "Properties",
                     subtitle = "${info.resolution}  ·  ${info.fileSize}"
                 )
+
+                if (paletteColors.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Dominant Colors 🎨",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        paletteColors.forEach { colorInt ->
+                            val hex = String.format("#%06X", 0xFFFFFF and colorInt)
+                            val composeColor = androidx.compose.ui.graphics.Color(colorInt)
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(composeColor)
+                                    .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), CircleShape)
+                                    .clickable {
+                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                        val clip = android.content.ClipData.newPlainText("Hex Color", hex)
+                                        clipboard.setPrimaryClip(clip)
+                                        com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                                        android.widget.Toast.makeText(context, "Copied $hex to clipboard! 📋", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                            )
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

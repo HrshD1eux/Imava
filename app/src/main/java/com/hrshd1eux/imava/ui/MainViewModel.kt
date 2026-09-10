@@ -74,6 +74,16 @@ enum class GridStyle {
     NATURAL
 }
 
+enum class MediaFilterType(val label: String) {
+    ALL("All"),
+    PHOTOS("Photos"),
+    VIDEOS("Videos"),
+    SCREENSHOTS("Screenshots"),
+    FAVORITES("Favorites"),
+    GIFS("GIFs"),
+    RAW("RAW")
+}
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val application: android.app.Application,
@@ -82,6 +92,13 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val prefs = application.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+    private val _selectedFilter = MutableStateFlow(MediaFilterType.ALL)
+    val selectedFilter: StateFlow<MediaFilterType> = _selectedFilter.asStateFlow()
+
+    fun setSelectedFilter(filter: MediaFilterType) {
+        _selectedFilter.value = filter
+    }
 
     val selectionState = SelectionState()
     
@@ -154,12 +171,31 @@ class MainViewModel @Inject constructor(
         return repository.scanSecondaryMediaDirectories()
     }
 
-    private var _currentScreenState = mutableStateOf(savedStateHandle.get<Screen>("current_screen") ?: Screen.Photos)
+    private var _currentScreenState = mutableStateOf(
+        savedStateHandle.get<Screen>("current_screen") ?: run {
+            val galleryPrefs = application.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
+            val defaultScreen = galleryPrefs.getString("default_start_screen", "photos")
+            when (defaultScreen) {
+                "albums" -> Screen.Albums
+                "last_used" -> {
+                    val last = galleryPrefs.getString("last_active_screen", "photos")
+                    if (last == "albums") Screen.Albums else Screen.Photos
+                }
+                else -> Screen.Photos
+            }
+        }
+    )
     var currentScreen: Screen
         get() = _currentScreenState.value
         set(value) {
             _currentScreenState.value = value
             savedStateHandle["current_screen"] = value
+            val galleryPrefs = application.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
+            val screenName = when (value) {
+                Screen.Albums -> "albums"
+                else -> "photos"
+            }
+            galleryPrefs.edit().putString("last_active_screen", screenName).apply()
         }
 
     private var _activeMediaIdState = mutableStateOf(savedStateHandle.get<Long>("active_media_id"))
@@ -699,8 +735,8 @@ class MainViewModel @Inject constructor(
         combine(snapshotFlow { sortMode }, snapshotFlow { sortOrder }) { mode, order -> Pair(mode, order) },
         _excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion,
-        refreshTrigger
-    ) { (bucketId, category), (mode, order), excluded, _, _ ->
+        combine(_selectedFilter, refreshTrigger) { f, r -> Pair(f, r) }
+    ) { (bucketId, category), (mode, order), excluded, _, (filter, _) ->
         val itemsFlow: Flow<PagingData<MediaItem>> = when (category) {
             "Favorites" -> favorites.map { list ->
                 val filtered = if (bucketId != null) {
@@ -742,7 +778,8 @@ class MainViewModel @Inject constructor(
             }
         }
         itemsFlow.map { pagingData ->
-            val mapped: PagingData<TimelineItem> = pagingData.map { TimelineItem.Media(it) }
+            val filteredData = if (filter == MediaFilterType.ALL) pagingData else pagingData.filter { matchesFilter(it, filter) }
+            val mapped: PagingData<TimelineItem> = filteredData.map { TimelineItem.Media(it) }
             if (mode == TimelineSortMode.DATE_GROUPED) {
                 mapped.insertSeparators { before: TimelineItem?, after: TimelineItem? ->
                     val zoneId = ZoneId.systemDefault()
@@ -2168,6 +2205,73 @@ class MainViewModel @Inject constructor(
                 pendingRenameName = null
                 pendingBatchRenames = null
                 refreshAll()
+            }
+        }
+    }
+
+    private fun matchesFilter(item: MediaItem, filter: MediaFilterType): Boolean {
+        return when (filter) {
+            MediaFilterType.ALL -> true
+            MediaFilterType.PHOTOS -> !item.isVideo && !item.mimeType.contains("gif", ignoreCase = true)
+            MediaFilterType.VIDEOS -> item.isVideo
+            MediaFilterType.SCREENSHOTS -> item.path.contains("screenshot", ignoreCase = true) || item.bucketName.contains("screenshot", ignoreCase = true)
+            MediaFilterType.FAVORITES -> item.isFavorite
+            MediaFilterType.GIFS -> item.mimeType.contains("gif", ignoreCase = true) || item.path.endsWith(".gif", ignoreCase = true)
+            MediaFilterType.RAW -> {
+                val p = item.path.lowercase()
+                p.endsWith(".dng") || p.endsWith(".cr2") || p.endsWith(".nef") || p.endsWith(".arw") || p.endsWith(".orf") || p.endsWith(".rw2")
+            }
+        }
+    }
+
+    fun rotateMediaLosslessly(context: Context, item: MediaItem, clockwise: Boolean = true) {
+        viewModelScope.launch {
+            val success = com.hrshd1eux.imava.core.util.LosslessRotationUtil.rotateLosslessly(context, item, clockwise)
+            if (success) {
+                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                refreshAll()
+                // Update activeMediaItem if it matches
+                if (activeMediaItem?.id == item.id) {
+                    activeMediaItem = repository.getMediaByIds(setOf(item.id)).firstOrNull() ?: item
+                }
+            } else {
+                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                android.widget.Toast.makeText(context, "Could not rotate losslessly", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun exportCleanCopy(context: Context, item: MediaItem) {
+        viewModelScope.launch {
+            android.widget.Toast.makeText(context, "Sanitizing & exporting clean copy...", android.widget.Toast.LENGTH_SHORT).show()
+            val file = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
+            if (file != null) {
+                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                android.widget.Toast.makeText(context, "Saved clean copy to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG).show()
+                refreshAll()
+            } else {
+                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                android.widget.Toast.makeText(context, "Failed to export clean copy", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun exportCleanCopies(context: Context, items: List<MediaItem>) {
+        viewModelScope.launch {
+            android.widget.Toast.makeText(context, "Sanitizing ${items.size} photos...", android.widget.Toast.LENGTH_SHORT).show()
+            var count = 0
+            for (item in items) {
+                val f = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
+                if (f != null) count++
+            }
+            if (count > 0) {
+                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                android.widget.Toast.makeText(context, "Saved $count clean photos to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG).show()
+                selectionState.clear()
+                refreshAll()
+            } else {
+                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                android.widget.Toast.makeText(context, "Failed to export clean photos", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
     }

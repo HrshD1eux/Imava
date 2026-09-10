@@ -1,3 +1,18 @@
+## 🚀 What's New in Imava v1.1.35
+
+* **1-Tap Orientation Override**: Toggle viewer between landscape and portrait instantly with auto-reset on exit.
+* **Lossless EXIF Rotation**: Rotate JPEGs 90° clockwise or counter-clockwise in ~15ms without recompressing bitmap quality.
+* **Video Repeat & Frame Stepper**: Toggle single-video repeat loops and step frame-by-frame (±33ms) when paused.
+* **Viewer Brightness Boost**: Optional setting to automatically maximize screen brightness when opening media.
+* **Timeline Filter Chips**: Quick-filter timeline by All, Photos, Videos, Screenshots, Favorites, GIFs, or RAW.
+* **Recycle Bin Auto-Purge Setting**: Configure automatic trash retention (7, 14, 30, 60 days, or Never).
+* **Default Startup Screen**: Choose whether Imava launches to Photos, Albums, or remembers your last active tab.
+* **Export Clean Copy**: Strip all GPS coordinates, camera serials, and EXIF metadata to `Pictures/Cleaned`.
+* **Dominant Color Palette**: View dominant photo swatches in Info sheet; tap to copy HEX codes with haptics.
+* **Emergency Shake-to-Lock**: Instantly lock and close the Hidden Vault if your device is shaken.
+
+---
+
 ## 🚀 What's New in Imava v1.1.34
 
 * **Delete Confirmations**: Added explicit confirmation dialogs with item counts before moving selected items to Trash or deleting permanently from Trash.

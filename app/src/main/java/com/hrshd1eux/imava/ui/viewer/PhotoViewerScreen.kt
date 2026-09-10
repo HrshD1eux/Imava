@@ -69,6 +69,11 @@ import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.ScreenRotation
+import androidx.compose.material.icons.filled.RotateRight
+import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.filled.Security
+import android.content.pm.ActivityInfo
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.hrshd1eux.imava.core.util.FormatUtils
 import androidx.compose.material.icons.filled.Home
@@ -103,6 +108,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -133,6 +139,40 @@ fun PhotoViewerScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
+
+    // Reset orientation on viewer exit
+    DisposableEffect(Unit) {
+        onDispose {
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+    }
+
+    // Auto-boost screen brightness in viewer if enabled in settings
+    val prefs = remember(context) { context.getSharedPreferences("gallery_prefs", android.content.Context.MODE_PRIVATE) }
+    val boostBrightness = remember(prefs) { prefs.getBoolean("viewer_boost_brightness", false) }
+
+    DisposableEffect(boostBrightness) {
+        if (boostBrightness) {
+            val window = activity?.window
+            val originalBrightness = window?.attributes?.screenBrightness ?: -1f
+            window?.let {
+                val layoutParams = it.attributes
+                layoutParams.screenBrightness = 1.0f
+                it.attributes = layoutParams
+            }
+            onDispose {
+                window?.let {
+                    val layoutParams = it.attributes
+                    layoutParams.screenBrightness = originalBrightness
+                    it.attributes = layoutParams
+                }
+            }
+        } else {
+            onDispose { }
+        }
+    }
+
     val visibleMediaItems by viewModel.visibleMediaItems.collectAsState()
 
     val activeItem = viewModel.activeMediaItem ?: return
@@ -523,6 +563,18 @@ fun PhotoViewerScreen(
                     }
                 }
 
+                IconButton(onClick = {
+                    val currentOrientation = context.resources.configuration.orientation
+                    activity?.requestedOrientation = if (currentOrientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    } else {
+                        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                    }
+                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                }) {
+                    Icon(imageVector = Icons.Default.ScreenRotation, contentDescription = "Toggle Orientation", tint = Color.White)
+                }
+
                 IconButton(onClick = { showInfoSheet = true }) {
                     Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.White)
                 }
@@ -618,6 +670,33 @@ fun PhotoViewerScreen(
                         )
 
                         if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
+                            DropdownMenuItem(
+                                text = { Text("Rotate 90° Clockwise 🔄") },
+                                leadingIcon = { Icon(Icons.Default.RotateRight, contentDescription = null) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    viewModel.rotateMediaLosslessly(context, item, clockwise = true)
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Rotate 90° Counter-Clockwise ↺") },
+                                leadingIcon = { Icon(Icons.Default.RotateLeft, contentDescription = null) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    viewModel.rotateMediaLosslessly(context, item, clockwise = false)
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Save Clean Copy (No EXIF) 🛡️") },
+                                leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    viewModel.exportCleanCopy(context, item)
+                                }
+                            )
+
                             DropdownMenuItem(
                                 text = { Text("Print Photo 🖨️") },
                                 leadingIcon = { Icon(Icons.Default.Print, contentDescription = null) },

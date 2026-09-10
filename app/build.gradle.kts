@@ -99,6 +99,7 @@ dependencies {
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.print)
+    implementation(libs.androidx.palette)
     implementation("androidx.fragment:fragment-ktx:1.8.2")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -75,6 +75,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Compare
+import androidx.compose.material.icons.filled.RotateRight
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -328,6 +330,49 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         }
         onDispose {
             activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    val galleryPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", android.content.Context.MODE_PRIVATE) }
+    val shakeLockEnabled = remember(galleryPrefs) { galleryPrefs.getBoolean("vault_shake_lock_enabled", true) }
+
+    DisposableEffect(isVaultActive, shakeLockEnabled) {
+        if (isVaultActive && shakeLockEnabled) {
+            val sensorManager = context.getSystemService(android.content.Context.SENSOR_SERVICE) as? android.hardware.SensorManager
+            val accelerometer = sensorManager?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
+            var lastShakeTimestamp = 0L
+
+            val listener = object : android.hardware.SensorEventListener {
+                override fun onSensorChanged(event: android.hardware.SensorEvent?) {
+                    if (event == null) return
+                    val x = event.values[0]
+                    val y = event.values[1]
+                    val z = event.values[2]
+                    val gForce = kotlin.math.sqrt((x * x + y * y + z * z).toDouble()).toFloat() / android.hardware.SensorManager.GRAVITY_EARTH
+                    if (gForce > 2.5f) {
+                        val now = System.currentTimeMillis()
+                        if (now - lastShakeTimestamp > 1500L) {
+                            lastShakeTimestamp = now
+                            viewModel.lockVault(context)
+                            viewModel.activeMediaItem = null
+                            com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                            android.widget.Toast.makeText(context, "Emergency Shake: Vault Locked 🔒", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) {}
+            }
+
+            if (sensorManager != null && accelerometer != null) {
+                sensorManager.registerListener(listener, accelerometer, android.hardware.SensorManager.SENSOR_DELAY_UI)
+            }
+
+            onDispose {
+                sensorManager?.unregisterListener(listener)
+            }
+        } else {
+            onDispose { }
         }
     }
 
@@ -758,6 +803,42 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                     com.hrshd1eux.imava.core.util.PrintUtil.printPhoto(context, firstPhoto)
                                                 } else {
                                                     android.widget.Toast.makeText(context, "Select a photo to print", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        }
+                                    )
+
+                                    SelectionActionButton(
+                                        icon = Icons.Default.RotateRight,
+                                        label = "Rotate",
+                                        onClick = {
+                                            val selectedIdsSet = selectionState.selectedIds.toSet()
+                                            scope.launch {
+                                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                                                val photos = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>()
+                                                if (photos.isNotEmpty()) {
+                                                    photos.forEach { p ->
+                                                        viewModel.rotateMediaLosslessly(context, p, clockwise = true)
+                                                    }
+                                                    selectionState.clear()
+                                                } else {
+                                                    android.widget.Toast.makeText(context, "Select photos to rotate", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        }
+                                    )
+
+                                    SelectionActionButton(
+                                        icon = Icons.Default.Security,
+                                        label = "Clean Copy",
+                                        onClick = {
+                                            val selectedIdsSet = selectionState.selectedIds.toSet()
+                                            scope.launch {
+                                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                                                if (items.isNotEmpty()) {
+                                                    viewModel.exportCleanCopies(context, items)
+                                                } else {
+                                                    android.widget.Toast.makeText(context, "No photos selected to export", android.widget.Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         }

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.GridView
@@ -112,6 +113,71 @@ fun SettingsScreen(
                         selected = appTheme == "light",
                         onClick = { viewModel.appTheme = "light" }
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(text = "Default Startup Screen", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    val galleryPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
+                    var startScreen by remember { mutableStateOf(galleryPrefs.getString("default_start_screen", "timeline") ?: "timeline") }
+
+                    ThemeOptionRow(
+                        title = "Photos (Main Timeline)",
+                        selected = startScreen == "timeline",
+                        onClick = {
+                            startScreen = "timeline"
+                            galleryPrefs.edit().putString("default_start_screen", "timeline").apply()
+                        }
+                    )
+                    ThemeOptionRow(
+                        title = "Albums",
+                        selected = startScreen == "albums",
+                        onClick = {
+                            startScreen = "albums"
+                            galleryPrefs.edit().putString("default_start_screen", "albums").apply()
+                        }
+                    )
+                    ThemeOptionRow(
+                        title = "Remember Last Active Tab",
+                        selected = startScreen == "last_active",
+                        onClick = {
+                            startScreen = "last_active"
+                            galleryPrefs.edit().putString("default_start_screen", "last_active").apply()
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    var boostBrightness by remember { mutableStateOf(galleryPrefs.getBoolean("viewer_boost_brightness", false)) }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Viewer Brightness Boost ☀️",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = "Automatically max out screen brightness when viewing photos and videos for maximum HDR detail",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = boostBrightness,
+                            onCheckedChange = { enabled ->
+                                boostBrightness = enabled
+                                galleryPrefs.edit().putBoolean("viewer_boost_brightness", enabled).apply()
+                            }
+                        )
+                    }
                 }
             }
 
@@ -370,6 +436,40 @@ fun SettingsScreen(
                         }
                     )
                 }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                val vaultPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
+                var shakeLockEnabled by remember { mutableStateOf(vaultPrefs.getBoolean("vault_shake_lock_enabled", true)) }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Emergency Shake-to-Lock Vault ⚡🔒",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Instantly lock and exit Hidden Vault when your phone is shaken",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = shakeLockEnabled,
+                        onCheckedChange = { enabled ->
+                            shakeLockEnabled = enabled
+                            vaultPrefs.edit().putBoolean("vault_shake_lock_enabled", enabled).apply()
+                            if (enabled) {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                            }
+                        }
+                    )
+                }
             }
 
             if (showManageExcludedDialog) {
@@ -411,6 +511,67 @@ fun SettingsScreen(
                         }
                     }
                 )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
+            SettingsCategoryHeader(title = "Recycle Bin & Auto-Purge", icon = Icons.Default.Delete)
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Auto-Purge Retention Period",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Automatically permanently delete trashed photos and videos after the selected retention period.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val trashPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
+                    var retentionDays by remember { mutableIntStateOf(trashPrefs.getInt("trash_retention_days", 30)) }
+
+                    val options = listOf(
+                        7 to "7 Days",
+                        14 to "14 Days",
+                        30 to "30 Days (Default)",
+                        60 to "60 Days",
+                        -1 to "Never (Manual Purge Only)"
+                    )
+
+                    options.forEach { (days, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    retentionDays = days
+                                    trashPrefs.edit().putInt("trash_retention_days", days).apply()
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                }
+                                .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = retentionDays == days,
+                                onClick = {
+                                    retentionDays = days
+                                    trashPrefs.edit().putInt("trash_retention_days", days).apply()
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = label, style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

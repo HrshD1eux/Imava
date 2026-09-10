@@ -42,6 +42,10 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -115,6 +119,7 @@ fun VideoPlayerContainer(
 
     var exoPlayer by remember(uri) { mutableStateOf<ExoPlayer?>(null) }
     var isPlaying by remember { mutableStateOf(false) }
+    var isLooping by remember { mutableStateOf(false) }
     var currentPosition by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(0L) }
 
@@ -204,7 +209,7 @@ fun VideoPlayerContainer(
             } else {
                 setMediaItem(Media3Item.fromUri(uri))
             }
-            repeatMode = Player.REPEAT_MODE_OFF
+            repeatMode = if (isLooping) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
             prepare()
             playWhenReady = false
         }
@@ -467,6 +472,46 @@ fun VideoPlayerContainer(
                             )
                         }
 
+                        // Frame-by-frame stepper buttons when paused
+                        if (!isPlaying) {
+                            IconButton(
+                                onClick = {
+                                    val newPos = (displayPosMs - 33L).coerceAtLeast(0L)
+                                    pendingSeekTargetMs = newPos
+                                    currentPosition = newPos
+                                    exoPlayer?.seekTo(newPos)
+                                    HapticUtil.performClick(context)
+                                },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SkipPrevious,
+                                    contentDescription = "Previous Frame (33ms)",
+                                    tint = Color.White.copy(alpha = 0.9f),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    val targetMax = if (duration > 0) duration else Long.MAX_VALUE
+                                    val newPos = (displayPosMs + 33L).coerceAtMost(targetMax)
+                                    pendingSeekTargetMs = newPos
+                                    currentPosition = newPos
+                                    exoPlayer?.seekTo(newPos)
+                                    HapticUtil.performClick(context)
+                                },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SkipNext,
+                                    contentDescription = "Next Frame (33ms)",
+                                    tint = Color.White.copy(alpha = 0.9f),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+
                         Spacer(modifier = Modifier.width(4.dp))
 
                         Text(
@@ -477,6 +522,24 @@ fun VideoPlayerContainer(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = {
+                                val nextLoop = !isLooping
+                                isLooping = nextLoop
+                                exoPlayer?.repeatMode = if (nextLoop) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+                                HapticUtil.performSelection(context)
+                                gestureOverlayText = if (nextLoop) "Repeat: On 🔂" else "Repeat: Off ➡️"
+                            },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isLooping) Icons.Default.RepeatOne else Icons.Default.Repeat,
+                                contentDescription = "Toggle Repeat Loop",
+                                tint = if (isLooping) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
                         Surface(
                             onClick = { showSpeedDialog = true },
                             color = Color.White.copy(alpha = 0.2f),
