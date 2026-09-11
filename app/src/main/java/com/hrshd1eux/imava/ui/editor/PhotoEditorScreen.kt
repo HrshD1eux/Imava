@@ -36,14 +36,12 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Flip
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Rotate90DegreesCcw
-import androidx.compose.material.icons.filled.Rotate90DegreesCw
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -599,162 +597,37 @@ fun PhotoEditorScreen(
             ) {
                 when (selectedTab) {
                     EditorTab.ROTATE -> {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 6.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            FilledTonalButton(
+                                onClick = {
+                                    rotationDegrees = ((rotationDegrees + 90f) % 360f)
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                },
+                                shape = RoundedCornerShape(20.dp),
+                                modifier = Modifier.height(48.dp)
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = {
-                                            rotationDegrees = ((rotationDegrees - 90f + 360f) % 360f).let {
-                                                if (it > 180f) it - 360f else it
-                                            }
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Rotate90DegreesCcw,
-                                            contentDescription = "Rotate -90°",
-                                            tint = Color.White
-                                        )
-                                    }
-                                    Text(
-                                        text = "-90°",
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                }
-
-
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = if (abs(rotationDegrees) > 0.05f) MaterialTheme.colorScheme.primaryContainer else Color.White.copy(alpha = 0.15f),
-                                    modifier = Modifier.padding(horizontal = 8.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                                    ) {
-                                        Text(
-                                            text = String.format(java.util.Locale.US, "%+.1f°", rotationDegrees),
-                                            color = if (abs(rotationDegrees) > 0.05f) MaterialTheme.colorScheme.onPrimaryContainer else Color.White,
-                                            style = MaterialTheme.typography.titleSmall,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        if (abs(rotationDegrees) > 0.05f) {
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Icon(
-                                                imageVector = Icons.Default.Refresh,
-                                                contentDescription = "Reset Angle",
-                                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                modifier = Modifier
-                                                    .size(16.dp)
-                                                    .clickable {
-                                                        rotationDegrees = 0f
-                                                        com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
-                                                    }
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = "+90°",
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                    IconButton(
-                                        onClick = {
-                                            rotationDegrees = ((rotationDegrees + 90f + 360f) % 360f).let {
-                                                if (it > 180f) it - 360f else it
-                                            }
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Rotate90DegreesCw,
-                                            contentDescription = "Rotate +90°",
-                                            tint = Color.White
-                                        )
-                                    }
-                                }
-                            }
-
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        rotationDegrees = (rotationDegrees - 1f).coerceIn(-180f, 180f)
-                                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                    },
-                                    modifier = Modifier.size(36.dp)
-                                ) {
-                                    Text("-1°", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-                                }
-
-                                Slider(
-                                    value = rotationDegrees,
-                                    onValueChange = { newValue ->
-                                        // Snap to 0 if within +/- 0.5 degrees
-                                        rotationDegrees = if (abs(newValue) < 0.5f) 0f else (Math.round(newValue * 2f) / 2f)
-                                    },
-                                    valueRange = -180f..180f,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(horizontal = 4.dp)
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.RotateRight,
+                                    contentDescription = "Rotate 90°",
+                                    modifier = Modifier.size(22.dp)
                                 )
-
-                                IconButton(
-                                    onClick = {
-                                        rotationDegrees = (rotationDegrees + 1f).coerceIn(-180f, 180f)
-                                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                    },
-                                    modifier = Modifier.size(36.dp)
-                                ) {
-                                    Text("+1°", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                val degLabel = when (rotationDegrees.toInt()) {
+                                    90 -> "90°"
+                                    180 -> "180°"
+                                    270 -> "270°"
+                                    else -> "0°"
                                 }
-                            }
-
-
-                            LazyRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 4.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val presets = listOf(
-                                    -45f to "-45°",
-                                    0f to "0° (Reset)",
-                                    45f to "+45°",
-                                    90f to "90°",
-                                    180f to "180°",
-                                    -90f to "270° (-90°)"
+                                Text(
+                                    text = if (rotationDegrees != 0f) "Rotate 90° ($degLabel)" else "Rotate 90°",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
                                 )
-                                items(presets) { (presetDeg, label) ->
-                                    FilterChip(
-                                        selected = abs(rotationDegrees - presetDeg) < 0.2f,
-                                        onClick = {
-                                            rotationDegrees = presetDeg
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                        },
-                                        label = { Text(label, style = MaterialTheme.typography.labelSmall) }
-                                    )
-                                }
                             }
                         }
                     }

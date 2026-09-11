@@ -69,10 +69,9 @@ import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Print
-import androidx.compose.material.icons.filled.ScreenRotation
-import androidx.compose.material.icons.filled.RotateRight
-import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.automirrored.filled.RotateRight
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.runtime.mutableLongStateOf
 import android.content.pm.ActivityInfo
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.hrshd1eux.imava.core.util.FormatUtils
@@ -292,6 +291,7 @@ fun PhotoViewerScreen(
     var ocrRecognizedText by remember { mutableStateOf("") }
     var targetKbInput by remember { mutableStateOf("15") }
     var videoResizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
+    var rotationEpoch by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(isSlideshowActive) {
         if (isSlideshowActive) {
@@ -364,7 +364,7 @@ fun PhotoViewerScreen(
         ) { page ->
             val item = mediaItems.getOrNull(page)
             if (item != null) {
-                val imageRequest = remember(item.uri, item.width, item.height) {
+                val imageRequest = remember(item.uri, item.width, item.height, rotationEpoch) {
                     val maxTextureDim = 4096
                     val builder = coil.request.ImageRequest.Builder(context)
                         .data(item.uri)
@@ -372,6 +372,7 @@ fun PhotoViewerScreen(
                         .diskCachePolicy(coil.request.CachePolicy.ENABLED)
                         .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
                         .allowHardware(true)
+                        .setParameter("epoch", rotationEpoch, memoryCacheKey = rotationEpoch.toString())
                         .error(android.R.drawable.ic_menu_report_image)
                         .fallback(android.R.drawable.ic_menu_report_image)
 
@@ -563,16 +564,14 @@ fun PhotoViewerScreen(
                     }
                 }
 
-                IconButton(onClick = {
-                    val currentOrientation = context.resources.configuration.orientation
-                    activity?.requestedOrientation = if (currentOrientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    } else {
-                        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                if (currentItem is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
+                    IconButton(onClick = {
+                        com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                        rotationEpoch = System.currentTimeMillis()
+                        viewModel.rotateMediaLosslessly(context, currentItem, clockwise = true)
+                    }) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.RotateRight, contentDescription = "Rotate 90°", tint = Color.White)
                     }
-                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                }) {
-                    Icon(imageVector = Icons.Default.ScreenRotation, contentDescription = "Toggle Orientation", tint = Color.White)
                 }
 
                 IconButton(onClick = { showInfoSheet = true }) {
@@ -670,24 +669,6 @@ fun PhotoViewerScreen(
                         )
 
                         if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
-                            DropdownMenuItem(
-                                text = { Text("Rotate 90° Clockwise 🔄") },
-                                leadingIcon = { Icon(Icons.Default.RotateRight, contentDescription = null) },
-                                onClick = {
-                                    showMoreMenu = false
-                                    viewModel.rotateMediaLosslessly(context, item, clockwise = true)
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text("Rotate 90° Counter-Clockwise ↺") },
-                                leadingIcon = { Icon(Icons.Default.RotateLeft, contentDescription = null) },
-                                onClick = {
-                                    showMoreMenu = false
-                                    viewModel.rotateMediaLosslessly(context, item, clockwise = false)
-                                }
-                            )
-
                             DropdownMenuItem(
                                 text = { Text("Save Clean Copy (No EXIF) 🛡️") },
                                 leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
