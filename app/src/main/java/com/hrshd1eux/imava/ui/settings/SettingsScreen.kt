@@ -516,66 +516,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        item {
-            SettingsCategoryHeader(title = "Recycle Bin & Auto-Purge", icon = Icons.Default.Delete)
 
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Auto-Purge Retention Period",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Automatically permanently delete trashed photos and videos after the selected retention period.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    val trashPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
-                    var retentionDays by remember { mutableIntStateOf(trashPrefs.getInt("trash_retention_days", 30)) }
-
-                    val options = listOf(
-                        7 to "7 Days",
-                        14 to "14 Days",
-                        30 to "30 Days (Default)",
-                        60 to "60 Days",
-                        -1 to "Never (Manual Purge Only)"
-                    )
-
-                    options.forEach { (days, label) ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    retentionDays = days
-                                    trashPrefs.edit().putInt("trash_retention_days", days).apply()
-                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                }
-                                .padding(vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = retentionDays == days,
-                                onClick = {
-                                    retentionDays = days
-                                    trashPrefs.edit().putInt("trash_retention_days", days).apply()
-                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = label, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-        }
 
         item {
             SettingsCategoryHeader(title = "Deep Media Scan & Storage", icon = Icons.Default.SdCard)

@@ -93,10 +93,6 @@ class MediaRepositoryImplTest {
             emit(dbMap.values.filter { it.isTrashed }.map { it.mediaId })
         }
 
-        override suspend fun getExpiredTrashItems(cutoffTimestamp: Long): List<MediaMetadataEntity> {
-            return dbMap.values.filter { it.isTrashed && it.trashTime > 0 && it.trashTime < cutoffTimestamp }
-        }
-
         override suspend fun deleteByMediaId(mediaId: Long) {
             dbMap.remove(mediaId)
             deletedIds.add(mediaId)

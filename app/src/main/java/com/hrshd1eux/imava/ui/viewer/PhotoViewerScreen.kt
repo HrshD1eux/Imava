@@ -69,9 +69,7 @@ import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Print
-import androidx.compose.material.icons.automirrored.filled.RotateRight
 import androidx.compose.material.icons.filled.Security
-import androidx.compose.runtime.mutableLongStateOf
 import android.content.pm.ActivityInfo
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.hrshd1eux.imava.core.util.FormatUtils
@@ -79,7 +77,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material.icons.filled.DocumentScanner
-import androidx.compose.material.icons.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.MovieFilter
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.OutlinedButton
@@ -291,7 +289,6 @@ fun PhotoViewerScreen(
     var ocrRecognizedText by remember { mutableStateOf("") }
     var targetKbInput by remember { mutableStateOf("15") }
     var videoResizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
-    var rotationEpoch by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(isSlideshowActive) {
         if (isSlideshowActive) {
@@ -364,7 +361,7 @@ fun PhotoViewerScreen(
         ) { page ->
             val item = mediaItems.getOrNull(page)
             if (item != null) {
-                val imageRequest = remember(item.uri, item.width, item.height, rotationEpoch) {
+                val imageRequest = remember(item.uri, item.width, item.height) {
                     val maxTextureDim = 4096
                     val builder = coil.request.ImageRequest.Builder(context)
                         .data(item.uri)
@@ -372,7 +369,6 @@ fun PhotoViewerScreen(
                         .diskCachePolicy(coil.request.CachePolicy.ENABLED)
                         .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
                         .allowHardware(true)
-                        .setParameter("epoch", rotationEpoch, memoryCacheKey = rotationEpoch.toString())
                         .error(android.R.drawable.ic_menu_report_image)
                         .fallback(android.R.drawable.ic_menu_report_image)
 
@@ -560,19 +556,10 @@ fun PhotoViewerScreen(
                             }
                         }
                     }) {
-                        Icon(imageVector = Icons.Default.VolumeOff, contentDescription = "Mute Video", tint = Color.White)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.VolumeOff, contentDescription = "Mute Video", tint = Color.White)
                     }
                 }
 
-                if (currentItem is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
-                    IconButton(onClick = {
-                        com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
-                        rotationEpoch = System.currentTimeMillis()
-                        viewModel.rotateMediaLosslessly(context, currentItem, clockwise = true)
-                    }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.RotateRight, contentDescription = "Rotate 90°", tint = Color.White)
-                    }
-                }
 
                 IconButton(onClick = { showInfoSheet = true }) {
                     Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.White)
@@ -722,7 +709,7 @@ fun PhotoViewerScreen(
 
                             DropdownMenuItem(
                                 text = { Text("Mute Audio & Save Copy 🔇") },
-                                leadingIcon = { Icon(Icons.Default.VolumeOff, contentDescription = null) },
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.VolumeOff, contentDescription = null) },
                                 onClick = {
                                     showMoreMenu = false
                                     scope.launch {

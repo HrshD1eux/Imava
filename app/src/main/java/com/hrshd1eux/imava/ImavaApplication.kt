@@ -14,24 +14,10 @@ class ImavaApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
-        scheduleTrashAutoPurge()
-        scheduleAppUpdateChecker()
-    }
-
-    private fun scheduleTrashAutoPurge() {
         try {
-            val purgeRequest = androidx.work.PeriodicWorkRequestBuilder<com.hrshd1eux.imava.core.worker.TrashAutoPurgeWorker>(
-                1, java.util.concurrent.TimeUnit.DAYS
-            ).build()
-
-            androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                "TrashAutoPurgeWork",
-                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
-                purgeRequest
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+            androidx.work.WorkManager.getInstance(this).cancelUniqueWork("TrashAutoPurgeWork")
+        } catch (_: Exception) {}
+        scheduleAppUpdateChecker()
     }
 
     private fun scheduleAppUpdateChecker() {
