@@ -174,12 +174,16 @@ class MainViewModel @Inject constructor(
     private var _currentScreenState = mutableStateOf(
         savedStateHandle.get<Screen>("current_screen") ?: run {
             val galleryPrefs = application.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
-            val defaultScreen = galleryPrefs.getString("default_start_screen", "photos")
+            val defaultScreen = galleryPrefs.getString("default_start_screen", "timeline")
             when (defaultScreen) {
                 "albums" -> Screen.Albums
-                "last_used" -> {
+                "last_active", "last_used" -> {
                     val last = galleryPrefs.getString("last_active_screen", "photos")
-                    if (last == "albums") Screen.Albums else Screen.Photos
+                    when (last) {
+                        "albums" -> Screen.Albums
+                        "settings" -> Screen.Settings
+                        else -> Screen.Photos
+                    }
                 }
                 else -> Screen.Photos
             }
@@ -193,6 +197,7 @@ class MainViewModel @Inject constructor(
             val galleryPrefs = application.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
             val screenName = when (value) {
                 Screen.Albums -> "albums"
+                Screen.Settings -> "settings"
                 else -> "photos"
             }
             galleryPrefs.edit().putString("last_active_screen", screenName).apply()

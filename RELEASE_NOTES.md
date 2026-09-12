@@ -1,3 +1,11 @@
+## 🚀 What's New in Imava v1.1.38
+
+* **Genuine Startup Screen Navigation**: Fixed startup screen initialization so Imava reliably opens to your selected tab (Timeline, Albums, or Last Active Screen) without race-condition resets.
+* **Leak-Proof EXIF Metadata Stripping**: Extended the privacy cleaner across all EXIF timestamps, GPS coordinates, camera serial numbers, Adobe/Google XMP blocks, and MakerNotes.
+* **Shared Media Privacy**: Private sharing now leverages the unified, exhaustive metadata sanitizer before handing files to third-party apps.
+
+---
+
 ## 🚀 What's New in Imava v1.1.35
 
 * **1-Tap Orientation Override**: Toggle viewer between landscape and portrait instantly with auto-reset on exit.

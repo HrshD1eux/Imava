@@ -191,4 +191,42 @@ class MainViewModelTest {
         viewModel.dismissMemoriesFor24Hours()
         org.junit.Assert.assertTrue(viewModel.memoriesDismissedTimestamp.value > 0L)
     }
+
+    @Test
+    fun testStartupScreen_albumsConfiguration_initializesToAlbums() {
+        val mockPrefs = mockk<android.content.SharedPreferences>(relaxed = true)
+        val mockApp = mockk<android.app.Application>(relaxed = true)
+        every { mockApp.getSharedPreferences(any(), any()) } returns mockPrefs
+        every { mockPrefs.getString("default_start_screen", "timeline") } returns "albums"
+
+        val vm = MainViewModel(mockApp, mockRepository, SavedStateHandle())
+        assertEquals(Screen.Albums, vm.currentScreen)
+    }
+
+    @Test
+    fun testStartupScreen_lastActiveConfiguration_readsLastActiveScreen() {
+        val mockPrefs = mockk<android.content.SharedPreferences>(relaxed = true)
+        val mockApp = mockk<android.app.Application>(relaxed = true)
+        every { mockApp.getSharedPreferences(any(), any()) } returns mockPrefs
+        every { mockPrefs.getString("default_start_screen", "timeline") } returns "last_active"
+        every { mockPrefs.getString("last_active_screen", "photos") } returns "albums"
+
+        val vm = MainViewModel(mockApp, mockRepository, SavedStateHandle())
+        assertEquals(Screen.Albums, vm.currentScreen)
+    }
+
+    @Test
+    fun testStartupScreen_screenChange_persistsLastActiveScreen() {
+        val mockEditor = mockk<android.content.SharedPreferences.Editor>(relaxed = true)
+        val mockPrefs = mockk<android.content.SharedPreferences>(relaxed = true)
+        val mockApp = mockk<android.app.Application>(relaxed = true)
+        every { mockApp.getSharedPreferences(any(), any()) } returns mockPrefs
+        every { mockPrefs.edit() } returns mockEditor
+        every { mockEditor.putString(any(), any()) } returns mockEditor
+
+        val vm = MainViewModel(mockApp, mockRepository, SavedStateHandle())
+        vm.currentScreen = Screen.Albums
+
+        io.mockk.verify { mockEditor.putString("last_active_screen", "albums") }
+    }
 }

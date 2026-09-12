@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.FileProvider
-import androidx.exifinterface.media.ExifInterface
 import com.hrshd1eux.imava.data.model.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -50,7 +49,7 @@ object SharingUtils {
                 } ?: return@mapNotNull null
 
                 if (stripMetadata && item.mimeType.contains("image", ignoreCase = true)) {
-                    stripExif(tempFile)
+                    ExifSanitizerUtil.stripMetadata(tempFile)
                 }
 
                 FileProvider.getUriForFile(
@@ -82,37 +81,6 @@ object SharingUtils {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(chooser)
-        }
-    }
-
-    private fun stripExif(file: File) {
-        try {
-            val exif = ExifInterface(file.absolutePath)
-            
-            // EXIF tags to strip
-            val tagsToRemove = listOf(
-                ExifInterface.TAG_GPS_LATITUDE,
-                ExifInterface.TAG_GPS_LONGITUDE,
-                ExifInterface.TAG_GPS_LATITUDE_REF,
-                ExifInterface.TAG_GPS_LONGITUDE_REF,
-                ExifInterface.TAG_GPS_ALTITUDE,
-                ExifInterface.TAG_GPS_ALTITUDE_REF,
-                ExifInterface.TAG_GPS_PROCESSING_METHOD,
-                ExifInterface.TAG_GPS_DATESTAMP,
-                ExifInterface.TAG_GPS_TIMESTAMP,
-                ExifInterface.TAG_MAKE,       // Manufacturer
-                ExifInterface.TAG_MODEL,      // Camera model
-                ExifInterface.TAG_SOFTWARE,   // Software used
-                ExifInterface.TAG_CAMERA_OWNER_NAME, // Photographer/Device Owner
-                ExifInterface.TAG_IMAGE_DESCRIPTION
-            )
-            
-            for (tag in tagsToRemove) {
-                exif.setAttribute(tag, null)
-            }
-            exif.saveAttributes()
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }

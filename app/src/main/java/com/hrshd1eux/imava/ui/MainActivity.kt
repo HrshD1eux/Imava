@@ -427,8 +427,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             viewModel.currentScreen = Screen.Photos
         }
     }
+    val initialPageIndex = remember {
+        val idx = screens.indexOf(viewModel.currentScreen)
+        if (idx >= 0) idx else 0
+    }
     val mainPagerState = rememberPagerState(
-        initialPage = 0,
+        initialPage = initialPageIndex,
         pageCount = { screens.size }
     )
 
