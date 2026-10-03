@@ -526,8 +526,9 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    var isScanning by remember { mutableStateOf(false) }
-                    val coroutineScope = rememberCoroutineScope()
+                    val isScanning by viewModel.isDeepScanning.collectAsState()
+                    val lastScanCount by viewModel.lastDeepScanCount.collectAsState()
+                    var autoScanEnabled by remember { mutableStateOf(viewModel.isAutoDeepScanEnabled) }
 
                     Text(
                         text = "Deep Media Discovery",
@@ -586,27 +587,46 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                     }
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Automatic Deep Scan",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = if (autoScanEnabled) "Auto-scan active on startup and media changes" else "Auto-scan disabled",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = autoScanEnabled,
+                            onCheckedChange = {
+                                autoScanEnabled = it
+                                viewModel.isAutoDeepScanEnabled = it
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    if (autoScanEnabled && lastScanCount > 0 && !isScanning) {
+                        Text(
+                            text = "✓ Discovered $lastScanCount media items",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
                     Button(
                         onClick = {
-                            if (!isScanning) {
-                                isScanning = true
-                                coroutineScope.launch {
-                                    try {
-                                        val count = viewModel.scanSecondaryMediaDirectories()
-                                        kotlinx.coroutines.delay(1500)
-                                        viewModel.refreshAll()
-                                        android.widget.Toast.makeText(
-                                            context,
-                                            if (count > 0) "Deep scan complete: $count media items scanned" else "Deep scan complete",
-                                            android.widget.Toast.LENGTH_SHORT
-                                        ).show()
-                                    } catch (e: Exception) {
-                                        android.widget.Toast.makeText(context, "Scan error: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
-                                    } finally {
-                                        isScanning = false
-                                    }
-                                }
-                            }
+                            viewModel.triggerAutoDeepScan(force = true)
+                            android.widget.Toast.makeText(context, "Deep scan started...", android.widget.Toast.LENGTH_SHORT).show()
                         },
                         enabled = !isScanning,
                         modifier = Modifier.fillMaxWidth()
@@ -620,7 +640,7 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Scanning device...")
                         } else {
-                            Text("Deep Scan Now")
+                            Text("Scan Now")
                         }
                     }
                 }

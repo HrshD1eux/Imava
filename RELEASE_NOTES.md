@@ -1,3 +1,12 @@
+## 🚀 What's New in Imava v1.1.39
+
+* **Automatic Deep Scan Mode**: Converted Deep Scan into a background auto-scanner that runs on app launch, app resume, and media changes with a dedicated Settings toggle and live discovery badge.
+* **Discovered Album Fix**: Resolved an issue where tapping deep-scanned albums (e.g. WhatsApp Images Sent) loaded zero photos; album views now reliably display all discovered media.
+* **Timeline Deduplication & Filter Support**: Deep-scanned media is now strictly deduplicated by file path and ID, respects Photos/Videos filter chips, and properly excludes Vault/Trash items.
+* **Expanded Scan Coverage**: Deep scan now traverses media roots (WhatsApp, WhatsApp Business, Telegram, DualApp) up to 4 directory levels, including Documents and Sent folders.
+
+---
+
 ## 🚀 What's New in Imava v1.1.38
 
 * **Genuine Startup Screen Navigation**: Fixed startup screen initialization so Imava reliably opens to your selected tab (Timeline, Albums, or Last Active Screen) without race-condition resets.

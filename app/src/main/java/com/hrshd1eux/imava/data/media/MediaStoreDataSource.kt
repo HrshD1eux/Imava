@@ -497,26 +497,44 @@ class MediaStoreDataSource @Inject constructor(
 
     private fun getSecondaryTargetDirectories(): List<java.io.File> {
         val externalStorage = android.os.Environment.getExternalStorageDirectory() ?: return emptyList()
-        return listOf(
-            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Sent"),
-            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Sent"),
-            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Private"),
-            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Private"),
-            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Animated Gifs"),
-            java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Animated Gifs/Sent"),
-            java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Images/Sent"),
-            java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Video/Sent"),
-            java.io.File(externalStorage, "Android/media/org.telegram.messenger/Telegram"),
-            java.io.File(externalStorage, "Android/media/org.telegram.messenger.web/Telegram"),
-            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Images/Sent"),
-            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Video/Sent"),
-            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Images/Private"),
-            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Video/Private"),
-            java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Animated Gifs"),
-            java.io.File(externalStorage, "WhatsApp Business/Media/WhatsApp Business Images/Sent"),
-            java.io.File(externalStorage, "WhatsApp Business/Media/WhatsApp Business Video/Sent"),
-            java.io.File(externalStorage, "Telegram")
-        )
+        val paths = mutableListOf<java.io.File>()
+
+        fun addIfDir(file: java.io.File) {
+            if (file.exists() && file.isDirectory) {
+                paths.add(file)
+            }
+        }
+
+        // WhatsApp Standard
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp/Media"))
+
+        // WhatsApp Business
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media"))
+
+        // DualApp / Dual Messenger (Samsung, Xiaomi, etc.)
+        addIfDir(java.io.File(externalStorage, "DualApp/Android/media/com.whatsapp/WhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "DualApp/WhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "DualApp/Android/media/com.whatsapp.w4b/WhatsApp Business/Media"))
+        addIfDir(java.io.File(externalStorage, "DualApp/WhatsApp Business/Media"))
+
+        // Telegram
+        addIfDir(java.io.File(externalStorage, "Android/media/org.telegram.messenger"))
+        addIfDir(java.io.File(externalStorage, "Android/media/org.telegram.messenger.web"))
+        addIfDir(java.io.File(externalStorage, "Telegram"))
+        addIfDir(java.io.File(externalStorage, "Pictures/Telegram"))
+        addIfDir(java.io.File(externalStorage, "Movies/Telegram"))
+        addIfDir(java.io.File(externalStorage, "Download/Telegram"))
+
+        // Signal, Instagram, Reddit, Twitter/X
+        addIfDir(java.io.File(externalStorage, "Android/media/org.thoughtcrime.securesms"))
+        addIfDir(java.io.File(externalStorage, "Pictures/Instagram"))
+        addIfDir(java.io.File(externalStorage, "Pictures/Reddit"))
+        addIfDir(java.io.File(externalStorage, "Pictures/Twitter"))
+        addIfDir(java.io.File(externalStorage, "Pictures/X"))
+
+        return paths
     }
 
     /**
@@ -554,7 +572,7 @@ class MediaStoreDataSource @Inject constructor(
             "%/WhatsApp Business/%Sent/%",
             "%/WhatsApp Business/%Private/%",
             "%/Telegram/%",
-            "%.nomedia/%"
+            "%/Signal/%"
         )
 
         val pathConditions = pathPatterns.joinToString(" OR ") {
@@ -632,7 +650,7 @@ class MediaStoreDataSource @Inject constructor(
 
             secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
                 try {
-                    dir.walkTopDown().maxDepth(2).forEach { file ->
+                    dir.walkTopDown().maxDepth(4).forEach { file ->
                         if (file.isFile && file.length() > 0L) {
                             val ext = file.extension.lowercase(java.util.Locale.ROOT)
                             if (validMediaExtensions.contains(ext)) {
@@ -642,7 +660,14 @@ class MediaStoreDataSource @Inject constructor(
                                 val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")
                                 val parent = file.parentFile
                                 val bucketId = parent?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L
-                                val bucketName = parent?.name ?: "Sent"
+                                val parentName = parent?.name ?: "Sent"
+                                val grandparent = parent?.parentFile
+                                val bucketName = if ((parentName.equals("Sent", ignoreCase = true) || parentName.equals("Private", ignoreCase = true)) &&
+                                    grandparent != null && grandparent.name.isNotBlank()) {
+                                    "${grandparent.name} $parentName"
+                                } else {
+                                    parentName
+                                }
                                 val id = kotlin.math.abs(file.absolutePath.hashCode().toLong()).coerceAtLeast(1L)
                                 val uri = android.net.Uri.fromFile(file)
                                 val dateTaken = file.lastModified()

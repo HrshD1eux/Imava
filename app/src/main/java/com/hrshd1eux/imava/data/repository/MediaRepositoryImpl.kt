@@ -86,14 +86,37 @@ class MediaRepositoryImpl @Inject constructor(
         }
 
         // Merge third-party app media (WhatsApp Sent, Telegram, etc.) that may have
-        // media_type=0 due to .nomedia directories. Deduplicate by id to avoid dupes.
-        if (bucketId == null && offset == 0) {
+        // media_type=0 due to .nomedia directories. Deduplicate by both ID and path.
+        if (offset == 0) {
             try {
                 val thirdPartyMedia = fetchThirdPartyAppMedia()
-                if (thirdPartyMedia.isNotEmpty()) {
+                val filteredByType = when (mediaType) {
+                    MediaTypeFilter.ALL -> thirdPartyMedia
+                    MediaTypeFilter.IMAGES -> thirdPartyMedia.filterIsInstance<MediaItem.Photo>()
+                    MediaTypeFilter.VIDEOS -> thirdPartyMedia.filterIsInstance<MediaItem.Video>()
+                }
+                val relevantMedia = if (bucketId != null) {
+                    filteredByType.filter { it.bucketId == bucketId }
+                } else {
+                    filteredByType
+                }
+
+                if (relevantMedia.isNotEmpty()) {
                     val existingIds = resultList.mapTo(HashSet()) { it.id }
-                    val newItems = thirdPartyMedia.filter { it.id !in existingIds }
-                    resultList.addAll(newItems)
+                    val existingPaths = resultList.mapTo(HashSet()) { it.path }
+                    val newItems = relevantMedia.filter { it.id !in existingIds && it.path !in existingPaths }
+
+                    if (newItems.isNotEmpty()) {
+                        val ids = newItems.map { it.id }
+                        val metaList = getMetadataForMediaIdsChunked(ids)
+                        val metaMap = metaList.associateBy { it.mediaId }
+                        val cleanedItems = newItems.map { item ->
+                            val meta = metaMap[item.id]
+                            applyMetadata(item, meta)
+                        }.filter { !it.isHidden && !it.isTrashed }
+
+                        resultList.addAll(cleanedItems)
+                    }
                 }
             } catch (_: Exception) { }
         }
@@ -106,7 +129,23 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTotalMediaCount(bucketId: Long?, mediaType: MediaTypeFilter): Int = withContext(Dispatchers.IO) {
-        mediaStoreDataSource.getTotalMediaCount(bucketId, mediaType)
+        val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, mediaType)
+        try {
+            val thirdPartyMedia = fetchThirdPartyAppMedia()
+            val filteredByType = when (mediaType) {
+                MediaTypeFilter.ALL -> thirdPartyMedia
+                MediaTypeFilter.IMAGES -> thirdPartyMedia.filterIsInstance<MediaItem.Photo>()
+                MediaTypeFilter.VIDEOS -> thirdPartyMedia.filterIsInstance<MediaItem.Video>()
+            }
+            val relevantMedia = if (bucketId != null) {
+                filteredByType.filter { it.bucketId == bucketId }
+            } else {
+                filteredByType
+            }
+            maxOf(baseCount, relevantMedia.size)
+        } catch (_: Exception) {
+            baseCount
+        }
     }
 
     override fun observeMediaChanges(): Flow<Unit> {

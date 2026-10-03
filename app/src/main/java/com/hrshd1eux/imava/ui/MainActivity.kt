@@ -246,6 +246,7 @@ class MainActivity : FragmentActivity() {
         checkPermissions()
         if (hasPermissionsState.value) {
             viewModel.refreshAll()
+            viewModel.triggerAutoDeepScan()
         }
     }
 

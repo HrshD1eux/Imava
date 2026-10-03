@@ -30,7 +30,13 @@ object ExifSanitizerUtil {
             val targetFile = File(cleanedDir, "${origName}_cleaned_${System.currentTimeMillis()}.$ext")
 
             // Copy file stream
-            context.contentResolver.openInputStream(item.uri)?.use { input ->
+            val inputStream = if (item.uri.scheme == "file" || item.uri.scheme == null) {
+                val f = File(item.path)
+                if (f.exists() && f.canRead()) java.io.FileInputStream(f) else context.contentResolver.openInputStream(item.uri)
+            } else {
+                context.contentResolver.openInputStream(item.uri)
+            }
+            inputStream?.use { input ->
                 FileOutputStream(targetFile).use { output ->
                     if (item.isHidden) {
                         try {

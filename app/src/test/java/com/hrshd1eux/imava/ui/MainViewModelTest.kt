@@ -229,4 +229,19 @@ class MainViewModelTest {
 
         io.mockk.verify { mockEditor.putString("last_active_screen", "albums") }
     }
+
+    @Test
+    fun testAutoDeepScan_preferenceToggled_persistsValue() {
+        val mockEditor = mockk<android.content.SharedPreferences.Editor>(relaxed = true)
+        val mockPrefs = mockk<android.content.SharedPreferences>(relaxed = true)
+        val mockApp = mockk<android.app.Application>(relaxed = true)
+        every { mockApp.getSharedPreferences(any(), any()) } returns mockPrefs
+        every { mockPrefs.edit() } returns mockEditor
+        every { mockEditor.putBoolean(any(), any()) } returns mockEditor
+
+        val vm = MainViewModel(mockApp, mockRepository, SavedStateHandle())
+        vm.isAutoDeepScanEnabled = false
+
+        io.mockk.verify { mockEditor.putBoolean("auto_deep_scan", false) }
+    }
 }

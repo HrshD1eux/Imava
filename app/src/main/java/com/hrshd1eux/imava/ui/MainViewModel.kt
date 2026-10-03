@@ -167,8 +167,57 @@ class MainViewModel @Inject constructor(
             savedStateHandle["app_theme"] = value
         }
 
+    private val galleryPrefs = application.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
+
+    var isAutoDeepScanEnabled: Boolean
+        get() = galleryPrefs.getBoolean("auto_deep_scan", true)
+        set(value) {
+            galleryPrefs.edit().putBoolean("auto_deep_scan", value).apply()
+            if (value) {
+                triggerAutoDeepScan(force = true)
+            }
+        }
+
+    private val _isDeepScanning = MutableStateFlow(false)
+    val isDeepScanning: StateFlow<Boolean> = _isDeepScanning.asStateFlow()
+
+    private val _lastDeepScanCount = MutableStateFlow(
+        galleryPrefs.getInt("last_deep_scan_count", 0)
+    )
+    val lastDeepScanCount: StateFlow<Int> = _lastDeepScanCount.asStateFlow()
+
+    private var lastAutoScanTimestamp = 0L
+
+    fun triggerAutoDeepScan(force: Boolean = false) {
+        val now = System.currentTimeMillis()
+        if (!force && (now - lastAutoScanTimestamp < 20_000L)) {
+            return
+        }
+        if (_isDeepScanning.value) return
+        if (!force && !isAutoDeepScanEnabled) return
+
+        lastAutoScanTimestamp = now
+        viewModelScope.launch(Dispatchers.IO) {
+            _isDeepScanning.value = true
+            try {
+                val count = repository.scanSecondaryMediaDirectories()
+                _lastDeepScanCount.value = count
+                galleryPrefs.edit().putInt("last_deep_scan_count", count).apply()
+                kotlinx.coroutines.delay(1000)
+                refreshAll()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isDeepScanning.value = false
+            }
+        }
+    }
+
     suspend fun scanSecondaryMediaDirectories(): Int {
-        return repository.scanSecondaryMediaDirectories()
+        val count = repository.scanSecondaryMediaDirectories()
+        _lastDeepScanCount.value = count
+        galleryPrefs.edit().putInt("last_deep_scan_count", count).apply()
+        return count
     }
 
     private var _currentScreenState = mutableStateOf(
@@ -881,18 +930,20 @@ class MainViewModel @Inject constructor(
                 .debounce(300)
                 .collectLatest {
                     refreshAll()
+                    if (isAutoDeepScanEnabled) {
+                        triggerAutoDeepScan()
+                    }
                 }
         }
 
-        // cleanup after boot
+        // cleanup & auto deep scan after boot
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.purgeExpiredTrashMedia()
                 kotlinx.coroutines.delay(2000) // defer scan for cold boot performance
-                repository.scanSecondaryMediaDirectories()
-                // Give MediaScanner time to index any newly discovered files (Android 10)
-                kotlinx.coroutines.delay(1500)
-                refreshAll()
+                if (isAutoDeepScanEnabled) {
+                    triggerAutoDeepScan()
+                }
                 val activeIds = repository.getActiveMediaIds()
                 if (activeIds.isNotEmpty()) {
                     repository.deleteOrphanedMetadata(activeIds)

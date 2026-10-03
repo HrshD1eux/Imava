@@ -660,4 +660,51 @@ class MediaRepositoryImplTest {
         val flightIds = fakeDao.searchMediaIdsByOcr("LHR")
         assertEquals(listOf(20L), flightIds)
     }
+
+    @Test
+    fun testLoadMediaPaged_withBucketId_mergesMatchingThirdPartyMedia() = runBlocking {
+        val fakeDao = FakeMetadataDao()
+        val mockContext = mockk<Context>(relaxed = true)
+        val mockDataSource = mockk<MediaStoreDataSource>(relaxed = true)
+
+        val targetBucketId = 777L
+        val mockPhoto = MediaItem.Photo(
+            id = 100L,
+            uri = mockk(relaxed = true),
+            path = "/storage/emulated/0/WhatsApp/Media/WhatsApp Images/Sent/photo1.jpg",
+            mimeType = "image/jpeg",
+            dateTaken = 1000L,
+            size = 500L,
+            width = 100,
+            height = 100,
+            bucketId = targetBucketId,
+            bucketName = "WhatsApp Images Sent"
+        )
+        val otherPhoto = MediaItem.Photo(
+            id = 200L,
+            uri = mockk(relaxed = true),
+            path = "/storage/emulated/0/WhatsApp/Media/WhatsApp Images/photo2.jpg",
+            mimeType = "image/jpeg",
+            dateTaken = 1000L,
+            size = 500L,
+            width = 100,
+            height = 100,
+            bucketId = 888L,
+            bucketName = "WhatsApp Images"
+        )
+
+        coEvery { mockDataSource.fetchMedia(any(), any(), any(), any(), any(), any()) } returns emptyList()
+        coEvery { mockDataSource.fetchThirdPartyAppMedia() } returns listOf(mockPhoto, otherPhoto)
+
+        val repository = MediaRepositoryImpl(
+            context = mockContext,
+            mediaStoreDataSource = mockDataSource,
+            metadataDao = fakeDao
+        )
+
+        val result = repository.loadMediaPaged(limit = 100, offset = 0, bucketId = targetBucketId)
+        assertEquals(1, result.size)
+        assertEquals(100L, result[0].id)
+        assertEquals(targetBucketId, result[0].bucketId)
+    }
 }
