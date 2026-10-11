@@ -1,3 +1,12 @@
+## 🚀 What's New in Imava v1.1.40
+
+* **Top Bar Selection Header**: Moved the selected count (`"1 selected"`, `"2 selected"`) to the top bar alongside a dedicated Close button to exit selection mode and a Select All / Deselect All action.
+* **Fixed 4-Action Bottom Menu**: Replaced the horizontally scrolling bottom menu with a clean, fixed bar featuring **Share**, **Edit**, **Delete**, and **More** (or **Restore** & **Delete Forever** in Trash).
+* **Direct Photo Editor Launch**: Tapping **Edit** with a photo selected directly opens Imava's built-in photo editor.
+* **Streamlined "More" Options Sheet**: Tapping **More** opens a sleek bottom sheet containing all extended gallery actions (Favorite, Move/Copy, Vault/Unhide, Rename, PDF Export, Clean Copy, Lossless Rotate, Collage, Compare, Slideshow, Print, Shift Time).
+
+---
+
 ## 🚀 What's New in Imava v1.1.39
 
 * **Automatic Deep Scan Mode**: Converted Deep Scan into a background auto-scanner that runs on app launch, app resume, and media changes with a dedicated Settings toggle and live discovery badge.

@@ -76,6 +76,16 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Compare
 import androidx.compose.material.icons.filled.RotateRight
+import androidx.compose.material.icons.automirrored.filled.RotateRight
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.Deselect
+import androidx.compose.material.icons.filled.DriveFileRenameOutline
+import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
@@ -318,6 +328,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var showStorageDoctor by remember { androidx.compose.runtime.mutableStateOf(false) }
     var slideshowItems by remember { androidx.compose.runtime.mutableStateOf<List<com.hrshd1eux.imava.data.model.MediaItem>?>(null) }
     var showVaultPreConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showSelectionMoreSheet by remember { androidx.compose.runtime.mutableStateOf(false) }
     val isVaultUnlocked by viewModel.isVaultUnlocked.collectAsState()
     val isVaultActive = (isVaultUnlocked && viewModel.currentCategoryName == "Hidden Vault") ||
             viewModel.activeMediaItem?.isHidden == true
@@ -392,7 +403,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
 
     val screens = remember { listOf(Screen.Photos, Screen.Albums, Screen.Settings) }
     
-    val backEnabled = collageImageUris != null ||
+    val backEnabled = selectionState.inSelectionMode ||
+            collageImageUris != null ||
             showStorageDoctor ||
             slideshowItems != null ||
             viewModel.activeMemoryStory != null ||
@@ -402,7 +414,9 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             currentScreen != Screen.Photos
 
     BackHandler(enabled = backEnabled) {
-        if (collageImageUris != null) {
+        if (selectionState.inSelectionMode) {
+            selectionState.clear()
+        } else if (collageImageUris != null) {
             collageImageUris = null
         } else if (showStorageDoctor) {
             showStorageDoctor = false
@@ -473,6 +487,45 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     Scaffold(
         topBar = {
             if (!isFullScreenOverlayActive) {
+                if (selectionState.inSelectionMode) {
+                    val allVisibleItems by viewModel.visibleMediaItems.collectAsState()
+                    val allIds = remember(allVisibleItems) { allVisibleItems.map { it.id }.toSet() }
+                    val isAllSelected = allIds.isNotEmpty() && selectionState.selectedIds.containsAll(allIds)
+
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "${selectionState.selectedIds.size} selected",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { selectionState.clear() }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Exit selection"
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = {
+                                if (isAllSelected) {
+                                    selectionState.clear()
+                                } else {
+                                    selectionState.selectAll(allIds)
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = if (isAllSelected) Icons.Default.Deselect else Icons.Default.SelectAll,
+                                    contentDescription = if (isAllSelected) "Deselect All" else "Select All"
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        )
+                    )
+                } else {
                 TopAppBar(
                 title = {
                     Text(
@@ -620,6 +673,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
+            }
         }
     },
         bottomBar = {
@@ -641,244 +695,81 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         val trashedList by viewModel.trashed.collectAsState()
                         val selectedIds = selectionState.selectedIds
                         val isViewingTrash = categoryName == "Trash" || (selectedIds.isNotEmpty() && trashedList.any { selectedIds.contains(it.id) })
-                        val isViewingVault = categoryName == "Hidden Vault"
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                                .padding(horizontal = 12.dp, vertical = 2.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Surface(
-                                shape = MaterialTheme.shapes.small,
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                modifier = Modifier.clickable { selectionState.clear() }
+                        if (isViewingTrash) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Deselect",
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "${selectionState.selectedIds.size} Selected",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-                            }
-
-                            if (isViewingTrash) {
                                 SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
                                     icon = Icons.Default.RestoreFromTrash,
                                     label = "Restore",
                                     onClick = { viewModel.restoreSelectedMedia(context) }
                                 )
                                 SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
                                     icon = Icons.Default.DeleteForever,
                                     label = "Delete Forever",
                                     tint = MaterialTheme.colorScheme.error,
                                     onClick = { showSelectionDeletePermanentlyConfirmDialog = true }
                                 )
-                            } else {
+                            }
+                        } else {
+                            val allVisibleItems by viewModel.visibleMediaItems.collectAsState()
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 SelectionActionButton(
-                                    icon = Icons.Default.Favorite,
-                                    label = "Favorite",
-                                    onClick = {
-                                        val selectedIdsSet = selectionState.selectedIds.toSet()
-                                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                        viewModel.toggleFavoriteSelectedMedia(selectedIdsSet)
-                                    }
-                                )
-
-                                SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Share,
                                     label = "Share",
                                     onClick = { showSelectionShareDialog = true }
                                 )
 
                                 SelectionActionButton(
-                                    icon = Icons.Default.PictureAsPdf,
-                                    label = "Create PDF",
+                                    modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.Edit,
+                                    label = "Edit",
+                                    enabled = selectedIds.size == 1,
                                     onClick = {
-                                        val selectedIdsSet = selectionState.selectedIds.toSet()
-                                        scope.launch {
-                                            val itemsToExport = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                            if (itemsToExport.isNotEmpty()) {
-                                                android.widget.Toast.makeText(context, "Generating PDF...", android.widget.Toast.LENGTH_SHORT).show()
-                                                val pdfUri = com.hrshd1eux.imava.core.util.PdfConverter.createPdfFromImages(context, itemsToExport)
-                                                if (pdfUri != null) {
-                                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                                    com.hrshd1eux.imava.core.util.PdfConverter.sharePdf(context, pdfUri)
-                                                } else {
-                                                    com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                                                    android.widget.Toast.makeText(context, "Could not create PDF from selected items", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
+                                        if (selectedIds.size == 1) {
+                                            val singleId = selectedIds.first()
+                                            val item = allVisibleItems.firstOrNull { it.id == singleId }
+                                            if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
+                                                selectionState.clear()
+                                                viewModel.editingMediaItem = item
+                                            } else if (item is com.hrshd1eux.imava.data.model.MediaItem.Video) {
+                                                android.widget.Toast.makeText(context, "Editing is only supported for photos", android.widget.Toast.LENGTH_SHORT).show()
                                             } else {
-                                                android.widget.Toast.makeText(context, "No photos selected for PDF", android.widget.Toast.LENGTH_SHORT).show()
+                                                android.widget.Toast.makeText(context, "Item not found", android.widget.Toast.LENGTH_SHORT).show()
                                             }
+                                        } else {
+                                            android.widget.Toast.makeText(context, "Select 1 photo to edit", android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 )
 
-                                if (!viewModel.isVaultDisabled || isViewingVault) {
-                                    SelectionActionButton(
-                                        icon = if (isViewingVault) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                        label = if (isViewingVault) "Unhide" else "Vault",
-                                        onClick = {
-                                            if (isViewingVault) {
-                                                viewModel.hideSelectedMedia(context)
-                                            } else {
-                                                showVaultPreConfirmDialog = true
-                                            }
-                                        }
-                                    )
-                                }
-
-                                if (!isViewingVault) {
-                                    if (selectedIds.size in 2..9) {
-                                        SelectionActionButton(
-                                            icon = Icons.Default.Dashboard,
-                                            label = "Collage",
-                                            onClick = {
-                                                val selectedIdsSet = selectionState.selectedIds.toSet()
-                                                scope.launch {
-                                                    val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                                    val photoUris = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().map { it.uri }
-                                                    if (photoUris.size in 2..9) {
-                                                        selectionState.clear()
-                                                        collageImageUris = photoUris
-                                                    } else {
-                                                        android.widget.Toast.makeText(context, "Select 2 to 9 photos for collage", android.widget.Toast.LENGTH_SHORT).show()
-                                                    }
-                                                }
-                                            }
-                                        )
-                                    }
-
-                                    SelectionActionButton(
-                                        icon = Icons.Default.Slideshow,
-                                        label = "Slideshow",
-                                        onClick = {
-                                            val selectedIdsSet = selectionState.selectedIds.toSet()
-                                            scope.launch {
-                                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                                if (items.isNotEmpty()) {
-                                                    selectionState.clear()
-                                                    slideshowItems = items
-                                                }
-                                            }
-                                        }
-                                    )
-
-                                    if (selectedIds.size == 2) {
-                                        SelectionActionButton(
-                                            icon = Icons.Default.Compare,
-                                            label = "Compare",
-                                            onClick = {
-                                                val selectedIdsSet = selectionState.selectedIds.toSet()
-                                                scope.launch {
-                                                    val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                                    if (items.size == 2) {
-                                                        compareItems = Pair(items[0], items[1])
-                                                    }
-                                                }
-                                            }
-                                        )
-                                    }
-
-                                    SelectionActionButton(
-                                        icon = Icons.Default.Print,
-                                        label = "Print",
-                                        onClick = {
-                                            val selectedIdsSet = selectionState.selectedIds.toSet()
-                                            scope.launch {
-                                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                                val firstPhoto = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().firstOrNull()
-                                                if (firstPhoto != null) {
-                                                    com.hrshd1eux.imava.core.util.PrintUtil.printPhoto(context, firstPhoto)
-                                                } else {
-                                                    android.widget.Toast.makeText(context, "Select a photo to print", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
-                                            }
-                                        }
-                                    )
-
-                                    SelectionActionButton(
-                                        icon = Icons.Default.RotateRight,
-                                        label = "Rotate",
-                                        onClick = {
-                                            val selectedIdsSet = selectionState.selectedIds.toSet()
-                                            scope.launch {
-                                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                                val photos = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>()
-                                                if (photos.isNotEmpty()) {
-                                                    photos.forEach { p ->
-                                                        viewModel.rotateMediaLosslessly(context, p, clockwise = true)
-                                                    }
-                                                    selectionState.clear()
-                                                } else {
-                                                    android.widget.Toast.makeText(context, "Select photos to rotate", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
-                                            }
-                                        }
-                                    )
-
-                                    SelectionActionButton(
-                                        icon = Icons.Default.Security,
-                                        label = "Clean Copy",
-                                        onClick = {
-                                            val selectedIdsSet = selectionState.selectedIds.toSet()
-                                            scope.launch {
-                                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                                if (items.isNotEmpty()) {
-                                                    viewModel.exportCleanCopies(context, items)
-                                                } else {
-                                                    android.widget.Toast.makeText(context, "No photos selected to export", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
-                                            }
-                                        }
-                                    )
-
-                                    SelectionActionButton(
-                                        icon = Icons.Default.Edit,
-                                        label = "Rename",
-                                        onClick = {
-                                            if (selectionState.selectedIds.size == 1) {
-                                                showSingleRenameDialog = true
-                                            } else {
-                                                showBatchRenameDialog = true
-                                            }
-                                        }
-                                    )
-
-                                    SelectionActionButton(
-                                        icon = Icons.Default.AccessTime,
-                                        label = "Shift Time",
-                                        onClick = { showTimeShiftDialog = true }
-                                    )
-
-                                    SelectionActionButton(
-                                        icon = Icons.AutoMirrored.Filled.DriveFileMove,
-                                        label = "Move/Copy",
-                                        onClick = { showMoveToAlbumDialog = true }
-                                    )
-                                }
-
                                 SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Delete,
                                     label = "Delete",
                                     tint = MaterialTheme.colorScheme.error,
                                     onClick = { showSelectionDeleteConfirmDialog = true }
+                                )
+
+                                SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.MoreVert,
+                                    label = "More",
+                                    onClick = { showSelectionMoreSheet = true }
                                 )
                             }
                         }
@@ -1247,6 +1138,238 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             showSingleRenameDialog = false
         }
     }
+
+    if (showSelectionMoreSheet) {
+        val selectedIds = selectionState.selectedIds
+        val selectedIdsSet = remember(selectedIds) { selectedIds.toSet() }
+        val categoryName by viewModel.currentCategoryNameFlow.collectAsState()
+        val isViewingVault = categoryName == "Hidden Vault"
+
+        ModalBottomSheet(
+            onDismissRequest = { showSelectionMoreSheet = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .navigationBarsPadding()
+            ) {
+                Text(
+                    text = "More Options (${selectedIds.size} selected)",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                SelectionMoreOptionItem(
+                    icon = Icons.Default.Favorite,
+                    title = "Favorite",
+                    subtitle = "Toggle favorite status",
+                    onClick = {
+                        showSelectionMoreSheet = false
+                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                        viewModel.toggleFavoriteSelectedMedia(selectedIdsSet)
+                    }
+                )
+
+                if (!isViewingVault) {
+                    SelectionMoreOptionItem(
+                        icon = Icons.AutoMirrored.Filled.DriveFileMove,
+                        title = "Move / Copy",
+                        subtitle = "Move or copy items to an album",
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            showMoveToAlbumDialog = true
+                        }
+                    )
+                }
+
+                if (!viewModel.isVaultDisabled || isViewingVault) {
+                    SelectionMoreOptionItem(
+                        icon = if (isViewingVault) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        title = if (isViewingVault) "Unhide" else "Move to Vault",
+                        subtitle = if (isViewingVault) "Restore to public gallery" else "Protect with biometric / PIN lock",
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            if (isViewingVault) {
+                                viewModel.hideSelectedMedia(context)
+                            } else {
+                                showVaultPreConfirmDialog = true
+                            }
+                        }
+                    )
+                }
+
+                if (!isViewingVault) {
+                    SelectionMoreOptionItem(
+                        icon = Icons.Default.DriveFileRenameOutline,
+                        title = if (selectedIds.size == 1) "Rename" else "Batch Rename",
+                        subtitle = if (selectedIds.size == 1) "Rename selected item" else "Rename ${selectedIds.size} items in sequence",
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            if (selectedIds.size == 1) {
+                                showSingleRenameDialog = true
+                            } else {
+                                showBatchRenameDialog = true
+                            }
+                        }
+                    )
+                }
+
+                SelectionMoreOptionItem(
+                    icon = Icons.Default.PictureAsPdf,
+                    title = "Create PDF",
+                    subtitle = "Convert selected photos into a PDF document",
+                    onClick = {
+                        showSelectionMoreSheet = false
+                        scope.launch {
+                            val itemsToExport = viewModel.getSelectedMediaItems(selectedIdsSet)
+                            if (itemsToExport.isNotEmpty()) {
+                                android.widget.Toast.makeText(context, "Generating PDF...", android.widget.Toast.LENGTH_SHORT).show()
+                                val pdfUri = com.hrshd1eux.imava.core.util.PdfConverter.createPdfFromImages(context, itemsToExport)
+                                if (pdfUri != null) {
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                    com.hrshd1eux.imava.core.util.PdfConverter.sharePdf(context, pdfUri)
+                                } else {
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                                    android.widget.Toast.makeText(context, "Could not create PDF from selected items", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                android.widget.Toast.makeText(context, "No photos selected for PDF", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                )
+
+                SelectionMoreOptionItem(
+                    icon = Icons.Default.Security,
+                    title = "Clean Copy (Strip EXIF)",
+                    subtitle = "Export copies without location or metadata",
+                    onClick = {
+                        showSelectionMoreSheet = false
+                        scope.launch {
+                            val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                            if (items.isNotEmpty()) {
+                                viewModel.exportCleanCopies(context, items)
+                            } else {
+                                android.widget.Toast.makeText(context, "No photos selected to export", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                )
+
+                SelectionMoreOptionItem(
+                    icon = Icons.AutoMirrored.Filled.RotateRight,
+                    title = "Lossless Rotate",
+                    subtitle = "Rotate photos 90° clockwise without re-encoding",
+                    onClick = {
+                        showSelectionMoreSheet = false
+                        scope.launch {
+                            val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                            val photos = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>()
+                            if (photos.isNotEmpty()) {
+                                photos.forEach { p ->
+                                    viewModel.rotateMediaLosslessly(context, p, clockwise = true)
+                                }
+                                selectionState.clear()
+                            } else {
+                                android.widget.Toast.makeText(context, "Select photos to rotate", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                )
+
+                if (!isViewingVault) {
+                    SelectionMoreOptionItem(
+                        icon = Icons.Default.Dashboard,
+                        title = "Collage",
+                        subtitle = if (selectedIds.size in 2..9) "Create collage from selected photos" else "Requires 2 to 9 photos",
+                        enabled = selectedIds.size in 2..9,
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            scope.launch {
+                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                                val photoUris = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().map { it.uri }
+                                if (photoUris.size in 2..9) {
+                                    selectionState.clear()
+                                    collageImageUris = photoUris
+                                } else {
+                                    android.widget.Toast.makeText(context, "Select 2 to 9 photos for collage", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    )
+
+                    SelectionMoreOptionItem(
+                        icon = Icons.Default.Compare,
+                        title = "Compare",
+                        subtitle = if (selectedIds.size == 2) "Compare 2 items side-by-side" else "Requires exactly 2 items",
+                        enabled = selectedIds.size == 2,
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            scope.launch {
+                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                                if (items.size == 2) {
+                                    compareItems = Pair(items[0], items[1])
+                                }
+                            }
+                        }
+                    )
+
+                    SelectionMoreOptionItem(
+                        icon = Icons.Default.Slideshow,
+                        title = "Slideshow",
+                        subtitle = "Play animated slideshow of selected items",
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            scope.launch {
+                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                                if (items.isNotEmpty()) {
+                                    selectionState.clear()
+                                    slideshowItems = items
+                                }
+                            }
+                        }
+                    )
+
+                    SelectionMoreOptionItem(
+                        icon = Icons.Default.Print,
+                        title = "Print",
+                        subtitle = "Send photo to printer",
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            scope.launch {
+                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
+                                val firstPhoto = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().firstOrNull()
+                                if (firstPhoto != null) {
+                                    com.hrshd1eux.imava.core.util.PrintUtil.printPhoto(context, firstPhoto)
+                                } else {
+                                    android.widget.Toast.makeText(context, "Select a photo to print", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    )
+
+                    SelectionMoreOptionItem(
+                        icon = Icons.Default.AccessTime,
+                        title = "Shift Timestamp",
+                        subtitle = "Adjust date and time for selected media",
+                        onClick = {
+                            showSelectionMoreSheet = false
+                            showTimeShiftDialog = true
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
 }
 
 @Composable
@@ -1306,6 +1429,7 @@ fun SelectionActionButton(
     label: String,
     modifier: Modifier = Modifier,
     tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Column(
@@ -1313,8 +1437,9 @@ fun SelectionActionButton(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clickable(enabled = enabled, onClick = onClick)
+            .alpha(if (enabled) 1f else 0.38f)
+            .padding(horizontal = 4.dp, vertical = 6.dp)
     ) {
         Icon(
             imageVector = icon,
@@ -1329,5 +1454,48 @@ fun SelectionActionButton(
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1
         )
+    }
+}
+
+@Composable
+fun SelectionMoreOptionItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String? = null,
+    modifier: Modifier = Modifier,
+    tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(enabled = enabled, onClick = onClick)
+            .alpha(if (enabled) 1f else 0.38f)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = title,
+            tint = tint,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
