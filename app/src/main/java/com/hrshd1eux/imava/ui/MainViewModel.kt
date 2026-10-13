@@ -205,6 +205,7 @@ class MainViewModel @Inject constructor(
                 galleryPrefs.edit().putInt("last_deep_scan_count", count).apply()
                 kotlinx.coroutines.delay(1000)
                 refreshAll()
+                triggerAutoScrub()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -218,6 +219,55 @@ class MainViewModel @Inject constructor(
         _lastDeepScanCount.value = count
         galleryPrefs.edit().putInt("last_deep_scan_count", count).apply()
         return count
+    }
+
+    private val _autoScrubBucketIds = MutableStateFlow<Set<String>>(
+        galleryPrefs.getStringSet("auto_scrub_bucket_ids", emptySet()) ?: emptySet()
+    )
+    val autoScrubBucketIds: StateFlow<Set<String>> = _autoScrubBucketIds.asStateFlow()
+
+    fun isAutoScrubEnabled(bucketId: Long): Boolean {
+        return _autoScrubBucketIds.value.contains(bucketId.toString())
+    }
+
+    fun toggleAutoScrubBucket(bucketId: Long): Boolean {
+        val current = _autoScrubBucketIds.value.toMutableSet()
+        val key = bucketId.toString()
+        val newState = if (current.contains(key)) {
+            current.remove(key)
+            false
+        } else {
+            current.add(key)
+            true
+        }
+        _autoScrubBucketIds.value = current
+        galleryPrefs.edit().putStringSet("auto_scrub_bucket_ids", current).apply()
+        if (newState) {
+            triggerAutoScrub()
+        }
+        return newState
+    }
+
+    private var lastAutoScrubTimestamp = 0L
+
+    fun triggerAutoScrub() {
+        val now = System.currentTimeMillis()
+        if (now - lastAutoScrubTimestamp < 10_000L) return
+        val targetBuckets = _autoScrubBucketIds.value
+        if (targetBuckets.isEmpty()) return
+
+        lastAutoScrubTimestamp = now
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val allItems = visibleMediaItems.value
+                val count = com.hrshd1eux.imava.core.util.AutoScrubManager.executeAutoScrub(application, allItems)
+                if (count > 0) {
+                    refreshAll()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private var _currentScreenState = mutableStateOf(
@@ -2329,6 +2379,26 @@ class MainViewModel @Inject constructor(
                 com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
                 android.widget.Toast.makeText(context, "Failed to export clean photos", android.widget.Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    fun scrubAlbumMetadata(
+        context: Context,
+        bucketId: Long,
+        options: com.hrshd1eux.imava.core.util.ExifSanitizerUtil.ScrubOptions,
+        onProgress: (completed: Int, total: Int) -> Unit,
+        onComplete: (scrubbedCount: Int) -> Unit
+    ) {
+        viewModelScope.launch {
+            val itemsInAlbum = visibleMediaItems.value.filter { it.bucketId == bucketId }
+            val count = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.scrubItemsBatch(
+                context = context,
+                items = itemsInAlbum,
+                options = options,
+                onProgress = onProgress
+            )
+            refreshAll()
+            onComplete(count)
         }
     }
 }

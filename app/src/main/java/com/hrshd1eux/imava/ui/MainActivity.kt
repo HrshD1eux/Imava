@@ -87,6 +87,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Sync
+import com.hrshd1eux.imava.ui.common.ScrubAlbumDialog
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -329,6 +331,10 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var slideshowItems by remember { androidx.compose.runtime.mutableStateOf<List<com.hrshd1eux.imava.data.model.MediaItem>?>(null) }
     var showVaultPreConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showSelectionMoreSheet by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showScrubCurrentAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var isScrubbingCurrentAlbum by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var currentAlbumScrubProgress by remember { androidx.compose.runtime.mutableStateOf(0) }
+    var currentAlbumScrubTotal by remember { androidx.compose.runtime.mutableStateOf(0) }
     val isVaultUnlocked by viewModel.isVaultUnlocked.collectAsState()
     val isVaultActive = (isVaultUnlocked && viewModel.currentCategoryName == "Hidden Vault") ||
             viewModel.activeMediaItem?.isHidden == true
@@ -393,6 +399,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP || event == Lifecycle.Event.ON_DESTROY) {
                 viewModel.lockVault(context)
+            } else if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.triggerAutoScrub()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -663,6 +671,48 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         showVaultSecurityDialog = false
                                         viewModel.currentCategoryName = null
                                         viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Albums
+                                    }
+                                )
+                            }
+                        }
+
+                        if (viewModel.currentBucketId != null && categoryName == null) {
+                            var showAlbumMenu by remember { mutableStateOf(false) }
+                            val currentBucketId = viewModel.currentBucketId!!
+                            val currentBucketName = viewModel.currentBucketName ?: "Album"
+                            val isAutoScrub = viewModel.isAutoScrubEnabled(currentBucketId)
+
+                            IconButton(onClick = { showAlbumMenu = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "Album Options"
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = showAlbumMenu,
+                                onDismissRequest = { showAlbumMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Scrub Album Metadata 🛡️") },
+                                    leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
+                                    onClick = {
+                                        showAlbumMenu = false
+                                        showScrubCurrentAlbumDialog = true
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(if (isAutoScrub) "Auto-Scrub: Enabled ✓" else "Auto-Scrub: Disabled 🔄") },
+                                    leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null) },
+                                    onClick = {
+                                        showAlbumMenu = false
+                                        val newState = viewModel.toggleAutoScrubBucket(currentBucketId)
+                                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                        android.widget.Toast.makeText(
+                                            context,
+                                            if (newState) "Auto-Scrub enabled for $currentBucketName 🔄" else "Auto-Scrub disabled for $currentBucketName",
+                                            android.widget.Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 )
                             }
@@ -1369,6 +1419,52 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
+    }
+
+    if (showScrubCurrentAlbumDialog && viewModel.currentBucketId != null) {
+        val currentBucketId = viewModel.currentBucketId!!
+        val currentBucketName = viewModel.currentBucketName ?: "Album"
+        val allVisibleItems by viewModel.visibleMediaItems.collectAsState()
+        val albumItemCount = remember(allVisibleItems, currentBucketId) {
+            allVisibleItems.count { it.bucketId == currentBucketId }
+        }
+
+        ScrubAlbumDialog(
+            albumName = currentBucketName,
+            itemCount = albumItemCount,
+            isScrubbing = isScrubbingCurrentAlbum,
+            progressCurrent = currentAlbumScrubProgress,
+            progressTotal = currentAlbumScrubTotal,
+            onDismiss = {
+                if (!isScrubbingCurrentAlbum) {
+                    showScrubCurrentAlbumDialog = false
+                }
+            },
+            onConfirmScrub = { options ->
+                isScrubbingCurrentAlbum = true
+                currentAlbumScrubProgress = 0
+                currentAlbumScrubTotal = albumItemCount
+                viewModel.scrubAlbumMetadata(
+                    context = context,
+                    bucketId = currentBucketId,
+                    options = options,
+                    onProgress = { current, total ->
+                        currentAlbumScrubProgress = current
+                        currentAlbumScrubTotal = total
+                    },
+                    onComplete = { count ->
+                        isScrubbingCurrentAlbum = false
+                        showScrubCurrentAlbumDialog = false
+                        if (count > 0) {
+                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                            android.widget.Toast.makeText(context, "Sanitized $count photos in $currentBucketName", android.widget.Toast.LENGTH_LONG).show()
+                        } else {
+                            android.widget.Toast.makeText(context, "No photos required sanitization in $currentBucketName", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
+            }
+        )
     }
 }
 

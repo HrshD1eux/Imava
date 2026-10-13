@@ -1,3 +1,12 @@
+## 🚀 What's New in Imava v1.1.41
+
+* **Album & Folder EXIF Scrubbing**: Added in-place album-level metadata cleaning with dedicated safety guards to preserve photo capture date and orientation while wiping GPS coordinates, device serials, and camera fingerprints.
+* **Automatic Background Folder Scrubbing**: Designate specific albums/folders (e.g. Camera, Downloads) to automatically strip sensitive metadata in the background upon app launch and deep scan completion with a 3.5s camera write-lock debounce.
+* **Safe vs Nuclear Scrub Modes**: Default safe scrub protects timeline chronology (`DateTimeOriginal`) and keeps photos upright (`Orientation`); optional full wipe removes all timestamps.
+* **Album Actions & Settings Management**: Manage auto-scrub albums via album long-press options, within album header menu, or in Settings under *Privacy & Folders*.
+
+---
+
 ## 🚀 What's New in Imava v1.1.40
 
 * **Top Bar Selection Header**: Moved the selected count (`"1 selected"`, `"2 selected"`) to the top bar alongside a dedicated Close button to exit selection mode and a Select All / Deselect All action.

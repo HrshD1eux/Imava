@@ -1,6 +1,7 @@
 package com.hrshd1eux.imava.core.util
 
 import androidx.exifinterface.media.ExifInterface
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -40,5 +41,42 @@ class ExifSanitizerUtilTest {
         assertTrue("Must strip Image Description", tags.contains(ExifInterface.TAG_IMAGE_DESCRIPTION))
         assertTrue("Must strip Maker Note", tags.contains(ExifInterface.TAG_MAKER_NOTE))
         assertTrue("Must strip XMP", tags.contains(ExifInterface.TAG_XMP))
+    }
+
+    @Test
+    fun testScrubOptions_preserveCaptureDate_omitsTimestamps() {
+        val options = ExifSanitizerUtil.ScrubOptions(preserveCaptureDate = true)
+        val tagsToStrip = ExifSanitizerUtil.getTagsToStrip(options)
+
+        // Must preserve dates
+        assertFalse("Must not strip Datetime", tagsToStrip.contains(ExifInterface.TAG_DATETIME))
+        assertFalse("Must not strip Datetime Original", tagsToStrip.contains(ExifInterface.TAG_DATETIME_ORIGINAL))
+        assertFalse("Must not strip Datetime Digitized", tagsToStrip.contains(ExifInterface.TAG_DATETIME_DIGITIZED))
+        assertFalse("Must not strip Subsec Time", tagsToStrip.contains(ExifInterface.TAG_SUBSEC_TIME))
+        assertFalse("Must not strip Offset Time", tagsToStrip.contains(ExifInterface.TAG_OFFSET_TIME))
+
+        // Must still strip GPS and hardware
+        assertTrue("Must strip GPS latitude", tagsToStrip.contains(ExifInterface.TAG_GPS_LATITUDE))
+        assertTrue("Must strip GPS longitude", tagsToStrip.contains(ExifInterface.TAG_GPS_LONGITUDE))
+        assertTrue("Must strip Make", tagsToStrip.contains(ExifInterface.TAG_MAKE))
+        assertTrue("Must strip Model", tagsToStrip.contains(ExifInterface.TAG_MODEL))
+        assertTrue("Must strip Serial", tagsToStrip.contains(ExifInterface.TAG_BODY_SERIAL_NUMBER))
+    }
+
+    @Test
+    fun testScrubOptions_nuclearWipe_includesTimestamps() {
+        val options = ExifSanitizerUtil.ScrubOptions(preserveCaptureDate = false)
+        val tagsToStrip = ExifSanitizerUtil.getTagsToStrip(options)
+
+        assertTrue("Must strip Datetime", tagsToStrip.contains(ExifInterface.TAG_DATETIME))
+        assertTrue("Must strip Datetime Original", tagsToStrip.contains(ExifInterface.TAG_DATETIME_ORIGINAL))
+        assertTrue("Must strip GPS latitude", tagsToStrip.contains(ExifInterface.TAG_GPS_LATITUDE))
+    }
+
+    @Test
+    fun testOrientation_neverInStripTags() {
+        assertFalse("Orientation must never be in SENSITIVE_TAGS", ExifSanitizerUtil.SENSITIVE_TAGS.contains(ExifInterface.TAG_ORIENTATION))
+        assertFalse("Orientation must not be stripped with date preserved", ExifSanitizerUtil.getTagsToStrip(ExifSanitizerUtil.ScrubOptions(preserveCaptureDate = true)).contains(ExifInterface.TAG_ORIENTATION))
+        assertFalse("Orientation must not be stripped with full wipe", ExifSanitizerUtil.getTagsToStrip(ExifSanitizerUtil.ScrubOptions(preserveCaptureDate = false)).contains(ExifInterface.TAG_ORIENTATION))
     }
 }

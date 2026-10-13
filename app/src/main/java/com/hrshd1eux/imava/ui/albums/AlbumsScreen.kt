@@ -40,7 +40,10 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.ViewList
+import com.hrshd1eux.imava.ui.common.ScrubAlbumDialog
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -99,6 +102,10 @@ fun AlbumsScreen(
     val systemFolderNames = remember { setOf("Camera", "Screenshots", "Download", "WhatsApp Images", "WhatsApp Video", "Pictures", "Movies", "DCIM", "Instagram", "Snapchat", "Telegram") }
     var activeOptionsBucket by remember { mutableStateOf<BucketInfo?>(null) }
     var showDeleteAlbumConfirm by remember { mutableStateOf(false) }
+    var bucketToScrub by remember { mutableStateOf<BucketInfo?>(null) }
+    var isScrubbingAlbum by remember { mutableStateOf(false) }
+    var scrubProgressCurrent by remember { mutableStateOf(0) }
+    var scrubProgressTotal by remember { mutableStateOf(0) }
 
     val visibleBuckets by viewModel.visibleBuckets.collectAsState()
     val pinnedBucketIds by viewModel.pinnedBucketIds.collectAsState()
@@ -753,6 +760,42 @@ fun AlbumsScreen(
                             }
                         }
 
+                        val isAutoScrub = viewModel.isAutoScrubEnabled(bucket.id)
+                        TextButton(
+                            onClick = {
+                                val b = bucket
+                                activeOptionsBucket = null
+                                bucketToScrub = b
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                Icon(Icons.Default.Security, contentDescription = null)
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text("Scrub Album Metadata 🛡️")
+                            }
+                        }
+
+                        TextButton(
+                            onClick = {
+                                val newState = viewModel.toggleAutoScrubBucket(bucket.id)
+                                activeOptionsBucket = null
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                android.widget.Toast.makeText(
+                                    context,
+                                    if (newState) "Auto-Scrub enabled for ${bucket.name} 🔄" else "Auto-Scrub disabled for ${bucket.name}",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                Icon(Icons.Default.Sync, contentDescription = null)
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(if (isAutoScrub) "Auto-Scrub: Enabled ✓" else "Auto-Scrub: Disabled 🔄")
+                            }
+                        }
+
                         val isRootSystemAlbum = bucket.name.equals("Camera", ignoreCase = true) ||
                                 bucket.name.equals("DCIM", ignoreCase = true) ||
                                 bucket.name.equals("Pictures", ignoreCase = true) ||
@@ -865,6 +908,46 @@ fun AlbumsScreen(
                     }
                 )
             }
+        }
+
+        if (bucketToScrub != null) {
+            val b = bucketToScrub!!
+            ScrubAlbumDialog(
+                albumName = b.name,
+                itemCount = b.count,
+                isScrubbing = isScrubbingAlbum,
+                progressCurrent = scrubProgressCurrent,
+                progressTotal = scrubProgressTotal,
+                onDismiss = {
+                    if (!isScrubbingAlbum) {
+                        bucketToScrub = null
+                    }
+                },
+                onConfirmScrub = { options ->
+                    isScrubbingAlbum = true
+                    scrubProgressCurrent = 0
+                    scrubProgressTotal = b.count
+                    viewModel.scrubAlbumMetadata(
+                        context = context,
+                        bucketId = b.id,
+                        options = options,
+                        onProgress = { current, total ->
+                            scrubProgressCurrent = current
+                            scrubProgressTotal = total
+                        },
+                        onComplete = { count ->
+                            isScrubbingAlbum = false
+                            bucketToScrub = null
+                            if (count > 0) {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                android.widget.Toast.makeText(context, "Sanitized $count photos in ${b.name}", android.widget.Toast.LENGTH_LONG).show()
+                            } else {
+                                android.widget.Toast.makeText(context, "No photos required sanitization in ${b.name}", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+                }
+            )
         }
 
         FloatingActionButton(

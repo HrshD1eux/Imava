@@ -64,6 +64,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.Checkbox
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hrshd1eux.imava.ui.MainViewModel
 
@@ -310,6 +312,8 @@ fun SettingsScreen(
             val excludedSet by viewModel.excludedBucketIds.collectAsState()
             val allBuckets by viewModel.buckets.collectAsState()
             var showManageExcludedDialog by remember { mutableStateOf(false) }
+            val autoScrubSet by viewModel.autoScrubBucketIds.collectAsState()
+            var showManageAutoScrubDialog by remember { mutableStateOf(false) }
 
             SettingsCategoryHeader(title = "Privacy & Folders", icon = Icons.Default.Folder)
 
@@ -337,6 +341,33 @@ fun SettingsScreen(
                     }
                     Icon(
                         imageVector = Icons.Default.Folder,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showManageAutoScrubDialog = true }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Auto-Scrub Albums",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = if (autoScrubSet.isEmpty()) "No albums configured" else "${autoScrubSet.size} album(s) automatically sanitized",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.Security,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -507,6 +538,52 @@ fun SettingsScreen(
                     },
                     confirmButton = {
                         Button(onClick = { showManageExcludedDialog = false }) {
+                            Text("Done")
+                        }
+                    }
+                )
+            }
+
+            if (showManageAutoScrubDialog) {
+                AlertDialog(
+                    onDismissRequest = { showManageAutoScrubDialog = false },
+                    title = { Text("Auto-Scrub Albums 🛡️") },
+                    text = {
+                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            Text(
+                                text = "Photos in selected albums are automatically sanitized in the background, removing GPS and camera fingerprints while preserving capture dates and orientation.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            if (allBuckets.isEmpty()) {
+                                Text("No albums discovered yet.")
+                            } else {
+                                allBuckets.forEach { bucket ->
+                                    val isEnabled = autoScrubSet.contains(bucket.id.toString())
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { viewModel.toggleAutoScrubBucket(bucket.id) }
+                                            .padding(vertical = 6.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(bucket.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                            Text("${bucket.count} items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                        Checkbox(
+                                            checked = isEnabled,
+                                            onCheckedChange = { viewModel.toggleAutoScrubBucket(bucket.id) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Button(onClick = { showManageAutoScrubDialog = false }) {
                             Text("Done")
                         }
                     }
