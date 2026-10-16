@@ -1,0 +1,6 @@
+- Added Cryptographic Secure File Shredder with multi-pass CSPRNG overwriting and header zeroing
+- Added Guest Hand-Off Mode with biometric lock
+- Added Ghost Thumbnail and Preview Cache Purger
+- Added GPS Location Fuzzing and metadata stripping for safe sharing
+- Added Instant Deep Scan for WhatsApp, Telegram, and hidden .nomedia albums
+- Fixed album lock security and slideshow navigation

@@ -1,0 +1,10 @@
+Imava is a private, lightweight, and modern offline gallery application designed with Jetpack Compose and Material Design 3.
+
+<b>Features:</b>
+• <b>Cryptographic File Shredder:</b> Multi-pass CSPRNG stream byte overwriting, magic header zeroing, and hardware write-cache flushing to prevent forensic recovery of deleted media.
+• <b>Hidden Vault:</b> Offline AES-256 encrypted vault with PIN and biometric authentication, plus decoy vault support.
+• <b>Guest Hand-Off Mode:</b> Safely hand your phone to others by locking the photo viewer to the current image with biometric exit.
+• <b>Ghost Thumbnail Purger:</b> Scan and securely shred orphaned unencrypted thumbnail previews in system caches.
+• <b>GPS Location Fuzzing:</b> Fuzz or strip GPS coordinates when sharing photos without touching original files.
+• <b>Deep Scan:</b> Fast discovery of hidden albums, WhatsApp media, Telegram folders, and .nomedia directories.
+• <b>Private & Offline:</b> No ads, no telemetry, no tracking, and no cloud dependencies.
