@@ -54,29 +54,31 @@ object FileShredderUtil {
 
         try {
             val secureRandom = SecureRandom()
-            val randomBuffer = ByteArray(CHUNK_SIZE.coerceAtMost(fileLength.toInt().coerceAtLeast(1)))
+            val bufferSize = minOf(CHUNK_SIZE.toLong(), fileLength).toInt().coerceAtLeast(1)
+            val randomBuffer = ByteArray(bufferSize)
             secureRandom.nextBytes(randomBuffer)
 
             RandomAccessFile(file, "rws").use { raf ->
                 var bytesWritten = 0L
                 while (bytesWritten < fileLength) {
                     val remaining = fileLength - bytesWritten
-                    val toWrite = remaining.coerceAtMost(randomBuffer.size.toLong()).toInt()
+                    val toWrite = minOf(randomBuffer.size.toLong(), remaining).toInt()
                     raf.write(randomBuffer, 0, toWrite)
                     bytesWritten += toWrite
                 }
                 raf.fd.sync()
 
                 // Pass 2: Overwrite beginning header with zeros to obliterate magic bytes
-                val headerSize = HEADER_ZERO_SIZE.toLong().coerceAtMost(fileLength).toInt()
+                val headerSize = minOf(HEADER_ZERO_SIZE.toLong(), fileLength).toInt()
                 val zeroBuffer = ByteArray(headerSize)
                 raf.seek(0)
                 raf.write(zeroBuffer)
                 raf.fd.sync()
-            }
 
-            // Truncate file size to 0 bytes
-            FileOutputStream(file).close()
+                // Truncate file size to 0 bytes
+                raf.setLength(0)
+                raf.fd.sync()
+            }
 
             // Scramble filename in directory entry (dentry)
             val parent = file.parentFile
@@ -97,7 +99,8 @@ object FileShredderUtil {
         try {
             val length = pfd.statSize
             val secureRandom = SecureRandom()
-            val randomBuffer = ByteArray(CHUNK_SIZE.coerceAtMost(length.toInt().coerceAtLeast(1)))
+            val bufferSize = if (length > 0) minOf(CHUNK_SIZE.toLong(), length).toInt().coerceAtLeast(1) else CHUNK_SIZE
+            val randomBuffer = ByteArray(bufferSize)
             secureRandom.nextBytes(randomBuffer)
 
             FileOutputStream(pfd.fileDescriptor).use { fos ->
@@ -106,23 +109,25 @@ object FileShredderUtil {
                 var bytesWritten = 0L
                 while (bytesWritten < length) {
                     val remaining = length - bytesWritten
-                    val toWrite = remaining.coerceAtMost(randomBuffer.size.toLong()).toInt()
+                    val toWrite = minOf(randomBuffer.size.toLong(), remaining).toInt()
                     fos.write(randomBuffer, 0, toWrite)
                     bytesWritten += toWrite
                 }
                 channel.force(true)
 
                 // Overwrite initial header with zeroes
-                val headerSize = HEADER_ZERO_SIZE.toLong().coerceAtMost(length).toInt()
-                channel.position(0)
-                fos.write(ByteArray(headerSize))
-                channel.force(true)
+                if (length > 0) {
+                    val headerSize = minOf(HEADER_ZERO_SIZE.toLong(), length).toInt()
+                    channel.position(0)
+                    fos.write(ByteArray(headerSize))
+                    channel.force(true)
+                }
 
                 // Truncate to 0
                 channel.truncate(0)
                 channel.force(true)
+                fos.fd.sync()
             }
-            pfd.fileDescriptor.sync()
             true
         } catch (_: Exception) {
             false

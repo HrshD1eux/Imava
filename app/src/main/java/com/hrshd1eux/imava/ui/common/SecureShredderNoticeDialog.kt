@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,8 +69,8 @@ fun SecureShredderNoticeDialog(
     context: Context,
     onDismiss: () -> Unit
 ) {
-    var showTechnicalDetails by remember { mutableStateOf(false) }
-    var secondsRemaining by remember { mutableStateOf(6) }
+    var showTechnicalDetails by rememberSaveable { mutableStateOf(false) }
+    var secondsRemaining by rememberSaveable { mutableStateOf(6) }
 
     LaunchedEffect(Unit) {
         while (secondsRemaining > 0) {
