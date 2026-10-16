@@ -445,25 +445,19 @@ fun SettingsScreen(
                     Switch(
                         checked = appLockEnabled,
                         onCheckedChange = { enabled ->
-                            val act = context as? androidx.fragment.app.FragmentActivity
-                            if (act != null) {
-                                com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
-                                    activity = act,
-                                    title = if (enabled) "Enable App Lock" else "Disable App Lock",
-                                    subtitle = if (enabled) "Verify your identity to lock the app" else "Verify your identity to disable app lock",
-                                    onSuccess = {
-                                        com.hrshd1eux.imava.core.util.AppLockManager.setAppLockEnabled(context, enabled)
-                                        appLockEnabled = enabled
-                                        com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                    },
-                                    onError = { err ->
-                                        android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            } else {
-                                com.hrshd1eux.imava.core.util.AppLockManager.setAppLockEnabled(context, enabled)
-                                appLockEnabled = enabled
-                            }
+                            com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                activity = context,
+                                title = if (enabled) "Enable App Lock" else "Disable App Lock",
+                                subtitle = if (enabled) "Verify your identity to lock the app" else "Verify your identity to disable app lock",
+                                onSuccess = {
+                                    com.hrshd1eux.imava.core.util.AppLockManager.setAppLockEnabled(context, enabled)
+                                    appLockEnabled = enabled
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                },
+                                onError = { err ->
+                                    android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         }
                     )
                 }
@@ -532,6 +526,95 @@ fun SettingsScreen(
                             }
                         }
                     )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                var recentsPrivacyShield by remember {
+                    mutableStateOf(vaultPrefs.getBoolean("recents_privacy_shield_enabled", true))
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "App Switcher Privacy Shield 🛡️",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Blank out gallery thumbnails in the Android recent apps overview to prevent shoulder surfing",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = recentsPrivacyShield,
+                        onCheckedChange = { enabled ->
+                            recentsPrivacyShield = enabled
+                            vaultPrefs.edit().putBoolean("recents_privacy_shield_enabled", enabled).apply()
+                            if (enabled) {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                            }
+                        }
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                var isPurgingThumbnails by remember { mutableStateOf(false) }
+                val purgeScope = rememberCoroutineScope()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Ghost Thumbnail Purger 🧹⚡",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Shred orphaned unencrypted previews in DCIM/.thumbnails and cache to defeat forensic recovery tools",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            if (!isPurgingThumbnails) {
+                                isPurgingThumbnails = true
+                                purgeScope.launch {
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                                    val result = com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.purgeAndShredGhostThumbnails(context)
+                                    val mbFreed = String.format("%.2f MB", result.bytesReclaimed / (1024.0 * 1024.0))
+                                    android.widget.Toast.makeText(
+                                        context,
+                                        "Shredded ${result.filesPurged} ghost preview files ($mbFreed reclaimed)!",
+                                        android.widget.Toast.LENGTH_LONG
+                                    ).show()
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                    isPurgingThumbnails = false
+                                }
+                            }
+                        },
+                        enabled = !isPurgingThumbnails
+                    ) {
+                        if (isPurgingThumbnails) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Text("Shred Now")
+                        }
+                    }
                 }
             }
 

@@ -42,7 +42,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.ViewList
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import com.hrshd1eux.imava.ui.common.ScrubAlbumDialog
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -127,23 +127,18 @@ fun AlbumsScreen(
 
     val openBucket: (BucketInfo) -> Unit = { bucket ->
         if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(context, bucket.id, bucket.name)) {
-            val act = context as? androidx.fragment.app.FragmentActivity
-            if (act != null) {
-                com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
-                    activity = act,
-                    title = "Locked Album",
-                    subtitle = "Authenticate to open ${bucket.name}",
-                    onSuccess = {
-                        com.hrshd1eux.imava.core.util.AppLockManager.markAlbumUnlockedForSession(bucket.id)
-                        viewModel.selectBucket(bucket.id, bucket.name)
-                    },
-                    onError = { err ->
-                        android.widget.Toast.makeText(context, "Album locked: $err", android.widget.Toast.LENGTH_SHORT).show()
-                    }
-                )
-            } else {
-                viewModel.selectBucket(bucket.id, bucket.name)
-            }
+            com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                activity = context,
+                title = "Locked Album",
+                subtitle = "Authenticate to open ${bucket.name}",
+                onSuccess = {
+                    com.hrshd1eux.imava.core.util.AppLockManager.markAlbumUnlockedForSession(bucket.id)
+                    viewModel.selectBucket(bucket.id, bucket.name)
+                },
+                onError = { err ->
+                    android.widget.Toast.makeText(context, "Album locked: $err", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            )
         } else {
             viewModel.selectBucket(bucket.id, bucket.name)
         }
@@ -445,7 +440,7 @@ fun AlbumsScreen(
                         Box {
                             IconButton(onClick = { showLayoutMenu = true }) {
                                 Icon(
-                                    imageVector = if (numCols == 1) Icons.Default.ViewList else Icons.Default.GridView,
+                                    imageVector = if (numCols == 1) Icons.AutoMirrored.Filled.ViewList else Icons.Default.GridView,
                                     contentDescription = "Change Layout",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -689,49 +684,36 @@ fun AlbumsScreen(
                         val isAlbumLockedConfigured = com.hrshd1eux.imava.core.util.AppLockManager.isAlbumConfiguredLocked(context, bucket.id, bucket.name)
                         TextButton(
                             onClick = {
-                                val act = context as? androidx.fragment.app.FragmentActivity
                                 if (isAlbumLockedConfigured) {
-                                    if (act != null) {
-                                        com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
-                                            activity = act,
-                                            title = "Unlock Album",
-                                            subtitle = "Verify biometric to unlock ${bucket.name}",
-                                            onSuccess = {
-                                                com.hrshd1eux.imava.core.util.AppLockManager.unlockAlbum(context, bucket.id, bucket.name, bucket.path)
-                                                viewModel.refreshAll()
-                                                activeOptionsBucket = null
-                                                android.widget.Toast.makeText(context, "Album unlocked", android.widget.Toast.LENGTH_SHORT).show()
-                                            },
-                                            onError = { err ->
-                                                android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
-                                            }
-                                        )
-                                    } else {
-                                        com.hrshd1eux.imava.core.util.AppLockManager.unlockAlbum(context, bucket.id, bucket.name, bucket.path)
-                                        viewModel.refreshAll()
-                                        activeOptionsBucket = null
-                                    }
+                                    com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                        activity = context,
+                                        title = "Unlock Album",
+                                        subtitle = "Verify biometric to unlock ${bucket.name}",
+                                        onSuccess = {
+                                            com.hrshd1eux.imava.core.util.AppLockManager.unlockAlbum(context, bucket.id, bucket.name, bucket.path)
+                                            viewModel.refreshAll()
+                                            activeOptionsBucket = null
+                                            android.widget.Toast.makeText(context, "Album unlocked", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        onError = { err ->
+                                            android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
                                 } else {
-                                    if (act != null) {
-                                        com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
-                                            activity = act,
-                                            title = "Lock Album",
-                                            subtitle = "Verify biometric to lock ${bucket.name}",
-                                            onSuccess = {
-                                                com.hrshd1eux.imava.core.util.AppLockManager.lockAlbum(context, bucket.id, bucket.name, bucket.path)
-                                                viewModel.refreshAll()
-                                                activeOptionsBucket = null
-                                                android.widget.Toast.makeText(context, "Album locked with Biometrics 🔒", android.widget.Toast.LENGTH_SHORT).show()
-                                            },
-                                            onError = { err ->
-                                                android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
-                                            }
-                                        )
-                                    } else {
-                                        com.hrshd1eux.imava.core.util.AppLockManager.lockAlbum(context, bucket.id, bucket.name, bucket.path)
-                                        viewModel.refreshAll()
-                                        activeOptionsBucket = null
-                                    }
+                                    com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                        activity = context,
+                                        title = "Lock Album",
+                                        subtitle = "Verify biometric to lock ${bucket.name}",
+                                        onSuccess = {
+                                            com.hrshd1eux.imava.core.util.AppLockManager.lockAlbum(context, bucket.id, bucket.name, bucket.path)
+                                            viewModel.refreshAll()
+                                            activeOptionsBucket = null
+                                            android.widget.Toast.makeText(context, "Album locked with Biometrics 🔒", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        onError = { err ->
+                                            android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()

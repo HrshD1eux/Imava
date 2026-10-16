@@ -12,6 +12,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.security.SecureRandom
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.round
+
+enum class SharePrivacyMode {
+    STRIP_ALL,      // Complete metadata removal
+    FUZZ_LOCATION,  // Coarse ~2 km offset, strip serials & timestamps
+    FULL_METADATA   // Keep intact
+}
 
 object ExifSanitizerUtil {
 
@@ -279,6 +289,87 @@ object ExifSanitizerUtil {
             exif.saveAttributes()
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    /**
+     * Obfuscates GPS coordinates by adding a coarse random offset (~1.4–2.6 km)
+     * and rounding to 2 decimal places (~1.1 km block), while obliterating micro-timestamps,
+     * satellite telemetry, altitude, speed, and hardware serial numbers.
+     * Retains general city/regional neighborhood for mapping while preventing physical tracking.
+     */
+    fun fuzzLocation(file: File, radiusKm: Double = 2.0): Boolean {
+        return try {
+            if (!file.exists() || !file.canWrite()) return false
+            val exif = ExifInterface(file.absolutePath)
+            val latLong = exif.latLong
+
+            if (latLong != null && latLong.size >= 2) {
+                val secureRandom = SecureRandom()
+                val angle = secureRandom.nextDouble() * 2 * Math.PI
+                val distance = (radiusKm * 0.7) + (secureRandom.nextDouble() * radiusKm * 0.6) // ~1.4 - 2.6 km
+
+                val deltaLat = (distance * cos(angle)) / 111.32
+                val cosLat = cos(Math.toRadians(latLong[0])).coerceAtLeast(0.01)
+                val deltaLon = (distance * sin(angle)) / (111.32 * cosLat)
+
+                val fuzzedLat = (latLong[0] + deltaLat).coerceIn(-89.9, 89.9)
+                val fuzzedLon = (latLong[1] + deltaLon).coerceIn(-179.9, 179.9)
+
+                val roundedLat = round(fuzzedLat * 100.0) / 100.0
+                val roundedLon = round(fuzzedLon * 100.0) / 100.0
+
+                exif.setLatLong(roundedLat, roundedLon)
+            }
+
+            // Obliterate tracking GPS telemetry
+            val trackingGpsTags = listOf(
+                ExifInterface.TAG_GPS_ALTITUDE,
+                ExifInterface.TAG_GPS_ALTITUDE_REF,
+                ExifInterface.TAG_GPS_TIMESTAMP,
+                ExifInterface.TAG_GPS_DATESTAMP,
+                ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                ExifInterface.TAG_GPS_AREA_INFORMATION,
+                ExifInterface.TAG_GPS_SPEED,
+                ExifInterface.TAG_GPS_SPEED_REF,
+                ExifInterface.TAG_GPS_TRACK,
+                ExifInterface.TAG_GPS_TRACK_REF,
+                ExifInterface.TAG_GPS_IMG_DIRECTION,
+                ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
+                ExifInterface.TAG_GPS_DEST_LATITUDE,
+                ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
+                ExifInterface.TAG_GPS_DEST_LONGITUDE,
+                ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
+                ExifInterface.TAG_GPS_DEST_BEARING,
+                ExifInterface.TAG_GPS_DEST_BEARING_REF,
+                ExifInterface.TAG_GPS_DEST_DISTANCE,
+                ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
+                ExifInterface.TAG_GPS_MAP_DATUM,
+                ExifInterface.TAG_GPS_DIFFERENTIAL
+            )
+            for (tag in trackingGpsTags) {
+                exif.setAttribute(tag, null)
+            }
+
+            // Also strip hardware identifiers & unique serials
+            val hardwareSerials = listOf(
+                ExifInterface.TAG_BODY_SERIAL_NUMBER,
+                ExifInterface.TAG_LENS_SERIAL_NUMBER,
+                ExifInterface.TAG_CAMERA_OWNER_NAME,
+                ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
+                ExifInterface.TAG_USER_COMMENT,
+                ExifInterface.TAG_MAKER_NOTE,
+                ExifInterface.TAG_IMAGE_UNIQUE_ID
+            )
+            for (tag in hardwareSerials) {
+                exif.setAttribute(tag, null)
+            }
+
+            exif.saveAttributes()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
     }
 }

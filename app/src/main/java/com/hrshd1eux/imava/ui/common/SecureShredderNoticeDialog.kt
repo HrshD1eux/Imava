@@ -51,7 +51,7 @@ import kotlinx.coroutines.delay
 object SecureShredderNoticeManager {
     private const val PREFS_NAME = "app_notices"
     private const val KEY_SHREDDER_NOTICE_VERSION = "shredder_notice_version"
-    const val CURRENT_NOTICE_VERSION = 43
+    const val CURRENT_NOTICE_VERSION = 45
 
     fun shouldShowNotice(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

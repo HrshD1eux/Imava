@@ -148,10 +148,12 @@ fun VideoPlayerContainer(
     // Audio & Brightness Managers
     val audioManager = remember(context) { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     val maxVolume = remember(audioManager) { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1) }
+    val prefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
+    val boostBrightness = remember(prefs) { prefs.getBoolean("viewer_boost_brightness", false) }
     var currentBrightness by remember {
         val window = context.findActivity()?.window
         val cur = window?.attributes?.screenBrightness ?: -1f
-        mutableFloatStateOf(if (cur >= 0f) cur else 0.5f)
+        mutableFloatStateOf(if (cur >= 0f) cur else if (boostBrightness) 1f else 0.5f)
     }
 
     if (!isSelectedPage) {
@@ -225,7 +227,7 @@ fun VideoPlayerContainer(
         onDispose {
             context.findActivity()?.window?.let { window ->
                 val lp = window.attributes
-                lp.screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                lp.screenBrightness = if (boostBrightness) 1.0f else android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                 window.attributes = lp
             }
             player.removeListener(listener)

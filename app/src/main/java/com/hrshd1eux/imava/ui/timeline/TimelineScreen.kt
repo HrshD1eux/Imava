@@ -97,7 +97,7 @@ fun TimelineScreen(
                         offset.x >= info.offset.x && offset.x <= (info.offset.x + info.size.width) &&
                         offset.y >= info.offset.y && offset.y <= (info.offset.y + info.size.height)
                     }
-                    if (hitItem != null) {
+                    if (hitItem != null && hitItem.index in 0 until lazyPagingItems.itemCount) {
                         val timelineItem = lazyPagingItems.peek(hitItem.index)
                         if (timelineItem is TimelineItem.Media) {
                             selectionState.select(timelineItem.item.id)
@@ -112,7 +112,7 @@ fun TimelineScreen(
                         offset.x >= info.offset.x && offset.x <= (info.offset.x + info.size.width) &&
                         offset.y >= info.offset.y && offset.y <= (info.offset.y + info.size.height)
                     }
-                    if (hitItem != null) {
+                    if (hitItem != null && hitItem.index in 0 until lazyPagingItems.itemCount) {
                         val timelineItem = lazyPagingItems.peek(hitItem.index)
                         if (timelineItem is TimelineItem.Media && !selectionState.selectedIds.contains(timelineItem.item.id)) {
                             selectionState.select(timelineItem.item.id)
@@ -252,6 +252,7 @@ fun TimelineScreen(
                                             isSelected = isSelected,
                                             inSelectionMode = selectionState.inSelectionMode,
                                             aspectRatio = cellRatio,
+                                            gridColumnCount = viewModel.gridColumnCount,
                                             onClick = {
                                                 if (selectionState.inSelectionMode) {
                                                     selectionState.toggle(mediaItem.id)
@@ -306,7 +307,10 @@ fun TimelineFilterChips(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(MediaFilterType.values()) { filter ->
+        items(
+            items = MediaFilterType.entries.toTypedArray(),
+            key = { it.name }
+        ) { filter ->
             val isSelected = filter == selectedFilter
             FilterChip(
                 selected = isSelected,
@@ -348,18 +352,27 @@ fun MediaGridCell(
     isSelected: Boolean,
     inSelectionMode: Boolean,
     aspectRatio: Float,
+    gridColumnCount: Int = 3,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val imageRequest = remember(item.uri) {
+    val targetDimension = when {
+        gridColumnCount <= 1 -> 720
+        gridColumnCount == 2 -> 480
+        else -> 320
+    }
+    val targetWidth = if (aspectRatio >= 1f) (targetDimension * aspectRatio).toInt().coerceAtMost(1080) else targetDimension
+    val targetHeight = if (aspectRatio < 1f) (targetDimension / aspectRatio).toInt().coerceAtMost(1080) else targetDimension
+
+    val imageRequest = remember(item.uri, targetWidth, targetHeight) {
         coil.request.ImageRequest.Builder(context)
             .data(item.uri)
             .crossfade(false)
             .allowHardware(true)
             .bitmapConfig(android.graphics.Bitmap.Config.RGB_565)
-            .size(280, 280)
+            .size(targetWidth, targetHeight)
             .diskCachePolicy(coil.request.CachePolicy.ENABLED)
             .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
             .precision(coil.size.Precision.INEXACT)

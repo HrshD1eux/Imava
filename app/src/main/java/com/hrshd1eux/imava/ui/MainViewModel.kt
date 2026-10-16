@@ -1765,17 +1765,27 @@ class MainViewModel @Inject constructor(
         hidden.value.filter { selectedIds.contains(it.id) }
     }
 
-    fun shareSelectedMedia(context: Context, stripMetadata: Boolean) {
+    fun shareSelectedMedia(
+        context: Context,
+        privacyMode: com.hrshd1eux.imava.core.util.SharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL
+    ) {
         val selectedIds = selectionState.selectedIds.toSet()
         if (selectedIds.isNotEmpty()) {
             viewModelScope.launch {
                 val selectedList = getSelectedMediaItems(selectedIds)
                 if (selectedList.isNotEmpty()) {
-                    SharingUtils.shareMedia(context, selectedList, stripMetadata)
+                    SharingUtils.shareMedia(context, selectedList, privacyMode)
                     selectionState.clear()
                 }
             }
         }
+    }
+
+    fun shareSelectedMedia(context: Context, stripMetadata: Boolean) {
+        shareSelectedMedia(
+            context,
+            if (stripMetadata) com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL else com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA
+        )
     }
 
     fun hideSelectedMedia(context: Context) {
@@ -1804,10 +1814,22 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun shareSingleMedia(context: Context, item: MediaItem, stripMetadata: Boolean) {
+    fun shareSingleMedia(
+        context: Context,
+        item: MediaItem,
+        privacyMode: com.hrshd1eux.imava.core.util.SharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL
+    ) {
         viewModelScope.launch {
-            SharingUtils.shareMedia(context, listOf(item), stripMetadata)
+            SharingUtils.shareMedia(context, listOf(item), privacyMode)
         }
+    }
+
+    fun shareSingleMedia(context: Context, item: MediaItem, stripMetadata: Boolean) {
+        shareSingleMedia(
+            context,
+            item,
+            if (stripMetadata) com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL else com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA
+        )
     }
 
     fun deletePermanently(context: Context, item: MediaItem, targetNextItem: MediaItem? = null) {

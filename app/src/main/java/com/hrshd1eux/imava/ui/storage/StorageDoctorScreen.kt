@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -180,6 +181,63 @@ fun StorageDoctorScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                             )
+                        }
+                    }
+                }
+
+                var isPurgingGhostThumbs by remember { mutableStateOf(false) }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Ghost Thumbnail Purger 🧹⚡",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "Shred orphaned previews in DCIM/.thumbnails to prevent recovery",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Button(
+                            onClick = {
+                                if (!isPurgingGhostThumbs) {
+                                    isPurgingGhostThumbs = true
+                                    scope.launch {
+                                        HapticUtil.performClick(context)
+                                        val res = com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.purgeAndShredGhostThumbnails(context)
+                                        val mb = String.format("%.1f MB", res.bytesReclaimed / (1024.0 * 1024.0))
+                                        Toast.makeText(context, "Shredded ${res.filesPurged} ghost thumbnails ($mb freed)!", Toast.LENGTH_SHORT).show()
+                                        HapticUtil.performSuccess(context)
+                                        isPurgingGhostThumbs = false
+                                    }
+                                }
+                            },
+                            enabled = !isPurgingGhostThumbs
+                        ) {
+                            if (isPurgingGhostThumbs) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            } else {
+                                Text("Purge")
+                            }
                         }
                     }
                 }

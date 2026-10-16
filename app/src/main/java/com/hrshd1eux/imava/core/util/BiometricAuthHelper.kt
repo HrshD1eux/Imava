@@ -1,7 +1,9 @@
 package com.hrshd1eux.imava.core.util
 
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -20,17 +22,31 @@ object BiometricAuthHelper {
         return null
     }
 
-    fun canAuthenticate(context: Context): Boolean {
+    fun canAuthenticate(context: Context, allowDeviceCredential: Boolean = true): Boolean {
         val biometricManager = BiometricManager.from(context)
-        val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
-        return biometricManager.canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS
+        val authenticators = if (allowDeviceCredential) {
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        } else {
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
+        }
+        val bioSuccess = biometricManager.canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS
+        if (bioSuccess) return true
+
+        if (allowDeviceCredential) {
+            val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+            if (km?.isDeviceSecure == true) return true
+        }
+        return false
     }
 
     fun authenticate(
         activity: Context,
         title: String = "Unlock Hidden Vault",
         subtitle: String = "Use fingerprint or face unlock to access your hidden photos",
-        negativeButtonText: String = "Use PIN",
+        negativeButtonText: String = "Cancel",
+        allowDeviceCredential: Boolean = true,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
@@ -40,19 +56,43 @@ object BiometricAuthHelper {
             return
         }
 
-        if (!canAuthenticate(fragmentActivity)) {
-            onError("Biometric hardware unavailable or not enrolled.")
+        val km = fragmentActivity.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+        val isDeviceSecure = km?.isDeviceSecure == true
+        val biometricManager = BiometricManager.from(fragmentActivity)
+        val canBiometric = biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
+        ) == BiometricManager.BIOMETRIC_SUCCESS
+
+        if (!canBiometric && (!allowDeviceCredential || !isDeviceSecure)) {
+            onError("No biometric or lock screen security setup on device.")
             return
         }
 
         try {
             val executor = ContextCompat.getMainExecutor(fragmentActivity)
-            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            val promptInfoBuilder = BiometricPrompt.PromptInfo.Builder()
                 .setTitle(title)
                 .setSubtitle(subtitle)
-                .setNegativeButtonText(negativeButtonText)
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK)
-                .build()
+
+            if (allowDeviceCredential && isDeviceSecure) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    promptInfoBuilder.setAllowedAuthenticators(
+                        BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                                BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                                BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    promptInfoBuilder.setDeviceCredentialAllowed(true)
+                }
+            } else {
+                promptInfoBuilder.setNegativeButtonText(negativeButtonText)
+                promptInfoBuilder.setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
+                )
+            }
+
+            val promptInfo = promptInfoBuilder.build()
 
             val biometricPrompt = BiometricPrompt(
                 fragmentActivity,

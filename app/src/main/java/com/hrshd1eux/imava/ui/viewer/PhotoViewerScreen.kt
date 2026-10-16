@@ -100,6 +100,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -247,11 +252,49 @@ fun PhotoViewerScreen(
         }
     }
 
+    var isGuestModeLocked by remember { mutableStateOf(false) }
+    var sharePrivacyMode by remember { mutableStateOf(com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL) }
+
+    fun promptExitGuestMode() {
+        com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+            activity = context,
+            title = "Unlock Gallery",
+            subtitle = "Verify fingerprint, face, or device PIN to exit Guest View",
+            onSuccess = {
+                isGuestModeLocked = false
+                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                android.widget.Toast.makeText(context, "Guest View Unlocked", android.widget.Toast.LENGTH_SHORT).show()
+            },
+            onError = { err ->
+                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
     var showChrome by remember { mutableStateOf(true) }
+    var isSlideshowActive by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isGuestModeLocked) {
+        promptExitGuestMode()
+    }
+
+    BackHandler(enabled = isSlideshowActive && !isGuestModeLocked) {
+        isSlideshowActive = false
+        showChrome = true
+    }
+
+    val toggleChromeOrStopSlideshow: () -> Unit = {
+        if (isSlideshowActive) {
+            isSlideshowActive = false
+            showChrome = true
+        } else {
+            showChrome = !showChrome
+        }
+    }
     var showInfoSheet by remember { mutableStateOf(false) }
     var showMoreMenu by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
-    var stripMetadataOnShare by remember { mutableStateOf(true) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var showDeletePermanentlyConfirmDialog by remember { mutableStateOf(false) }
     var showMoveToAlbumDialog by remember { mutableStateOf(false) }
@@ -281,7 +324,6 @@ fun PhotoViewerScreen(
         }
     }
 
-    var isSlideshowActive by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showCompressDialog by remember { mutableStateOf(false) }
     var showMotionExportDialog by remember { mutableStateOf(false) }
@@ -314,8 +356,8 @@ fun PhotoViewerScreen(
 
     var dragOffsetY by remember { mutableStateOf(0f) }
     
-    // Disable drag dismiss if image is zoomed in to avoid gesture collision.
-    val swipeDismissModifier = if (!isCurrentPageZoomed) {
+    // Disable drag dismiss if image is zoomed in or guest mode is locked to avoid gestures.
+    val swipeDismissModifier = if (!isCurrentPageZoomed && !isGuestModeLocked) {
         Modifier.draggable(
             state = rememberDraggableState { delta ->
                 if (delta > 0 || dragOffsetY > 0) {
@@ -347,7 +389,7 @@ fun PhotoViewerScreen(
         HorizontalPager(
             state = pagerState,
             key = { page -> mediaItems.getOrNull(page)?.id ?: page },
-            userScrollEnabled = !isCurrentPageZoomed && !isSlideshowActive,
+            userScrollEnabled = !isCurrentPageZoomed && !isSlideshowActive && !isGuestModeLocked,
             beyondBoundsPageCount = 1,
             pageSpacing = 16.dp,
             modifier = Modifier
@@ -401,7 +443,7 @@ fun PhotoViewerScreen(
                             isSelectedPage = (page == pagerState.settledPage),
                             isScrollInProgress = pagerState.isScrollInProgress,
                             showChrome = showChrome,
-                            onTap = { showChrome = !showChrome },
+                            onTap = toggleChromeOrStopSlideshow,
                             resizeMode = videoResizeMode,
                             modifier = Modifier.fillMaxSize()
                         )
@@ -412,7 +454,7 @@ fun PhotoViewerScreen(
                             isSelectedPage = true,
                             isScrollInProgress = pagerState.isScrollInProgress,
                             showChrome = showChrome,
-                            onTap = { showChrome = !showChrome },
+                            onTap = toggleChromeOrStopSlideshow,
                             resizeMode = videoResizeMode,
                             modifier = Modifier.fillMaxSize()
                         )
@@ -440,7 +482,7 @@ fun PhotoViewerScreen(
                                 .fillMaxSize()
                                 .zoomable(
                                     state = pageZoomState,
-                                    onTap = { showChrome = !showChrome }
+                                    onTap = toggleChromeOrStopSlideshow
                                 )
                         )
                     }
@@ -466,9 +508,44 @@ fun PhotoViewerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { viewModel.activeMediaItem = null }
+                    onClick = {
+                        if (isGuestModeLocked) {
+                            promptExitGuestMode()
+                        } else {
+                            viewModel.activeMediaItem = null
+                        }
+                    }
                 ) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                }
+
+                if (isGuestModeLocked) {
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        modifier = Modifier
+                            .clickable { promptExitGuestMode() }
+                            .padding(end = 6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Locked View",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
 
                 Text(
@@ -565,6 +642,18 @@ fun PhotoViewerScreen(
                     Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.White)
                 }
 
+                if (!isGuestModeLocked) {
+                    IconButton(
+                        onClick = {
+                            isGuestModeLocked = true
+                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                            android.widget.Toast.makeText(context, "Guest View Locked: Authenticate to exit or swipe", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock to Photo (Guest Mode)", tint = Color.White)
+                    }
+                }
+
                 Box {
                     IconButton(onClick = { showMoreMenu = true }) {
                         Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options", tint = Color.White)
@@ -575,6 +664,21 @@ fun PhotoViewerScreen(
                         onDismissRequest = { showMoreMenu = false }
                     ) {
                         val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
+
+                        DropdownMenuItem(
+                            text = { Text(if (isGuestModeLocked) "Unlock Guest View 🔓" else "Guest Lock (Viewing Jail) 🔒") },
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                            onClick = {
+                                showMoreMenu = false
+                                if (isGuestModeLocked) {
+                                    promptExitGuestMode()
+                                } else {
+                                    isGuestModeLocked = true
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                    android.widget.Toast.makeText(context, "Guest View Locked: Authenticate to exit or swipe", android.widget.Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        )
                         DropdownMenuItem(
                             text = { Text("Rename") },
                             leadingIcon = {
@@ -837,7 +941,25 @@ fun PhotoViewerScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (item.isTrashed) {
+                    if (isGuestModeLocked) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { promptExitGuestMode() }
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Guest View Locked · Tap to Unlock",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    } else if (item.isTrashed) {
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
@@ -914,21 +1036,67 @@ fun PhotoViewerScreen(
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
             AlertDialog(
                 onDismissRequest = { showShareDialog = false },
-                title = { Text("Share Privately") },
+                title = { Text("Share Privately 🛡️") },
                 text = {
                     Column {
-                        Text("Removes location markers, camera details, and personal info before sharing.")
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Choose metadata & privacy level before sending:",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { sharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL }
+                                .padding(vertical = 4.dp)
                         ) {
-                            Checkbox(
-                                checked = stripMetadataOnShare,
-                                onCheckedChange = { stripMetadataOnShare = it }
+                            RadioButton(
+                                selected = sharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL,
+                                onClick = { sharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL }
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Remove location & camera info")
+                            Column {
+                                Text("Strip All Metadata 🛡️", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Remove all GPS coordinates, timestamps, & camera serials", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { sharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION }
+                                .padding(vertical = 4.dp)
+                        ) {
+                            RadioButton(
+                                selected = sharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION,
+                                onClick = { sharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text("Fuzz GPS Location (~2 km) 🌐", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Obscure exact street with coarse ~2 km radius; keep city area", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { sharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA }
+                                .padding(vertical = 4.dp)
+                        ) {
+                            RadioButton(
+                                selected = sharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA,
+                                onClick = { sharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text("Full Metadata 📷", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Preserve original EXIF markers and exact GPS position", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     }
                 },
@@ -936,10 +1104,10 @@ fun PhotoViewerScreen(
                     Button(
                         onClick = {
                             showShareDialog = false
-                            viewModel.shareSingleMedia(context, item, stripMetadataOnShare)
+                            viewModel.shareSingleMedia(context, item, sharePrivacyMode)
                         }
                     ) {
-                        Text("Share Cleaned")
+                        Text("Share")
                     }
                 },
                 dismissButton = {

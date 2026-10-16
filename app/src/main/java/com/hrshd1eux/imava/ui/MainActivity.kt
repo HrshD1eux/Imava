@@ -111,6 +111,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import android.content.pm.ActivityInfo
@@ -260,11 +262,22 @@ class MainActivity : FragmentActivity() {
             viewModel.refreshAll()
             viewModel.triggerAutoDeepScan()
         }
+
+        val galleryPrefs = getSharedPreferences("gallery_prefs", MODE_PRIVATE)
+        val isVaultActive = (viewModel.isVaultUnlocked.value && viewModel.currentCategoryName == "Hidden Vault") ||
+                viewModel.activeMediaItem?.isHidden == true
+        if (!isVaultActive && galleryPrefs.getBoolean("recents_privacy_shield_enabled", true)) {
+            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 
     override fun onPause() {
         super.onPause()
         com.hrshd1eux.imava.core.util.AppLockManager.onAppPause()
+        val galleryPrefs = getSharedPreferences("gallery_prefs", MODE_PRIVATE)
+        if (galleryPrefs.getBoolean("recents_privacy_shield_enabled", true)) {
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 
     override fun onStop() {
@@ -318,7 +331,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var showSelectionShareDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
-    var stripMetadataOnShare by remember { androidx.compose.runtime.mutableStateOf(true) }
+    var selectionSharePrivacyMode by remember { androidx.compose.runtime.mutableStateOf(com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL) }
     var showSelectionDeleteConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showSelectionDeletePermanentlyConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showMoveToAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -1011,21 +1024,67 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     if (showSelectionShareDialog) {
         AlertDialog(
             onDismissRequest = { showSelectionShareDialog = false },
-            title = { Text("Share Selected Files") },
+            title = { Text("Share Selected Files 🛡️") },
             text = {
                 Column {
-                    Text("Strip location and device identifiers (EXIF metadata) to secure your privacy before sharing.")
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Choose metadata & privacy level before sharing:",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL }
+                            .padding(vertical = 4.dp)
                     ) {
-                        Checkbox(
-                            checked = stripMetadataOnShare,
-                            onCheckedChange = { stripMetadataOnShare = it }
+                        RadioButton(
+                            selected = selectionSharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL,
+                            onClick = { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Strip EXIF & Location tags")
+                        Column {
+                            Text("Strip All Metadata 🛡️", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                            Text("Remove all GPS coordinates, timestamps, & camera serials", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION }
+                            .padding(vertical = 4.dp)
+                    ) {
+                        RadioButton(
+                            selected = selectionSharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION,
+                            onClick = { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text("Fuzz GPS Location (~2 km) 🌐", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                            Text("Obscure exact street with coarse ~2 km radius; keep city area", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA }
+                            .padding(vertical = 4.dp)
+                    ) {
+                        RadioButton(
+                            selected = selectionSharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA,
+                            onClick = { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text("Full Metadata 📷", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                            Text("Preserve original EXIF markers and exact GPS position", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
             },
@@ -1033,10 +1092,10 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 Button(
                     onClick = {
                         showSelectionShareDialog = false
-                        viewModel.shareSelectedMedia(context, stripMetadataOnShare)
+                        viewModel.shareSelectedMedia(context, selectionSharePrivacyMode)
                     }
                 ) {
-                    Text("Share Securely")
+                    Text("Share")
                 }
             },
             dismissButton = {

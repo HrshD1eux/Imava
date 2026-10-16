@@ -15,7 +15,7 @@ object SharingUtils {
     suspend fun shareMedia(
         context: Context,
         items: List<MediaItem>,
-        stripMetadata: Boolean
+        privacyMode: SharePrivacyMode = SharePrivacyMode.STRIP_ALL
     ) = withContext(Dispatchers.IO) {
         val parentFolder = File(context.cacheDir, "shared_images").apply { mkdirs() }
         try {
@@ -54,8 +54,12 @@ object SharingUtils {
                     }
                 } ?: return@mapNotNull null
 
-                if (stripMetadata && item.mimeType.contains("image", ignoreCase = true)) {
-                    ExifSanitizerUtil.stripMetadata(tempFile)
+                if (item.mimeType.contains("image", ignoreCase = true)) {
+                    when (privacyMode) {
+                        SharePrivacyMode.STRIP_ALL -> ExifSanitizerUtil.stripMetadata(tempFile)
+                        SharePrivacyMode.FUZZ_LOCATION -> ExifSanitizerUtil.fuzzLocation(tempFile)
+                        SharePrivacyMode.FULL_METADATA -> { /* Keep original metadata */ }
+                    }
                 }
 
                 FileProvider.getUriForFile(
@@ -88,5 +92,17 @@ object SharingUtils {
             }
             context.startActivity(chooser)
         }
+    }
+
+    suspend fun shareMedia(
+        context: Context,
+        items: List<MediaItem>,
+        stripMetadata: Boolean
+    ) {
+        shareMedia(
+            context = context,
+            items = items,
+            privacyMode = if (stripMetadata) SharePrivacyMode.STRIP_ALL else SharePrivacyMode.FULL_METADATA
+        )
     }
 }
