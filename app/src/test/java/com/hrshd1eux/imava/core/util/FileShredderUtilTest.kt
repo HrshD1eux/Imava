@@ -47,4 +47,21 @@ class FileShredderUtilTest {
         val result = FileShredderUtil.shredFile(nonExistent)
         assertFalse(result)
     }
+
+    @Test
+    fun testShredFile_directory_refusesToTouchAndPreservesContents() = runBlocking {
+        val targetDir = tempFolder.newFolder("precious_album")
+        val internalFile = File(targetDir, "keep_safe.jpg")
+        FileOutputStream(internalFile).use { it.write("Important Data".toByteArray()) }
+
+        assertTrue(targetDir.exists())
+        assertTrue(targetDir.isDirectory)
+        assertTrue(internalFile.exists())
+
+        // Calling shredFile on a directory MUST be rejected immediately
+        val result = FileShredderUtil.shredFile(targetDir)
+        assertFalse("shredFile must reject directories", result)
+        assertTrue("Directory must still exist untouched", targetDir.exists())
+        assertTrue("Internal files must remain completely untouched", internalFile.exists())
+    }
 }

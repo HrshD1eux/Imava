@@ -85,6 +85,10 @@ fun SecureShredderNoticeDialog(
                 onDismiss()
             }
         },
+        properties = androidx.compose.ui.window.DialogProperties(
+            dismissOnBackPress = secondsRemaining == 0,
+            dismissOnClickOutside = secondsRemaining == 0
+        ),
         icon = {
             Icon(
                 imageVector = Icons.Default.Security,

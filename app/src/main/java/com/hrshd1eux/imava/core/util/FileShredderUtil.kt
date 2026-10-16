@@ -43,9 +43,10 @@ object FileShredderUtil {
 
     /**
      * Shreds a physical file in place using cryptographic random overwrites.
+     * Guarded to ensure only normal files (never directories or system entries) are touched.
      */
     suspend fun shredFile(file: File): Boolean = withContext(Dispatchers.IO) {
-        if (!file.exists()) return@withContext false
+        if (!file.exists() || !file.isFile || file.isDirectory) return@withContext false
         val fileLength = file.length()
         if (fileLength == 0L) {
             return@withContext file.delete()
@@ -132,20 +133,25 @@ object FileShredderUtil {
      * Shreds a media item across physical disk, Scoped Storage URI, and internal trash cache.
      */
     suspend fun shredMediaItem(context: Context, item: MediaItem): Boolean = withContext(Dispatchers.IO) {
+        if (item.path.isBlank()) return@withContext false
         var success = false
 
-        // 1. Shred physical file if accessible
+        // 1. Shred physical file if accessible and strictly a regular file
         val file = File(item.path)
-        if (file.exists() && file.canWrite()) {
+        if (file.exists() && file.isFile && file.canWrite()) {
             success = shredFile(file)
         }
 
-        // 2. Shred internal trash cache copy if present
+        // 2. Shred internal trash cache copy if present and strictly inside imava_trash
         val trashDir = File(context.filesDir, "imava_trash")
         val trashedFile = File(trashDir, "${item.id}_${file.name}")
-        if (trashedFile.exists() && trashedFile.canWrite()) {
-            shredFile(trashedFile)
-        }
+        try {
+            if (trashedFile.canonicalPath.startsWith(trashDir.canonicalPath) &&
+                trashedFile.exists() && trashedFile.isFile && trashedFile.canWrite()
+            ) {
+                shredFile(trashedFile)
+            }
+        } catch (_: Exception) {}
 
         // 3. Shred via Scoped Storage ContentResolver descriptor
         if (item.uri.scheme == ContentResolver.SCHEME_CONTENT) {
