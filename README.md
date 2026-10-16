@@ -229,4 +229,4 @@ CI runs on push to `main` via GitHub Actions (`.github/workflows/`).
 
 Copyright (c) 2026 HrshD1eux
 
-Licensed under the [GNU General Public License v3.0 (GPL-3.0-or-later)](LICENSE).
+Licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**. See [LICENSE](LICENSE) for the full license text.

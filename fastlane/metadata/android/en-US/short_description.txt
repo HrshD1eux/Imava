@@ -1,1 +1,1 @@
-Private offline gallery with file shredding, hidden vault, and zero tracking
+Private offline gallery with secure file shredder, vault, and zero telemetry
