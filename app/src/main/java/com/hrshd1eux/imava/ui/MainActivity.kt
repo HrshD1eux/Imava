@@ -335,6 +335,9 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var isScrubbingCurrentAlbum by remember { androidx.compose.runtime.mutableStateOf(false) }
     var currentAlbumScrubProgress by remember { androidx.compose.runtime.mutableStateOf(0) }
     var currentAlbumScrubTotal by remember { androidx.compose.runtime.mutableStateOf(0) }
+    var showSecureShredderNotice by remember {
+        androidx.compose.runtime.mutableStateOf(com.hrshd1eux.imava.ui.common.SecureShredderNoticeManager.shouldShowNotice(context))
+    }
     val isVaultUnlocked by viewModel.isVaultUnlocked.collectAsState()
     val isVaultActive = (isVaultUnlocked && viewModel.currentCategoryName == "Hidden Vault") ||
             viewModel.activeMediaItem?.isHidden == true
@@ -1465,6 +1468,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 )
             }
         )
+
+        if (showSecureShredderNotice) {
+            com.hrshd1eux.imava.ui.common.SecureShredderNoticeDialog(
+                context = context,
+                onDismiss = { showSecureShredderNotice = false }
+            )
+        }
     }
 }
 

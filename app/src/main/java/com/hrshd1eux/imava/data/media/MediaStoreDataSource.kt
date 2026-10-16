@@ -508,31 +508,65 @@ class MediaStoreDataSource @Inject constructor(
         // WhatsApp Standard
         addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media"))
         addIfDir(java.io.File(externalStorage, "WhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp/Media/.Shared"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Stickers"))
 
         // WhatsApp Business
         addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media"))
         addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media"))
+
+        // Modded WhatsApp Variants (GBWhatsApp, FMWhatsApp, YoWhatsApp, WhatsApp Plus)
+        addIfDir(java.io.File(externalStorage, "Android/media/com.gbwhatsapp/GBWhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "GBWhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.fmwhatsapp/FMWhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "FMWhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.yowhatsapp/YoWhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "YoWhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp Plus/Media"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.plus/WhatsApp Plus/Media"))
 
         // DualApp / Dual Messenger (Samsung, Xiaomi, etc.)
         addIfDir(java.io.File(externalStorage, "DualApp/Android/media/com.whatsapp/WhatsApp/Media"))
         addIfDir(java.io.File(externalStorage, "DualApp/WhatsApp/Media"))
         addIfDir(java.io.File(externalStorage, "DualApp/Android/media/com.whatsapp.w4b/WhatsApp Business/Media"))
         addIfDir(java.io.File(externalStorage, "DualApp/WhatsApp Business/Media"))
+        addIfDir(java.io.File(externalStorage, "DualApp/GBWhatsApp/Media"))
 
         // Telegram
         addIfDir(java.io.File(externalStorage, "Android/media/org.telegram.messenger"))
         addIfDir(java.io.File(externalStorage, "Android/media/org.telegram.messenger.web"))
         addIfDir(java.io.File(externalStorage, "Telegram"))
+        addIfDir(java.io.File(externalStorage, "Telegram/Telegram Documents"))
+        addIfDir(java.io.File(externalStorage, "Telegram/Telegram Video"))
+        addIfDir(java.io.File(externalStorage, "Telegram/Telegram Audio"))
         addIfDir(java.io.File(externalStorage, "Pictures/Telegram"))
         addIfDir(java.io.File(externalStorage, "Movies/Telegram"))
         addIfDir(java.io.File(externalStorage, "Download/Telegram"))
 
-        // Signal, Instagram, Reddit, Twitter/X
+        // Discord, Snapchat, Signal, Viber, Social
+        addIfDir(java.io.File(externalStorage, "Android/media/com.discord"))
+        addIfDir(java.io.File(externalStorage, "Pictures/Discord"))
+        addIfDir(java.io.File(externalStorage, "Download/Discord"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.snapchat.android"))
+        addIfDir(java.io.File(externalStorage, "Snapchat"))
+        addIfDir(java.io.File(externalStorage, "Pictures/Snapchat"))
         addIfDir(java.io.File(externalStorage, "Android/media/org.thoughtcrime.securesms"))
+        addIfDir(java.io.File(externalStorage, "Signal"))
+        addIfDir(java.io.File(externalStorage, "Viber/media"))
         addIfDir(java.io.File(externalStorage, "Pictures/Instagram"))
         addIfDir(java.io.File(externalStorage, "Pictures/Reddit"))
         addIfDir(java.io.File(externalStorage, "Pictures/Twitter"))
         addIfDir(java.io.File(externalStorage, "Pictures/X"))
+
+        // Hidden & Vault Directories
+        val hiddenFolderNames = listOf(
+            ".hidden", ".secret", ".vault", ".private", ".calculator",
+            ".mysecret", ".thumbnails", "Pictures/.hidden", "DCIM/.hidden",
+            "Download/.hidden", "DCIM/.thumbnails"
+        )
+        hiddenFolderNames.forEach { relPath ->
+            addIfDir(java.io.File(externalStorage, relPath))
+        }
 
         return paths
     }
@@ -569,10 +603,25 @@ class MediaStoreDataSource @Inject constructor(
             "%/WhatsApp/%Sent/%",
             "%/WhatsApp/%Private/%",
             "%/WhatsApp/%Animated Gifs/%",
+            "%/WhatsApp/%.Shared/%",
+            "%/WhatsApp/%Stickers/%",
             "%/WhatsApp Business/%Sent/%",
             "%/WhatsApp Business/%Private/%",
+            "%/GBWhatsApp/%",
+            "%/FMWhatsApp/%",
+            "%/YoWhatsApp/%",
+            "%/WhatsApp Plus/%",
             "%/Telegram/%",
-            "%/Signal/%"
+            "%/Discord/%",
+            "%/Snapchat/%",
+            "%/Signal/%",
+            "%/Viber/%",
+            "%/%.hidden/%",
+            "%/%.secret/%",
+            "%/%.vault/%",
+            "%/%.private/%",
+            "%/%.calculator/%",
+            "%/%.nomedia%"
         )
 
         val pathConditions = pathPatterns.joinToString(" OR ") {
@@ -662,11 +711,13 @@ class MediaStoreDataSource @Inject constructor(
                                 val bucketId = parent?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L
                                 val parentName = parent?.name ?: "Sent"
                                 val grandparent = parent?.parentFile
-                                val bucketName = if ((parentName.equals("Sent", ignoreCase = true) || parentName.equals("Private", ignoreCase = true)) &&
-                                    grandparent != null && grandparent.name.isNotBlank()) {
-                                    "${grandparent.name} $parentName"
-                                } else {
-                                    parentName
+                                val bucketName = when {
+                                    parentName.equals(".Shared", ignoreCase = true) -> "${grandparent?.name ?: "WhatsApp"} Shared"
+                                    parentName.equals("WhatsApp Stickers", ignoreCase = true) -> "WhatsApp Stickers"
+                                    parentName.startsWith(".") -> parentName.removePrefix(".").replaceFirstChar { it.uppercase() } + " (Hidden)"
+                                    (parentName.equals("Sent", ignoreCase = true) || parentName.equals("Private", ignoreCase = true)) &&
+                                        grandparent != null && grandparent.name.isNotBlank() -> "${grandparent.name} $parentName"
+                                    else -> parentName
                                 }
                                 val id = kotlin.math.abs(file.absolutePath.hashCode().toLong()).coerceAtLeast(1L)
                                 val uri = android.net.Uri.fromFile(file)

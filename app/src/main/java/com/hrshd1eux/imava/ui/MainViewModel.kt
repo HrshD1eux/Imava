@@ -248,6 +248,16 @@ class MainViewModel @Inject constructor(
         return newState
     }
 
+    private val _isSecureShredEnabled = MutableStateFlow(
+        com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(application)
+    )
+    val isSecureShredEnabled: StateFlow<Boolean> = _isSecureShredEnabled.asStateFlow()
+
+    fun setSecureShredEnabled(enabled: Boolean) {
+        com.hrshd1eux.imava.core.util.FileShredderUtil.setSecureShredEnabled(application, enabled)
+        _isSecureShredEnabled.value = enabled
+    }
+
     private var lastAutoScrubTimestamp = 0L
 
     fun triggerAutoScrub() {
@@ -1702,15 +1712,28 @@ class MainViewModel @Inject constructor(
             val trashedItems = trashed.value
             if (trashedItems.isNotEmpty()) {
                 val trashDir = java.io.File(context.filesDir, "imava_trash")
+                val secureShred = com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)
                 trashedItems.forEach { item ->
                     repository.deleteMetadataPermanently(item.id)
                     val trashedFile = java.io.File(trashDir, "${item.id}_${java.io.File(item.path).name}")
                     if (trashedFile.exists()) {
-                        try { trashedFile.delete() } catch (_: Exception) {}
+                        try {
+                            if (secureShred) {
+                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
+                            } else {
+                                trashedFile.delete()
+                            }
+                        } catch (_: Exception) {}
                     }
                     val srcFile = java.io.File(item.path)
                     if (srcFile.exists()) {
-                        try { srcFile.delete() } catch (_: Exception) {}
+                        try {
+                            if (secureShred) {
+                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(srcFile)
+                            } else {
+                                srcFile.delete()
+                            }
+                        } catch (_: Exception) {}
                     }
                     try {
                         context.contentResolver.delete(item.uri, null, null)
@@ -1818,14 +1841,27 @@ class MainViewModel @Inject constructor(
                 }
 
                 // Physical deletion fallback
+                val secureShred = com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)
                 val file = java.io.File(item.path)
                 if (file.exists()) {
-                    try { file.delete() } catch (_: Exception) {}
+                    try {
+                        if (secureShred) {
+                            com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(file)
+                        } else {
+                            file.delete()
+                        }
+                    } catch (_: Exception) {}
                 }
                 val trashDir = java.io.File(context.filesDir, "imava_trash")
                 val trashedFile = java.io.File(trashDir, "${item.id}_${file.name}")
                 if (trashedFile.exists()) {
-                    try { trashedFile.delete() } catch (_: Exception) {}
+                    try {
+                        if (secureShred) {
+                            com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
+                        } else {
+                            trashedFile.delete()
+                        }
+                    } catch (_: Exception) {}
                 }
                 try {
                     context.contentResolver.delete(item.uri, null, null)
@@ -2086,14 +2122,27 @@ class MainViewModel @Inject constructor(
                 }
 
                 val trashDir = java.io.File(context.filesDir, "imava_trash")
+                val secureShred = com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)
                 selectedItems.forEach { item ->
                     val file = java.io.File(item.path)
                     if (file.exists()) {
-                        try { file.delete() } catch (_: Exception) {}
+                        try {
+                            if (secureShred) {
+                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(file)
+                            } else {
+                                file.delete()
+                            }
+                        } catch (_: Exception) {}
                     }
                     val trashedFile = java.io.File(trashDir, "${item.id}_${file.name}")
                     if (trashedFile.exists()) {
-                        try { trashedFile.delete() } catch (_: Exception) {}
+                        try {
+                            if (secureShred) {
+                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
+                            } else {
+                                trashedFile.delete()
+                            }
+                        } catch (_: Exception) {}
                     }
                     try {
                         context.contentResolver.delete(item.uri, null, null)
@@ -2122,17 +2171,38 @@ class MainViewModel @Inject constructor(
         if (resultCode == android.app.Activity.RESULT_OK) {
             when (requestCode) {
                 1001 -> {
-                    if (batchItems != null) {
-                        viewModelScope.launch {
+                    viewModelScope.launch {
+                        if (context != null && com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)) {
+                            val trashDir = java.io.File(context.filesDir, "imava_trash")
+                            batchItems?.forEach { batchItem ->
+                                val trashedFile = java.io.File(trashDir, "${batchItem.id}_${java.io.File(batchItem.path).name}")
+                                if (trashedFile.exists()) {
+                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
+                                }
+                                val src = java.io.File(batchItem.path)
+                                if (src.exists()) {
+                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(src)
+                                }
+                            }
+                            if (item != null) {
+                                val trashedFile = java.io.File(trashDir, "${item.id}_${java.io.File(item.path).name}")
+                                if (trashedFile.exists()) {
+                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
+                                }
+                                val src = java.io.File(item.path)
+                                if (src.exists()) {
+                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(src)
+                                }
+                            }
+                        }
+                        if (batchItems != null) {
                             batchItems.forEach { batchItem ->
                                 repository.deleteMetadataPermanently(batchItem.id)
                             }
                             selectionState.clear()
                             pendingBatchActionItems = null
                             refreshAll()
-                        }
-                    } else if (item != null) {
-                        viewModelScope.launch {
+                        } else if (item != null) {
                             repository.deleteMetadataPermanently(item.id)
                             advanceActiveMediaItem(item, pendingNextItem)
                             _lastDeletedMediaId.value = item.id
@@ -2155,17 +2225,30 @@ class MainViewModel @Inject constructor(
                     }
                 }
                 1003 -> {
-                    if (batchItems != null) {
-                        viewModelScope.launch {
+                    viewModelScope.launch {
+                        if (context != null && com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)) {
+                            val trashDir = java.io.File(context.filesDir, "imava_trash")
+                            batchItems?.forEach { batchItem ->
+                                val trashedFile = java.io.File(trashDir, "${batchItem.id}_${java.io.File(batchItem.path).name}")
+                                if (trashedFile.exists()) {
+                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
+                                }
+                                val src = java.io.File(batchItem.path)
+                                if (src.exists()) {
+                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(src)
+                                }
+                            }
+                        }
+                        if (batchItems != null) {
                             batchItems.forEach { batchItem ->
                                 repository.deleteMetadataPermanently(batchItem.id)
                             }
                             selectionState.clear()
                             pendingBatchActionItems = null
                             refreshAll()
+                        } else {
+                            refreshAll()
                         }
-                    } else {
-                        refreshAll()
                     }
                 }
                 1004 -> {

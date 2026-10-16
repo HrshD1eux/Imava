@@ -169,9 +169,24 @@
 - Perceptual hashing (dHash + aHash) on 32x32 micro-thumbnails
 - Progress reporting
 
-### Trash
-- 30-day auto-purge via WorkManager
-- One-tap empty
+### Trash & Cryptographic File Shredder
+- **30-day auto-purge**: Configurable trash retention via WorkManager
+- **Cryptographic File Shredding (Anti-Recovery)**: Standard OS file deletion (`unlink`) only removes the catalog entry, leaving raw JPEG/MP4 blocks physically intact on flash memory where data recovery tools (DiskDigger, Recuva, PhotoRec) can easily carve them back.
+- **Multi-Pass CSPRNG Overwrite**: Streams cryptographically secure pseudo-random bytes in 64KB synchronous buffers (`"rws"`) across all allocated clusters.
+- **Magic Header Zeroing**: Overwrites initial 8KB with zeroes (`0x00`) to destroy file format magic bytes (`FF D8 FF`, `\x89PNG`, `ftyp`), defeating raw sector carvers.
+- **Hardware Write Cache Flush**: Invokes `FileDescriptor.sync()` and `FileChannel.force(true)` to ensure blocks are physically committed to flash storage.
+- **Dentry & Metadata Scrambling**: Truncates file length to 0 bytes and renames the file to a randomized UUID before deletion to prevent directory slack analysis.
+- **Toggleable in Settings**: Configurable under *Settings > Privacy & Folders > Cryptographic File Shredder*.
+
+### Advanced Instant Deep Media Scan
+- **Instant SQLite Carve (<100ms)**: Direct multi-pattern `MediaStore.Files` database query with `QUERY_ARG_MATCH_NOMEDIA` to discover hidden photos without disk crawl lag.
+- **Comprehensive App & Vault Registry**: Automatically finds media from official WhatsApp, WhatsApp Business, modded WhatsApp (GBWhatsApp, FMWhatsApp, YoWhatsApp, WhatsApp Plus), DualApp / Dual Messenger, Telegram (including Telegram Documents and Audio), Discord, Snapchat, Signal, and Viber.
+- **Hidden & Vault Directories**: Unearths hidden media in `.nomedia`, `.hidden`, `.secret`, `.vault`, `.calculator`, and `.thumbnails` folders with clean, auto-generated album titles.
+
+### Album & Folder EXIF Metadata Stripping
+- **In-Place Album Scrubbing**: Strip GPS, device serials, and camera fingerprints across entire albums with one tap.
+- **Chronology & Orientation Protection**: Safely preserves `DateTimeOriginal` and `TAG_ORIENTATION` by default so gallery chronological timeline order and portrait photo orientation are never broken.
+- **Background Auto-Scrub**: Configure folders (e.g. Camera, Downloads) to automatically sanitize new photos in the background with a 3.5s camera write-lock debounce.
 
 ### Privacy & Export
 - EXIF metadata stripper for sharing

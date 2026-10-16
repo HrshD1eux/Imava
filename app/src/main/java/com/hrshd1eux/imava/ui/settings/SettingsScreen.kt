@@ -501,6 +501,38 @@ fun SettingsScreen(
                         }
                     )
                 }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                val secureShredEnabled by viewModel.isSecureShredEnabled.collectAsState()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Cryptographic File Shredder 🛡️⚡",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Physically overwrite deleted photos with random data & zeroes to prevent recovery by data recovery tools",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = secureShredEnabled,
+                        onCheckedChange = { enabled ->
+                            viewModel.setSecureShredEnabled(enabled)
+                            if (enabled) {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                            }
+                        }
+                    )
+                }
             }
 
             if (showManageExcludedDialog) {

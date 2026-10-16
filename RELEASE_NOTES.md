@@ -1,3 +1,12 @@
+## 🚀 What's New in Imava v1.1.42
+
+* **Cryptographic File Shredder (Anti-Recovery)**: Permanently deleting photos or emptying trash now physically overwrites storage blocks with multi-pass CSPRNG random bytes and zeroes, forces hardware write cache sync, truncates to 0 bytes, and scrambles directory entry filenames so data recovery software (DiskDigger, Recuva, PhotoRec) cannot recover deleted files.
+* **Security & Privacy Update Warning**: Added an informative, one-time update notice explaining the difference between standard label unlinking and physical shredding, with switchable non-technical and technical deep-dive views and a mandatory 6-second reading timer.
+* **Advanced Instant Deep Media Scan**: Expanded deep scan with instant multi-pattern SQLite queries (<100ms) and comprehensive directory discovery covering modded WhatsApp (GBWhatsApp, FMWhatsApp, YoWhatsApp, WhatsApp Plus), DualApp spaces, Telegram Documents/Audio, Discord, Snapchat, Signal, Viber, and hidden dot-vaults (`.hidden`, `.secret`, `.vault`, `.calculator`, `.thumbnails`).
+* **Settings Control**: Easily toggle Cryptographic File Shredding on or off under *Settings > Privacy & Folders*.
+
+---
+
 ## 🚀 What's New in Imava v1.1.41
 
 * **Album & Folder EXIF Scrubbing**: Added in-place album-level metadata cleaning with dedicated safety guards to preserve photo capture date and orientation while wiping GPS coordinates, device serials, and camera fingerprints.
