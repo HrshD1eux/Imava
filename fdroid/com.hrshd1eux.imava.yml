@@ -1,0 +1,42 @@
+Categories:
+  - Graphics
+  - Multimedia
+  - Security
+License: GPL-3.0-or-later
+AuthorName: HrshD1eux
+AuthorEmail: 157795651+HrshD1eux@users.noreply.github.com
+AuthorWebSite: https://github.com/HrshD1eux
+WebSite: https://hrshd1eux.github.io/Imava/
+SourceCode: https://github.com/HrshD1eux/Imava
+IssueTracker: https://github.com/HrshD1eux/Imava/issues
+
+AutoName: Imava
+Summary: Private offline gallery with secure file shredder, vault, and zero telemetry
+Description: |-
+  Imava is a modern, privacy-focused media gallery designed for security and speed.
+  It operates fully offline with no tracking, no advertisements, and zero telemetry.
+
+  Key features:
+  * Cryptographic Secure File Shredder: Overwrites deleted files with multi-pass CSPRNG random bytes, zeroes out headers, and flushes hardware caches on permanent deletion or emptying Trash.
+  * Hidden Vault: Encrypted container protected by biometric authentication or custom PIN, with support for decoy passwords and stealth mode.
+  * Guest Hand-Off Mode: Screen-pinned single photo viewer with Android App Pinning integration to prevent guests from swiping or exiting your gallery.
+  * Ghost Thumbnail Purger: Scans and securely shreds unencrypted thumbnail cache files lingering in DCIM and cache directories.
+  * Privacy Sharing & EXIF Fuzzing: Strips metadata or offsets GPS coordinates by ~2 km before sharing to preserve regional context without revealing exact locations.
+  * Deep Media Scanner: Instant SQLite scan detecting media stored in hidden folders, .nomedia directories, WhatsApp Sent/Private, and Telegram directories.
+  * Media Management: High-performance timeline with pinch-to-zoom grid scaling, album pinning, duplicate cleaning, and built-in video player.
+
+RepoType: git
+Repo: https://github.com/HrshD1eux/Imava.git
+
+Builds:
+  - versionName: 1.1.46
+    versionCode: 47
+    commit: d5c02fd8bbc57f28310611af321bc2c746c83f6d
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: 1.1.46
+CurrentVersionCode: 47
