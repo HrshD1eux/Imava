@@ -56,12 +56,50 @@ class MediaRepositoryImpl @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
+    private suspend fun getCleanedThirdPartyMedia(bucketId: Long?, mediaType: MediaTypeFilter): List<MediaItem> {
+        val raw = fetchThirdPartyAppMedia()
+        val filtered = when (mediaType) {
+            MediaTypeFilter.ALL -> raw
+            MediaTypeFilter.IMAGES -> raw.filterIsInstance<MediaItem.Photo>()
+            MediaTypeFilter.VIDEOS -> raw.filterIsInstance<MediaItem.Video>()
+        }
+        val relevant = if (bucketId != null) filtered.filter { it.bucketId == bucketId } else filtered
+        if (relevant.isEmpty()) return emptyList()
+
+        val ids = relevant.map { it.id }
+        val metaList = getMetadataForMediaIdsChunked(ids)
+        val metaMap = metaList.associateBy { it.mediaId }
+        return relevant.map { item ->
+            applyMetadata(item, metaMap[item.id])
+        }.filter { !it.isHidden && !it.isTrashed }
+    }
+
     override suspend fun loadMediaPaged(limit: Int, offset: Int, bucketId: Long?, sortOrder: com.hrshd1eux.imava.ui.SortOrder, mediaType: MediaTypeFilter): List<MediaItem> = withContext(Dispatchers.IO) {
-        var currentOffset = offset
+        val isAscending = (sortOrder == com.hrshd1eux.imava.ui.SortOrder.OLDEST_FIRST)
+        val thirdPartyMedia = try {
+            getCleanedThirdPartyMedia(bucketId, mediaType)
+        } catch (_: Exception) {
+            emptyList()
+        }
+
+        // Fast path: Bucket belongs entirely to third party media (e.g. WhatsApp Sent, .nomedia folders)
+        val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, mediaType)
+        if (baseCount == 0 && thirdPartyMedia.isNotEmpty()) {
+            val sorted = if (isAscending) thirdPartyMedia.sortedBy { it.dateTaken } else thirdPartyMedia.sortedByDescending { it.dateTaken }
+            return@withContext sorted.drop(offset).take(limit)
+        }
+
+        // Fetch from MediaStore with the loop to filter out hidden/trashed items
+        val sortedThirdParty = if (isAscending) thirdPartyMedia.sortedBy { it.dateTaken } else thirdPartyMedia.sortedByDescending { it.dateTaken }
+        val unindexedBefore = if (thirdPartyMedia.isNotEmpty()) {
+            ((offset.toLong() * sortedThirdParty.size) / (baseCount + sortedThirdParty.size).coerceAtLeast(1)).toInt().coerceIn(0, sortedThirdParty.size)
+        } else 0
+        val storeOffset = if (limit == Int.MAX_VALUE) 0 else (offset - unindexedBefore).coerceAtLeast(0)
+
+        var currentOffset = storeOffset
         val resultList = mutableListOf<MediaItem>()
         var reachedEnd = false
-        val isAscending = (sortOrder == com.hrshd1eux.imava.ui.SortOrder.OLDEST_FIRST)
-        
+
         while (resultList.size < limit && !reachedEnd) {
             val remaining = limit - resultList.size
             val fetchBatch = if (remaining == Int.MAX_VALUE) 1000 else minOf(remaining, 1000)
@@ -70,14 +108,8 @@ class MediaRepositoryImpl @Inject constructor(
                 break
             }
             val ids = rawMedia.map { it.id }
-            val metadataList = getMetadataForMediaIdsChunked(ids)
-            val metadataMap = metadataList.associateBy { it.mediaId }
-
-            val filtered = rawMedia.map { item ->
-                val meta = metadataMap[item.id]
-                applyMetadata(item, meta)
-            }.filter { !it.isHidden && !it.isTrashed }
-            
+            val metaMap = getMetadataForMediaIdsChunked(ids).associateBy { it.mediaId }
+            val filtered = rawMedia.map { applyMetadata(it, metaMap[it.id]) }.filter { !it.isHidden && !it.isTrashed }
             resultList.addAll(filtered)
             currentOffset += rawMedia.size
             if (rawMedia.size < fetchBatch) {
@@ -85,64 +117,41 @@ class MediaRepositoryImpl @Inject constructor(
             }
         }
 
-        // Merge third-party app media (WhatsApp Sent, Telegram, etc.) that may have
-        // media_type=0 due to .nomedia directories. Deduplicate by both ID and path.
-        if (offset == 0) {
-            try {
-                val thirdPartyMedia = fetchThirdPartyAppMedia()
-                val filteredByType = when (mediaType) {
-                    MediaTypeFilter.ALL -> thirdPartyMedia
-                    MediaTypeFilter.IMAGES -> thirdPartyMedia.filterIsInstance<MediaItem.Photo>()
-                    MediaTypeFilter.VIDEOS -> thirdPartyMedia.filterIsInstance<MediaItem.Video>()
-                }
-                val relevantMedia = if (bucketId != null) {
-                    filteredByType.filter { it.bucketId == bucketId }
-                } else {
-                    filteredByType
-                }
-
-                if (relevantMedia.isNotEmpty()) {
-                    val existingIds = resultList.mapTo(HashSet()) { it.id }
-                    val existingPaths = resultList.mapTo(HashSet()) { it.path }
-                    val newItems = relevantMedia.filter { it.id !in existingIds && it.path !in existingPaths }
-
-                    if (newItems.isNotEmpty()) {
-                        val ids = newItems.map { it.id }
-                        val metaList = getMetadataForMediaIdsChunked(ids)
-                        val metaMap = metaList.associateBy { it.mediaId }
-                        val cleanedItems = newItems.map { item ->
-                            val meta = metaMap[item.id]
-                            applyMetadata(item, meta)
-                        }.filter { !it.isHidden && !it.isTrashed }
-
-                        resultList.addAll(cleanedItems)
-                    }
-                }
-            } catch (_: Exception) { }
+        if (thirdPartyMedia.isEmpty()) {
+            return@withContext if (isAscending) {
+                resultList.sortedBy { it.dateTaken }
+            } else {
+                resultList.sortedByDescending { it.dateTaken }
+            }
         }
 
-        if (isAscending) {
-            resultList.sortedBy { it.dateTaken }
-        } else {
-            resultList.sortedByDescending { it.dateTaken }
+        if (limit == Int.MAX_VALUE) {
+            val existingIds = resultList.mapTo(HashSet()) { it.id }
+            val existingPaths = resultList.mapTo(HashSet()) { it.path }
+            val newThirdParty = sortedThirdParty.filter { it.id !in existingIds && it.path !in existingPaths }
+            resultList.addAll(newThirdParty)
+            return@withContext if (isAscending) {
+                resultList.sortedBy { it.dateTaken }
+            } else {
+                resultList.sortedByDescending { it.dateTaken }
+            }
         }
+
+        val thirdPartySlice = sortedThirdParty.drop(unindexedBefore).take(limit)
+        val combined = (resultList + thirdPartySlice).distinctBy { it.path }
+        val sortedCombined = if (isAscending) combined.sortedBy { it.dateTaken } else combined.sortedByDescending { it.dateTaken }
+        return@withContext sortedCombined.take(limit)
     }
 
     override suspend fun getTotalMediaCount(bucketId: Long?, mediaType: MediaTypeFilter): Int = withContext(Dispatchers.IO) {
         val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, mediaType)
         try {
-            val thirdPartyMedia = fetchThirdPartyAppMedia()
-            val filteredByType = when (mediaType) {
-                MediaTypeFilter.ALL -> thirdPartyMedia
-                MediaTypeFilter.IMAGES -> thirdPartyMedia.filterIsInstance<MediaItem.Photo>()
-                MediaTypeFilter.VIDEOS -> thirdPartyMedia.filterIsInstance<MediaItem.Video>()
-            }
-            val relevantMedia = if (bucketId != null) {
-                filteredByType.filter { it.bucketId == bucketId }
+            val relevant = getCleanedThirdPartyMedia(bucketId, mediaType)
+            if (baseCount == 0) {
+                relevant.size
             } else {
-                filteredByType
+                baseCount + relevant.size
             }
-            maxOf(baseCount, relevantMedia.size)
         } catch (_: Exception) {
             baseCount
         }
@@ -706,7 +715,11 @@ class MediaRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getActiveMediaIds(): List<Long> = mediaStoreDataSource.fetchActiveMediaIds()
+    override suspend fun getActiveMediaIds(): List<Long> = withContext(Dispatchers.IO) {
+        val storeIds = mediaStoreDataSource.fetchActiveMediaIds()
+        val secondaryIds = mediaStoreDataSource.fetchSecondaryMediaIds()
+        storeIds + secondaryIds
+    }
 
     override suspend fun getMediaByIds(ids: Set<Long>): List<MediaItem> = withContext(Dispatchers.IO) {
         if (ids.isEmpty()) return@withContext emptyList()
@@ -820,7 +833,7 @@ class MediaRepositoryImpl @Inject constructor(
         metadataDao.insertOrUpdate(currentMeta.copy(tags = tagStr))
     }
 
-    override suspend fun scanSecondaryMediaDirectories(): Int = mediaStoreDataSource.scanSecondaryMediaDirectories()
+    override suspend fun scanSecondaryMediaDirectories(): com.hrshd1eux.imava.data.media.DeepScanResult = mediaStoreDataSource.scanSecondaryMediaDirectories()
 
     override suspend fun fetchThirdPartyAppMedia(): List<MediaItem> = withContext(Dispatchers.IO) {
         val rawMedia = mediaStoreDataSource.fetchThirdPartyAppMedia()

@@ -15,11 +15,18 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val QUERY_ARG_MATCH_NOMEDIA = "android:query-arg-match-nomedia"
+
+data class DeepScanResult(
+    val newCount: Int,
+    val totalCount: Int
+)
 
 enum class MediaTypeFilter {
     ALL,
@@ -31,34 +38,44 @@ class MediaStoreDataSource @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val contentResolver: ContentResolver get() = context.contentResolver
+    private val _secondaryMediaChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
-    fun observeMediaStore(): Flow<Unit> = callbackFlow {
-        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) {
-                trySend(Unit)
-            }
-            override fun onChange(selfChange: Boolean, uri: Uri?) {
-                trySend(Unit)
-            }
-        }
-        try {
-            contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, observer)
-        } catch (_: Exception) {}
-        try {
-            contentResolver.registerContentObserver(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, true, observer)
-        } catch (_: Exception) {}
-        try {
-            contentResolver.registerContentObserver(MediaStore.Files.getContentUri("external"), true, observer)
-        } catch (_: Exception) {}
-
-        trySend(Unit)
-
-        awaitClose {
-            try {
-                contentResolver.unregisterContentObserver(observer)
-            } catch (_: Exception) {}
-        }
+    init {
+        loadCacheFromDisk()
     }
+
+    fun fetchSecondaryMediaIds(): List<Long> = secondaryDiskMediaCache.map { it.id }
+
+    fun observeMediaStore(): Flow<Unit> = merge(
+        callbackFlow {
+            val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+                    trySend(Unit)
+                }
+                override fun onChange(selfChange: Boolean, uri: Uri?) {
+                    trySend(Unit)
+                }
+            }
+            try {
+                contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, observer)
+            } catch (_: Exception) {}
+            try {
+                contentResolver.registerContentObserver(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, true, observer)
+            } catch (_: Exception) {}
+            try {
+                contentResolver.registerContentObserver(MediaStore.Files.getContentUri("external"), true, observer)
+            } catch (_: Exception) {}
+
+            trySend(Unit)
+
+            awaitClose {
+                try {
+                    contentResolver.unregisterContentObserver(observer)
+                } catch (_: Exception) {}
+            }
+        },
+        _secondaryMediaChanges
+    )
 
     private fun getMediaTypeCondition(mediaType: MediaTypeFilter): String {
         val imageExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.gif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heic' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.bmp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.dng')"
@@ -490,6 +507,23 @@ class MediaStoreDataSource @Inject constructor(
                 mediaList.add(it.extractMediaItem(indices))
             }
         }
+
+        if (secondaryDiskMediaCache.isNotEmpty()) {
+            val q = query.trim().lowercase(java.util.Locale.ROOT)
+            val existingIds = mediaList.mapTo(HashSet()) { it.id }
+            val existingPaths = mediaList.mapTo(HashSet()) { it.path }
+            for (cached in secondaryDiskMediaCache) {
+                if (cached.id !in existingIds && cached.path !in existingPaths) {
+                    if (cached.path.lowercase(java.util.Locale.ROOT).contains(q) ||
+                        cached.bucketName.lowercase(java.util.Locale.ROOT).contains(q) ||
+                        cached.mimeType.lowercase(java.util.Locale.ROOT).contains(q)
+                    ) {
+                        mediaList.add(cached)
+                    }
+                }
+            }
+        }
+
         mediaList
     }
 
@@ -510,13 +544,22 @@ class MediaStoreDataSource @Inject constructor(
 
         // WhatsApp Standard
         addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/.Shared"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Stickers"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Documents"))
         addIfDir(java.io.File(externalStorage, "WhatsApp/Media"))
         addIfDir(java.io.File(externalStorage, "WhatsApp/Media/.Shared"))
         addIfDir(java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Stickers"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Documents"))
 
         // WhatsApp Business
         addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Shared"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Stickers"))
+        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Documents"))
         addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media/.Shared"))
+        addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media/WhatsApp Business Documents"))
 
         // Modded WhatsApp Variants (GBWhatsApp, FMWhatsApp, YoWhatsApp, WhatsApp Plus)
         addIfDir(java.io.File(externalStorage, "Android/media/com.gbwhatsapp/GBWhatsApp/Media"))
@@ -565,7 +608,9 @@ class MediaStoreDataSource @Inject constructor(
         val hiddenFolderNames = listOf(
             ".hidden", ".secret", ".vault", ".private", ".calculator",
             ".mysecret", ".thumbnails", "Pictures/.hidden", "DCIM/.hidden",
-            "Download/.hidden", "DCIM/.thumbnails"
+            "Download/.hidden", "DCIM/.thumbnails",
+            "Pictures/.nomedia", "DCIM/.nomedia", "Download/.nomedia",
+            "Documents/.nomedia", "Movies/.nomedia"
         )
         hiddenFolderNames.forEach { relPath ->
             addIfDir(java.io.File(externalStorage, relPath))
@@ -688,25 +733,119 @@ class MediaStoreDataSource @Inject constructor(
 
     private val secondaryDiskMediaCache = java.util.concurrent.CopyOnWriteArrayList<MediaItem>()
 
+    private fun saveCacheToDisk() {
+        try {
+            val file = java.io.File(context.filesDir, "deep_scan_cache.json")
+            val jsonArray = org.json.JSONArray()
+            for (item in secondaryDiskMediaCache) {
+                val obj = org.json.JSONObject()
+                obj.put("id", item.id)
+                obj.put("path", item.path)
+                obj.put("mimeType", item.mimeType)
+                obj.put("dateTaken", item.dateTaken)
+                obj.put("size", item.size)
+                obj.put("width", item.width)
+                obj.put("height", item.height)
+                obj.put("bucketId", item.bucketId)
+                obj.put("bucketName", item.bucketName)
+                obj.put("isVideo", item is MediaItem.Video)
+                if (item is MediaItem.Video) {
+                    obj.put("durationMs", item.durationMs)
+                }
+                jsonArray.put(obj)
+            }
+            val tempFile = java.io.File(context.filesDir, "deep_scan_cache.json.tmp")
+            tempFile.writeText(jsonArray.toString())
+            tempFile.renameTo(file)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun loadCacheFromDisk() {
+        try {
+            val file = java.io.File(context.filesDir, "deep_scan_cache.json")
+            if (!file.exists()) return
+            val text = file.readText()
+            if (text.isBlank()) return
+            val jsonArray = org.json.JSONArray(text)
+            val items = mutableListOf<MediaItem>()
+            for (i in 0 until jsonArray.length()) {
+                val obj = jsonArray.getJSONObject(i)
+                val path = obj.getString("path")
+                val diskFile = java.io.File(path)
+                if (!diskFile.exists()) continue
+                val id = obj.optLong("id", kotlin.math.abs(path.hashCode().toLong()).coerceAtLeast(1L))
+                val mimeType = obj.optString("mimeType", "image/jpeg")
+                val dateTaken = obj.optLong("dateTaken", diskFile.lastModified())
+                val size = obj.optLong("size", diskFile.length())
+                val width = obj.optInt("width", 0)
+                val height = obj.optInt("height", 0)
+                val bucketId = obj.optLong("bucketId", diskFile.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L)
+                val bucketName = obj.optString("bucketName", diskFile.parentFile?.name ?: "Unknown")
+                val isVideo = obj.optBoolean("isVideo", mimeType.startsWith("video/"))
+                val uri = android.net.Uri.fromFile(diskFile)
+
+                val item = if (isVideo) {
+                    MediaItem.Video(
+                        id = id,
+                        uri = uri,
+                        path = path,
+                        mimeType = mimeType,
+                        dateTaken = dateTaken,
+                        size = size,
+                        width = width,
+                        height = height,
+                        durationMs = obj.optLong("durationMs", 0L),
+                        bucketId = bucketId,
+                        bucketName = bucketName
+                    )
+                } else {
+                    MediaItem.Photo(
+                        id = id,
+                        uri = uri,
+                        path = path,
+                        mimeType = mimeType,
+                        dateTaken = dateTaken,
+                        size = size,
+                        width = width,
+                        height = height,
+                        bucketId = bucketId,
+                        bucketName = bucketName
+                    )
+                }
+                items.add(item)
+            }
+            secondaryDiskMediaCache.clear()
+            secondaryDiskMediaCache.addAll(items)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     /**
      * Filesystem scan that walks WhatsApp Sent, Private, and Telegram media folders in the background,
-     * populates secondaryDiskMediaCache, and submits unindexed files to MediaScannerConnection.
-     * Returns count of files scanned.
+     * populates secondaryDiskMediaCache, persists to disk, and submits unindexed files to MediaScannerConnection.
+     * Returns a DeepScanResult containing newDiscovered count and totalTracked count.
      */
-    suspend fun scanSecondaryMediaDirectories(): Int = withContext(Dispatchers.IO) {
-        var scannedCount = 0
+    suspend fun scanSecondaryMediaDirectories(): DeepScanResult = withContext(Dispatchers.IO) {
+        var newDiscovered = 0
         try {
             val secondaryPaths = getSecondaryTargetDirectories()
             val unindexedFiles = mutableListOf<String>()
             val discoveredItems = mutableListOf<MediaItem>()
+            val previouslyKnownPaths = secondaryDiskMediaCache.mapTo(HashSet()) { it.path }
 
             secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
                 try {
-                    dir.walkTopDown().maxDepth(4).forEach { file ->
+                    dir.walkTopDown().maxDepth(6).forEach { file ->
                         if (file.isFile && file.length() > 0L) {
                             val ext = file.extension.lowercase(java.util.Locale.ROOT)
                             if (validMediaExtensions.contains(ext)) {
                                 unindexedFiles.add(file.absolutePath)
+                                if (file.absolutePath !in previouslyKnownPaths) {
+                                    newDiscovered++
+                                }
                                 val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
                                     ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")) "video/$ext" else "image/jpeg"
                                 val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")
@@ -762,13 +901,14 @@ class MediaStoreDataSource @Inject constructor(
                 } catch (_: Exception) {}
             }
 
-            if (discoveredItems.isNotEmpty()) {
+            val hasChanges = discoveredItems.size != secondaryDiskMediaCache.size || newDiscovered > 0
+            if (discoveredItems.isNotEmpty() || secondaryDiskMediaCache.isNotEmpty()) {
                 secondaryDiskMediaCache.clear()
                 secondaryDiskMediaCache.addAll(discoveredItems)
+                saveCacheToDisk()
             }
 
             if (unindexedFiles.isNotEmpty()) {
-                scannedCount = unindexedFiles.size
                 unindexedFiles.chunked(500).forEach { chunk ->
                     val mimeTypes = chunk.map { path ->
                         val ext = path.substringAfterLast('.', "").lowercase(java.util.Locale.ROOT)
@@ -803,10 +943,16 @@ class MediaStoreDataSource @Inject constructor(
                     )
                 }
             }
+
+            if (hasChanges) {
+                _secondaryMediaChanges.tryEmit(Unit)
+            }
+
+            return@withContext DeepScanResult(newCount = newDiscovered, totalCount = discoveredItems.size)
         } catch (e: Exception) {
             e.printStackTrace()
+            return@withContext DeepScanResult(newCount = 0, totalCount = secondaryDiskMediaCache.size)
         }
-        scannedCount
     }
 
     suspend fun getDatePositionIndex(bucketId: Long? = null, isAscending: Boolean = false): List<com.hrshd1eux.imava.data.repository.DatePositionHeader> = withContext(Dispatchers.IO) {

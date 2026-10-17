@@ -205,6 +205,7 @@ class MediaRepositoryImplTest {
 
         val flow = repository.getHiddenMediaFlow(isVaultUnlocked = true)
         val itemsList = flow.first()
+        assertEquals(1, itemsList.size)
 
         dbEntity = fakeDao.getMetadataForMedia(123L)
         assertTrue(dbEntity != null)
@@ -706,5 +707,46 @@ class MediaRepositoryImplTest {
         assertEquals(1, result.size)
         assertEquals(100L, result[0].id)
         assertEquals(targetBucketId, result[0].bucketId)
+    }
+
+    @Test
+    fun testGetTotalMediaCount_includesThirdPartyMedia() = runBlocking {
+        val fakeDao = FakeMetadataDao()
+        val mockContext = mockk<Context>(relaxed = true)
+        val mockDataSource = mockk<MediaStoreDataSource>(relaxed = true)
+
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+        val thirdPartyItem = MediaItem.Photo(100L, mockUri, "/path100.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 888L, "WhatsApp Images")
+
+        coEvery { mockDataSource.getTotalMediaCount(any(), any()) } returns 50
+        coEvery { mockDataSource.fetchThirdPartyAppMedia() } returns listOf(thirdPartyItem)
+
+        val repository = MediaRepositoryImpl(
+            context = mockContext,
+            mediaStoreDataSource = mockDataSource,
+            metadataDao = fakeDao
+        )
+
+        val total = repository.getTotalMediaCount(bucketId = null)
+        assertEquals(51, total)
+    }
+
+    @Test
+    fun testScanSecondaryMediaDirectories_delegatesToDataSource() = runBlocking {
+        val fakeDao = FakeMetadataDao()
+        val mockContext = mockk<Context>(relaxed = true)
+        val mockDataSource = mockk<MediaStoreDataSource>(relaxed = true)
+
+        coEvery { mockDataSource.scanSecondaryMediaDirectories() } returns com.hrshd1eux.imava.data.media.DeepScanResult(newCount = 2, totalCount = 64)
+
+        val repository = MediaRepositoryImpl(
+            context = mockContext,
+            mediaStoreDataSource = mockDataSource,
+            metadataDao = fakeDao
+        )
+
+        val result = repository.scanSecondaryMediaDirectories()
+        assertEquals(2, result.newCount)
+        assertEquals(64, result.totalCount)
     }
 }

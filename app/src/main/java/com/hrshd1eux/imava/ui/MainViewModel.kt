@@ -10,13 +10,17 @@ import androidx.lifecycle.viewModelScope
 import com.hrshd1eux.imava.core.util.SharingUtils
 import com.hrshd1eux.imava.core.util.findActivity
 import com.hrshd1eux.imava.data.media.BucketInfo
+import com.hrshd1eux.imava.data.media.DeepScanResult
 import com.hrshd1eux.imava.data.model.MediaItem
 import com.hrshd1eux.imava.data.repository.MediaRepository
 import com.hrshd1eux.imava.ui.selection.SelectionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.collectLatest
@@ -186,11 +190,19 @@ class MainViewModel @Inject constructor(
     )
     val lastDeepScanCount: StateFlow<Int> = _lastDeepScanCount.asStateFlow()
 
+    private val _lastDeepScanNewCount = MutableStateFlow(
+        galleryPrefs.getInt("last_deep_scan_new_count", 0)
+    )
+    val lastDeepScanNewCount: StateFlow<Int> = _lastDeepScanNewCount.asStateFlow()
+
+    private val _deepScanCompletionEvent = MutableSharedFlow<DeepScanResult>()
+    val deepScanCompletionEvent: SharedFlow<DeepScanResult> = _deepScanCompletionEvent.asSharedFlow()
+
     private var lastAutoScanTimestamp = 0L
 
-    fun triggerAutoDeepScan(force: Boolean = false) {
+    fun triggerAutoDeepScan(force: Boolean = false, isManual: Boolean = false) {
         val now = System.currentTimeMillis()
-        if (!force && (now - lastAutoScanTimestamp < 20_000L)) {
+        if (!force && (now - lastAutoScanTimestamp < 3_000L)) {
             return
         }
         if (_isDeepScanning.value) return
@@ -200,12 +212,19 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _isDeepScanning.value = true
             try {
-                val count = repository.scanSecondaryMediaDirectories()
-                _lastDeepScanCount.value = count
-                galleryPrefs.edit().putInt("last_deep_scan_count", count).apply()
-                kotlinx.coroutines.delay(1000)
+                val result = repository.scanSecondaryMediaDirectories()
+                _lastDeepScanCount.value = result.totalCount
+                _lastDeepScanNewCount.value = result.newCount
+                galleryPrefs.edit()
+                    .putInt("last_deep_scan_count", result.totalCount)
+                    .putInt("last_deep_scan_new_count", result.newCount)
+                    .putLong("last_deep_scan_timestamp", System.currentTimeMillis())
+                    .apply()
                 refreshAll()
                 triggerAutoScrub()
+                if (isManual) {
+                    _deepScanCompletionEvent.emit(result)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -214,11 +233,16 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    suspend fun scanSecondaryMediaDirectories(): Int {
-        val count = repository.scanSecondaryMediaDirectories()
-        _lastDeepScanCount.value = count
-        galleryPrefs.edit().putInt("last_deep_scan_count", count).apply()
-        return count
+    suspend fun scanSecondaryMediaDirectories(): DeepScanResult {
+        val result = repository.scanSecondaryMediaDirectories()
+        _lastDeepScanCount.value = result.totalCount
+        _lastDeepScanNewCount.value = result.newCount
+        galleryPrefs.edit()
+            .putInt("last_deep_scan_count", result.totalCount)
+            .putInt("last_deep_scan_new_count", result.newCount)
+            .putLong("last_deep_scan_timestamp", System.currentTimeMillis())
+            .apply()
+        return result
     }
 
     private val _autoScrubBucketIds = MutableStateFlow<Set<String>>(
@@ -1010,6 +1034,16 @@ class MainViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+
+        // Periodic background deep scan while app is running
+        viewModelScope.launch(Dispatchers.IO) {
+            while (isActive) {
+                kotlinx.coroutines.delay(45_000L)
+                if (isAutoDeepScanEnabled && !_isDeepScanning.value) {
+                    triggerAutoDeepScan()
+                }
             }
         }
     }

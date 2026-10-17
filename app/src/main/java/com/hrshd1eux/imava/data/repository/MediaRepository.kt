@@ -1,6 +1,7 @@
 package com.hrshd1eux.imava.data.repository
 
 import com.hrshd1eux.imava.data.media.BucketInfo
+import com.hrshd1eux.imava.data.media.DeepScanResult
 import com.hrshd1eux.imava.data.media.MediaTypeFilter
 import com.hrshd1eux.imava.data.model.MediaItem
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +38,7 @@ interface MediaRepository {
     suspend fun getActiveMediaIds(): List<Long>
     suspend fun getMediaByIds(ids: Set<Long>): List<MediaItem>
     suspend fun searchMedia(query: String): List<MediaItem>
-    suspend fun scanSecondaryMediaDirectories(): Int
+    suspend fun scanSecondaryMediaDirectories(): DeepScanResult
     suspend fun fetchThirdPartyAppMedia(): List<MediaItem>
     suspend fun getDatePositionIndex(bucketId: Long? = null, sortOrder: com.hrshd1eux.imava.ui.SortOrder = com.hrshd1eux.imava.ui.SortOrder.NEWEST_FIRST, mediaType: MediaTypeFilter = MediaTypeFilter.ALL): List<DatePositionHeader>
     suspend fun renameMedia(context: android.content.Context, mediaItem: MediaItem, newDisplayName: String): Boolean

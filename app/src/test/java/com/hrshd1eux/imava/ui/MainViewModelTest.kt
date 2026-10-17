@@ -244,4 +244,27 @@ class MainViewModelTest {
 
         io.mockk.verify { mockEditor.putBoolean("auto_deep_scan", false) }
     }
+
+    @Test
+    fun testScanSecondaryMediaDirectories_delegatesAndStoresResults() = kotlinx.coroutines.runBlocking {
+        val mockEditor = mockk<android.content.SharedPreferences.Editor>(relaxed = true)
+        val mockPrefs = mockk<android.content.SharedPreferences>(relaxed = true)
+        val mockApp = mockk<android.app.Application>(relaxed = true)
+        every { mockApp.getSharedPreferences(any(), any()) } returns mockPrefs
+        every { mockPrefs.edit() } returns mockEditor
+        every { mockEditor.putInt(any(), any()) } returns mockEditor
+        every { mockEditor.putLong(any(), any()) } returns mockEditor
+
+        io.mockk.coEvery { mockRepository.scanSecondaryMediaDirectories() } returns com.hrshd1eux.imava.data.media.DeepScanResult(newCount = 5, totalCount = 69)
+
+        val vm = MainViewModel(mockApp, mockRepository, SavedStateHandle())
+        val result = vm.scanSecondaryMediaDirectories()
+
+        org.junit.Assert.assertEquals(5, result.newCount)
+        org.junit.Assert.assertEquals(69, result.totalCount)
+        org.junit.Assert.assertEquals(69, vm.lastDeepScanCount.value)
+        org.junit.Assert.assertEquals(5, vm.lastDeepScanNewCount.value)
+        io.mockk.verify { mockEditor.putInt("last_deep_scan_count", 69) }
+        io.mockk.verify { mockEditor.putInt("last_deep_scan_new_count", 5) }
+    }
 }

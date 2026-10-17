@@ -51,6 +51,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -747,7 +748,19 @@ fun SettingsScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     val isScanning by viewModel.isDeepScanning.collectAsState()
                     val lastScanCount by viewModel.lastDeepScanCount.collectAsState()
+                    val lastScanNewCount by viewModel.lastDeepScanNewCount.collectAsState()
                     var autoScanEnabled by remember { mutableStateOf(viewModel.isAutoDeepScanEnabled) }
+
+                    LaunchedEffect(Unit) {
+                        viewModel.deepScanCompletionEvent.collect { result ->
+                            val msg = if (result.newCount > 0) {
+                                "Deep scan complete: ${result.newCount} new media items discovered (${result.totalCount} total indexed)"
+                            } else {
+                                "Deep scan complete: All ${result.totalCount} hidden media items are up to date"
+                            }
+                            android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
 
                     Text(
                         text = "Deep Media Discovery",
@@ -834,8 +847,13 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     if (autoScanEnabled && lastScanCount > 0 && !isScanning) {
+                        val statusText = if (lastScanNewCount > 0) {
+                            "✓ Last scan: $lastScanNewCount new media items discovered ($lastScanCount total indexed)"
+                        } else {
+                            "✓ All $lastScanCount hidden media items are indexed and up to date"
+                        }
                         Text(
-                            text = "✓ Discovered $lastScanCount media items",
+                            text = statusText,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -844,7 +862,7 @@ fun SettingsScreen(
 
                     Button(
                         onClick = {
-                            viewModel.triggerAutoDeepScan(force = true)
+                            viewModel.triggerAutoDeepScan(force = true, isManual = true)
                             android.widget.Toast.makeText(context, "Deep scan started...", android.widget.Toast.LENGTH_SHORT).show()
                         },
                         enabled = !isScanning,
