@@ -196,6 +196,7 @@ class MediaStoreDataSource @Inject constructor(
         val projection = arrayOf(
             MediaStore.Files.FileColumns._ID,
             MediaStore.Files.FileColumns.DATA,
+            MediaStore.Files.FileColumns.DISPLAY_NAME,
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_ADDED,
@@ -210,10 +211,12 @@ class MediaStoreDataSource @Inject constructor(
             "date_expires"
         )
 
+        val trashedCondition = "${getMediaTypeCondition(MediaTypeFilter.ALL)} OR (${MediaStore.Files.FileColumns.DATA} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%.mov')"
+
         val queryArgs = Bundle().apply {
             putString(
                 ContentResolver.QUERY_ARG_SQL_SELECTION,
-                getMediaTypeCondition(MediaTypeFilter.ALL)
+                trashedCondition
             )
             putStringArray(
                 ContentResolver.QUERY_ARG_SORT_COLUMNS,

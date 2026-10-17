@@ -52,6 +52,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Clear
@@ -259,11 +260,14 @@ fun PhotoViewerScreen(
         com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
             activity = context,
             title = "Unlock Gallery",
-            subtitle = "Verify fingerprint, face, or device PIN to exit Guest View",
+            subtitle = "Verify fingerprint, face, or device PIN to exit Guest Hand-Off",
             onSuccess = {
                 isGuestModeLocked = false
+                try {
+                    activity?.stopLockTask()
+                } catch (_: Exception) {}
                 com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                android.widget.Toast.makeText(context, "Guest View Unlocked", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, "Guest Hand-Off Unlocked", android.widget.Toast.LENGTH_SHORT).show()
             },
             onError = { err ->
                 com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
@@ -532,14 +536,14 @@ fun PhotoViewerScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Lock,
+                                imageVector = Icons.Default.PushPin,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onErrorContainer,
                                 modifier = Modifier.size(14.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Locked View",
+                                text = "Pinned (Guest View)",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 fontWeight = FontWeight.Bold
@@ -646,11 +650,14 @@ fun PhotoViewerScreen(
                     IconButton(
                         onClick = {
                             isGuestModeLocked = true
+                            try {
+                                activity?.startLockTask()
+                            } catch (_: Exception) {}
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            android.widget.Toast.makeText(context, "Guest View Locked: Authenticate to exit or swipe", android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(context, "Guest Hand-Off Active: Screen pinned to this photo 📌", android.widget.Toast.LENGTH_LONG).show()
                         }
                     ) {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock to Photo (Guest Mode)", tint = Color.White)
+                        Icon(imageVector = Icons.Default.PushPin, contentDescription = "Guest Hand-Off (Pin Photo)", tint = Color.White)
                     }
                 }
 
@@ -666,16 +673,19 @@ fun PhotoViewerScreen(
                         val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
 
                         DropdownMenuItem(
-                            text = { Text(if (isGuestModeLocked) "Unlock Guest View 🔓" else "Guest Lock (Viewing Jail) 🔒") },
-                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                            text = { Text(if (isGuestModeLocked) "Unlock Guest View 🔓" else "Guest Hand-Off (Pin Photo) 📌") },
+                            leadingIcon = { Icon(Icons.Default.PushPin, contentDescription = null) },
                             onClick = {
                                 showMoreMenu = false
                                 if (isGuestModeLocked) {
                                     promptExitGuestMode()
                                 } else {
                                     isGuestModeLocked = true
+                                    try {
+                                        activity?.startLockTask()
+                                    } catch (_: Exception) {}
                                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                    android.widget.Toast.makeText(context, "Guest View Locked: Authenticate to exit or swipe", android.widget.Toast.LENGTH_LONG).show()
+                                    android.widget.Toast.makeText(context, "Guest Hand-Off Active: Screen pinned to this photo 📌", android.widget.Toast.LENGTH_LONG).show()
                                 }
                             }
                         )
@@ -950,10 +960,10 @@ fun PhotoViewerScreen(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
+                            Icon(Icons.Default.PushPin, contentDescription = null, tint = Color.White)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Guest View Locked · Tap to Unlock",
+                                text = "Guest Hand-Off (Pinned) · Tap to Unlock",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold

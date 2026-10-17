@@ -1527,13 +1527,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 )
             }
         )
+    }
 
-        if (showSecureShredderNotice) {
-            com.hrshd1eux.imava.ui.common.SecureShredderNoticeDialog(
-                context = context,
-                onDismiss = { showSecureShredderNotice = false }
-            )
-        }
+    if (showSecureShredderNotice) {
+        com.hrshd1eux.imava.ui.common.SecureShredderNoticeDialog(
+            context = context,
+            onDismiss = { showSecureShredderNotice = false }
+        )
     }
 }
 

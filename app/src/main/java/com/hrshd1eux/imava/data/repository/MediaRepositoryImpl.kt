@@ -372,10 +372,28 @@ class MediaRepositoryImpl @Inject constructor(
 
     override suspend fun toggleTrashed(mediaItem: MediaItem) {
         val currentMeta = metadataDao.getMetadataForMedia(mediaItem.id)
-            ?: MediaMetadataEntity(mediaId = mediaItem.id)
+            ?: MediaMetadataEntity(
+                mediaId = mediaItem.id,
+                originalPath = mediaItem.path,
+                mimeType = mediaItem.mimeType,
+                dateTaken = mediaItem.dateTaken,
+                size = mediaItem.size,
+                width = mediaItem.width,
+                height = mediaItem.height,
+                bucketId = mediaItem.bucketId,
+                bucketName = mediaItem.bucketName,
+                durationMs = (mediaItem as? MediaItem.Video)?.durationMs ?: 0L
+            )
         val updated = currentMeta.copy(
             isTrashed = !mediaItem.isTrashed,
-            trashTime = if (!mediaItem.isTrashed) System.currentTimeMillis() else 0L
+            trashTime = if (!mediaItem.isTrashed) System.currentTimeMillis() else 0L,
+            originalPath = if (currentMeta.originalPath.isBlank()) mediaItem.path else currentMeta.originalPath,
+            mimeType = if (currentMeta.mimeType.isBlank()) mediaItem.mimeType else currentMeta.mimeType,
+            dateTaken = if (currentMeta.dateTaken <= 0L) mediaItem.dateTaken else currentMeta.dateTaken,
+            size = if (currentMeta.size <= 0L) mediaItem.size else currentMeta.size,
+            bucketId = if (currentMeta.bucketId == 0L) mediaItem.bucketId else currentMeta.bucketId,
+            bucketName = if (currentMeta.bucketName.isBlank()) mediaItem.bucketName else currentMeta.bucketName,
+            durationMs = if (currentMeta.durationMs == 0L && mediaItem is MediaItem.Video) mediaItem.durationMs else currentMeta.durationMs
         )
         metadataDao.insertOrUpdate(updated)
     }
@@ -410,7 +428,108 @@ class MediaRepositoryImpl @Inject constructor(
                 val metadataList = getMetadataForMediaIdsChunked(allIds)
                 val metadataMap = metadataList.associateBy { it.mediaId }
                 
-                val combined = (storeTrashed + dbItems).distinctBy { it.id }.map { item ->
+                val foundIds = (storeTrashed.map { it.id } + dbItems.map { it.id }).toSet()
+                val localTrashedItems = mutableListOf<MediaItem>()
+                val trashDir = java.io.File(context.filesDir, "imava_trash")
+
+                // Recover any trashed items stored in local imava_trash that are missing from MediaStore query
+                trashedIds.filter { it !in foundIds }.forEach { missingId ->
+                    val meta = metadataMap[missingId]
+                    val origName = if (meta != null && meta.originalPath.isNotBlank()) java.io.File(meta.originalPath).name else null
+                    val candidateFile = if (origName != null) {
+                        java.io.File(trashDir, "${missingId}_$origName")
+                    } else {
+                        trashDir.listFiles { _, name -> name.startsWith("${missingId}_") }?.firstOrNull()
+                    }
+                    if (candidateFile != null && candidateFile.exists()) {
+                        val isVideo = (meta?.mimeType?.startsWith("video/") == true) ||
+                                candidateFile.name.endsWith(".mp4", ignoreCase = true) ||
+                                candidateFile.name.endsWith(".mkv", ignoreCase = true) ||
+                                candidateFile.name.endsWith(".mov", ignoreCase = true)
+                        val uri = android.net.Uri.fromFile(candidateFile)
+                        val item = if (isVideo) {
+                            MediaItem.Video(
+                                id = missingId,
+                                uri = uri,
+                                path = meta?.originalPath?.ifBlank { candidateFile.absolutePath } ?: candidateFile.absolutePath,
+                                mimeType = meta?.mimeType?.ifBlank { "video/mp4" } ?: "video/mp4",
+                                dateTaken = if ((meta?.dateTaken ?: 0L) > 0L) meta!!.dateTaken else candidateFile.lastModified(),
+                                size = candidateFile.length(),
+                                width = meta?.width ?: 0,
+                                height = meta?.height ?: 0,
+                                durationMs = meta?.durationMs ?: 0L,
+                                bucketId = meta?.bucketId ?: 0L,
+                                bucketName = meta?.bucketName?.ifBlank { "Trash" } ?: "Trash",
+                                isTrashed = true,
+                                trashTime = if ((meta?.trashTime ?: 0L) > 0L) meta!!.trashTime else System.currentTimeMillis()
+                            )
+                        } else {
+                            MediaItem.Photo(
+                                id = missingId,
+                                uri = uri,
+                                path = meta?.originalPath?.ifBlank { candidateFile.absolutePath } ?: candidateFile.absolutePath,
+                                mimeType = meta?.mimeType?.ifBlank { "image/jpeg" } ?: "image/jpeg",
+                                dateTaken = if ((meta?.dateTaken ?: 0L) > 0L) meta!!.dateTaken else candidateFile.lastModified(),
+                                size = candidateFile.length(),
+                                width = meta?.width ?: 0,
+                                height = meta?.height ?: 0,
+                                bucketId = meta?.bucketId ?: 0L,
+                                bucketName = meta?.bucketName?.ifBlank { "Trash" } ?: "Trash",
+                                isTrashed = true,
+                                trashTime = if ((meta?.trashTime ?: 0L) > 0L) meta!!.trashTime else System.currentTimeMillis()
+                            )
+                        }
+                        localTrashedItems.add(item)
+                    }
+                }
+
+                // Also discover any physical files in imava_trash not yet in foundIds or localTrashedItems
+                if (trashDir.exists()) {
+                    trashDir.listFiles()?.forEach { file ->
+                        val idPrefix = file.name.substringBefore("_").toLongOrNull()
+                        if (idPrefix != null && idPrefix !in foundIds && localTrashedItems.none { it.id == idPrefix }) {
+                            val isVideo = file.name.endsWith(".mp4", ignoreCase = true) ||
+                                    file.name.endsWith(".mkv", ignoreCase = true) ||
+                                    file.name.endsWith(".mov", ignoreCase = true)
+                            val meta = metadataMap[idPrefix]
+                            val item = if (isVideo) {
+                                MediaItem.Video(
+                                    id = idPrefix,
+                                    uri = android.net.Uri.fromFile(file),
+                                    path = meta?.originalPath?.ifBlank { file.absolutePath } ?: file.absolutePath,
+                                    mimeType = meta?.mimeType?.ifBlank { "video/mp4" } ?: "video/mp4",
+                                    dateTaken = file.lastModified(),
+                                    size = file.length(),
+                                    width = 0,
+                                    height = 0,
+                                    durationMs = 0L,
+                                    bucketId = 0L,
+                                    bucketName = "Trash",
+                                    isTrashed = true,
+                                    trashTime = file.lastModified()
+                                )
+                            } else {
+                                MediaItem.Photo(
+                                    id = idPrefix,
+                                    uri = android.net.Uri.fromFile(file),
+                                    path = meta?.originalPath?.ifBlank { file.absolutePath } ?: file.absolutePath,
+                                    mimeType = meta?.mimeType?.ifBlank { "image/jpeg" } ?: "image/jpeg",
+                                    dateTaken = file.lastModified(),
+                                    size = file.length(),
+                                    width = 0,
+                                    height = 0,
+                                    bucketId = 0L,
+                                    bucketName = "Trash",
+                                    isTrashed = true,
+                                    trashTime = file.lastModified()
+                                )
+                            }
+                            localTrashedItems.add(item)
+                        }
+                    }
+                }
+
+                val combined = (storeTrashed + dbItems + localTrashedItems).distinctBy { it.id }.map { item ->
                     applyMetadata(item, metadataMap[item.id])
                 }.filter { it.isTrashed }
                 combined.distinctBy { it.id }.sortedWith(

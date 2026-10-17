@@ -1962,13 +1962,25 @@ class MainViewModel @Inject constructor(
                     }
                 }
 
+                val trashDir = java.io.File(context.filesDir, "imava_trash").apply { mkdirs() }
                 selectedItems.forEach { item ->
-                    val file = java.io.File(item.path)
-                    if (file.exists()) {
-                        try { file.delete() } catch (_: Exception) {}
+                    val srcFile = java.io.File(item.path)
+                    if (srcFile.exists()) {
+                        val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
+                        try {
+                            srcFile.copyTo(destFile, overwrite = true)
+                            srcFile.delete()
+                        } catch (_: Exception) {}
                     }
                     try {
                         context.contentResolver.delete(item.uri, null, null)
+                    } catch (_: Exception) {}
+                    try {
+                        val mediaUri = getMediaProviderUri(item)
+                        context.contentResolver.delete(mediaUri, null, null)
+                    } catch (_: Exception) {}
+                    try {
+                        android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
                     } catch (_: Exception) {}
                     repository.toggleTrashed(item)
                 }

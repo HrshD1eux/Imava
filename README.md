@@ -230,3 +230,12 @@ CI runs on push to `main` via GitHub Actions (`.github/workflows/`).
 Copyright (c) 2026 HrshD1eux
 
 Licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**. See [LICENSE](LICENSE) for the full license text.
+
+---
+
+## Author & Contact
+
+- **Author**: HrshD1eux
+- **Email**: `157795651+HrshD1eux@users.noreply.github.com`
+- **Issue Tracker**: https://github.com/HrshD1eux/Imava/issues
+- **Source Code**: https://github.com/HrshD1eux/Imava
