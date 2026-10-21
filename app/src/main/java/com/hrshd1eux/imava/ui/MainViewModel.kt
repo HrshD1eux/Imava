@@ -1,6 +1,7 @@
 package com.hrshd1eux.imava.ui
 
 import android.content.Context
+import android.net.Uri
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -351,6 +352,105 @@ class MainViewModel @Inject constructor(
             _activeMediaItemState.value = value
             _activeMediaIdState.value = value?.id
             savedStateHandle["active_media_id"] = value?.id
+        }
+
+    var isExternalViewIntent by mutableStateOf(false)
+
+    fun openExternalMedia(context: Context, uri: Uri, mimeType: String?) {
+        isExternalViewIntent = true
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // 1. Try resolving via ContentUris if it's a MediaStore URI
+                val parsedId = try {
+                    android.content.ContentUris.parseId(uri)
+                } catch (_: Exception) {
+                    null
+                }
+                if (parsedId != null) {
+                    val matching = repository.getMediaByIds(setOf(parsedId)).firstOrNull()
+                    if (matching != null) {
+                        withContext(Dispatchers.Main) {
+                            activeMediaItem = matching
+                        }
+                        return@launch
+                    }
+                }
+
+                // 2. Query ContentResolver for display name, size, MIME type and _data column
+                var resolvedName = uri.lastPathSegment ?: "Media_${System.currentTimeMillis()}"
+                var resolvedSize = 0L
+                var resolvedPath = ""
+                val resolvedMime = mimeType
+                    ?: context.contentResolver.getType(uri)
+                    ?: if (resolvedName.endsWith(".mp4", ignoreCase = true) || resolvedName.endsWith(".mkv", ignoreCase = true) || resolvedName.endsWith(".mov", ignoreCase = true)) "video/mp4" else "image/jpeg"
+
+                try {
+                    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                        val nameCol = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                        val sizeCol = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                        val dataCol = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DATA)
+                        if (cursor.moveToFirst()) {
+                            if (nameCol != -1) {
+                                resolvedName = cursor.getString(nameCol) ?: resolvedName
+                            }
+                            if (sizeCol != -1) {
+                                resolvedSize = cursor.getLong(sizeCol)
+                            }
+                            if (dataCol != -1) {
+                                resolvedPath = cursor.getString(dataCol) ?: ""
+                            }
+                        }
+                    }
+                } catch (_: Exception) {}
+
+                if (resolvedPath.isBlank() && uri.scheme == "file") {
+                    resolvedPath = uri.path ?: ""
+                }
+
+                val isVideo = resolvedMime.startsWith("video/", ignoreCase = true)
+                val id = kotlin.math.abs(uri.toString().hashCode().toLong()).coerceAtLeast(1L)
+                val file = if (resolvedPath.isNotBlank()) java.io.File(resolvedPath) else null
+                val dateTaken = if (file != null && file.exists()) file.lastModified() else System.currentTimeMillis()
+                if (resolvedSize == 0L && file != null && file.exists()) {
+                    resolvedSize = file.length()
+                }
+
+                val item = if (isVideo) {
+                    MediaItem.Video(
+                        id = id,
+                        uri = uri,
+                        path = resolvedPath.ifBlank { uri.toString() },
+                        mimeType = resolvedMime,
+                        dateTaken = dateTaken,
+                        size = resolvedSize,
+                        width = 0,
+                        height = 0,
+                        durationMs = 0L,
+                        bucketId = file?.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L,
+                        bucketName = file?.parentFile?.name ?: ""
+                    )
+                } else {
+                    MediaItem.Photo(
+                        id = id,
+                        uri = uri,
+                        path = resolvedPath.ifBlank { uri.toString() },
+                        mimeType = resolvedMime,
+                        dateTaken = dateTaken,
+                        size = resolvedSize,
+                        width = 0,
+                        height = 0,
+                        bucketId = file?.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L,
+                        bucketName = file?.parentFile?.name ?: ""
+                    )
+                }
+
+                withContext(Dispatchers.Main) {
+                    activeMediaItem = item
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         }
     
     private var _currentBucketIdState = mutableStateOf(savedStateHandle.get<Long>("current_bucket_id"))

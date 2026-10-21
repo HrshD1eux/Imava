@@ -532,90 +532,72 @@ class MediaStoreDataSource @Inject constructor(
         "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v"
     )
 
-    private fun getSecondaryTargetDirectories(): List<java.io.File> {
-        val externalStorage = android.os.Environment.getExternalStorageDirectory() ?: return emptyList()
-        val paths = mutableListOf<java.io.File>()
+    private val directoriesToSkip = setOf(
+        "data", "obb", ".git", ".gradle", "node_modules", ".cache",
+        ".thumbnails", ".stversions", ".Trash", ".recycle", ".temp", ".tmp"
+    )
 
-        fun addIfDir(file: java.io.File) {
-            if (file.exists() && file.isDirectory) {
-                paths.add(file)
+    private fun getStorageRoots(): List<java.io.File> {
+        val roots = mutableListOf<java.io.File>()
+        val primary = android.os.Environment.getExternalStorageDirectory()
+        if (primary != null && primary.exists() && primary.canRead()) {
+            roots.add(primary)
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val sm = context.getSystemService(android.os.storage.StorageManager::class.java)
+                sm?.storageVolumes?.forEach { volume ->
+                    val dir = volume.directory
+                    if (dir != null && dir.exists() && dir.canRead() && !roots.contains(dir)) {
+                        roots.add(dir)
+                    }
+                }
             }
-        }
+        } catch (_: Exception) {}
 
-        // WhatsApp Standard
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/.Shared"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Stickers"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Documents"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp/Media/.Shared"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Stickers"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp/Media/WhatsApp Documents"))
+        try {
+            androidx.core.content.ContextCompat.getExternalFilesDirs(context, null).forEach { file ->
+                if (file != null) {
+                    val rootPath = file.absolutePath.substringBefore("/Android/data")
+                    val rootFile = java.io.File(rootPath)
+                    if (rootFile.exists() && rootFile.canRead() && !roots.contains(rootFile)) {
+                        roots.add(rootFile)
+                    }
+                }
+            }
+        } catch (_: Exception) {}
 
-        // WhatsApp Business
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Shared"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Stickers"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.w4b/WhatsApp Business/Media/WhatsApp Business Documents"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media/.Shared"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp Business/Media/WhatsApp Business Documents"))
+        return roots
+    }
 
-        // Modded WhatsApp Variants (GBWhatsApp, FMWhatsApp, YoWhatsApp, WhatsApp Plus)
-        addIfDir(java.io.File(externalStorage, "Android/media/com.gbwhatsapp/GBWhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "GBWhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.fmwhatsapp/FMWhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "FMWhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.yowhatsapp/YoWhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "YoWhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "WhatsApp Plus/Media"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.whatsapp.plus/WhatsApp Plus/Media"))
-
-        // DualApp / Dual Messenger (Samsung, Xiaomi, etc.)
-        addIfDir(java.io.File(externalStorage, "DualApp/Android/media/com.whatsapp/WhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "DualApp/WhatsApp/Media"))
-        addIfDir(java.io.File(externalStorage, "DualApp/Android/media/com.whatsapp.w4b/WhatsApp Business/Media"))
-        addIfDir(java.io.File(externalStorage, "DualApp/WhatsApp Business/Media"))
-        addIfDir(java.io.File(externalStorage, "DualApp/GBWhatsApp/Media"))
-
-        // Telegram
-        addIfDir(java.io.File(externalStorage, "Android/media/org.telegram.messenger"))
-        addIfDir(java.io.File(externalStorage, "Android/media/org.telegram.messenger.web"))
-        addIfDir(java.io.File(externalStorage, "Telegram"))
-        addIfDir(java.io.File(externalStorage, "Telegram/Telegram Documents"))
-        addIfDir(java.io.File(externalStorage, "Telegram/Telegram Video"))
-        addIfDir(java.io.File(externalStorage, "Telegram/Telegram Audio"))
-        addIfDir(java.io.File(externalStorage, "Pictures/Telegram"))
-        addIfDir(java.io.File(externalStorage, "Movies/Telegram"))
-        addIfDir(java.io.File(externalStorage, "Download/Telegram"))
-
-        // Discord, Snapchat, Signal, Viber, Social
-        addIfDir(java.io.File(externalStorage, "Android/media/com.discord"))
-        addIfDir(java.io.File(externalStorage, "Pictures/Discord"))
-        addIfDir(java.io.File(externalStorage, "Download/Discord"))
-        addIfDir(java.io.File(externalStorage, "Android/media/com.snapchat.android"))
-        addIfDir(java.io.File(externalStorage, "Snapchat"))
-        addIfDir(java.io.File(externalStorage, "Pictures/Snapchat"))
-        addIfDir(java.io.File(externalStorage, "Android/media/org.thoughtcrime.securesms"))
-        addIfDir(java.io.File(externalStorage, "Signal"))
-        addIfDir(java.io.File(externalStorage, "Viber/media"))
-        addIfDir(java.io.File(externalStorage, "Pictures/Instagram"))
-        addIfDir(java.io.File(externalStorage, "Pictures/Reddit"))
-        addIfDir(java.io.File(externalStorage, "Pictures/Twitter"))
-        addIfDir(java.io.File(externalStorage, "Pictures/X"))
-
-        // Hidden & Vault Directories
-        val hiddenFolderNames = listOf(
-            ".hidden", ".secret", ".vault", ".private", ".calculator",
-            ".mysecret", ".thumbnails", "Pictures/.hidden", "DCIM/.hidden",
-            "Download/.hidden", "DCIM/.thumbnails",
-            "Pictures/.nomedia", "DCIM/.nomedia", "Download/.nomedia",
-            "Documents/.nomedia", "Movies/.nomedia"
-        )
-        hiddenFolderNames.forEach { relPath ->
-            addIfDir(java.io.File(externalStorage, relPath))
-        }
-
+    private fun fetchAllMediaStorePaths(): Set<String> {
+        val paths = HashSet<String>(2048)
+        val collection = MediaStore.Files.getContentUri("external")
+        val projection = arrayOf(MediaStore.Files.FileColumns.DATA)
+        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'"
+        try {
+            val cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val queryArgs = Bundle().apply {
+                    putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
+                    putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_DEFAULT)
+                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_DEFAULT)
+                }
+                contentResolver.query(collection, projection, queryArgs, null)
+            } else {
+                contentResolver.query(collection, projection, selection, null, null)
+            }
+            cursor?.use {
+                val dataCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
+                if (dataCol != -1) {
+                    while (it.moveToNext()) {
+                        val p = it.getString(dataCol)
+                        if (!p.isNullOrBlank()) {
+                            paths.add(p)
+                        }
+                    }
+                }
+            }
+        } catch (_: Exception) {}
         return paths
     }
 
@@ -831,73 +813,97 @@ class MediaStoreDataSource @Inject constructor(
     suspend fun scanSecondaryMediaDirectories(): DeepScanResult = withContext(Dispatchers.IO) {
         var newDiscovered = 0
         try {
-            val secondaryPaths = getSecondaryTargetDirectories()
+            val roots = getStorageRoots()
+            val mediaStorePaths = fetchAllMediaStorePaths()
             val unindexedFiles = mutableListOf<String>()
             val discoveredItems = mutableListOf<MediaItem>()
             val previouslyKnownPaths = secondaryDiskMediaCache.mapTo(HashSet()) { it.path }
 
-            secondaryPaths.filter { it.exists() && it.isDirectory }.forEach { dir ->
+            roots.forEach { root ->
                 try {
-                    dir.walkTopDown().maxDepth(6).forEach { file ->
-                        if (file.isFile && file.length() > 0L) {
-                            val ext = file.extension.lowercase(java.util.Locale.ROOT)
-                            if (validMediaExtensions.contains(ext)) {
-                                unindexedFiles.add(file.absolutePath)
-                                if (file.absolutePath !in previouslyKnownPaths) {
-                                    newDiscovered++
-                                }
-                                val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
-                                    ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")) "video/$ext" else "image/jpeg"
-                                val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")
-                                val parent = file.parentFile
-                                val bucketId = parent?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L
-                                val parentName = parent?.name ?: "Sent"
-                                val grandparent = parent?.parentFile
-                                val bucketName = when {
-                                    parentName.equals(".Shared", ignoreCase = true) -> "${grandparent?.name ?: "WhatsApp"} Shared"
-                                    parentName.equals("WhatsApp Stickers", ignoreCase = true) -> "WhatsApp Stickers"
-                                    parentName.startsWith(".") -> parentName.removePrefix(".").replaceFirstChar { it.uppercase() } + " (Hidden)"
-                                    (parentName.equals("Sent", ignoreCase = true) || parentName.equals("Private", ignoreCase = true)) &&
-                                        grandparent != null && grandparent.name.isNotBlank() -> "${grandparent.name} $parentName"
-                                    else -> parentName
-                                }
-                                val id = kotlin.math.abs(file.absolutePath.hashCode().toLong()).coerceAtLeast(1L)
-                                val uri = android.net.Uri.fromFile(file)
-                                val dateTaken = file.lastModified()
-                                val size = file.length()
-
-                                val item = if (isVideo) {
-                                    MediaItem.Video(
-                                        id = id,
-                                        uri = uri,
-                                        path = file.absolutePath,
-                                        mimeType = mimeType,
-                                        dateTaken = dateTaken,
-                                        size = size,
-                                        width = 0,
-                                        height = 0,
-                                        durationMs = 0L,
-                                        bucketId = bucketId,
-                                        bucketName = bucketName
-                                    )
-                                } else {
-                                    MediaItem.Photo(
-                                        id = id,
-                                        uri = uri,
-                                        path = file.absolutePath,
-                                        mimeType = mimeType,
-                                        dateTaken = dateTaken,
-                                        size = size,
-                                        width = 0,
-                                        height = 0,
-                                        bucketId = bucketId,
-                                        bucketName = bucketName
-                                    )
-                                }
-                                discoveredItems.add(item)
+                    root.walkTopDown()
+                        .maxDepth(15)
+                        .onEnter { dir ->
+                            val name = dir.name
+                            if ((name.equals("data", ignoreCase = true) || name.equals("obb", ignoreCase = true)) &&
+                                dir.parentFile?.name.equals("Android", ignoreCase = true)
+                            ) {
+                                return@onEnter false
                             }
+                            if (directoriesToSkip.contains(name) || directoriesToSkip.contains(name.lowercase(java.util.Locale.ROOT))) {
+                                return@onEnter false
+                            }
+                            if (name.equals(".vault", ignoreCase = true) || (name.equals("vault", ignoreCase = true) && dir.parentFile?.name == "files")) {
+                                return@onEnter false
+                            }
+                            true
                         }
-                    }
+                        .onFail { _, _ -> }
+                        .forEach { file ->
+                            try {
+                                if (file.isFile && file.length() > 0L) {
+                                    val ext = file.extension.lowercase(java.util.Locale.ROOT)
+                                    if (validMediaExtensions.contains(ext)) {
+                                        val absPath = file.absolutePath
+                                        if (absPath !in mediaStorePaths) {
+                                            unindexedFiles.add(absPath)
+                                            if (absPath !in previouslyKnownPaths) {
+                                                newDiscovered++
+                                            }
+                                            val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+                                                ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")) "video/$ext" else "image/jpeg"
+                                            val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")
+                                            val parent = file.parentFile
+                                            val bucketId = parent?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L
+                                            val parentName = parent?.name ?: "Unknown"
+                                            val grandparent = parent?.parentFile
+                                            val bucketName = when {
+                                                parentName.equals(".Shared", ignoreCase = true) -> "${grandparent?.name ?: "WhatsApp"} Shared"
+                                                parentName.equals("WhatsApp Stickers", ignoreCase = true) -> "WhatsApp Stickers"
+                                                parentName.startsWith(".") -> parentName.removePrefix(".").replaceFirstChar { it.uppercase() } + " (Hidden)"
+                                                (parentName.equals("Sent", ignoreCase = true) || parentName.equals("Private", ignoreCase = true)) &&
+                                                    grandparent != null && grandparent.name.isNotBlank() -> "${grandparent.name} $parentName"
+                                                else -> parentName
+                                            }
+                                            val id = kotlin.math.abs(absPath.hashCode().toLong()).coerceAtLeast(1L)
+                                            val uri = android.net.Uri.fromFile(file)
+                                            val dateTaken = file.lastModified()
+                                            val size = file.length()
+
+                                            val item = if (isVideo) {
+                                                MediaItem.Video(
+                                                    id = id,
+                                                    uri = uri,
+                                                    path = absPath,
+                                                    mimeType = mimeType,
+                                                    dateTaken = dateTaken,
+                                                    size = size,
+                                                    width = 0,
+                                                    height = 0,
+                                                    durationMs = 0L,
+                                                    bucketId = bucketId,
+                                                    bucketName = bucketName
+                                                )
+                                            } else {
+                                                MediaItem.Photo(
+                                                    id = id,
+                                                    uri = uri,
+                                                    path = absPath,
+                                                    mimeType = mimeType,
+                                                    dateTaken = dateTaken,
+                                                    size = size,
+                                                    width = 0,
+                                                    height = 0,
+                                                    bucketId = bucketId,
+                                                    bucketName = bucketName
+                                                )
+                                            }
+                                            discoveredItems.add(item)
+                                        }
+                                    }
+                                }
+                            } catch (_: Exception) {}
+                        }
                 } catch (_: Exception) {}
             }
 

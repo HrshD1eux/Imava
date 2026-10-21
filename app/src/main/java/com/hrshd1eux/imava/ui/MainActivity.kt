@@ -196,6 +196,7 @@ class MainActivity : FragmentActivity() {
         }
 
         checkPermissions()
+        handleIncomingIntent(intent)
 
         setContent {
             ImavaTheme(appTheme = viewModel.appTheme) {
@@ -207,7 +208,7 @@ class MainActivity : FragmentActivity() {
                 ) {
                     if (isAppLockedState.value) {
                         com.hrshd1eux.imava.ui.common.AppLockScreen(onUnlockClick = { promptAppUnlock() })
-                    } else if (hasPermissions) {
+                    } else if (hasPermissions || viewModel.isExternalViewIntent) {
                         MainScreenLayout(viewModel)
                         
                         val editingItem = viewModel.editingMediaItem
@@ -321,6 +322,19 @@ class MainActivity : FragmentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         viewModel.handleActivityResult(requestCode, resultCode, this)
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingIntent(intent)
+    }
+
+    private fun handleIncomingIntent(intent: Intent?) {
+        if (intent == null) return
+        if (intent.action == Intent.ACTION_VIEW && intent.data != null) {
+            viewModel.openExternalMedia(this, intent.data!!, intent.type)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -433,6 +447,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             slideshowItems != null ||
             viewModel.activeMemoryStory != null ||
             viewModel.activeMediaItem != null ||
+            viewModel.isExternalViewIntent ||
             viewModel.currentCategoryName != null ||
             viewModel.currentBucketId != null ||
             currentScreen != Screen.Photos
@@ -450,6 +465,11 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             viewModel.activeMemoryStory = null
         } else if (viewModel.activeMediaItem != null) {
             viewModel.activeMediaItem = null
+            if (viewModel.isExternalViewIntent) {
+                activity?.finish()
+            }
+        } else if (viewModel.isExternalViewIntent) {
+            activity?.finish()
         } else if (viewModel.currentCategoryName != null) {
             if (viewModel.currentCategoryName == "Hidden Vault") {
                 viewModel.lockVault(context)

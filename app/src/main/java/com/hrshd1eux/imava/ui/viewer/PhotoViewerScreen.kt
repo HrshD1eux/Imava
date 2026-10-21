@@ -517,6 +517,9 @@ fun PhotoViewerScreen(
                             promptExitGuestMode()
                         } else {
                             viewModel.activeMediaItem = null
+                            if (viewModel.isExternalViewIntent) {
+                                activity?.finish()
+                            }
                         }
                     }
                 ) {

@@ -267,4 +267,27 @@ class MainViewModelTest {
         io.mockk.verify { mockEditor.putInt("last_deep_scan_count", 69) }
         io.mockk.verify { mockEditor.putInt("last_deep_scan_new_count", 5) }
     }
+
+    @Test
+    fun testOpenExternalMedia_setsExternalViewIntentAndActiveItem() = kotlinx.coroutines.runBlocking {
+        val mockContext = mockk<android.content.Context>(relaxed = true)
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+        every { mockUri.scheme } returns "file"
+        every { mockUri.path } returns "/storage/emulated/0/DCIM/Camera/external.jpg"
+        every { mockUri.lastPathSegment } returns "external.jpg"
+        every { mockUri.toString() } returns "file:///storage/emulated/0/DCIM/Camera/external.jpg"
+
+        viewModel.openExternalMedia(mockContext, mockUri, "image/jpeg")
+        for (i in 1..50) {
+            testDispatcher.scheduler.advanceUntilIdle()
+            if (viewModel.activeMediaItem != null) break
+            Thread.sleep(20)
+        }
+
+        org.junit.Assert.assertTrue(viewModel.isExternalViewIntent)
+        val active = viewModel.activeMediaItem
+        org.junit.Assert.assertNotNull(active)
+        org.junit.Assert.assertEquals("/storage/emulated/0/DCIM/Camera/external.jpg", active?.path)
+        org.junit.Assert.assertEquals("image/jpeg", active?.mimeType)
+    }
 }
