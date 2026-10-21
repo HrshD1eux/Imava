@@ -69,9 +69,23 @@ class MediaRepositoryImpl @Inject constructor(
         val ids = relevant.map { it.id }
         val metaList = getMetadataForMediaIdsChunked(ids)
         val metaMap = metaList.associateBy { it.mediaId }
+
+        val hiddenOrTrashedMeta = metadataDao.getHiddenOrTrashedMetadata()
+        val trashedPaths = hiddenOrTrashedMeta.filter { it.isTrashed && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
+        val hiddenPaths = hiddenOrTrashedMeta.filter { it.isHidden && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
+
         return relevant.map { item ->
             applyMetadata(item, metaMap[item.id])
-        }.filter { !it.isHidden && !it.isTrashed }
+        }.filter { item ->
+            !item.isHidden && !item.isTrashed &&
+            item.path !in trashedPaths &&
+            item.path !in hiddenPaths &&
+            !item.path.contains("/imava_trash/") &&
+            !item.path.contains("/.trashed") &&
+            !item.path.contains("/.Trash") &&
+            !item.path.substringAfterLast('/').startsWith(".trashed", ignoreCase = true) &&
+            !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true)
+        }
     }
 
     override suspend fun loadMediaPaged(limit: Int, offset: Int, bucketId: Long?, sortOrder: com.hrshd1eux.imava.ui.SortOrder, mediaType: MediaTypeFilter): List<MediaItem> = withContext(Dispatchers.IO) {

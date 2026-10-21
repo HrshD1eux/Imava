@@ -1111,12 +1111,9 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             @OptIn(FlowPreview::class)
             repository.observeMediaChanges()
-                .debounce(300)
+                .debounce(500)
                 .collectLatest {
                     refreshAll()
-                    if (isAutoDeepScanEnabled) {
-                        triggerAutoDeepScan()
-                    }
                 }
         }
 

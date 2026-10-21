@@ -534,7 +534,8 @@ class MediaStoreDataSource @Inject constructor(
 
     private val directoriesToSkip = setOf(
         "data", "obb", ".git", ".gradle", "node_modules", ".cache",
-        ".thumbnails", ".stversions", ".Trash", ".recycle", ".temp", ".tmp"
+        ".thumbnails", ".stversions", ".trash", ".trashed", ".recycle",
+        ".temp", ".tmp", "imava_trash"
     )
 
     private fun getStorageRoots(): List<java.io.File> {
@@ -576,29 +577,63 @@ class MediaStoreDataSource @Inject constructor(
         val projection = arrayOf(MediaStore.Files.FileColumns.DATA)
         val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'"
         try {
-            val cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val queryArgs = Bundle().apply {
                     putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_DEFAULT)
-                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_DEFAULT)
+                    // MUST include trashed items so MediaStore-trashed files are recognized as managed and not re-discovered as new photos
+                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_INCLUDE)
                 }
-                contentResolver.query(collection, projection, queryArgs, null)
+                contentResolver.query(collection, projection, queryArgs, null)?.use { cursor ->
+                    val dataCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)
+                    if (dataCol != -1) {
+                        while (cursor.moveToNext()) {
+                            val p = cursor.getString(dataCol)
+                            if (!p.isNullOrBlank()) {
+                                paths.add(p)
+                            }
+                        }
+                    }
+                }
             } else {
-                contentResolver.query(collection, projection, selection, null, null)
-            }
-            cursor?.use {
-                val dataCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
-                if (dataCol != -1) {
-                    while (it.moveToNext()) {
-                        val p = it.getString(dataCol)
-                        if (!p.isNullOrBlank()) {
-                            paths.add(p)
+                contentResolver.query(collection, projection, selection, null, null)?.use { cursor ->
+                    val dataCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)
+                    if (dataCol != -1) {
+                        while (cursor.moveToNext()) {
+                            val p = cursor.getString(dataCol)
+                            if (!p.isNullOrBlank()) {
+                                paths.add(p)
+                            }
                         }
                     }
                 }
             }
         } catch (_: Exception) {}
         return paths
+    }
+
+    private fun fetchAllTrashedPaths(): Set<String> {
+        val trashed = HashSet<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val collection = MediaStore.Files.getContentUri("external")
+            val projection = arrayOf(MediaStore.Files.FileColumns.DATA)
+            try {
+                val queryArgs = Bundle().apply {
+                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_ONLY)
+                    putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
+                }
+                contentResolver.query(collection, projection, queryArgs, null)?.use { cursor ->
+                    val dataCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)
+                    if (dataCol != -1) {
+                        while (cursor.moveToNext()) {
+                            val p = cursor.getString(dataCol)
+                            if (!p.isNullOrBlank()) trashed.add(p)
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
+        }
+        return trashed
     }
 
     /**
@@ -756,7 +791,14 @@ class MediaStoreDataSource @Inject constructor(
                 val obj = jsonArray.getJSONObject(i)
                 val path = obj.getString("path")
                 val diskFile = java.io.File(path)
-                if (!diskFile.exists()) continue
+                if (!diskFile.exists() ||
+                    diskFile.name.startsWith(".trashed", ignoreCase = true) ||
+                    diskFile.name.startsWith(".trash", ignoreCase = true) ||
+                    diskFile.name.contains(".trashed-", ignoreCase = true) ||
+                    path.contains("/imava_trash/") ||
+                    path.contains("/.trashed") ||
+                    path.contains("/.Trash")
+                ) continue
                 val id = obj.optLong("id", kotlin.math.abs(path.hashCode().toLong()).coerceAtLeast(1L))
                 val mimeType = obj.optString("mimeType", "image/jpeg")
                 val dateTaken = obj.optLong("dateTaken", diskFile.lastModified())
@@ -815,9 +857,11 @@ class MediaStoreDataSource @Inject constructor(
         try {
             val roots = getStorageRoots()
             val mediaStorePaths = fetchAllMediaStorePaths()
+            val trashedPaths = fetchAllTrashedPaths()
             val unindexedFiles = mutableListOf<String>()
             val discoveredItems = mutableListOf<MediaItem>()
             val previouslyKnownPaths = secondaryDiskMediaCache.mapTo(HashSet()) { it.path }
+            val visitedDirs = HashSet<String>()
 
             roots.forEach { root ->
                 try {
@@ -825,30 +869,48 @@ class MediaStoreDataSource @Inject constructor(
                         .maxDepth(15)
                         .onEnter { dir ->
                             val name = dir.name
-                            if ((name.equals("data", ignoreCase = true) || name.equals("obb", ignoreCase = true)) &&
+                            val nameLower = name.lowercase(java.util.Locale.ROOT)
+                            if ((nameLower == "data" || nameLower == "obb") &&
                                 dir.parentFile?.name.equals("Android", ignoreCase = true)
                             ) {
                                 return@onEnter false
                             }
-                            if (directoriesToSkip.contains(name) || directoriesToSkip.contains(name.lowercase(java.util.Locale.ROOT))) {
+                            if (directoriesToSkip.contains(nameLower) ||
+                                nameLower.startsWith(".trash") ||
+                                nameLower.startsWith(".recycle") ||
+                                nameLower.contains("trashed") ||
+                                nameLower == "imava_trash" ||
+                                nameLower == ".vault" ||
+                                (nameLower == "vault" && dir.parentFile?.name == "files")
+                            ) {
                                 return@onEnter false
                             }
-                            if (name.equals(".vault", ignoreCase = true) || (name.equals("vault", ignoreCase = true) && dir.parentFile?.name == "files")) {
+                            val canonical = try { dir.canonicalPath } catch (_: Exception) { dir.absolutePath }
+                            if (!visitedDirs.add(canonical)) {
                                 return@onEnter false
                             }
                             true
                         }
                         .onFail { _, _ -> }
-                        .forEach { file ->
+                        .forEach fileWalk@{ file ->
                             try {
                                 if (file.isFile && file.length() > 0L) {
+                                    val fileName = file.name
+                                    // Skip trashed files and artifacts
+                                    if (fileName.startsWith(".trashed", ignoreCase = true) ||
+                                        fileName.startsWith(".trash", ignoreCase = true) ||
+                                        fileName.contains(".trashed-", ignoreCase = true)
+                                    ) {
+                                        return@fileWalk
+                                    }
                                     val ext = file.extension.lowercase(java.util.Locale.ROOT)
                                     if (validMediaExtensions.contains(ext)) {
                                         val absPath = file.absolutePath
-                                        if (absPath !in mediaStorePaths) {
-                                            unindexedFiles.add(absPath)
+                                        // Skip if known to MediaStore (active or trashed) or in trashed paths
+                                        if (absPath !in mediaStorePaths && absPath !in trashedPaths) {
                                             if (absPath !in previouslyKnownPaths) {
                                                 newDiscovered++
+                                                unindexedFiles.add(absPath)
                                             }
                                             val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
                                                 ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")) "video/$ext" else "image/jpeg"
