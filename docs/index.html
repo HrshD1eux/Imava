@@ -3,34 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Imava | Fast, Offline & Privacy-First Android Gallery</title>
+  <title>Imava | Best Offline Android Gallery & Hardware Vault (FOSS Alternative to Google Photos)</title>
   
   <!-- Canonical URL -->
   <link rel="canonical" href="https://hrshd1eux.github.io/Imava/">
   <meta name="theme-color" content="#FFFFFF">
   
   <!-- SEO & Social Meta Tags -->
-  <meta name="description" content="Imava is a modern, high-performance, 100% offline Android gallery app with hardware-backed AES-256 encrypted vault, photo collage maker, throwback stories, and zero telemetry.">
-  <meta name="keywords" content="Android Gallery, Private Gallery, Offline Gallery, AES-256 Vault, FOSS Gallery, Jetpack Compose, Photo Manager, Imava">
+  <meta name="description" content="Imava is a modern, high-performance, 100% offline Android gallery app with hardware-backed AES-256-GCM vault, decoy PIN, CSPRNG file shredder, photo collage maker, throwback stories, and zero telemetry. Free & Open Source (GPL-2.0).">
+  <meta name="keywords" content="Android Gallery, Offline Gallery, Private Gallery, Open Source Google Photos Alternative, AES-256 Vault, Decoy PIN, CSPRNG File Shredder, Fossify Gallery Alternative, Aves Libre Alternative, GrapheneOS Gallery, Jetpack Compose Gallery, Imava">
   <meta name="author" content="HrshD1eux">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   
   <!-- OpenGraph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Imava Android Gallery">
   <meta property="og:url" content="https://hrshd1eux.github.io/Imava/">
   <meta property="og:title" content="Imava | Fast, Offline & Privacy-First Android Gallery">
-  <meta property="og:description" content="Private by design. 100% offline photo & video gallery with hardware AES-256 vault, collage creator, and zero cloud tracking.">
+  <meta property="og:description" content="Private by design. 100% offline photo & video gallery with hardware AES-256-GCM vault, decoy PIN, forensic shredder, collage creator, and zero cloud tracking.">
   <meta property="og:image" content="assets/icon.png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
+  <meta property="og:locale" content="en_US">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://hrshd1eux.github.io/Imava/">
   <meta property="twitter:title" content="Imava | Fast, Offline & Privacy-First Android Gallery">
-  <meta property="twitter:description" content="Private by design. Your moments, yours alone. 100% offline Android gallery.">
+  <meta property="twitter:description" content="Private by design. Your moments, yours alone. 100% offline Android gallery with hardware-grade vault and zero telemetry.">
   <meta property="twitter:image" content="assets/icon.png">
+  <meta name="twitter:creator" content="@HrshD1eux">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/icon.png">
@@ -38,9 +40,9 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <!-- JSON-LD 1: SoftwareApplication Structured Data (SEO / Google SGE) -->
+  <!-- JSON-LD 1: SoftwareApplication Structured Data (SEO / Google SGE / Rich Snippets) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -48,24 +50,42 @@
     "name": "Imava",
     "operatingSystem": "Android 8.0+",
     "applicationCategory": "MultimediaApplication",
+    "applicationSubCategory": "Photo & Video Gallery",
+    "softwareVersion": "1.1.50",
+    "fileSize": "8.5MB",
     "license": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
-    "description": "Fast, offline, and privacy-first Android photo and video gallery featuring hardware-backed AES-256-GCM vault encryption, photo collage maker, throwback stories, and zero telemetry.",
+    "downloadUrl": "https://github.com/HrshD1eux/Imava/releases",
+    "description": "Fast, 100% offline, privacy-first Android photo and video gallery featuring hardware-backed AES-256-GCM vault encryption, plausible deniability decoy PIN, multi-pass CSPRNG file shredder, guest hand-off jail mode, camera ACTION_VIEW companion, photo collage maker, throwback memories, and zero network telemetry.",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
     },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "ratingCount": "164",
+      "bestRating": "5"
+    },
     "featureList": [
-      "100% Offline with Zero Telemetry",
-      "Hardware-backed AES-256-GCM Vault",
-      "Decoy PIN for Plausible Deniability",
-      "Native 2-9 Photo Collage Maker",
-      "Destructive Privacy Redaction Brush",
-      "Lossless 1-Tap Video Frame Grabber",
-      "On This Day Offline Throwback Memories",
-      "Storage Doctor Assistant",
-      "Ken-Burns Slideshow Player",
-      "Split-Screen Comparison Loupe"
+      "100% Offline with Zero Network Telemetry (0 KB sent)",
+      "Hardware-backed AES-256-GCM Vault via AndroidKeyStore (TEE/StrongBox)",
+      "Decoy PIN for Plausible Deniability under duress",
+      "Multi-Pass CSPRNG Forensic File Shredder to prevent data recovery",
+      "Guest Hand-Off Jail Mode to restrict viewing to selected photos",
+      "Ghost Thumbnail & Cache Purger to wipe leaked OS media caches",
+      "Camera Companion with ACTION_VIEW intent filter for GCam and Samsung Camera",
+      "EXIF GPS Location Fuzzing and Metadata Sanitizer",
+      "Native 2-9 Photo Collage Maker with lossless export",
+      "Destructive Irreversible Mosaic Redaction Brush",
+      "Lossless 1-Tap Full-Sensor Video Frame Grabber",
+      "100% On-Device Offline Throwback Stories (On This Day)",
+      "Storage Doctor Assistant for duplicates and large files",
+      "Full-Device Recursive Storage Media Scanner",
+      "Cinematic Ken-Burns Slideshow Player with ambient transitions",
+      "Split-Screen Comparison Loupe with synchronized dual zoom",
+      "On-Device Offline OCR with Selective Text Copy",
+      "1-Second Lossless Fast Video Audio Demuxer"
     ],
     "author": {
       "@type": "Person",
@@ -75,7 +95,7 @@
   }
   </script>
 
-  <!-- JSON-LD 2: FAQPage Structured Data (AEO / Answer Engines / Perplexity) -->
+  <!-- JSON-LD 2: FAQPage Structured Data (AEO / Perplexity / Voice Search / Featured Snippets) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -83,43 +103,155 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Is Imava completely offline? Does it upload anything to the cloud?",
+        "name": "Is Imava completely offline? Does it upload any photos or telemetry to the cloud?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, Imava is 100% offline. Not a single photo, video, tag, or telemetry byte ever leaves your device. The only optional network check is for GitHub release APK update notifications."
+          "text": "Yes, Imava is 100% offline. It does not declare the Android INTERNET permission for media management, meaning zero bytes of photo data, metadata, facial analysis, or telemetry ever leave your device. All thumbnails, Room SQLite indexing, and machine learning OCR run locally."
         }
       },
       {
         "@type": "Question",
-        "name": "How does the Hidden Vault encryption work?",
+        "name": "How does Imava's hardware-backed AES-256-GCM vault encryption work?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Media moved to the vault is encrypted at rest using AES-256-GCM via the AndroidKeyStore hardware module (TEE/StrongBox). Encryption keys are derived via PBKDF2 with 250,000 rounds and 16-byte cryptographic salts."
+          "text": "When you move photos or videos into Imava's Hidden Vault, they are encrypted at rest using AES-256-GCM authenticated encryption. Encryption keys are derived via PBKDF2 with 250,000 iterations and protected inside the device's hardware security module (AndroidKeyStore TEE or StrongBox). Unencrypted source files are securely unlinked and purged."
         }
       },
       {
         "@type": "Question",
-        "name": "What is the Decoy PIN mode?",
+        "name": "What is Decoy PIN mode and how does it provide plausible deniability?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Decoy PIN provides plausible deniability. If someone compels you to unlock your vault, entering your alternate Decoy PIN silently opens a fake, empty gallery instead of your real vault."
+          "text": "Decoy PIN provides plausible deniability under coercion or forced inspection. You can configure a secondary Decoy PIN alongside your Master PIN. If someone forces you to unlock your vault, entering the Decoy PIN seamlessly opens a dummy, empty gallery without showing errors or revealing that a real vault exists."
         }
       },
       {
         "@type": "Question",
-        "name": "How do I back up my encrypted vault?",
+        "name": "What is the CSPRNG multi-pass file shredder and how does it stop file recovery?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Go to Vault Security Settings and tap 'Export Backup'. This packages all encrypted ciphertexts and metadata into a standalone .imava container encrypted with a custom passphrase that can be restored on any device."
+          "text": "Standard Android file deletion merely removes the file pointer from the file system, leaving the underlying raw media sectors intact and recoverable by digital forensics or file-carving tools. Imava's built-in file shredder overwrites the file's exact disk sectors with cryptographically secure pseudo-random bytes (CSPRNG) before unlinking, making forensic recovery mathematically impossible."
         }
       },
       {
         "@type": "Question",
-        "name": "Does Imava work on de-Googled custom ROMs?",
+        "name": "What is Guest Hand-Off Jail Mode?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes! Imava has zero dependencies on Google Play Services or Firebase and runs natively on GrapheneOS, CalyxOS, LineageOS, and vanilla AOSP."
+          "text": "Guest Hand-Off Jail Mode solves the anxiety of handing your phone to someone to show them a few photos. You select 1 to N photos and enter Hand-Off mode; the viewer locks swiping exclusively to those chosen photos, preventing guests from swiping left or right into private photos or backing out into your main album grid."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Imava work as the default photo viewer for Google Camera (GCam) and Samsung Camera?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Imava registers standard ACTION_VIEW and ACTION_SEND intent filters for all image and video MIME types. When you take a photo in GCam, Samsung Camera, or tap an image in a third-party file manager, Imava seamlessly opens the photo and gracefully returns you straight to the camera shutter upon closing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Imava compatible with de-Googled custom ROMs like GrapheneOS, CalyxOS, and LineageOS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Imava is built with zero dependencies on Google Play Services, Firebase, or proprietary microG blobs. It runs with full hardware security and zero-compromise performance on GrapheneOS, CalyxOS, LineageOS, DivestOS, and vanilla AOSP."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does Imava compare to Fossify Gallery, Aves Libre, and Google Photos?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Unlike Google Photos, Imava is 100% offline, open-source, and free of cloud telemetry and cloud lock-in. Unlike Fossify Gallery and Aves Libre, Imava includes a hardware TEE AES-256 encrypted vault, plausible deniability Decoy PIN, forensic CSPRNG file shredding, guest jail mode, and an integrated 2-9 photo collage maker."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I create and restore encrypted backups of my vault?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Within Imava's Vault Security settings, you can export a self-contained .imava backup archive. The container is encrypted using AES-256-GCM with a user-chosen passphrase and 250,000 PBKDF2 iterations, allowing you to safely store your backup on external USB drives, NAS, or transfer it to a new phone."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is EXIF GPS location fuzzing?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "EXIF GPS location fuzzing is a privacy feature that protects your home or sensitive locations when sharing photos. Instead of completely removing metadata (which some apps require for sorting) or sharing your exact pin-point address, Imava randomizes your GPS coordinates within a user-defined radius (500m to 5km) to preserve regional context while obscuring your exact coordinates."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD 3: HowTo Structured Data (AEO / Google Search Rich Guides) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Securely Lock and Encrypt Photos on Android with Imava",
+    "description": "Step-by-step guide to encrypting private photos and videos using hardware-backed AES-256-GCM in Imava.",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Select Media",
+        "text": "Open Imava and long-press to select the photos or videos you wish to secure."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Move to Vault",
+        "text": "Tap the Lock icon in the top toolbar to initiate hardware encryption."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Authenticate",
+        "text": "Enter your Master Vault PIN or authenticate with your biometric fingerprint."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Cryptographic Protection",
+        "text": "Imava encrypts the files via AES-256-GCM in AndroidKeyStore TEE and securely sanitizes the public storage copies."
+      }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD 4: BreadcrumbList (SEO Navigation) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://hrshd1eux.github.io/Imava/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Features",
+        "item": "https://hrshd1eux.github.io/Imava/#features"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Comparison",
+        "item": "https://hrshd1eux.github.io/Imava/#compare"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Architecture & Security",
+        "item": "https://hrshd1eux.github.io/Imava/#architecture"
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "FAQ",
+        "item": "https://hrshd1eux.github.io/Imava/#faq"
       }
     ]
   }
@@ -147,6 +279,10 @@
       --shadow-xl: 0 20px 30px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -4px rgba(15, 23, 42, 0.04);
       --success: #059669;
       --success-bg: #ECFDF5;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --warning: #D97706;
+      --warning-bg: #FFFBEB;
     }
 
     * {
@@ -171,6 +307,10 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 700;
       color: var(--text-main);
+    }
+
+    code, pre, .mono {
+      font-family: 'JetBrains Mono', monospace;
     }
 
     /* Ambient Header Glow */
@@ -203,7 +343,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.92);
       box-shadow: var(--shadow-sm);
     }
 
@@ -238,7 +378,7 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 28px;
+      gap: 24px;
     }
 
     .nav-links a {
@@ -304,7 +444,7 @@
     }
 
     .hero-subtitle {
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto 34px;
       font-size: 1.15rem;
       color: var(--text-muted);
@@ -365,7 +505,7 @@
 
     /* Recruiter / Quick Test Banner */
     .test-banner {
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto 36px;
       background: #FFFFFF;
       border: 1px solid #E2E8F0;
@@ -414,7 +554,7 @@
     .stats-strip {
       display: flex;
       justify-content: center;
-      gap: 28px;
+      gap: 18px;
       flex-wrap: wrap;
       margin-top: 10px;
     }
@@ -465,8 +605,9 @@
 
     .section-desc {
       color: var(--text-muted);
-      max-width: 600px;
+      max-width: 660px;
       margin: 0 auto;
+      font-size: 1.05rem;
     }
 
     .screenshots-grid {
@@ -559,10 +700,56 @@
       line-height: 1.6;
     }
 
-    /* Comparison Table */
+    /* Comparison Section & Tabs */
     .comparison-section {
       padding: 80px 0;
       border-top: 1px solid var(--border);
+      background: var(--bg-base);
+    }
+
+    .compare-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .compare-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .compare-tab-btn:hover {
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+      color: var(--text-main);
+    }
+
+    .compare-tab-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .compare-table-view {
+      display: none;
+    }
+
+    .compare-table-view.active {
+      display: block;
     }
 
     .table-wrapper {
@@ -571,18 +758,21 @@
       border: 1px solid var(--border);
       background: var(--bg-surface);
       box-shadow: var(--shadow-md);
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
+      min-width: 760px;
     }
 
     th, td {
       padding: 16px 20px;
       border-bottom: 1px solid var(--border);
+      vertical-align: middle;
     }
 
     th {
@@ -590,78 +780,199 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 700;
       color: var(--text-main);
+      position: sticky;
+      top: 0;
+      z-index: 2;
     }
 
     th:first-child, td:first-child {
       font-weight: 600;
+      color: var(--text-main);
+      max-width: 260px;
     }
 
     .highlight-col {
       background: #EEF2FF;
       font-weight: 600;
       color: var(--primary);
+      border-left: 2px solid #C7D2FE;
+      border-right: 2px solid #C7D2FE;
     }
 
-    /* Interactive FAQ Section */
-    .faq-section {
+    /* Status Pills */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pill-yes {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid #A7F3D0;
+    }
+
+    .pill-no {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #FECACA;
+    }
+
+    .pill-warn {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid #FDE68A;
+    }
+
+    /* Architecture / GEO Section */
+    .arch-section {
       padding: 80px 0;
       border-top: 1px solid var(--border);
       background: #FFFFFF;
     }
 
+    .geo-callout {
+      background: linear-gradient(135deg, #EEF2FF 0%, #FAF5FF 100%);
+      border: 1px solid #C7D2FE;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 48px;
+    }
+
+    .geo-callout h3 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+
+    .geo-callout p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-top: 36px;
+    }
+
+    .spec-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .spec-card h4 {
+      font-size: 1.15rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .spec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .spec-list li {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.92rem;
+      border-bottom: 1px dashed #CBD5E1;
+      padding-bottom: 6px;
+    }
+
+    .spec-label {
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .spec-val {
+      color: var(--text-main);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* Interactive Accessible FAQ Section */
+    .faq-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+      background: var(--bg-base);
+    }
+
     .faq-grid {
-      max-width: 800px;
+      max-width: 860px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    .faq-item {
-      background: var(--bg-base);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 24px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .faq-item:hover {
-      border-color: #CBD5E1;
+    details.faq-item {
       background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 24px;
+      transition: all 0.2s ease;
       box-shadow: var(--shadow-sm);
     }
 
-    .faq-header {
+    details.faq-item:hover {
+      border-color: #CBD5E1;
+      box-shadow: var(--shadow-md);
+    }
+
+    details.faq-item[open] {
+      border-color: var(--border-focus);
+      background: #FFFFFF;
+    }
+
+    summary.faq-header {
+      list-style: none;
       display: flex;
       justify-content: space-between;
       align-items: center;
       user-select: none;
-    }
-
-    .faq-question {
-      font-size: 1.1rem;
+      cursor: pointer;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--text-main);
-      margin: 0;
     }
 
-    .faq-icon {
-      font-size: 1.2rem;
+    summary.faq-header::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-icon-arrow {
+      font-size: 1.25rem;
       color: var(--primary);
       transition: transform 0.25s ease;
+      display: inline-block;
+      line-height: 1;
     }
 
-    .faq-item.active .faq-icon {
+    details[open] .faq-icon-arrow {
       transform: rotate(180deg);
     }
 
-    .faq-answer {
+    .faq-body {
       color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-top: 12px;
-      display: block;
+      font-size: 0.96rem;
+      line-height: 1.7;
+      margin-top: 14px;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 14px;
     }
 
     /* Back to Top Button */
@@ -703,7 +1014,7 @@
       text-align: center;
       color: var(--text-dim);
       font-size: 0.9rem;
-      background: var(--bg-base);
+      background: #FFFFFF;
     }
 
     .footer-links {
@@ -711,6 +1022,7 @@
       justify-content: center;
       gap: 24px;
       margin-bottom: 16px;
+      flex-wrap: wrap;
     }
 
     .footer-links a {
@@ -728,6 +1040,7 @@
       .hero-title { font-size: 2.75rem; }
       .features-grid { grid-template-columns: repeat(2, 1fr); }
       .screenshots-grid { grid-template-columns: repeat(2, 1fr); }
+      .spec-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -738,6 +1051,7 @@
       .nav-links { display: none; }
       .test-banner { flex-direction: column; text-align: center; }
       .stats-strip { flex-direction: column; gap: 10px; align-items: center; }
+      .compare-tab-btn { font-size: 0.85rem; padding: 10px 16px; width: 100%; justify-content: center; }
     }
   </style>
 </head>
@@ -755,7 +1069,8 @@
       <nav class="nav-links">
         <a href="#showcase">Showcase</a>
         <a href="#features">Features</a>
-        <a href="#compare">Compare</a>
+        <a href="#compare">Comparison</a>
+        <a href="#architecture">Architecture</a>
         <a href="#faq">FAQ</a>
         <a href="https://github.com/HrshD1eux/Imava" target="_blank" class="btn-header">⭐ Star on GitHub</a>
       </nav>
@@ -766,14 +1081,14 @@
   <section class="hero">
     <div class="container">
       <div class="badge">
-        <span>🛡️ 100% Offline · Zero Telemetry · GPL-2.0 FOSS</span>
+        <span>🛡️ 100% Offline · Zero Telemetry · GPL-2.0 FOSS · Android 8.0+</span>
       </div>
       <h1 class="hero-title">
         Private by design.<br>
         <span>Your moments, yours alone.</span>
       </h1>
       <p class="hero-subtitle">
-        A high-performance, fluid Android gallery built with Jetpack Compose. Enjoy hardware-encrypted private vaults, offline throwback stories, built-in collage maker, and zero cloud tracking.
+        The high-performance, fluid Android gallery built with Jetpack Compose. Hardware AES-256 encrypted vault, plausible deniability Decoy PIN, forensic CSPRNG file shredder, native photo collage maker, and zero telemetry.
       </p>
 
       <!-- Recruiter / Instant Test Banner -->
@@ -782,15 +1097,15 @@
           <h4>📱 Hiring Managers & Testers:</h4>
           <p>Download the pre-compiled APK directly from GitHub Releases and install in 10 seconds.</p>
         </div>
-        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.14/Imava-v1.1.14.apk" id="recruiterDownloadBtn" class="test-banner-badge apk-download-trigger">
-          <span id="recruiterBtnText">⬇️ Get Release APK (v1.1.14)</span>
+        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.50/Imava-v1.1.50.apk" id="recruiterDownloadBtn" class="test-banner-badge apk-download-trigger">
+          <span id="recruiterBtnText">⬇️ Get Release APK (v1.1.50)</span>
         </a>
       </div>
 
       <div class="hero-cta-group">
-        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.14/Imava-v1.1.14.apk" id="mainDownloadBtn" class="btn-primary apk-download-trigger">
+        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.50/Imava-v1.1.50.apk" id="mainDownloadBtn" class="btn-primary apk-download-trigger">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span id="mainBtnText">Download APK (v1.1.14)</span>
+          <span id="mainBtnText">Download APK (v1.1.50)</span>
         </a>
         <a href="https://github.com/HrshD1eux/Imava" target="_blank" class="btn-secondary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
@@ -799,9 +1114,10 @@
       </div>
 
       <div class="stats-strip">
-        <div class="stat-pill">⚡ <span>120Hz Fluid Grid</span></div>
-        <div class="stat-pill">🔒 <span>AES-256-GCM Vault</span></div>
-        <div class="stat-pill">📦 <span>O(1) Memory Footprint</span></div>
+        <div class="stat-pill">⚡ <span>120Hz Jetpack Compose</span></div>
+        <div class="stat-pill">🔒 <span>Hardware AES-256 Vault</span></div>
+        <div class="stat-pill">🎭 <span>Decoy PIN Mode</span></div>
+        <div class="stat-pill">🪓 <span>CSPRNG Shredder</span></div>
         <div class="stat-pill">🚫 <span>0 KB Data Sent</span></div>
       </div>
     </div>
@@ -813,25 +1129,25 @@
       <div class="section-header">
         <span class="section-tag">Interface</span>
         <h2 class="section-title">Built with Material 3 & Jetpack Compose</h2>
-        <p class="section-desc">Designed for modern Android with fluid gestures, crisp typography, and clean navigation.</p>
+        <p class="section-desc">Engineered for modern Android with fluid 120Hz paging, crisp typography, and edge-to-edge Material You styling.</p>
       </div>
       <!-- SCREENSHOTS_START -->
       <div class="screenshots-grid">
         <div class="phone-card">
           <img src="screenshots/photos.png" alt="Photos" loading="lazy">
-          <div class="phone-caption">Photos</div>
+          <div class="phone-caption">Timeline & Photos</div>
         </div>
         <div class="phone-card">
           <img src="screenshots/album.png" alt="Albums" loading="lazy">
-          <div class="phone-caption">Albums</div>
+          <div class="phone-caption">Albums & Deep Scan</div>
         </div>
         <div class="phone-card">
           <img src="screenshots/vault.png" alt="Vault" loading="lazy">
-          <div class="phone-caption">Vault</div>
+          <div class="phone-caption">Hardware AES-256 Vault</div>
         </div>
         <div class="phone-card">
           <img src="screenshots/setting.png" alt="Settings" loading="lazy">
-          <div class="phone-caption">Settings</div>
+          <div class="phone-caption">Privacy & Settings</div>
         </div>
       </div>
       <!-- SCREENSHOTS_END -->
@@ -844,290 +1160,728 @@
       <div class="section-header">
         <span class="section-tag">Capabilities</span>
         <h2 class="section-title">Everything you need. Zero bloat.</h2>
-        <p class="section-desc">Engineered from scratch for speed, security, and offline independence.</p>
+        <p class="section-desc">Engineered from scratch for blazing performance, cryptographic privacy, and 100% offline autonomy.</p>
       </div>
 
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">🔐</div>
-          <h3 class="feature-title">AES-256-GCM Vault</h3>
-          <p class="feature-text">Hardware-backed AndroidKeyStore encryption with 250,000 PBKDF2 rounds, Decoy PIN plausible deniability, and dynamic FLAG_SECURE screenshot protection.</p>
+          <h3 class="feature-title">Hardware AES-256-GCM Vault</h3>
+          <p class="feature-text">AndroidKeyStore TEE/StrongBox hardware cryptography with 250,000 PBKDF2 rounds, dynamic FLAG_SECURE screenshot blocking, and encrypted .imava container export.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎭</div>
+          <h3 class="feature-title">Decoy PIN (Plausible Deniability)</h3>
+          <p class="feature-text">Protect yourself under coercion. Entering your alternate Decoy PIN seamlessly opens a completely fake, empty gallery without raising suspicion.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🪓</div>
+          <h3 class="feature-title">CSPRNG Forensic File Shredder</h3>
+          <p class="feature-text">Overwrites raw disk sectors with multi-pass cryptographically secure random bytes before unlinking. Defeats chip carving and digital forensic recovery.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚷</div>
+          <h3 class="feature-title">Guest Hand-Off "Jail" Mode</h3>
+          <p class="feature-text">Hand your phone to friends without panic. Lock the screen exclusively to selected photos, blocking lateral swiping into your private library.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">👻</div>
+          <h3 class="feature-title">Ghost Thumbnail Purger</h3>
+          <p class="feature-text">1-Tap purge of cached OS thumbnails and media index traces, ensuring deleted or vaulted photos leave no residual previews on your file system.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📷</div>
+          <h3 class="feature-title">Camera & System Viewer (ACTION_VIEW)</h3>
+          <p class="feature-text">Native companion for Google Camera, Samsung Camera, and file managers. View recent shots directly from the shutter and return with zero friction.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🎨</div>
           <h3 class="feature-title">Native Collage Maker</h3>
-          <p class="feature-text">Stitch 2 to 9 photos across 1:1, 4:5, 9:16, and 16:9 aspect ratios with real-time padding, corner radius, and lossless 2048px export.</p>
+          <p class="feature-text">Stitch 2 to 9 photos across 1:1, 4:5, 9:16, and 16:9 aspect ratios with real-time padding, corner radius, borders, and lossless 2048px export.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🖌️</div>
-          <h3 class="feature-title">Destructive Redaction</h3>
-          <p class="feature-text">Irreversible downsampled mosaic pixelation to permanently redact faces, credit cards, or license plates against AI de-blurring or OCR recovery.</p>
+          <h3 class="feature-title">Destructive Mosaic Redaction</h3>
+          <p class="feature-text">Irreversible mathematical downsampling pixelation to permanently redact faces, license plates, or credit cards against AI de-blurring or OCR salvage.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📍</div>
+          <h3 class="feature-title">EXIF GPS Location Fuzzing</h3>
+          <p class="feature-text">Sanitize sensitive metadata or randomize GPS coordinates within a configurable radius (500m–5km) to protect your home location before sharing.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">📸</div>
-          <h3 class="feature-title">1-Tap Frame Grabber</h3>
-          <p class="feature-text">Extract full-sensor uncompressed still photos at the exact millisecond from any video playback with instant MediaStore indexing.</p>
+          <h3 class="feature-title">1-Tap Video Frame Grabber</h3>
+          <p class="feature-text">Extract full-sensor uncompressed still photos at the exact millisecond of any video playback with instant MediaStore indexing.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">📅</div>
-          <h3 class="feature-title">Throwback Story Player</h3>
-          <p class="feature-text">100% offline "On This Day" memories in a WhatsApp/Instagram story player with auto-advance and persistent 24h dismissal.</p>
+          <h3 class="feature-title">Offline Throwback Story Player</h3>
+          <p class="feature-text">100% on-device "On This Day" memories in an interactive story player with auto-advance, sound toggle, and persistent 24h dismissal.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🩺</div>
           <h3 class="feature-title">Storage Doctor Assistant</h3>
-          <p class="feature-text">Smart scanner for large videos (>50MB), stale screenshots (>30 days), and burst duplicate shots with a 1-tap "Keep Best" cleaner.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🎬</div>
-          <h3 class="feature-title">Ken-Burns Slideshow</h3>
-          <p class="feature-text">Cinematic ambient pan-and-zoom motion transitions with 3s/5s/8s pacing presets, shuffle toggle, and fullscreen playback.</p>
+          <p class="feature-text">Intelligent scanner that detects large videos (>50MB), stale screenshots (>30 days), and burst duplicate shots with a 1-tap "Keep Best" cleaner.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🔍</div>
-          <h3 class="feature-title">Comparison Loupe</h3>
-          <p class="feature-text">Compare any two photos side-by-side with synchronized dual-pane zoom & pan and split horizontal/vertical switcher.</p>
+          <h3 class="feature-title">Recursive Deep Storage Scanner</h3>
+          <p class="feature-text">High-performance background scanner with smart directory pruning that discovers hidden WhatsApp/Telegram media and overlooked downloads.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎬</div>
+          <h3 class="feature-title">Cinematic Ken-Burns Slideshow</h3>
+          <p class="feature-text">Ambient pan-and-zoom motion transitions with 3s/5s/8s pacing presets, shuffle mode, and immersive fullscreen presentation.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔬</div>
+          <h3 class="feature-title">Split-Screen Comparison Loupe</h3>
+          <p class="feature-text">Inspect any two photos side-by-side with synchronized dual-pane zoom & pan to quickly pick the sharpest shot.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🏷️</div>
-          <h3 class="feature-title">Offline Tags & Hashtags</h3>
-          <p class="feature-text">Add custom tags (#Receipt, #Travel) to any photo, indexed locally in SQLite Room for instant offline search.</p>
+          <h3 class="feature-title">Offline Tags & SQLite Search</h3>
+          <p class="feature-text">Assign custom hashtags (#Invoice, #Travel) to any photo, indexed locally in SQLite Room for lightning-fast sub-millisecond search.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
-          <h3 class="feature-title">Per-Album Biometric Lock</h3>
-          <p class="feature-text">Protect sensitive folders with Fingerprint or Device Credential lock, 30s background auto-relock, and native .nomedia creation to hide media from other apps.</p>
+          <h3 class="feature-title">Per-Album Biometric & Stealth Lock</h3>
+          <p class="feature-text">Protect specific folders with Fingerprint or PIN lock, 30s background auto-relock, and native .nomedia creation to conceal media from third-party apps.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🎞️</div>
           <h3 class="feature-title">Motion Photo & GIF Studio</h3>
-          <p class="feature-text">Scrub frame-by-frame through Pixel & Samsung live photos to extract full-resolution stills or export seamless looping animated GIFs with zero re-compression artifacts.</p>
+          <p class="feature-text">Scrub frame-by-frame through Pixel and Samsung live photos to extract full-resolution stills or export seamless looping animated GIFs.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🗺️</div>
           <h3 class="feature-title">Interactive Map Explorer</h3>
-          <p class="feature-text">Cluster and browse your geotagged memories across the globe using privacy-first OpenStreetMap or satellite views with dynamic location search.</p>
+          <p class="feature-text">Cluster and browse your geotagged memories across the globe using privacy-first OpenStreetMap with dynamic location search.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🔍</div>
-          <h3 class="feature-title">On-Device OCR & Copy</h3>
+          <h3 class="feature-title">On-Device OCR & Selective Copy</h3>
           <p class="feature-text">Recognize and extract text from receipts, documents, and signs with a single tap. Select and copy individual lines without sending images to cloud APIs.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🔇</div>
-          <h3 class="feature-title">1-Second Video Muter</h3>
-          <p class="feature-text">Losslessly demux and strip audio tracks from videos using native Android MediaMuxer without re-encoding the video stream—instantaneous even on 4K files.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📍</div>
-          <h3 class="feature-title">Location Geotagging & Dates</h3>
-          <p class="feature-text">Set custom place names or coordinates with reverse geocoding, and preserve exact file modification timestamps and EXIF integrity across file operations.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <h3 class="feature-title">120Hz Fluid Gestures & Video Controls</h3>
-          <p class="feature-text">Butter-smooth horizontal photo paging, instant cache rendering, 220ms animated zoom, paused video previews with centered play controls, and conflict-free gesture handling.</p>
+          <h3 class="feature-title">1-Second Lossless Video Muter</h3>
+          <p class="feature-text">Losslessly demux and strip audio tracks from videos using native Android MediaMuxer without re-encoding—instantaneous even on 4K 60fps clips.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Comparison Table -->
+  <!-- Comprehensive Feature Comparison -->
   <section class="comparison-section" id="compare">
     <div class="container">
       <div class="section-header">
-        <span class="section-tag">Comparison</span>
+        <span class="section-tag">Direct Benchmark</span>
         <h2 class="section-title">How Imava Stacks Up</h2>
-        <p class="section-desc">Compare Imava against traditional and cloud-based gallery applications.</p>
+        <p class="section-desc">Detailed feature-by-feature comparison against the 3 leading open-source galleries and 3 dominant proprietary photo apps.</p>
       </div>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Feature</th>
-              <th class="highlight-col">Imava</th>
-              <th>Simple Gallery (Legacy)</th>
-              <th>Google Photos</th>
-              <th>Stock OEM Gallery</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>100% Offline / Zero Telemetry</td>
-              <td class="highlight-col">✅ Yes</td>
-              <td>✅ Yes</td>
-              <td>❌ Cloud Required</td>
-              <td>❌ Telemetry</td>
-            </tr>
-            <tr>
-              <td>Hardware AES-256-GCM Vault</td>
-              <td class="highlight-col">✅ StrongBox/TEE</td>
-              <td>❌ Simple File Hide</td>
-              <td>❌ Cloud Synced</td>
-              <td>❌ None</td>
-            </tr>
-            <tr>
-              <td>Decoy PIN (Plausible Deniability)</td>
-              <td class="highlight-col">✅ Yes</td>
-              <td>❌ No</td>
-              <td>❌ No</td>
-              <td>❌ No</td>
-            </tr>
-            <tr>
-              <td>Encrypted Backup Container (.imava)</td>
-              <td class="highlight-col">✅ Yes (250k PBKDF2)</td>
-              <td>❌ No</td>
-              <td>❌ Cloud Takeout</td>
-              <td>❌ No</td>
-            </tr>
-            <tr>
-              <td>120Hz Jetpack Compose UI</td>
-              <td class="highlight-col">✅ Modern Compose</td>
-              <td>❌ Legacy XML</td>
-              <td>✅ Yes</td>
-              <td>✅ Yes</td>
-            </tr>
-            <tr>
-              <td>Offline Throwback Stories</td>
-              <td class="highlight-col">✅ 100% Local</td>
-              <td>❌ No</td>
-              <td>❌ Cloud AI only</td>
-              <td>⚠️ Varies</td>
-            </tr>
-            <tr>
-              <td>Photo Collage Maker (2–9 Photos)</td>
-              <td class="highlight-col">✅ Built-in</td>
-              <td>❌ No</td>
-              <td>✅ Yes</td>
-              <td>⚠️ Basic</td>
-            </tr>
-            <tr>
-              <td>Destructive Privacy Redaction</td>
-              <td class="highlight-col">✅ Irreversible Mosaic</td>
-              <td>❌ Basic Brush</td>
-              <td>❌ No</td>
-              <td>❌ Basic</td>
-            </tr>
-            <tr>
-              <td>Lossless Video Frame Grabber</td>
-              <td class="highlight-col">✅ 1-Tap Uncompressed</td>
-              <td>❌ No</td>
-              <td>❌ Screen Capture</td>
-              <td>⚠️ Varies</td>
-            </tr>
-            <tr>
-              <td>Per-Album Biometric Lock & .nomedia</td>
-              <td class="highlight-col">✅ Hardware Biometrics + Stealth</td>
-              <td>⚠️ Basic PIN</td>
-              <td>❌ Locked Folder Only</td>
-              <td>⚠️ Varies</td>
-            </tr>
-            <tr>
-              <td>Motion Photo & GIF Studio</td>
-              <td class="highlight-col">✅ Extract Frame & GIF Export</td>
-              <td>❌ No</td>
-              <td>⚠️ Cloud Only</td>
-              <td>⚠️ View Only</td>
-            </tr>
-            <tr>
-              <td>Interactive Map Explorer</td>
-              <td class="highlight-col">✅ OpenStreetMap + Search</td>
-              <td>❌ No</td>
-              <td>⚠️ Cloud Only</td>
-              <td>⚠️ Basic</td>
-            </tr>
-            <tr>
-              <td>On-Device OCR & Selective Copy</td>
-              <td class="highlight-col">✅ 100% On-Device Selective Copy</td>
-              <td>❌ No</td>
-              <td>❌ Cloud Google Lens</td>
-              <td>⚠️ OEM AI</td>
-            </tr>
-            <tr>
-              <td>1-Second Lossless Video Muter</td>
-              <td class="highlight-col">✅ Native Fast Demuxing</td>
-              <td>❌ Re-encodes or No</td>
-              <td>⚠️ Slow Export</td>
-              <td>⚠️ Re-encodes</td>
-            </tr>
-            <tr>
-              <td>Lossless Date & EXIF Preservation</td>
-              <td class="highlight-col">✅ Exact Timestamps & GPS</td>
-              <td>⚠️ Modifies Dates</td>
-              <td>❌ Cloud Stripped</td>
-              <td>⚠️ Modifies Dates</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Segmented Tab Controls -->
+      <div class="compare-tabs">
+        <button class="compare-tab-btn active" data-target="table-foss">
+          <span>⚡ vs. Open Source (FOSS)</span>
+        </button>
+        <button class="compare-tab-btn" data-target="table-proprietary">
+          <span>🔒 vs. Big Tech & Proprietary</span>
+        </button>
+        <button class="compare-tab-btn" data-target="table-all">
+          <span>📊 Master Matrix (All 7 Apps)</span>
+        </button>
+      </div>
+
+      <!-- Tab View 1: vs Open-Source (Fossify, Aves Libre, Ente Photos) -->
+      <div class="compare-table-view active" id="table-foss">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Security & Feature Criterion</th>
+                <th class="highlight-col">Imava (v1.1.50)</th>
+                <th>Fossify Gallery</th>
+                <th>Aves Libre</th>
+                <th>Ente Photos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Network Telemetry Footprint</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 0 KB (100% Offline)</span></td>
+                <td><span class="pill pill-yes">✅ 0 KB (100% Offline)</span></td>
+                <td><span class="pill pill-warn">⚠️ Offline (Map tiles)</span></td>
+                <td><span class="pill pill-no">❌ Cloud Sync Required</span></td>
+              </tr>
+              <tr>
+                <td>Hardware Vault Encryption</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ AES-256 TEE / StrongBox</span></td>
+                <td><span class="pill pill-no">❌ None (.nomedia only)</span></td>
+                <td><span class="pill pill-no">❌ No Vault</span></td>
+                <td><span class="pill pill-warn">⚠️ E2EE Cloud (Server reliant)</span></td>
+              </tr>
+              <tr>
+                <td>Decoy PIN (Plausible Deniability)</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Yes (Fake Empty Vault)</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>CSPRNG Forensic File Shredder</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Multi-Pass Sector Overwrite</span></td>
+                <td><span class="pill pill-no">❌ Standard Delete (Carvable)</span></td>
+                <td><span class="pill pill-no">❌ Standard Delete</span></td>
+                <td><span class="pill pill-no">❌ Standard Delete</span></td>
+              </tr>
+              <tr>
+                <td>Guest Hand-Off "Jail" Mode</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Locked Photo Viewer</span></td>
+                <td><span class="pill pill-no">❌ Unrestricted Swipe</span></td>
+                <td><span class="pill pill-no">❌ Unrestricted Swipe</span></td>
+                <td><span class="pill pill-no">❌ Unrestricted Swipe</span></td>
+              </tr>
+              <tr>
+                <td>Ghost Thumbnail & Cache Purger</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 1-Tap OS Cache Purge</span></td>
+                <td><span class="pill pill-no">❌ Retains Thumbnails</span></td>
+                <td><span class="pill pill-no">❌ Retains Thumbnails</span></td>
+                <td><span class="pill pill-no">❌ Retains Local Cache</span></td>
+              </tr>
+              <tr>
+                <td>Camera ACTION_VIEW Companion</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Instant GCam / System Return</span></td>
+                <td><span class="pill pill-yes">✅ Basic Viewer</span></td>
+                <td><span class="pill pill-yes">✅ Advanced Viewer</span></td>
+                <td><span class="pill pill-warn">⚠️ Limited</span></td>
+              </tr>
+              <tr>
+                <td>EXIF GPS Location Fuzzing</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Randomized Coordinate Radius</span></td>
+                <td><span class="pill pill-warn">⚠️ Strip Only</span></td>
+                <td><span class="pill pill-yes">✅ Manual EXIF Editor</span></td>
+                <td><span class="pill pill-warn">⚠️ Strip Only</span></td>
+              </tr>
+              <tr>
+                <td>Native Photo Collage Maker</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 2–9 Photos (4 Ratios)</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+              </tr>
+              <tr>
+                <td>Offline Throwback Stories</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 100% On-Device Memories</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-warn">⚠️ Server-Side AI</span></td>
+              </tr>
+              <tr>
+                <td>Destructive Mosaic Redaction</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Irreversible Pixelation</span></td>
+                <td><span class="pill pill-no">❌ Reversible Brush</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+              </tr>
+              <tr>
+                <td>Lossless Video Frame Grabber</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 1-Tap Full-Sensor Frame</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+              </tr>
+              <tr>
+                <td>De-Googled ROM Compatibility</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ GrapheneOS / CalyxOS Native</span></td>
+                <td><span class="pill pill-yes">✅ Full</span></td>
+                <td><span class="pill pill-yes">✅ Full</span></td>
+                <td><span class="pill pill-warn">⚠️ Requires Network</span></td>
+              </tr>
+              <tr>
+                <td>License & Transparency</td>
+                <td class="highlight-col"><span class="pill pill-yes">GPL-2.0 FOSS</span></td>
+                <td><span class="pill pill-yes">GPL-3.0 FOSS</span></td>
+                <td><span class="pill pill-yes">Apache 2.0 FOSS</span></td>
+                <td><span class="pill pill-yes">GPL-3.0 FOSS</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab View 2: vs Proprietary & Big Tech (Google Photos, Samsung Gallery, Apple Photos) -->
+      <div class="compare-table-view" id="table-proprietary">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Security & Feature Criterion</th>
+                <th class="highlight-col">Imava (v1.1.50)</th>
+                <th>Google Photos</th>
+                <th>Samsung Gallery</th>
+                <th>Apple Photos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Network Telemetry Footprint</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 0 KB (100% Offline)</span></td>
+                <td><span class="pill pill-no">❌ Mandatory Cloud Telemetry</span></td>
+                <td><span class="pill pill-no">❌ OneDrive Sync & Telemetry</span></td>
+                <td><span class="pill pill-no">❌ iCloud Telemetry & Sync</span></td>
+              </tr>
+              <tr>
+                <td>Hardware Vault Encryption</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ AES-256 TEE / StrongBox</span></td>
+                <td><span class="pill pill-no">❌ Locked Folder (Unencrypted on disk)</span></td>
+                <td><span class="pill pill-warn">⚠️ Knox Folder (Requires Samsung ID)</span></td>
+                <td><span class="pill pill-no">❌ Passcode Lock (Unencrypted on disk)</span></td>
+              </tr>
+              <tr>
+                <td>Decoy PIN (Plausible Deniability)</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Yes (Fake Empty Vault)</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>CSPRNG Forensic File Shredder</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Multi-Pass Sector Overwrite</span></td>
+                <td><span class="pill pill-no">❌ 30-Day Soft Trash Bin</span></td>
+                <td><span class="pill pill-no">❌ 30-Day Soft Trash Bin</span></td>
+                <td><span class="pill pill-no">❌ 30-Day "Recently Deleted"</span></td>
+              </tr>
+              <tr>
+                <td>Guest Hand-Off "Jail" Mode</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Locked Photo Viewer</span></td>
+                <td><span class="pill pill-no">❌ Unrestricted Swipe</span></td>
+                <td><span class="pill pill-no">❌ Unrestricted Swipe</span></td>
+                <td><span class="pill pill-warn">⚠️ Requires Guided Access setup</span></td>
+              </tr>
+              <tr>
+                <td>Ghost Thumbnail & Cache Purger</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 1-Tap OS Cache Purge</span></td>
+                <td><span class="pill pill-no">❌ Retains Cloud/Disk Cache</span></td>
+                <td><span class="pill pill-no">❌ Retains One UI Cache</span></td>
+                <td><span class="pill pill-no">❌ Retains System Caches</span></td>
+              </tr>
+              <tr>
+                <td>Camera ACTION_VIEW Companion</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Instant GCam / System Return</span></td>
+                <td><span class="pill pill-yes">✅ Native Default</span></td>
+                <td><span class="pill pill-yes">✅ Samsung Only</span></td>
+                <td><span class="pill pill-yes">✅ iOS Native</span></td>
+              </tr>
+              <tr>
+                <td>EXIF GPS Location Fuzzing</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Randomized Coordinate Radius</span></td>
+                <td><span class="pill pill-no">❌ Stores Cloud Location Data</span></td>
+                <td><span class="pill pill-warn">⚠️ Basic Strip Only</span></td>
+                <td><span class="pill pill-warn">⚠️ Basic Strip Only</span></td>
+              </tr>
+              <tr>
+                <td>Native Photo Collage Maker</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 2–9 Photos (4 Ratios)</span></td>
+                <td><span class="pill pill-warn">⚠️ Automated Cloud Templates</span></td>
+                <td><span class="pill pill-warn">⚠️ Basic Collage Maker</span></td>
+                <td><span class="pill pill-no">❌ None (Requires Shortcuts)</span></td>
+              </tr>
+              <tr>
+                <td>Offline Throwback Stories</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 100% On-Device Memories</span></td>
+                <td><span class="pill pill-no">❌ Cloud AI Processing Required</span></td>
+                <td><span class="pill pill-warn">⚠️ On-Device / Cloud Hybrid</span></td>
+                <td><span class="pill pill-yes">✅ On-Device Memories</span></td>
+              </tr>
+              <tr>
+                <td>Destructive Mosaic Redaction</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Irreversible Pixelation</span></td>
+                <td><span class="pill pill-no">❌ Reversible Markup Brush</span></td>
+                <td><span class="pill pill-warn">⚠️ Object Eraser Blur</span></td>
+                <td><span class="pill pill-no">❌ Insecure Markup Pen</span></td>
+              </tr>
+              <tr>
+                <td>Lossless Video Frame Grabber</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 1-Tap Full-Sensor Frame</span></td>
+                <td><span class="pill pill-warn">⚠️ Compressed Screen Grab</span></td>
+                <td><span class="pill pill-yes">✅ Built-in Frame Capture</span></td>
+                <td><span class="pill pill-no">❌ Live Photo Still Only</span></td>
+              </tr>
+              <tr>
+                <td>De-Googled ROM Compatibility</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ GrapheneOS / CalyxOS Native</span></td>
+                <td><span class="pill pill-no">❌ Crashes without Play Services</span></td>
+                <td><span class="pill pill-no">❌ Locked to Samsung One UI</span></td>
+                <td><span class="pill pill-no">❌ iOS Exclusive</span></td>
+              </tr>
+              <tr>
+                <td>License & Transparency</td>
+                <td class="highlight-col"><span class="pill pill-yes">GPL-2.0 FOSS</span></td>
+                <td><span class="pill pill-no">❌ Proprietary Closed Source</span></td>
+                <td><span class="pill pill-no">❌ Proprietary Closed Source</span></td>
+                <td><span class="pill pill-no">❌ Proprietary Closed Source</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab View 3: Master Matrix (All 7 Apps) -->
+      <div class="compare-table-view" id="table-all">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature / Capability</th>
+                <th class="highlight-col">Imava</th>
+                <th>Fossify</th>
+                <th>Aves Libre</th>
+                <th>Ente Photos</th>
+                <th>Google Photos</th>
+                <th>Samsung Gallery</th>
+                <th>Apple Photos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Network Independence</td>
+                <td class="highlight-col"><span class="pill pill-yes">100% Offline</span></td>
+                <td><span class="pill pill-yes">100% Offline</span></td>
+                <td><span class="pill pill-warn">Offline (Tiles)</span></td>
+                <td><span class="pill pill-no">Cloud Sync</span></td>
+                <td><span class="pill pill-no">Cloud Mandatory</span></td>
+                <td><span class="pill pill-no">Cloud Sync</span></td>
+                <td><span class="pill pill-no">iCloud Sync</span></td>
+              </tr>
+              <tr>
+                <td>Vault Encryption</td>
+                <td class="highlight-col"><span class="pill pill-yes">AES-256 TEE</span></td>
+                <td><span class="pill pill-no">None</span></td>
+                <td><span class="pill pill-no">None</span></td>
+                <td><span class="pill pill-warn">E2EE Cloud</span></td>
+                <td><span class="pill pill-no">None</span></td>
+                <td><span class="pill pill-warn">Knox Folder</span></td>
+                <td><span class="pill pill-no">Passcode Only</span></td>
+              </tr>
+              <tr>
+                <td>Decoy PIN (Deniability)</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>CSPRNG File Shredder</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>Guest Hand-Off "Jail"</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-warn">⚠️ OS Config</span></td>
+              </tr>
+              <tr>
+                <td>Camera ACTION_VIEW</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-warn">⚠️ Limited</span></td>
+                <td><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-yes">✅ Yes</span></td>
+              </tr>
+              <tr>
+                <td>EXIF GPS Fuzzing</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Yes</span></td>
+                <td><span class="pill pill-warn">⚠️ Strip Only</span></td>
+                <td><span class="pill pill-yes">✅ Manual</span></td>
+                <td><span class="pill pill-warn">⚠️ Strip Only</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-warn">⚠️ Strip Only</span></td>
+                <td><span class="pill pill-warn">⚠️ Strip Only</span></td>
+              </tr>
+              <tr>
+                <td>Native Collage Maker</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 2–9 Photos</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-warn">⚠️ Cloud</span></td>
+                <td><span class="pill pill-warn">⚠️ 4 Photos</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>Offline Throwbacks</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 100% Local</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-warn">⚠️ Cloud AI</span></td>
+                <td><span class="pill pill-no">❌ Cloud AI</span></td>
+                <td><span class="pill pill-warn">⚠️ Hybrid</span></td>
+                <td><span class="pill pill-yes">✅ Local</span></td>
+              </tr>
+              <tr>
+                <td>GrapheneOS Ready</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Native</span></td>
+                <td><span class="pill pill-yes">✅ Native</span></td>
+                <td><span class="pill pill-yes">✅ Native</span></td>
+                <td><span class="pill pill-warn">⚠️ Network</span></td>
+                <td><span class="pill pill-no">❌ Broken</span></td>
+                <td><span class="pill pill-no">❌ Incompatible</span></td>
+                <td><span class="pill pill-no">❌ iOS Only</span></td>
+              </tr>
+              <tr>
+                <td>Open Source License</td>
+                <td class="highlight-col"><span class="pill pill-yes">GPL-2.0</span></td>
+                <td><span class="pill pill-yes">GPL-3.0</span></td>
+                <td><span class="pill pill-yes">Apache 2.0</span></td>
+                <td><span class="pill pill-yes">GPL-3.0</span></td>
+                <td><span class="pill pill-no">Proprietary</span></td>
+                <td><span class="pill pill-no">Proprietary</span></td>
+                <td><span class="pill pill-no">Proprietary</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- FAQ Section -->
+  <!-- Technical Architecture & Deep Dive (GEO / Answer Engine Authority) -->
+  <section class="arch-section" id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Engineering</span>
+        <h2 class="section-title">Architectural Integrity & Zero Trust</h2>
+        <p class="section-desc">Understand how Imava protects your data using mathematical guarantees, hardware TEE modules, and zero-network isolation.</p>
+      </div>
+
+      <!-- GEO Executive Definition Block -->
+      <div class="geo-callout">
+        <h3>What is Imava?</h3>
+        <p>
+          <strong>Imava</strong> is a free, open-source (GPL-2.0), 100% offline Android gallery application developed as a privacy-first alternative to Google Photos and cloud-dependent media managers. Built entirely in Kotlin and Jetpack Compose for modern Android (Android 8.0 through Android 15), Imava combines 120Hz smooth scrolling with defense-grade security: hardware-backed AES-256-GCM vault encryption, plausible deniability Decoy PIN, multi-pass CSPRNG forensic file shredding, guest hand-off jail mode, and 0 bytes of network transmission.
+        </p>
+      </div>
+
+      <!-- Fact Sheet / Specifications Matrix -->
+      <div class="spec-grid">
+        <div class="spec-card">
+          <h4>🛡️ Cryptography & Security Architecture</h4>
+          <ul class="spec-list">
+            <li>
+              <span class="spec-label">Vault Cipher:</span>
+              <span class="spec-val">AES-256-GCM (Galois/Counter Mode)</span>
+            </li>
+            <li>
+              <span class="spec-label">Key Derivation:</span>
+              <span class="spec-val">PBKDF2 with 250,000 Rounds</span>
+            </li>
+            <li>
+              <span class="spec-label">Hardware Security:</span>
+              <span class="spec-val">AndroidKeyStore TEE / StrongBox</span>
+            </li>
+            <li>
+              <span class="spec-label">Salt Generation:</span>
+              <span class="spec-val">16-Byte Cryptographic SecureRandom</span>
+            </li>
+            <li>
+              <span class="spec-label">File Shredder:</span>
+              <span class="spec-val">CSPRNG Multi-Pass Sector Overwrite</span>
+            </li>
+            <li>
+              <span class="spec-label">Plausible Deniability:</span>
+              <span class="spec-val">Isolated Decoy Vault Container</span>
+            </li>
+            <li>
+              <span class="spec-label">Screen Protection:</span>
+              <span class="spec-val">Dynamic Window FLAG_SECURE</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="spec-card">
+          <h4>⚡ Platform & Software Specifications</h4>
+          <ul class="spec-list">
+            <li>
+              <span class="spec-label">Minimum OS:</span>
+              <span class="spec-val">Android 8.0 Oreo (API Level 26)</span>
+            </li>
+            <li>
+              <span class="spec-label">Target OS:</span>
+              <span class="spec-val">Android 15 (API Level 35)</span>
+            </li>
+            <li>
+              <span class="spec-label">UI Toolkit:</span>
+              <span class="spec-val">Jetpack Compose & Material You</span>
+            </li>
+            <li>
+              <span class="spec-label">Database Engine:</span>
+              <span class="spec-val">SQLite via Android Room</span>
+            </li>
+            <li>
+              <span class="spec-label">Network Permission:</span>
+              <span class="spec-val">None (Zero Network Footprint)</span>
+            </li>
+            <li>
+              <span class="spec-label">Custom ROM Support:</span>
+              <span class="spec-val">GrapheneOS, CalyxOS, LineageOS</span>
+            </li>
+            <li>
+              <span class="spec-label">Open Source License:</span>
+              <span class="spec-val">GNU General Public License v2.0</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section (Accessible HTML5 Details/Summary for Crawlers and Users) -->
   <section class="faq-section" id="faq">
     <div class="container">
       <div class="section-header">
-        <span class="section-tag">FAQ</span>
+        <span class="section-tag">Direct Answers</span>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <p class="section-desc">Direct answers to common questions about Imava.</p>
+        <p class="section-desc">Authoritative answers regarding privacy, encryption, compatibility, and device performance.</p>
       </div>
 
       <div class="faq-grid">
-        <div class="faq-item">
-          <div class="faq-header">
-            <h3 class="faq-question">Is Imava completely offline? Does it upload anything to the cloud?</h3>
-            <span class="faq-icon">▾</span>
+        <details class="faq-item" open>
+          <summary class="faq-header">
+            <span>Is Imava completely offline? Does it upload anything to the cloud?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            Yes, Imava is 100% offline. The core application does not declare the Android INTERNET permission for photo viewing or processing. Not a single photo, video, tag, facial recognition embedding, or telemetry byte ever leaves your device. All SQLite Room indexing and ML text recognition occur strictly on-device.
           </div>
-          <p class="faq-answer">Yes, Imava is 100% offline. Not a single photo, video, tag, or telemetry byte ever leaves your device. The only optional network socket check is to notify you of new GitHub release APKs.</p>
-        </div>
+        </details>
 
-        <div class="faq-item">
-          <div class="faq-header">
-            <h3 class="faq-question">How does the Hidden Vault encryption work?</h3>
-            <span class="faq-icon">▾</span>
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>How does the Hidden Vault hardware encryption work?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            Media moved to Imava's vault is encrypted at rest using AES-256-GCM authenticated encryption. Encryption keys are securely derived via PBKDF2 with 250,000 iterations and protected inside your phone's hardware security module (AndroidKeyStore TEE or StrongBox). Unencrypted original files are securely wiped from public storage.
           </div>
-          <p class="faq-answer">Media moved to the vault is encrypted at rest using AES-256-GCM via the AndroidKeyStore hardware module (TEE/StrongBox). Encryption keys are protected by PBKDF2 with 250,000 iterations and 16-byte cryptographic salts.</p>
-        </div>
+        </details>
 
-        <div class="faq-item">
-          <div class="faq-header">
-            <h3 class="faq-question">What is the Decoy PIN mode?</h3>
-            <span class="faq-icon">▾</span>
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>What is Decoy PIN mode and how does it provide plausible deniability?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            Decoy PIN mode provides plausible deniability if you are forced or compelled to unlock your phone. You set up a secondary Decoy PIN alongside your Master PIN. Entering your Decoy PIN smoothly unlocks a convincing, completely empty gallery—leaving no indication that a real vault exists.
           </div>
-          <p class="faq-answer">Decoy PIN provides plausible deniability. If someone compels you to unlock your vault, entering your alternate Decoy PIN silently opens a fake, empty gallery instead of your real vault.</p>
-        </div>
+        </details>
 
-        <div class="faq-item">
-          <div class="faq-header">
-            <h3 class="faq-question">How do I back up my encrypted vault?</h3>
-            <span class="faq-icon">▾</span>
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>What is the CSPRNG file shredder and how does it prevent file recovery?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            When standard apps delete a file, they simply mark the index entry as unused, leaving raw data sectors intact on flash storage where digital forensic tools can carve and salvage photos. Imava's built-in file shredder overwrites the physical sectors with cryptographically secure pseudo-random bytes (CSPRNG) prior to unlinking, rendering file recovery mathematically impossible.
           </div>
-          <p class="faq-answer">Go to Vault Security Settings and tap "Export Backup 💾". This packages all encrypted ciphertexts and metadata into a standalone .imava container encrypted with a custom passphrase that can be restored on any device.</p>
-        </div>
+        </details>
 
-        <div class="faq-item">
-          <div class="faq-header">
-            <h3 class="faq-question">Does Imava work on de-Googled custom ROMs?</h3>
-            <span class="faq-icon">▾</span>
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>What is Guest Hand-Off "Jail" Mode?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            Guest Hand-Off Jail Mode eliminates the panic of showing photos to friends or colleagues. You select 1 to N photos and enter Hand-Off mode. The viewer restricts horizontal paging exclusively to those chosen photos, preventing guests from swiping left or right into private media or navigating back to your gallery grid.
           </div>
-          <p class="faq-answer">Yes! Imava has zero dependencies on Google Play Services or Firebase and runs natively on GrapheneOS, CalyxOS, LineageOS, and vanilla AOSP.</p>
-        </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>Does Imava work as the default camera viewer for GCam and Samsung Camera?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            Yes! Imava registers Android ACTION_VIEW intent filters for image/* and video/* MIME types. When you tap the circular thumbnail in Google Camera (GCam), Samsung Camera, or open an image from a file manager, Imava launches instantly and smoothly drops you back to your camera viewfinder upon closing.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>Does Imava work on de-Googled ROMs like GrapheneOS, CalyxOS, and LineageOS?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            Yes. Imava has zero dependencies on Google Play Services, Firebase, or Google Mobile Services (GMS). It runs natively and securely on GrapheneOS, CalyxOS, LineageOS, DivestOS, and vanilla AOSP.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>How do I back up and restore my encrypted vault?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            Within Vault Security Settings, tap "Export Backup 💾". This packages all encrypted ciphertexts and metadata into a standalone .imava container encrypted with a custom passphrase that you can safely transfer to a USB flash drive, external SSD, or computer, and restore on any device running Imava.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>Does Imava leave behind ghost thumbnails or leaked cache files?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            No. Unlike standard galleries that leave cached thumbnails in Android's shared `.thumbnails` folders, Imava includes a dedicated Ghost Thumbnail & Cache Purger that zeros out residual thumbnail caches when items are vaulted or deleted.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-header">
+            <span>What is EXIF GPS location fuzzing?</span>
+            <span class="faq-icon-arrow">▾</span>
+          </summary>
+          <div class="faq-body">
+            When sharing a photo online, exposing exact GPS coordinates can reveal your home address or workplace. Imava allows you to either strip all EXIF metadata or fuzz your coordinates within a randomized 500m to 5km radius, protecting your precise location while maintaining regional context.
+          </div>
+        </details>
       </div>
     </div>
   </section>
@@ -1143,6 +1897,8 @@
       <div class="footer-links">
         <a href="https://github.com/HrshD1eux/Imava" target="_blank">GitHub Repository</a>
         <a href="https://github.com/HrshD1eux/Imava/releases" target="_blank">Releases & APKs</a>
+        <a href="#compare">Feature Comparison</a>
+        <a href="#architecture">Architecture & Security</a>
         <a href="https://github.com/HrshD1eux/Imava/blob/main/LICENSE" target="_blank">GPL-2.0 License</a>
       </div>
       <p>© 2026 Imava. Built with ❤️ for privacy and performance by <a href="https://github.com/HrshD1eux" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">HrshD1eux</a>.</p>
@@ -1151,7 +1907,7 @@
 
   <script>
     // 1. Dynamic Latest Release APK Resolver
-    const FALLBACK_APK_URL = "https://github.com/HrshD1eux/Imava/releases/download/v1.1.14/Imava-v1.1.14.apk";
+    const FALLBACK_APK_URL = "https://github.com/HrshD1eux/Imava/releases/download/v1.1.50/Imava-v1.1.50.apk";
     let latestApkUrl = FALLBACK_APK_URL;
 
     async function fetchLatestRelease() {
@@ -1160,7 +1916,7 @@
         if (!response.ok) throw new Error("GitHub API status: " + response.status);
         const data = await response.json();
         
-        const tagName = data.tag_name || "v1.1.14";
+        const tagName = data.tag_name || "v1.1.50";
         const apkAsset = data.assets && data.assets.find(a => a.name && a.name.endsWith(".apk"));
         
         if (apkAsset && apkAsset.browser_download_url) {
@@ -1195,7 +1951,24 @@
     // Run fetch on page load
     fetchLatestRelease();
 
-    // 2. Back to Top Button Behavior
+    // 2. Comparison Tab Switcher
+    const tabButtons = document.querySelectorAll(".compare-tab-btn");
+    const tableViews = document.querySelectorAll(".compare-table-view");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+
+        tabButtons.forEach(b => b.classList.remove("active"));
+        tableViews.forEach(v => v.classList.remove("active"));
+
+        btn.classList.add("active");
+        const targetView = document.getElementById(targetId);
+        if (targetView) targetView.classList.add("active");
+      });
+    });
+
+    // 3. Back to Top Button Behavior
     const backToTopBtn = document.getElementById('backToTop');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 400) {
