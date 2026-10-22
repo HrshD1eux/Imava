@@ -2,7 +2,7 @@
 
 * **Cryptographic File Shredder (Anti-Recovery)**: Permanently deleting photos or emptying trash now physically overwrites storage blocks with multi-pass CSPRNG random bytes and zeroes, forces hardware write cache sync, truncates to 0 bytes, and scrambles directory entry filenames so data recovery software (DiskDigger, Recuva, PhotoRec) cannot recover deleted files.
 * **Security & Privacy Update Warning**: Added an informative, one-time update notice explaining the difference between standard label unlinking and physical shredding, with switchable non-technical and technical deep-dive views and a mandatory 6-second reading timer.
-* **Advanced Instant Deep Media Scan**: Expanded deep scan with instant multi-pattern SQLite queries (<100ms) and comprehensive directory discovery covering modded WhatsApp (GBWhatsApp, FMWhatsApp, YoWhatsApp, WhatsApp Plus), DualApp spaces, Telegram Documents/Audio, Discord, Snapchat, Signal, Viber, and hidden dot-vaults (`.hidden`, `.secret`, `.vault`, `.calculator`, `.thumbnails`).
+* **Advanced Instant Deep Media Scan**: Expanded deep scan with instant multi-pattern SQLite queries (<100ms) and comprehensive directory discovery covering messaging app media, dual app spaces, documents, audio, and hidden dot-vaults (`.hidden`, `.secret`, `.vault`, `.calculator`, `.thumbnails`).
 * **Settings Control**: Easily toggle Cryptographic File Shredding on or off under *Settings > Privacy & Folders*.
 
 ---
@@ -28,9 +28,9 @@
 ## 🚀 What's New in Imava v1.1.39
 
 * **Automatic Deep Scan Mode**: Converted Deep Scan into a background auto-scanner that runs on app launch, app resume, and media changes with a dedicated Settings toggle and live discovery badge.
-* **Discovered Album Fix**: Resolved an issue where tapping deep-scanned albums (e.g. WhatsApp Images Sent) loaded zero photos; album views now reliably display all discovered media.
+* **Discovered Album Fix**: Resolved an issue where tapping deep-scanned albums (e.g. messaging sent folders) loaded zero photos; album views now reliably display all discovered media.
 * **Timeline Deduplication & Filter Support**: Deep-scanned media is now strictly deduplicated by file path and ID, respects Photos/Videos filter chips, and properly excludes Vault/Trash items.
-* **Expanded Scan Coverage**: Deep scan now traverses media roots (WhatsApp, WhatsApp Business, Telegram, DualApp) up to 4 directory levels, including Documents and Sent folders.
+* **Expanded Scan Coverage**: Deep scan now traverses media roots across messaging apps, dual spaces, documents, and sent folders up to 4 directory levels.
 
 ---
 
@@ -68,9 +68,9 @@
 
 ## 🚀 What's New in Imava v1.1.32
 
-### 🔍 WhatsApp Sent, Telegram & Hidden Media Deep Discovery
+### 🔍 Messaging Sent, Third-Party & Hidden Media Deep Discovery
 * **Generic Files Content URI (`content://media/external/file/{id}`)**: Fixed a critical MediaStore URI mismatch where media in `.nomedia` directories (indexed with `media_type = 0`) was assigned invalid `images/media/` or `videos/media/` URIs that failed to load in Coil. `MediaStore.Files` URI resolves any media type seamlessly.
-* **Hybrid Discovery Engine**: WhatsApp Sent, Private, Animated GIFs, WhatsApp Business, Telegram, and `.nomedia` media are now retrieved both via direct MediaStore database path queries (`DATA LIKE`) and direct filesystem scanning fallback with `Uri.fromFile()`.
+* **Hybrid Discovery Engine**: Third-party sent folders, private directories, animated GIFs, and `.nomedia` media are now retrieved both via direct MediaStore database path queries (`DATA LIKE`) and direct filesystem scanning fallback with `Uri.fromFile()`.
 * **Accurate Media Classification**: Videos indexed with `media_type = 0` are now accurately identified as `MediaItem.Video` using file extension inspection and MIME type resolution instead of erroneously falling back to `image/jpeg`.
 * **Automatic Album Grouping**: Folders containing `.nomedia` files (e.g. `Sent`, `Private`, `Telegram Images`) are automatically registered as distinct albums in the Albums tab, dynamically deriving names and bucket IDs from directory structures.
 * **All Files Access Setting**: Added a dedicated "Deep Media Scan & Storage" card in Settings with manual "Deep Scan Now" trigger and "Grant Access" shortcut on Android 11+ (`MANAGE_EXTERNAL_STORAGE`).
@@ -105,10 +105,10 @@
 
 ---
 
-### 🔍 WhatsApp Sent & Hidden Media Deep Scan
-* **Zero-Type MediaStore Fix**: Added full file extension pattern matching (`DISPLAY_NAME LIKE '%.jpg' ...`) so media in `.nomedia` directories (WhatsApp Sent, Private, Telegram) with `MEDIA_TYPE == 0` is recognized and displayed.
+### 🔍 Third-Party Sent & Hidden Media Deep Scan
+* **Zero-Type MediaStore Fix**: Added full file extension pattern matching (`DISPLAY_NAME LIKE '%.jpg' ...`) so media in `.nomedia` directories (sent folders, private directories) with `MEDIA_TYPE == 0` is recognized and displayed.
 * **Explicit MIME Type Registration**: Media scanning now resolves and registers explicit MIME types (`image/jpeg`, `video/mp4`) during scans, preventing `.nomedia` media from being marked as unreadable binary octet-streams.
-* **Deep Directory Paths**: Explicitly scans WhatsApp Sent, Private, Animated GIFs, WhatsApp Business, Telegram, and standard media paths up to depth 6.
+* **Deep Directory Paths**: Explicitly scans third-party sent folders, private directories, animated GIFs, and standard media paths up to depth 6.
 
 ---
 

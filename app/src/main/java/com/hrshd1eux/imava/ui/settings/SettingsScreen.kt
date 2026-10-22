@@ -768,7 +768,7 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Scan WhatsApp Sent, Private, Telegram, GIFs, and other hidden .nomedia media across your device.",
+                        text = "Scan sent media, private folders, GIFs, and other hidden .nomedia media across your device.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -789,7 +789,7 @@ fun SettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Android 11+ restricts access to app media folders like WhatsApp Sent. Grant All Files Access to discover all hidden media.",
+                                    text = "Android 11+ restricts access to third-party app media folders. Grant All Files Access to discover all hidden media.",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onErrorContainer
                                 )

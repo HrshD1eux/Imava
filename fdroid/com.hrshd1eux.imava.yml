@@ -22,7 +22,7 @@ Description: |-
   * Guest Hand-Off Mode: Screen-pinned single photo viewer with Android App Pinning integration to prevent guests from swiping or exiting your gallery.
   * Ghost Thumbnail Purger: Scans and securely shreds unencrypted thumbnail cache files lingering in DCIM and cache directories.
   * Privacy Sharing & EXIF Fuzzing: Strips metadata or offsets GPS coordinates by ~2 km before sharing to preserve regional context without revealing exact locations.
-  * Deep Media Scanner: Instant SQLite scan detecting media stored in hidden folders, .nomedia directories, WhatsApp Sent/Private, and Telegram directories.
+  * Deep Media Scanner: Instant SQLite scan detecting media stored in hidden folders, .nomedia directories, messaging app media, and third-party folders.
   * Media Management: High-performance timeline with pinch-to-zoom grid scaling, album pinning, duplicate cleaning, and built-in video player.
 
 RepoType: git

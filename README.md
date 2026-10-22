@@ -180,7 +180,7 @@
 
 ### Advanced Instant Deep Media Scan
 - **Instant SQLite Carve (<100ms)**: Direct multi-pattern `MediaStore.Files` database query with `QUERY_ARG_MATCH_NOMEDIA` to discover hidden photos without disk crawl lag.
-- **Comprehensive App & Vault Registry**: Automatically finds media from official WhatsApp, WhatsApp Business, modded WhatsApp (GBWhatsApp, FMWhatsApp, YoWhatsApp, WhatsApp Plus), DualApp / Dual Messenger, Telegram (including Telegram Documents and Audio), Discord, Snapchat, Signal, and Viber.
+- **Comprehensive App & Vault Registry**: Automatically discovers media from messaging apps, dual/cloned app spaces, sent folders, documents, and private third-party directories.
 - **Hidden & Vault Directories**: Unearths hidden media in `.nomedia`, `.hidden`, `.secret`, `.vault`, `.calculator`, and `.thumbnails` folders with clean, auto-generated album titles.
 
 ### Album & Folder EXIF Metadata Stripping

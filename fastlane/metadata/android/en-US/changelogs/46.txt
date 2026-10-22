@@ -2,5 +2,5 @@
 - Guest Hand-Off Mode to lock photo viewing to a single item.
 - Ghost Thumbnail and preview purger for DCIM and cache storage.
 - Privacy sharing with EXIF GPS location fuzzing.
-- Advanced instant deep media scan for WhatsApp and Telegram hidden media.
+- Advanced instant deep media scan for messaging app media and third-party folders.
 - Critical security fixes for locked albums and timeline drag-selection stability.

@@ -6,5 +6,5 @@ Key features include:
 * <b>Guest Hand-Off Mode:</b> Locks the photo viewer to a single image and disables swipe navigation, preventing guests from browsing through your other media until unlocked.
 * <b>Ghost Thumbnail Purger:</b> Scans and securely shreds unencrypted thumbnail cache files lingering in DCIM and cache directories.
 * <b>Privacy Sharing & EXIF Fuzzing:</b> Strips metadata or offsets GPS coordinates by ~2 km before sharing to preserve regional context without revealing exact locations.
-* <b>Deep Media Scanner:</b> Instant detection of media stored in hidden folders, .nomedia directories, WhatsApp Sent/Private, and Telegram directories.
+* <b>Deep Media Scanner:</b> Instant detection of media stored in hidden folders, .nomedia directories, messaging app media, and third-party folders.
 * <b>Media Management:</b> High-performance timeline with pinch-to-zoom grid scaling, album pinning, duplicate cleaning, and built-in video player.
