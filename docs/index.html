@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Imava | Best Offline Android Gallery & Hardware Vault (FOSS Alternative to Google Photos)</title>
+  <title>Imava | Best Offline Android Gallery & Hardware Vault (FOSS Privacy-First Gallery)</title>
   
   <!-- Canonical URL -->
   <link rel="canonical" href="https://hrshd1eux.github.io/Imava/">
@@ -11,7 +11,7 @@
   
   <!-- SEO & Social Meta Tags -->
   <meta name="description" content="Imava is a modern, high-performance, 100% offline Android gallery app with hardware-backed AES-256-GCM vault, decoy PIN, CSPRNG file shredder, photo collage maker, throwback stories, and zero telemetry. Free & Open Source (GPL-3.0).">
-  <meta name="keywords" content="Android Gallery, Offline Gallery, Private Gallery, Open Source Google Photos Alternative, AES-256 Vault, Decoy PIN, CSPRNG File Shredder, Fossify Gallery Alternative, Aves Libre Alternative, GrapheneOS Gallery, Jetpack Compose Gallery, Imava">
+  <meta name="keywords" content="Android Gallery, Offline Gallery, Private Gallery, FOSS Photo Vault, AES-256 Vault, Decoy PIN, CSPRNG File Shredder, Fossify Gallery Alternative, Aves Libre Alternative, GrapheneOS Gallery, Jetpack Compose Gallery, Imava">
   <meta name="author" content="HrshD1eux">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   
@@ -74,7 +74,7 @@
       "Multi-Pass CSPRNG Forensic File Shredder to prevent data recovery",
       "Guest Hand-Off Jail Mode to restrict viewing to selected photos",
       "Ghost Thumbnail & Cache Purger to wipe leaked OS media caches",
-      "Camera Companion with ACTION_VIEW intent filter for GCam and Samsung Camera",
+      "Camera Companion with ACTION_VIEW intent filter for default camera apps and file managers",
       "EXIF GPS Location Fuzzing and Metadata Sanitizer",
       "Native 2-9 Photo Collage Maker with lossless export",
       "Destructive Irreversible Mosaic Redaction Brush",
@@ -143,10 +143,10 @@
       },
       {
         "@type": "Question",
-        "name": "Does Imava work as the default photo viewer for Google Camera (GCam) and Samsung Camera?",
+        "name": "Does Imava work as the default photo viewer for system camera apps?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Imava registers standard ACTION_VIEW and ACTION_SEND intent filters for all image and video MIME types. When you take a photo in GCam, Samsung Camera, or tap an image in a third-party file manager, Imava seamlessly opens the photo and gracefully returns you straight to the camera shutter upon closing."
+          "text": "Yes. Imava registers standard ACTION_VIEW and ACTION_SEND intent filters for all image and video MIME types. When you take a photo with your device's default camera app or tap an image in a third-party file manager, Imava seamlessly opens the photo and gracefully returns you straight to the camera shutter upon closing."
         }
       },
       {
@@ -159,10 +159,10 @@
       },
       {
         "@type": "Question",
-        "name": "How does Imava compare to Fossify Gallery, Aves Libre, and Google Photos?",
+        "name": "How does Imava compare to traditional and proprietary cloud galleries?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Unlike Google Photos, Imava is 100% offline, open-source, and free of cloud telemetry and cloud lock-in. Unlike Fossify Gallery and Aves Libre, Imava includes a hardware TEE AES-256 encrypted vault, plausible deniability Decoy PIN, forensic CSPRNG file shredding, guest jail mode, and an integrated 2-9 photo collage maker."
+          "text": "Unlike proprietary cloud galleries, Imava is 100% offline, open-source, and free of cloud telemetry and cloud lock-in. Unlike basic offline viewers, Imava includes a hardware TEE AES-256 encrypted vault, plausible deniability Decoy PIN, forensic CSPRNG file shredding, guest jail mode, and an integrated 2-9 photo collage maker."
         }
       },
       {
@@ -1197,7 +1197,7 @@
         <div class="feature-card">
           <div class="feature-icon">📷</div>
           <h3 class="feature-title">Camera & System Viewer (ACTION_VIEW)</h3>
-          <p class="feature-text">Native companion for Google Camera, Samsung Camera, and file managers. View recent shots directly from the shutter and return with zero friction.</p>
+          <p class="feature-text">Native companion for system camera apps and file managers. View recent shots directly from the shutter and return with zero friction.</p>
         </div>
 
         <div class="feature-card">
@@ -1269,7 +1269,7 @@
         <div class="feature-card">
           <div class="feature-icon">🎞️</div>
           <h3 class="feature-title">Motion Photo & GIF Studio</h3>
-          <p class="feature-text">Scrub frame-by-frame through Pixel and Samsung live photos to extract full-resolution stills or export seamless looping animated GIFs.</p>
+          <p class="feature-text">Scrub frame-by-frame through motion photos and live captures to extract full-resolution stills or export seamless looping animated GIFs.</p>
         </div>
 
         <div class="feature-card">
@@ -1373,7 +1373,7 @@
               </tr>
               <tr>
                 <td>Camera ACTION_VIEW Companion</td>
-                <td class="highlight-col"><span class="pill pill-yes">✅ Instant GCam / System Return</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Instant System Camera Return</span></td>
                 <td><span class="pill pill-yes">✅ Basic Viewer</span></td>
                 <td><span class="pill pill-yes">✅ Advanced Viewer</span></td>
                 <td><span class="pill pill-warn">⚠️ Limited</span></td>
@@ -1432,7 +1432,7 @@
         </div>
       </div>
 
-      <!-- Tab View 2: vs Proprietary & Big Tech (Google Photos, Samsung Gallery, Apple Photos) -->
+      <!-- Tab View 2: vs Proprietary & Big Tech -->
       <div class="compare-table-view" id="table-proprietary">
         <div class="table-wrapper">
           <table>
@@ -1440,9 +1440,9 @@
               <tr>
                 <th>Security & Feature Criterion</th>
                 <th class="highlight-col">Imava (v1.1.50)</th>
-                <th>Google Photos</th>
-                <th>Samsung Gallery</th>
-                <th>Apple Photos</th>
+                <th>Default Cloud Gallery</th>
+                <th>Stock OEM Gallery</th>
+                <th>Commercial Closed Gallery</th>
               </tr>
             </thead>
             <tbody>
@@ -1450,14 +1450,14 @@
                 <td>Network Telemetry Footprint</td>
                 <td class="highlight-col"><span class="pill pill-yes">✅ 0 KB (100% Offline)</span></td>
                 <td><span class="pill pill-no">❌ Mandatory Cloud Telemetry</span></td>
-                <td><span class="pill pill-no">❌ OneDrive Sync & Telemetry</span></td>
-                <td><span class="pill pill-no">❌ iCloud Telemetry & Sync</span></td>
+                <td><span class="pill pill-no">❌ Vendor Cloud Sync & Telemetry</span></td>
+                <td><span class="pill pill-no">❌ Account Telemetry & Sync</span></td>
               </tr>
               <tr>
                 <td>Hardware Vault Encryption</td>
                 <td class="highlight-col"><span class="pill pill-yes">✅ AES-256 TEE / StrongBox</span></td>
                 <td><span class="pill pill-no">❌ Locked Folder (Unencrypted on disk)</span></td>
-                <td><span class="pill pill-warn">⚠️ Knox Folder (Requires Samsung ID)</span></td>
+                <td><span class="pill pill-warn">⚠️ Proprietary Vault (Vendor ID required)</span></td>
                 <td><span class="pill pill-no">❌ Passcode Lock (Unencrypted on disk)</span></td>
               </tr>
               <tr>
@@ -1485,14 +1485,14 @@
                 <td>Ghost Thumbnail & Cache Purger</td>
                 <td class="highlight-col"><span class="pill pill-yes">✅ 1-Tap OS Cache Purge</span></td>
                 <td><span class="pill pill-no">❌ Retains Cloud/Disk Cache</span></td>
-                <td><span class="pill pill-no">❌ Retains One UI Cache</span></td>
+                <td><span class="pill pill-no">❌ Retains System Caches</span></td>
                 <td><span class="pill pill-no">❌ Retains System Caches</span></td>
               </tr>
               <tr>
                 <td>Camera ACTION_VIEW Companion</td>
-                <td class="highlight-col"><span class="pill pill-yes">✅ Instant GCam / System Return</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Instant System Camera Return</span></td>
                 <td><span class="pill pill-yes">✅ Native Default</span></td>
-                <td><span class="pill pill-yes">✅ Samsung Only</span></td>
+                <td><span class="pill pill-yes">✅ OEM Devices Only</span></td>
                 <td><span class="pill pill-yes">✅ iOS Native</span></td>
               </tr>
               <tr>
@@ -1534,7 +1534,7 @@
                 <td>De-Googled ROM Compatibility</td>
                 <td class="highlight-col"><span class="pill pill-yes">✅ GrapheneOS / CalyxOS Native</span></td>
                 <td><span class="pill pill-no">❌ Crashes without Play Services</span></td>
-                <td><span class="pill pill-no">❌ Locked to Samsung One UI</span></td>
+                <td><span class="pill pill-no">❌ Locked to Proprietary OS</span></td>
                 <td><span class="pill pill-no">❌ iOS Exclusive</span></td>
               </tr>
               <tr>
@@ -1560,9 +1560,9 @@
                 <th>Fossify</th>
                 <th>Aves Libre</th>
                 <th>Ente Photos</th>
-                <th>Google Photos</th>
-                <th>Samsung Gallery</th>
-                <th>Apple Photos</th>
+                <th>Default Cloud Gallery</th>
+                <th>Stock OEM Gallery</th>
+                <th>Commercial Closed Gallery</th>
               </tr>
             </thead>
             <tbody>
@@ -1583,7 +1583,7 @@
                 <td><span class="pill pill-no">None</span></td>
                 <td><span class="pill pill-warn">E2EE Cloud</span></td>
                 <td><span class="pill pill-no">None</span></td>
-                <td><span class="pill pill-warn">Knox Folder</span></td>
+                <td><span class="pill pill-warn">Vendor Vault</span></td>
                 <td><span class="pill pill-no">Passcode Only</span></td>
               </tr>
               <tr>
@@ -1696,7 +1696,7 @@
       <div class="geo-callout">
         <h3>What is Imava?</h3>
         <p>
-          <strong>Imava</strong> is a free, open-source (GPL-3.0), 100% offline Android gallery application developed as a privacy-first alternative to Google Photos and cloud-dependent media managers. Built entirely in Kotlin and Jetpack Compose for modern Android (Android 8.0 through Android 15), Imava combines 120Hz smooth scrolling with defense-grade security: hardware-backed AES-256-GCM vault encryption, plausible deniability Decoy PIN, multi-pass CSPRNG forensic file shredding, guest hand-off jail mode, and 0 bytes of network transmission.
+          <strong>Imava</strong> is a free, open-source (GPL-3.0), 100% offline Android gallery application developed as a privacy-first alternative to cloud-dependent and tracking-heavy proprietary media managers. Built entirely in Kotlin and Jetpack Compose for modern Android (Android 8.0 through Android 15), Imava combines 120Hz smooth scrolling with defense-grade security: hardware-backed AES-256-GCM vault encryption, plausible deniability Decoy PIN, multi-pass CSPRNG forensic file shredding, guest hand-off jail mode, and 0 bytes of network transmission.
         </p>
       </div>
 
@@ -1835,11 +1835,11 @@
 
         <details class="faq-item">
           <summary class="faq-header">
-            <span>Does Imava work as the default camera viewer for GCam and Samsung Camera?</span>
+            <span>Does Imava work as the default camera viewer for system camera apps?</span>
             <span class="faq-icon-arrow">▾</span>
           </summary>
           <div class="faq-body">
-            Yes! Imava registers Android ACTION_VIEW intent filters for image/* and video/* MIME types. When you tap the circular thumbnail in Google Camera (GCam), Samsung Camera, or open an image from a file manager, Imava launches instantly and smoothly drops you back to your camera viewfinder upon closing.
+            Yes! Imava registers Android ACTION_VIEW intent filters for image/* and video/* MIME types. When you tap the circular thumbnail in your device's camera app or open an image from a file manager, Imava launches instantly and smoothly drops you back to your camera viewfinder upon closing.
           </div>
         </details>
 
