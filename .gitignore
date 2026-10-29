@@ -28,7 +28,9 @@ secrets/
 *.apk
 *.aab
 *.webm
+*.svg
 screenshots/*.webm
+*.svg
 app/File*
 .kotlin/
 release_body.md
