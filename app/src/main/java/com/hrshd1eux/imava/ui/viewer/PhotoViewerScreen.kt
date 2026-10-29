@@ -300,6 +300,7 @@ fun PhotoViewerScreen(
     var showShareDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var showDeletePermanentlyConfirmDialog by remember { mutableStateOf(false) }
+    var showRestoreConfirmDialog by remember { mutableStateOf(false) }
     var showMoveToAlbumDialog by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
     var renameInputText by remember { mutableStateOf("") }
@@ -956,10 +957,8 @@ fun PhotoViewerScreen(
                     } else if (item.isTrashed) {
 
                         IconButton(onClick = {
-                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            val currentIndex = pagerState.currentPage
-                            val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
-                            viewModel.toggleTrashed(context, item, nextItem)
+                            com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                            showRestoreConfirmDialog = true
                         }) {
                             Icon(
                                 imageVector = Icons.Default.RestoreFromTrash,
@@ -1148,6 +1147,34 @@ fun PhotoViewerScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (showRestoreConfirmDialog) {
+            val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
+            AlertDialog(
+                onDismissRequest = { showRestoreConfirmDialog = false },
+                icon = { Icon(Icons.Default.RestoreFromTrash, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                title = { Text("Restore from Trash?") },
+                text = { Text("Are you sure you want to restore this item from Trash back to your gallery?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showRestoreConfirmDialog = false
+                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                            val currentIndex = pagerState.currentPage
+                            val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            viewModel.toggleTrashed(context, item, nextItem)
+                        }
+                    ) {
+                        Text("Restore")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showRestoreConfirmDialog = false }) {
                         Text("Cancel")
                     }
                 }

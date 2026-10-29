@@ -500,6 +500,8 @@ class MainViewModel @Inject constructor(
     private val _mediaItems = MutableStateFlow<List<MediaItem>>(emptyList())
     val mediaItems: StateFlow<List<MediaItem>> = _mediaItems.asStateFlow()
 
+    val hasAppInitiallyLoaded = MutableStateFlow(false)
+
     private val _buckets = MutableStateFlow<List<BucketInfo>>(emptyList())
     val buckets: StateFlow<List<BucketInfo>> = _buckets.asStateFlow()
 
@@ -2703,7 +2705,7 @@ class MainViewModel @Inject constructor(
 }
 
 enum class Screen {
-    Photos, Albums, Search, Settings, DuplicateFinder, AboutLegal, PermissionsTransparency, OpenSourceLicenses
+    Photos, Albums, Search, Settings, DuplicateFinder, AboutLegal, PermissionsTransparency, OpenSourceLicenses, VaultSetup, VaultSettings
 }
 
 enum class SortOrder {

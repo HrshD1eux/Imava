@@ -347,7 +347,7 @@ fun AlbumsScreen(
                         count = hidden.size,
                         onClick = {
                             if (isVaultDisabled || !isPinConfigured) {
-                                showHiddenLockedDialog = true
+                                viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.VaultSetup
                                 return@AlbumRowItem
                             }
 
