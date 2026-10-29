@@ -1,5 +1,5 @@
 - Recycle Bin / Trash fix: Normal deletion moves photos and videos to Trash; cryptographic shredder executes strictly on permanent deletion or emptying Trash.
 - Native App Pinning & Guest Hand-Off: Direct Pin button with screen pinning lock task to jail guest viewing to a single image.
-- 100% FLOSS F-Droid compliance: Completely removed proprietary Google Play Services and tracker dependencies.
+- FLOSS F-Droid compliance: Completely removed proprietary Google Play Services and tracker dependencies.
 - Added verified Gradle 8.9 wrapper SHA-256 checksum for secure reproducible builds.
 - Fixed update warning security notice dialog display across upgrades.

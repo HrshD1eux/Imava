@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#FFFFFF">
   
   <!-- SEO & Social Meta Tags -->
-  <meta name="description" content="Imava is a modern, high-performance, 100% offline Android gallery app with hardware-backed AES-256-GCM vault, decoy PIN, CSPRNG file shredder, photo collage maker, throwback stories, and zero telemetry. Free & Open Source (GPL-3.0).">
+  <meta name="description" content="Imava is a modern, high-performance, fully offline Android gallery app with hardware-backed AES-256-GCM vault, decoy PIN, CSPRNG file shredder, photo collage maker, throwback stories, and zero telemetry. Free & Open Source (GPL-3.0).">
   <meta name="keywords" content="Android Gallery, Offline Gallery, Private Gallery, FOSS Photo Vault, AES-256 Vault, Decoy PIN, CSPRNG File Shredder, Fossify Gallery Alternative, Aves Libre Alternative, GrapheneOS Gallery, Jetpack Compose Gallery, Imava">
   <meta name="author" content="Harsh Pahal (HrshD1eux)">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -20,7 +20,7 @@
   <meta property="og:site_name" content="Imava Android Gallery">
   <meta property="og:url" content="https://hrshd1eux.github.io/Imava/">
   <meta property="og:title" content="Imava | Fast, Offline & Privacy-First Android Gallery">
-  <meta property="og:description" content="Private by design. 100% offline photo & video gallery with hardware AES-256-GCM vault, decoy PIN, forensic shredder, collage creator, and zero cloud tracking.">
+  <meta property="og:description" content="Private by design. Fully offline photo & video gallery with hardware AES-256-GCM vault, decoy PIN, forensic shredder, collage creator, and zero cloud tracking.">
   <meta property="og:image" content="assets/icon.png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
@@ -30,7 +30,7 @@
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://hrshd1eux.github.io/Imava/">
   <meta property="twitter:title" content="Imava | Fast, Offline & Privacy-First Android Gallery">
-  <meta property="twitter:description" content="Private by design. Your moments, yours alone. 100% offline Android gallery with hardware-grade vault and zero telemetry.">
+  <meta property="twitter:description" content="Private by design. Your moments, yours alone. Fully offline Android gallery with hardware-grade vault and zero telemetry.">
   <meta property="twitter:image" content="assets/icon.png">
   <meta name="twitter:creator" content="@HrshD1eux">
 
@@ -55,7 +55,7 @@
     "fileSize": "8.5MB",
     "license": "https://www.gnu.org/licenses/gpl-3.0.html",
     "downloadUrl": "https://github.com/HrshD1eux/Imava/releases",
-    "description": "Fast, 100% offline, privacy-first Android photo and video gallery featuring hardware-backed AES-256-GCM vault encryption, plausible deniability decoy PIN, multi-pass CSPRNG file shredder, guest hand-off jail mode, camera ACTION_VIEW companion, photo collage maker, throwback memories, and zero network telemetry.",
+    "description": "Fast, fully offline, privacy-first Android photo and video gallery featuring hardware-backed AES-256-GCM vault encryption, plausible deniability decoy PIN, multi-pass CSPRNG file shredder, guest hand-off jail mode, camera ACTION_VIEW companion, photo collage maker, throwback memories, and zero network telemetry.",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -68,7 +68,7 @@
       "bestRating": "5"
     },
     "featureList": [
-      "100% Offline with Zero Network Telemetry (0 KB sent)",
+      "Fully Offline with Zero Network Telemetry (0 KB sent)",
       "Hardware-backed AES-256-GCM Vault via AndroidKeyStore (TEE/StrongBox) with Mixed Alphanumeric Master Password",
       "Customizable Timeline Filter & Tag Manager with Left/Right Reordering and Hide/Delete Any Filter",
       "Decoy PIN for Plausible Deniability under duress",
@@ -83,7 +83,7 @@
       "Native 2-9 Photo Collage Maker with lossless export",
       "Destructive Irreversible Mosaic Redaction Brush",
       "Lossless 1-Tap Full-Sensor Video Frame Grabber",
-      "100% On-Device Offline Throwback Stories (On This Day)",
+      "On-Device Offline Throwback Stories (On This Day)",
       "Storage Doctor Assistant for duplicates and large files",
       "Full-Device Recursive Storage Media Scanner",
       "Cinematic Ken-Burns Slideshow Player with ambient transitions",
@@ -110,7 +110,7 @@
         "name": "Is Imava completely offline? Does it upload any photos or telemetry to the cloud?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, Imava is 100% offline. It does not declare the Android INTERNET permission for media management, meaning zero bytes of photo data, metadata, facial analysis, or telemetry ever leave your device. All thumbnails, Room SQLite indexing, and machine learning OCR run locally."
+          "text": "Yes, Imava is completely offline. It does not declare the Android INTERNET permission for media management, meaning zero bytes of photo data, metadata, facial analysis, or telemetry ever leave your device. All thumbnails, Room SQLite indexing, and machine learning OCR run locally."
         }
       },
       {
@@ -166,7 +166,7 @@
         "name": "How does Imava compare to traditional and proprietary cloud galleries?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Unlike proprietary cloud galleries, Imava is 100% offline, open-source, and free of cloud telemetry and cloud lock-in. Unlike basic offline viewers, Imava includes a hardware TEE AES-256 encrypted vault, plausible deniability Decoy PIN, forensic CSPRNG file shredding, guest jail mode, and an integrated 2-9 photo collage maker."
+          "text": "Unlike proprietary cloud galleries, Imava is completely offline, open-source, and free of cloud telemetry and cloud lock-in. Unlike basic offline viewers, Imava includes a hardware TEE AES-256 encrypted vault, plausible deniability Decoy PIN, forensic CSPRNG file shredding, guest jail mode, and an integrated 2-9 photo collage maker."
         }
       },
       {
@@ -653,22 +653,44 @@
 
     /* Features Grid */
     .features-section {
-      padding: 80px 0;
+      padding: 48px 0;
       border-top: 1px solid var(--border);
       background: #FFFFFF;
+    }
+
+    .features-section .section-header {
+      margin-bottom: 30px;
+    }
+
+    .features-section .section-tag {
+      font-size: 0.75rem;
+      letter-spacing: 1.2px;
+      margin-bottom: 6px;
+    }
+
+    .features-section .section-title {
+      font-size: 1.65rem;
+      letter-spacing: -0.4px;
+      margin-bottom: 8px;
+    }
+
+    .features-section .section-desc {
+      font-size: 0.92rem;
+      max-width: 580px;
+      line-height: 1.5;
     }
 
     .features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      gap: 16px;
     }
 
     .feature-card {
       background: var(--bg-base);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
+      border-radius: 12px;
+      padding: 18px 20px;
       transition: all 0.25s ease;
       position: relative;
     }
@@ -676,32 +698,34 @@
     .feature-card:hover {
       background: #FFFFFF;
       border-color: var(--border-focus);
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
     }
 
     .feature-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       background: var(--primary-subtle);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 20px;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
       border: 1px solid #C7D2FE;
     }
 
     .feature-title {
-      font-size: 1.25rem;
-      margin-bottom: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
     }
 
     .feature-text {
       color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
+      font-size: 0.85rem;
+      line-height: 1.5;
     }
 
     /* Comparison Section & Tabs */
@@ -1085,7 +1109,7 @@
   <section class="hero">
     <div class="container">
       <div class="badge">
-        <span>🛡️ 100% Offline · Zero Telemetry · GPL-3.0 FOSS · Android 8.0+</span>
+        <span>🛡️ Fully Offline · Zero Telemetry · GPL-3.0 FOSS · Android 8.0+</span>
       </div>
       <h1 class="hero-title">
         Private by design.<br>
@@ -1164,7 +1188,7 @@
       <div class="section-header">
         <span class="section-tag">Capabilities</span>
         <h2 class="section-title">Everything you need. Zero bloat.</h2>
-        <p class="section-desc">Engineered from scratch for blazing performance, cryptographic privacy, and 100% offline autonomy.</p>
+        <p class="section-desc">Engineered from scratch for blazing performance, cryptographic privacy, and complete offline autonomy.</p>
       </div>
 
       <div class="features-grid">
@@ -1231,7 +1255,7 @@
         <div class="feature-card">
           <div class="feature-icon">📅</div>
           <h3 class="feature-title">Offline Throwback Story Player</h3>
-          <p class="feature-text">100% on-device "On This Day" memories in an interactive story player with auto-advance, sound toggle, and persistent 24h dismissal.</p>
+          <p class="feature-text">On-device "On This Day" memories in an interactive story player with auto-advance, sound toggle, and persistent 24h dismissal.</p>
         </div>
 
         <div class="feature-card">
@@ -1297,7 +1321,7 @@
         <div class="feature-card">
           <div class="feature-icon">⚖️</div>
           <h3 class="feature-title">18 Audited FOSS Components & Permission Transparency</h3>
-          <p class="feature-text">100% Apache 2.0 open-source library architecture with zero Google proprietary blobs, paired with an interactive 18-permission comparative transparency matrix.</p>
+          <p class="feature-text">Audited Apache 2.0 open-source library architecture with zero Google proprietary blobs, paired with an interactive 18-permission comparative transparency matrix.</p>
         </div>
 
         <div class="feature-card">
@@ -1353,8 +1377,8 @@
             <tbody>
               <tr>
                 <td>Network Telemetry Footprint</td>
-                <td class="highlight-col"><span class="pill pill-yes">✅ 0 KB (100% Offline)</span></td>
-                <td><span class="pill pill-yes">✅ 0 KB (100% Offline)</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 0 KB (Fully Offline)</span></td>
+                <td><span class="pill pill-yes">✅ 0 KB (Fully Offline)</span></td>
                 <td><span class="pill pill-warn">⚠️ Offline (Map tiles)</span></td>
                 <td><span class="pill pill-no">❌ Cloud Sync Required</span></td>
               </tr>
@@ -1416,7 +1440,7 @@
               </tr>
               <tr>
                 <td>Offline Throwback Stories</td>
-                <td class="highlight-col"><span class="pill pill-yes">✅ 100% On-Device Memories</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ On-Device Offline Memories</span></td>
                 <td><span class="pill pill-no">❌ None</span></td>
                 <td><span class="pill pill-no">❌ None</span></td>
                 <td><span class="pill pill-warn">⚠️ Server-Side AI</span></td>
@@ -1441,6 +1465,55 @@
                 <td><span class="pill pill-yes">✅ Full</span></td>
                 <td><span class="pill pill-yes">✅ Full</span></td>
                 <td><span class="pill pill-warn">⚠️ Requires Network</span></td>
+              </tr>
+              <tr>
+                <td>App Switcher Privacy Shield</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Active Recents Masking</span></td>
+                <td><span class="pill pill-no">❌ No Recents Shield</span></td>
+                <td><span class="pill pill-no">❌ No Recents Shield</span></td>
+                <td><span class="pill pill-warn">⚠️ Optional PIN Blur</span></td>
+              </tr>
+              <tr>
+                <td>Customizable Filter &amp; Tag Manager</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Reorder Left/Right &amp; Delete Any</span></td>
+                <td><span class="pill pill-no">❌ Fixed Static Filters</span></td>
+                <td><span class="pill pill-warn">⚠️ Filter Builder (No Reorder)</span></td>
+                <td><span class="pill pill-no">❌ Rigid Categories</span></td>
+              </tr>
+              <tr>
+                <td>Encrypted Container Vault Backup</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ .imava Cryptographic Archive</span></td>
+                <td><span class="pill pill-no">❌ None (No Vault)</span></td>
+                <td><span class="pill pill-no">❌ None (No Vault)</span></td>
+                <td><span class="pill pill-warn">⚠️ Server-Side Cloud Only</span></td>
+              </tr>
+              <tr>
+                <td>Bulk Photo &amp; Image Compressor</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Multi-Photo WEBP/JPEG Slider</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+              </tr>
+              <tr>
+                <td>On-Device Offline ML OCR</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Zero-Network Text Extraction</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+              </tr>
+              <tr>
+                <td>Emergency Shake-to-Lock Vault</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Hardware Accelerometer Relock</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+              </tr>
+              <tr>
+                <td>Zero Manifest Network Permissions</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 0 Manifest Network Rights</span></td>
+                <td><span class="pill pill-yes">✅ 0 Manifest Network Rights</span></td>
+                <td><span class="pill pill-no">❌ Declares INTERNET</span></td>
+                <td><span class="pill pill-no">❌ Declares INTERNET</span></td>
               </tr>
               <tr>
                 <td>License & Transparency</td>
@@ -1470,7 +1543,7 @@
             <tbody>
               <tr>
                 <td>Network Telemetry Footprint</td>
-                <td class="highlight-col"><span class="pill pill-yes">✅ 0 KB (100% Offline)</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 0 KB (Fully Offline)</span></td>
                 <td><span class="pill pill-no">❌ Mandatory Cloud Telemetry</span></td>
                 <td><span class="pill pill-no">❌ Vendor Cloud Sync & Telemetry</span></td>
                 <td><span class="pill pill-no">❌ Account Telemetry & Sync</span></td>
@@ -1533,7 +1606,7 @@
               </tr>
               <tr>
                 <td>Offline Throwback Stories</td>
-                <td class="highlight-col"><span class="pill pill-yes">✅ 100% On-Device Memories</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ On-Device Offline Memories</span></td>
                 <td><span class="pill pill-no">❌ Cloud AI Processing Required</span></td>
                 <td><span class="pill pill-warn">⚠️ On-Device / Cloud Hybrid</span></td>
                 <td><span class="pill pill-yes">✅ On-Device Memories</span></td>
@@ -1558,6 +1631,55 @@
                 <td><span class="pill pill-no">❌ Crashes without Play Services</span></td>
                 <td><span class="pill pill-no">❌ Locked to Proprietary OS</span></td>
                 <td><span class="pill pill-no">❌ iOS Exclusive</span></td>
+              </tr>
+              <tr>
+                <td>App Switcher Privacy Shield</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Active Recents Masking</span></td>
+                <td><span class="pill pill-no">❌ Recents Snapshot Exposed</span></td>
+                <td><span class="pill pill-no">❌ Recents Snapshot Exposed</span></td>
+                <td><span class="pill pill-no">❌ Recents Snapshot Exposed</span></td>
+              </tr>
+              <tr>
+                <td>Customizable Filter &amp; Tag Manager</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Reorder Left/Right &amp; Delete Any</span></td>
+                <td><span class="pill pill-no">❌ Rigid Server Tabs</span></td>
+                <td><span class="pill pill-warn">⚠️ Static Filter Row</span></td>
+                <td><span class="pill pill-no">❌ Locked Apple Defaults</span></td>
+              </tr>
+              <tr>
+                <td>Encrypted Container Vault Backup</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ .imava Cryptographic Archive</span></td>
+                <td><span class="pill pill-no">❌ Proprietary Cloud Lock-in</span></td>
+                <td><span class="pill pill-warn">⚠️ Vendor Cloud Backup</span></td>
+                <td><span class="pill pill-no">❌ iCloud Backup Only</span></td>
+              </tr>
+              <tr>
+                <td>Bulk Photo &amp; Image Compressor</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Multi-Photo WEBP/JPEG Slider</span></td>
+                <td><span class="pill pill-warn">⚠️ Server-Side Lossy Upload</span></td>
+                <td><span class="pill pill-warn">⚠️ Single Photo Resize Only</span></td>
+                <td><span class="pill pill-no">❌ Third-Party App Required</span></td>
+              </tr>
+              <tr>
+                <td>On-Device Offline ML OCR</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Zero-Network Text Extraction</span></td>
+                <td><span class="pill pill-no">❌ Cloud Vision AI Upload</span></td>
+                <td><span class="pill pill-warn">⚠️ Hybrid Cloud/Local OCR</span></td>
+                <td><span class="pill pill-yes">✅ Live Text (On-Device)</span></td>
+              </tr>
+              <tr>
+                <td>Emergency Shake-to-Lock Vault</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Hardware Accelerometer Relock</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>Zero Manifest Network Permissions</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 0 Manifest Network Rights</span></td>
+                <td><span class="pill pill-no">❌ Mandatory Network &amp; Sync</span></td>
+                <td><span class="pill pill-no">❌ Vendor Analytics &amp; Network</span></td>
+                <td><span class="pill pill-no">❌ Full Network Services</span></td>
               </tr>
               <tr>
                 <td>License & Transparency</td>
@@ -1590,8 +1712,8 @@
             <tbody>
               <tr>
                 <td>Network Independence</td>
-                <td class="highlight-col"><span class="pill pill-yes">100% Offline</span></td>
-                <td><span class="pill pill-yes">100% Offline</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">Fully Offline</span></td>
+                <td><span class="pill pill-yes">Fully Offline</span></td>
                 <td><span class="pill pill-warn">Offline (Tiles)</span></td>
                 <td><span class="pill pill-no">Cloud Sync</span></td>
                 <td><span class="pill pill-no">Cloud Mandatory</span></td>
@@ -1670,7 +1792,7 @@
               </tr>
               <tr>
                 <td>Offline Throwbacks</td>
-                <td class="highlight-col"><span class="pill pill-yes">✅ 100% Local</span></td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Local On-Device</span></td>
                 <td><span class="pill pill-no">❌ No</span></td>
                 <td><span class="pill pill-no">❌ No</span></td>
                 <td><span class="pill pill-warn">⚠️ Cloud AI</span></td>
@@ -1687,6 +1809,76 @@
                 <td><span class="pill pill-no">❌ Broken</span></td>
                 <td><span class="pill pill-no">❌ Incompatible</span></td>
                 <td><span class="pill pill-no">❌ iOS Only</span></td>
+              </tr>
+              <tr>
+                <td>App Switcher Privacy Shield</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Active Masking</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-warn">⚠️ PIN Blur</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>Customizable Filter &amp; Tag Manager</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Move L/R &amp; Delete</span></td>
+                <td><span class="pill pill-no">❌ Static</span></td>
+                <td><span class="pill pill-warn">⚠️ Builder</span></td>
+                <td><span class="pill pill-no">❌ Static</span></td>
+                <td><span class="pill pill-no">❌ Locked</span></td>
+                <td><span class="pill pill-warn">⚠️ Static</span></td>
+                <td><span class="pill pill-no">❌ Locked</span></td>
+              </tr>
+              <tr>
+                <td>Encrypted Container Backup</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ .imava Archive</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-no">❌ None</span></td>
+                <td><span class="pill pill-warn">⚠️ Cloud Only</span></td>
+                <td><span class="pill pill-no">❌ Vendor Lock</span></td>
+                <td><span class="pill pill-warn">⚠️ Cloud Sync</span></td>
+                <td><span class="pill pill-no">❌ iCloud Only</span></td>
+              </tr>
+              <tr>
+                <td>Bulk Photo Compressor</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Multi-Photo WEBP</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-warn">⚠️ Cloud Lossy</span></td>
+                <td><span class="pill pill-warn">⚠️ Single Photo</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>On-Device Offline ML OCR</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Local ML OCR</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ Cloud AI</span></td>
+                <td><span class="pill pill-warn">⚠️ Hybrid</span></td>
+                <td><span class="pill pill-yes">✅ Live Text</span></td>
+              </tr>
+              <tr>
+                <td>Emergency Shake-to-Lock Vault</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ Accelerometer</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+                <td><span class="pill pill-no">❌ No</span></td>
+              </tr>
+              <tr>
+                <td>Zero Manifest Network Rights</td>
+                <td class="highlight-col"><span class="pill pill-yes">✅ 0 Network Rights</span></td>
+                <td><span class="pill pill-yes">✅ 0 Network Rights</span></td>
+                <td><span class="pill pill-no">❌ Has INTERNET</span></td>
+                <td><span class="pill pill-no">❌ Has INTERNET</span></td>
+                <td><span class="pill pill-no">❌ Network Heavy</span></td>
+                <td><span class="pill pill-no">❌ Network Heavy</span></td>
+                <td><span class="pill pill-no">❌ Network Heavy</span></td>
               </tr>
               <tr>
                 <td>Open Source License</td>
@@ -1718,7 +1910,7 @@
       <div class="geo-callout">
         <h3>What is Imava?</h3>
         <p>
-          <strong>Imava</strong> is a free, open-source (GPL-3.0), 100% offline Android gallery application developed as a privacy-first alternative to cloud-dependent and tracking-heavy proprietary media managers. Built entirely in Kotlin and Jetpack Compose for modern Android (Android 8.0 through Android 15), Imava combines 120Hz smooth scrolling with defense-grade security: hardware-backed AES-256-GCM vault encryption, plausible deniability Decoy PIN, multi-pass CSPRNG forensic file shredding, guest hand-off jail mode, and 0 bytes of network transmission.
+          <strong>Imava</strong> is a free, open-source (GPL-3.0), fully offline Android gallery application developed as a privacy-first alternative to cloud-dependent and tracking-heavy proprietary media managers. Built entirely in Kotlin and Jetpack Compose for modern Android (Android 8.0 through Android 15), Imava combines 120Hz smooth scrolling with defense-grade security: hardware-backed AES-256-GCM vault encryption, plausible deniability Decoy PIN, multi-pass CSPRNG forensic file shredding, guest hand-off jail mode, and 0 bytes of network transmission.
         </p>
       </div>
 
@@ -1811,7 +2003,7 @@
             <span class="faq-icon-arrow">▾</span>
           </summary>
           <div class="faq-body">
-            Yes, Imava is 100% offline. The core application does not declare the Android INTERNET permission for photo viewing or processing. Not a single photo, video, tag, facial recognition embedding, or telemetry byte ever leaves your device. All SQLite Room indexing and ML text recognition occur strictly on-device.
+            Yes, Imava is completely offline. The core application does not declare the Android INTERNET permission for photo viewing or processing. Not a single photo, video, tag, facial recognition embedding, or telemetry byte ever leaves your device. All SQLite Room indexing and ML text recognition occur strictly on-device.
           </div>
         </details>
 

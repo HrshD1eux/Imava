@@ -163,7 +163,7 @@ def generate_notes_from_git(version):
     if not features and not fixes and not improvements and others:
         sections.append("### 🛠️ Changes\n" + "\n".join(dict.fromkeys(others)))
 
-    sections.append("---\n\n### 📦 Downloads & Verification\n* Download the signed APK below.\n* Zero cloud dependencies, 100% offline, zero analytics.")
+    sections.append("---\n\n### 📦 Downloads & Verification\n* Download the signed APK below.\n* Zero cloud dependencies, fully offline, zero analytics.")
 
     return "\n\n".join(sections).strip()
 

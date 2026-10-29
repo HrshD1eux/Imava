@@ -30,7 +30,7 @@ In [`app/src/main/AndroidManifest.xml`](file:///h:/Programming/Main%20Projects/A
   ```xml
   <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
   ```
-* *(Optional for 100% offline Play Store release)*: If you want zero network permissions on Google Play, also remove:
+* *(Optional for fully offline Play Store release)*: If you want zero network permissions on Google Play, also remove:
   ```xml
   <uses-permission android:name="android.permission.INTERNET" />
   ```

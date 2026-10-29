@@ -111,7 +111,7 @@ fun OpenSourceLicensesScreen(
                 name = "Imava Android Gallery",
                 author = "Harsh Pahal (HrshD1eux)",
                 licenseType = "GNU General Public License v3.0",
-                description = "Modern, high-performance, 100% offline private Android gallery app.",
+                description = "Modern, high-performance, fully offline private Android gallery app.",
                 url = "https://github.com/HrshD1eux/Imava",
                 fullLicenseText = gpl3License
             ),

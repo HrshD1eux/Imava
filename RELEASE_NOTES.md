@@ -160,7 +160,7 @@
 
 ### 📦 Downloads & Verification
 * Download the signed APK below.
-* Zero cloud dependencies, 100% offline, zero analytics.
+* Zero cloud dependencies, fully offline, zero analytics.
 
 ---
 
@@ -183,7 +183,7 @@
 ---
 
 ### 📅 Lossless Move & Copy Date Preservation
-* **No More "Today" Timestamp Resets**: When moving or copying photos/videos to other albums, their original capture dates are 100% preserved.
+* **No More "Today" Timestamp Resets**: When moving or copying photos/videos to other albums, their original capture dates are completely preserved.
 * **Full EXIF & Filesystem Synchronization**: Original EXIF datetime tags (`TAG_DATETIME_ORIGINAL`, `TAG_DATETIME`, `TAG_DATETIME_DIGITIZED`), physical filesystem last-modified timestamps, and MediaStore database rows are accurately updated.
 * **Metadata Migration**: Favorites, custom tags, and custom locations migrate seamlessly to the new album.
 
@@ -225,4 +225,4 @@
 
 ### 📦 Downloads & Verification
 * Download the signed APK below.
-* Zero cloud dependencies, 100% offline, zero analytics.
+* Zero cloud dependencies, fully offline, zero analytics.
