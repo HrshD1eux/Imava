@@ -199,6 +199,17 @@ object AppUpdateManager {
         }.trim()
     }
 
+    fun shouldPromptUpdate(context: Context, latestVersion: String): Boolean {
+        val prefs = context.getSharedPreferences("update_prefs", Context.MODE_PRIVATE)
+        val lastDismissedVersion = prefs.getString("last_dismissed_update_version", null)
+        return lastDismissedVersion != latestVersion
+    }
+
+    fun markUpdateDismissed(context: Context, latestVersion: String) {
+        val prefs = context.getSharedPreferences("update_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("last_dismissed_update_version", latestVersion).apply()
+    }
+
     private fun isVersionNewer(latest: String, current: String): Boolean {
         val latestParts = latest.removePrefix("v").split(".").mapNotNull { it.toIntOrNull() }
         val currentParts = current.removePrefix("v").split(".").mapNotNull { it.toIntOrNull() }

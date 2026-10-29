@@ -48,6 +48,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.layout.widthIn
+import com.hrshd1eux.imava.ui.common.AppUpdateDialog
+import com.hrshd1eux.imava.core.util.AppUpdateManager
+import com.hrshd1eux.imava.core.util.UpdateInfo
 import com.hrshd1eux.imava.ui.common.BulkCompressDialog
 import com.hrshd1eux.imava.ui.common.BulkTagDialog
 import com.hrshd1eux.imava.ui.common.DescriptiveIconButton
@@ -394,6 +397,20 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var currentAlbumScrubTotal by remember { androidx.compose.runtime.mutableStateOf(0) }
     var showSecureShredderNotice by remember {
         androidx.compose.runtime.mutableStateOf(com.hrshd1eux.imava.ui.common.SecureShredderNoticeManager.shouldShowNotice(context))
+    }
+    var appUpdateInfoToPrompt by remember { androidx.compose.runtime.mutableStateOf<UpdateInfo?>(null) }
+
+    LaunchedEffect(Unit) {
+        val settingsPrefs = context.getSharedPreferences("settings_prefs", android.content.Context.MODE_PRIVATE)
+        val autoCheck = settingsPrefs.getBoolean("auto_check_updates", true)
+        if (autoCheck) {
+            try {
+                val info = AppUpdateManager.checkForUpdates(context)
+                if (info.hasUpdate && AppUpdateManager.shouldPromptUpdate(context, info.latestVersion)) {
+                    appUpdateInfoToPrompt = info
+                }
+            } catch (_: Exception) {}
+        }
     }
     val isVaultUnlocked by viewModel.isVaultUnlocked.collectAsState()
     val isVaultActive = (isVaultUnlocked && viewModel.currentCategoryName == "Hidden Vault") ||
@@ -1723,6 +1740,14 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
             }
+        )
+    }
+
+    val currentAppUpdate = appUpdateInfoToPrompt
+    if (currentAppUpdate != null) {
+        AppUpdateDialog(
+            updateInfo = currentAppUpdate,
+            onDismiss = { appUpdateInfoToPrompt = null }
         )
     }
 

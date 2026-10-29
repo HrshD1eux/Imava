@@ -2,6 +2,18 @@ package com.hrshd1eux.imava.ui.settings
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import com.hrshd1eux.imava.ui.common.AppUpdateDialog
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Gavel
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.draw.shadow
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.filled.SdCard
@@ -10,6 +22,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -914,7 +928,204 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsCategoryHeader(title = "About", icon = Icons.Default.Info)
+            var showPermissionsDialog by remember { mutableStateOf(false) }
+            var showOpenSourceDialog by remember { mutableStateOf(false) }
+
+            if (showPermissionsDialog) {
+                PermissionsTransparencyDialog(onDismiss = { showPermissionsDialog = false })
+            }
+
+            if (showOpenSourceDialog) {
+                OpenSourceLicensesDialog(onDismiss = { showOpenSourceDialog = false })
+            }
+
+            SettingsCategoryHeader(title = "Developer & Open Source", icon = Icons.Default.Code)
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    // Developer Profile Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Harsh (hrshd1eux)",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Lead Developer & Maintainer",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        TextButton(
+                            onClick = {
+                                try {
+                                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                        data = Uri.parse("mailto:hrshd1eux@gmail.com")
+                                        putExtra(Intent.EXTRA_SUBJECT, "Imava App Feedback / Inquiry")
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {
+                                    try {
+                                        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/hrshd1eux/imava/issues")).apply {
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
+                                        context.startActivity(webIntent)
+                                    } catch (_: Exception) {}
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Email")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Links & Source Code Rows
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/hrshd1eux/imava")).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Code,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Source Code (GitHub)", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = "github.com/hrshd1eux/imava", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/hrshd1eux/imava/issues")).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.BugReport,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Report Issues & Requests", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = "Submit bug reports and feature requests", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Legal & Transparency Rows
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { showOpenSourceDialog = true }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Gavel,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Open Source Licenses", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = "Third-party libraries & GPL-3.0 app license", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { showPermissionsDialog = true }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Shield,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Permission Transparency", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = "18 permissions: Standard & Technical Dev explanations", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
+            SettingsCategoryHeader(title = "About & Updates", icon = Icons.Default.Info)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -945,14 +1156,14 @@ fun SettingsScreen(
                         }
                     }
                     Text(
-                        text = "Version $appVersionName",
+                        text = "Version $appVersionName (GPL-3.0)",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "A fast, private, and secure gallery for your photos and videos.",
+                        text = "A fast, local-first, zero-tracking gallery and secure vault for your photos and videos.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -972,7 +1183,7 @@ fun SettingsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = "Auto-Check for Updates", style = MaterialTheme.typography.titleMedium)
                             Text(
-                                text = "Check GitHub releases in background daily",
+                                text = "Notify once when new GitHub release is available",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -989,8 +1200,6 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     var isCheckingUpdate by remember { mutableStateOf(false) }
-                    var isDownloadingUpdate by remember { mutableStateOf(false) }
-                    var downloadProgress by remember { mutableIntStateOf(0) }
                     var updateInfoResult by remember { mutableStateOf<com.hrshd1eux.imava.core.util.UpdateInfo?>(null) }
                     var showNoUpdateDialog by remember { mutableStateOf(false) }
                     val scope = rememberCoroutineScope()
@@ -1024,91 +1233,13 @@ fun SettingsScreen(
                         }
                     }
 
-
                     val currentInfo = updateInfoResult
                     if (currentInfo != null && currentInfo.hasUpdate) {
-                        AlertDialog(
-                            onDismissRequest = { updateInfoResult = null },
-                            title = { Text("New Version Available: v${currentInfo.latestVersion}") },
-                            text = {
-                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    if (com.hrshd1eux.imava.core.util.AppUpdateManager.isVersionOlderThan(currentInfo.currentVersion, "1.1.8")) {
-                                        Card(
-                                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)),
-                                            shape = RoundedCornerShape(8.dp),
-                                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                                        ) {
-                                            Text(
-                                                text = "⚠️ Migration Note: Because of our transition to the new package ID (com.hrshd1eux.imava), please download the APK, install it, and delete the older version manually.",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                                modifier = Modifier.padding(8.dp)
-                                            )
-                                        }
-                                    }
-
-                                    Text("Installed version: v${currentInfo.currentVersion}")
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text("Release Highlights:", style = MaterialTheme.typography.titleSmall)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    val cleanedNotes = remember(currentInfo.releaseNotes) {
-                                        com.hrshd1eux.imava.core.util.AppUpdateManager.formatCleanReleaseNotes(currentInfo.releaseNotes)
-                                    }
-                                    Text(
-                                        text = cleanedNotes,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        val apkUrl = currentInfo.apkDownloadUrl
-                                        if (apkUrl != null) {
-                                            isDownloadingUpdate = true
-                                            scope.launch {
-                                                com.hrshd1eux.imava.core.util.AppUpdateManager.downloadAndInstallApk(
-                                                    context = context,
-                                                    downloadUrl = apkUrl,
-                                                    onProgress = { progress -> downloadProgress = progress }
-                                                )
-                                                isDownloadingUpdate = false
-                                                updateInfoResult = null
-                                            }
-                                        }
-                                    }
-                                ) {
-                                    Text("Download & Install")
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { updateInfoResult = null }) {
-                                    Text("Later")
-                                }
-                            }
+                        AppUpdateDialog(
+                            updateInfo = currentInfo,
+                            onDismiss = { updateInfoResult = null }
                         )
                     }
-
-
-                    if (isDownloadingUpdate) {
-                        AlertDialog(
-                            onDismissRequest = {},
-                            title = { Text("Downloading Update...") },
-                            text = {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    LinearProgressIndicator(
-                                        progress = { downloadProgress / 100f },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    Text("$downloadProgress%", style = MaterialTheme.typography.bodyMedium)
-                                }
-                            },
-                            confirmButton = {}
-                        )
-                    }
-
 
                     if (showNoUpdateDialog && currentInfo != null && !currentInfo.hasUpdate) {
                         AlertDialog(
@@ -1120,7 +1251,7 @@ fun SettingsScreen(
                                     Text("You are using the latest version of Imava! 🎉")
                                     if (currentInfo.releaseNotes.isNotBlank() && !currentInfo.releaseNotes.startsWith("Could not check") && !currentInfo.releaseNotes.startsWith("Error")) {
                                         Spacer(modifier = Modifier.height(12.dp))
-                                        Text("Current Release Highlights:", style = MaterialTheme.typography.titleSmall, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
+                                        Text("Current Release Highlights:", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                         Spacer(modifier = Modifier.height(4.dp))
                                         val cleanedNotes = remember(currentInfo.releaseNotes) {
                                             com.hrshd1eux.imava.core.util.AppUpdateManager.formatCleanReleaseNotes(currentInfo.releaseNotes)

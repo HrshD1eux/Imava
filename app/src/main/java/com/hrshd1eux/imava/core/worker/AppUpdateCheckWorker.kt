@@ -34,7 +34,7 @@ class AppUpdateCheckWorker(
 
         return try {
             val updateInfo = AppUpdateManager.checkForUpdates(applicationContext)
-            if (updateInfo.hasUpdate) {
+            if (updateInfo.hasUpdate && AppUpdateManager.shouldPromptUpdate(applicationContext, updateInfo.latestVersion)) {
                 showUpdateNotification(updateInfo.latestVersion, updateInfo.currentVersion, updateInfo.apkDownloadUrl)
             }
             Result.success()
