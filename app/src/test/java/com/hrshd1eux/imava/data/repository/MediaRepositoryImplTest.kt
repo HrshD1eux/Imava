@@ -666,7 +666,7 @@ class MediaRepositoryImplTest {
         val mockUri = mockk<android.net.Uri>(relaxed = true)
         val thirdPartyItem = MediaItem.Photo(100L, mockUri, "/path100.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 888L, "WhatsApp Images")
 
-        coEvery { mockDataSource.getTotalMediaCount(any(), any()) } returns 50
+        coEvery { mockDataSource.getTotalMediaCount(any(), any(), any()) } returns 50
         coEvery { mockDataSource.fetchThirdPartyAppMedia() } returns listOf(thirdPartyItem)
 
         val repository = MediaRepositoryImpl(

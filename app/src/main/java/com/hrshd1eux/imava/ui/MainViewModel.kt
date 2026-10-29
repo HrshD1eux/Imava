@@ -471,6 +471,8 @@ class MainViewModel @Inject constructor(
             _sortOrderState.value = targetOrder ?: globalOrder
         }
 
+    var currentBucketIds: List<Long> = emptyList()
+
     private var _currentBucketNameState = mutableStateOf(savedStateHandle.get<String>("current_bucket_name"))
     var currentBucketName: String?
         get() = _currentBucketNameState.value
@@ -578,14 +580,37 @@ class MainViewModel @Inject constructor(
     )
     val pinnedBucketIds: StateFlow<Set<String>> = _pinnedBucketIds.asStateFlow()
 
+    private val _mergeSameNamedAlbums = MutableStateFlow(galleryPrefs.getBoolean("merge_same_named_albums", true))
+    val mergeSameNamedAlbums: StateFlow<Boolean> = _mergeSameNamedAlbums.asStateFlow()
+
+    fun setMergeSameNamedAlbums(enabled: Boolean) {
+        galleryPrefs.edit().putBoolean("merge_same_named_albums", enabled).apply()
+        _mergeSameNamedAlbums.value = enabled
+    }
+
     val visibleBuckets: StateFlow<List<BucketInfo>> = combine(
-        _buckets, _excludedBucketIds, _albumSortOrder
-    ) { list, excluded, sortOrder ->
+        _buckets, _excludedBucketIds, _albumSortOrder, _mergeSameNamedAlbums
+    ) { list: List<BucketInfo>, excluded: Set<String>, sortOrder: AlbumSortOrder, mergeEnabled: Boolean ->
         val filtered = list.filter { !excluded.contains(it.id.toString()) }
+        val processed = if (mergeEnabled) {
+            filtered.groupBy { it.name.trim().lowercase(java.util.Locale.ROOT) }.map { (_, group) ->
+                val primary = group.first()
+                val totalCount = group.sumOf { it.count }
+                val mergedIds = group.flatMap { it.mergedBucketIds }.distinct()
+                val mergedPaths = group.flatMap { it.paths }.distinct()
+                primary.copy(
+                    count = totalCount,
+                    mergedBucketIds = mergedIds,
+                    paths = mergedPaths
+                )
+            }
+        } else {
+            filtered
+        }
         when (sortOrder) {
-            AlbumSortOrder.NAME_ASC -> filtered.sortedBy { it.name.lowercase() }
-            AlbumSortOrder.COUNT_DESC -> filtered.sortedByDescending { it.count }
-            AlbumSortOrder.RECENT -> filtered
+            AlbumSortOrder.NAME_ASC -> processed.sortedBy { it.name.lowercase() }
+            AlbumSortOrder.COUNT_DESC -> processed.sortedByDescending { it.count }
+            AlbumSortOrder.RECENT -> processed
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -698,7 +723,8 @@ class MainViewModel @Inject constructor(
     ) { (raw, favs), (trash, vault), category, excluded, _ ->
         val list = when (category) {
             "Favorites" -> favs.filter {
-                if (currentBucketId != null) it.bucketId == currentBucketId
+                if (currentBucketIds.isNotEmpty()) it.bucketId in currentBucketIds
+                else if (currentBucketId != null) it.bucketId == currentBucketId
                 else !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
             }
             "Trash" -> trash
@@ -706,6 +732,7 @@ class MainViewModel @Inject constructor(
             "Videos" -> raw.filterIsInstance<MediaItem.Video>().let { videos ->
                 if (currentBucketId != null) {
                     if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, currentBucketId!!, currentBucketName)) emptyList()
+                    else if (currentBucketIds.isNotEmpty()) videos.filter { it.bucketId in currentBucketIds }
                     else videos
                 } else videos.filter { item ->
                     !excluded.contains(item.bucketId.toString()) &&
@@ -714,6 +741,7 @@ class MainViewModel @Inject constructor(
             }
             else -> if (currentBucketId != null) {
                 if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, currentBucketId!!, currentBucketName)) emptyList()
+                else if (currentBucketIds.isNotEmpty()) raw.filter { it.bucketId in currentBucketIds }
                 else raw
             } else raw.filter {
                 !excluded.contains(it.bucketId.toString()) &&
@@ -998,7 +1026,7 @@ class MainViewModel @Inject constructor(
             }
             "Videos" -> Pager(
                 config = PagingConfig(pageSize = 60, prefetchDistance = 40, enablePlaceholders = false),
-                pagingSourceFactory = { MediaPagingSource(repository, bucketId, order, com.hrshd1eux.imava.data.media.MediaTypeFilter.VIDEOS) }
+                pagingSourceFactory = { MediaPagingSource(repository, bucketId, currentBucketIds.ifEmpty { null }, order, com.hrshd1eux.imava.data.media.MediaTypeFilter.VIDEOS) }
             ).flow.map { pagingData ->
                 if (bucketId != null) {
                     if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, bucketId, currentBucketName)) PagingData.empty()
@@ -1007,7 +1035,7 @@ class MainViewModel @Inject constructor(
             }
             else -> Pager(
                 config = PagingConfig(pageSize = 60, prefetchDistance = 40, enablePlaceholders = false),
-                pagingSourceFactory = { MediaPagingSource(repository, bucketId, order) }
+                pagingSourceFactory = { MediaPagingSource(repository, bucketId, currentBucketIds.ifEmpty { null }, order) }
             ).flow.map { pagingData ->
                 if (bucketId != null) {
                     if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, bucketId, currentBucketName)) PagingData.empty()
@@ -1236,6 +1264,7 @@ class MainViewModel @Inject constructor(
                 limit = Int.MAX_VALUE,
                 offset = 0,
                 bucketId = currentBucketId,
+                bucketIds = currentBucketIds.ifEmpty { null },
                 sortOrder = sortOrder
             )
             _mediaItems.value = if (currentBucketId != null) items else items.filter {
@@ -1245,9 +1274,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun selectBucket(bucketId: Long?, bucketName: String?) {
+    fun selectBucket(bucketId: Long?, bucketName: String?, bucketIds: List<Long>? = null) {
         currentCategoryName = null // Reset category filter when selecting a folder
         currentBucketId = bucketId
+        currentBucketIds = bucketIds ?: (bucketId?.let { listOf(it) } ?: emptyList())
         currentBucketName = bucketName
         currentScreen = Screen.Photos
         loadNextPage()
@@ -1915,9 +1945,13 @@ class MainViewModel @Inject constructor(
 
     fun hideSelectedMedia(context: Context) {
         val selectedIds = selectionState.selectedIds.toSet()
-        if (selectedIds.isEmpty()) return
+        hideMediaByIds(context, selectedIds)
+    }
+
+    fun hideMediaByIds(context: Context, ids: Set<Long>) {
+        if (ids.isEmpty()) return
         viewModelScope.launch {
-            val selectedItems = getSelectedMediaItems(selectedIds)
+            val selectedItems = getSelectedMediaItems(ids)
             selectedItems.forEach { item ->
                 toggleHidden(context, item)
             }

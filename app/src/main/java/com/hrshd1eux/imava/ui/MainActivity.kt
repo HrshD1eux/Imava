@@ -248,6 +248,28 @@ class MainActivity : FragmentActivity() {
         )
     }
 
+    private fun updatePrivacyShield(isLeaving: Boolean = false) {
+        val galleryPrefs = getSharedPreferences("gallery_prefs", MODE_PRIVATE)
+        val shieldEnabled = galleryPrefs.getBoolean("recents_privacy_shield_enabled", true)
+        val isVaultActive = (viewModel.isVaultUnlocked.value && viewModel.currentCategoryName == "Hidden Vault") ||
+                viewModel.activeMediaItem?.isHidden == true
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            setRecentsScreenshotEnabled(!shieldEnabled && !isVaultActive)
+        }
+
+        if (isVaultActive || (shieldEnabled && isLeaving)) {
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        updatePrivacyShield(isLeaving = !hasFocus)
+    }
+
     override fun onResume() {
         super.onResume()
         com.hrshd1eux.imava.core.util.AppLockManager.onAppResume()
@@ -264,21 +286,13 @@ class MainActivity : FragmentActivity() {
             viewModel.triggerAutoDeepScan()
         }
 
-        val galleryPrefs = getSharedPreferences("gallery_prefs", MODE_PRIVATE)
-        val isVaultActive = (viewModel.isVaultUnlocked.value && viewModel.currentCategoryName == "Hidden Vault") ||
-                viewModel.activeMediaItem?.isHidden == true
-        if (!isVaultActive && galleryPrefs.getBoolean("recents_privacy_shield_enabled", true)) {
-            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-        }
+        updatePrivacyShield(isLeaving = false)
     }
 
     override fun onPause() {
         super.onPause()
         com.hrshd1eux.imava.core.util.AppLockManager.onAppPause()
-        val galleryPrefs = getSharedPreferences("gallery_prefs", MODE_PRIVATE)
-        if (galleryPrefs.getBoolean("recents_privacy_shield_enabled", true)) {
-            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-        }
+        updatePrivacyShield(isLeaving = true)
     }
 
     override fun onStop() {
@@ -288,6 +302,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
+        updatePrivacyShield(isLeaving = true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val activeItem = viewModel.activeMediaItem
             if (activeItem is com.hrshd1eux.imava.data.model.MediaItem.Video) {
@@ -357,6 +372,9 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var showStorageDoctor by remember { androidx.compose.runtime.mutableStateOf(false) }
     var slideshowItems by remember { androidx.compose.runtime.mutableStateOf<List<com.hrshd1eux.imava.data.model.MediaItem>?>(null) }
     var showVaultPreConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showVaultSetupRequiredDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showVaultUnlockDialogForSetup by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var pendingMoveToVaultIds by remember { androidx.compose.runtime.mutableStateOf(emptySet<Long>()) }
     var showSelectionMoreSheet by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showScrubCurrentAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var isScrubbingCurrentAlbum by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -371,13 +389,18 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     val activity = context.findActivity()
 
     DisposableEffect(isVaultActive) {
+        val prefs = activity?.getSharedPreferences("gallery_prefs", android.content.Context.MODE_PRIVATE)
+        val shieldEnabled = prefs?.getBoolean("recents_privacy_shield_enabled", true) == true
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            activity?.setRecentsScreenshotEnabled(!shieldEnabled && !isVaultActive)
+        }
         if (isVaultActive) {
             activity?.window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
         }
         onDispose {
-            activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+            if (!isVaultActive) {
+                activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+            }
         }
     }
 
@@ -1124,7 +1147,18 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 Button(
                     onClick = {
                         showVaultPreConfirmDialog = false
-                        viewModel.hideSelectedMedia(context)
+                        val vaultPrefs = context.getSharedPreferences("vault_prefs", android.content.Context.MODE_PRIVATE)
+                        val storedPinHash = vaultPrefs.getString("vault_pin_hash", null)
+                        val legacyPin = vaultPrefs.getString("vault_pin", null)
+                        val isVaultDisabled = vaultPrefs.getBoolean("vault_disabled", false)
+                        val isConfigured = !isVaultDisabled && (storedPinHash != null || legacyPin != null)
+
+                        if (!isConfigured) {
+                            pendingMoveToVaultIds = selectionState.selectedIds.toSet()
+                            showVaultSetupRequiredDialog = true
+                        } else {
+                            viewModel.hideSelectedMedia(context)
+                        }
                     }
                 ) {
                     Text("Continue")
@@ -1133,6 +1167,57 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             dismissButton = {
                 TextButton(onClick = { showVaultPreConfirmDialog = false }) {
                     Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showVaultSetupRequiredDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showVaultSetupRequiredDialog = false
+                pendingMoveToVaultIds = emptySet()
+            },
+            icon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text("Vault Setup Required") },
+            text = {
+                Text("Private Vault has not been set up yet. Please create your master password, PIN, or pattern first so your selected items can be securely encrypted.")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showVaultSetupRequiredDialog = false
+                        showVaultUnlockDialogForSetup = true
+                    }
+                ) {
+                    Text("Set Up Vault")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showVaultSetupRequiredDialog = false
+                        pendingMoveToVaultIds = emptySet()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showVaultUnlockDialogForSetup) {
+        com.hrshd1eux.imava.ui.vault.VaultUnlockDialog(
+            onDismiss = {
+                showVaultUnlockDialogForSetup = false
+                pendingMoveToVaultIds = emptySet()
+            },
+            onUnlockSuccess = {
+                showVaultUnlockDialogForSetup = false
+                if (pendingMoveToVaultIds.isNotEmpty()) {
+                    viewModel.hideMediaByIds(context, pendingMoveToVaultIds)
+                    pendingMoveToVaultIds = emptySet()
+                    android.widget.Toast.makeText(context, "Items safely protected in your new Vault!", android.widget.Toast.LENGTH_SHORT).show()
                 }
             }
         )

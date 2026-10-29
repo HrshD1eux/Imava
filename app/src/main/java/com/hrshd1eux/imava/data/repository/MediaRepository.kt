@@ -20,8 +20,19 @@ data class MoveCopyResult(
 
 interface MediaRepository {
     fun getMediaFlow(bucketId: Long? = null, sortOrder: com.hrshd1eux.imava.ui.SortOrder = com.hrshd1eux.imava.ui.SortOrder.NEWEST_FIRST, mediaType: MediaTypeFilter = MediaTypeFilter.ALL): Flow<List<MediaItem>>
-    suspend fun loadMediaPaged(limit: Int, offset: Int, bucketId: Long? = null, sortOrder: com.hrshd1eux.imava.ui.SortOrder = com.hrshd1eux.imava.ui.SortOrder.NEWEST_FIRST, mediaType: MediaTypeFilter = MediaTypeFilter.ALL): List<MediaItem>
-    suspend fun getTotalMediaCount(bucketId: Long? = null, mediaType: MediaTypeFilter = MediaTypeFilter.ALL): Int
+    suspend fun loadMediaPaged(
+        limit: Int,
+        offset: Int,
+        bucketId: Long? = null,
+        bucketIds: List<Long>? = null,
+        sortOrder: com.hrshd1eux.imava.ui.SortOrder = com.hrshd1eux.imava.ui.SortOrder.NEWEST_FIRST,
+        mediaType: MediaTypeFilter = MediaTypeFilter.ALL
+    ): List<MediaItem>
+    suspend fun getTotalMediaCount(
+        bucketId: Long? = null,
+        bucketIds: List<Long>? = null,
+        mediaType: MediaTypeFilter = MediaTypeFilter.ALL
+    ): Int
     suspend fun getBuckets(): List<BucketInfo>
     fun getBucketsFlow(): Flow<List<BucketInfo>>
     

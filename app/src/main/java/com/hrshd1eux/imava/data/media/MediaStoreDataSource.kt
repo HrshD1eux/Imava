@@ -124,17 +124,20 @@ class MediaStoreDataSource @Inject constructor(
 
     suspend fun getTotalMediaCount(
         bucketId: Long? = null,
+        bucketIds: List<Long>? = null,
         mediaType: MediaTypeFilter = MediaTypeFilter.ALL
     ): Int = withContext(Dispatchers.IO) {
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
-        val selection = if (bucketId != null) {
-            "$mediaTypeCondition AND ${MediaStore.Files.FileColumns.BUCKET_ID} = ?"
+        val effectiveBucketIds = if (!bucketIds.isNullOrEmpty()) bucketIds else if (bucketId != null) listOf(bucketId) else null
+        val selection = if (!effectiveBucketIds.isNullOrEmpty()) {
+            val placeholders = effectiveBucketIds.joinToString(",") { "?" }
+            "$mediaTypeCondition AND ${MediaStore.Files.FileColumns.BUCKET_ID} IN ($placeholders)"
         } else {
             mediaTypeCondition
         }
-        val selectionArgs = if (bucketId != null) arrayOf(bucketId.toString()) else null
+        val selectionArgs = effectiveBucketIds?.map { it.toString() }?.toTypedArray()
 
         try {
             val cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -157,6 +160,7 @@ class MediaStoreDataSource @Inject constructor(
         limit: Int,
         offset: Int,
         bucketId: Long? = null,
+        bucketIds: List<Long>? = null,
         includeTrashed: Boolean = false,
         isAscending: Boolean = false,
         mediaType: MediaTypeFilter = MediaTypeFilter.ALL
@@ -184,17 +188,15 @@ class MediaStoreDataSource @Inject constructor(
         val projection = projectionList.toTypedArray()
 
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
-        val selection = if (bucketId != null) {
-            "$mediaTypeCondition AND ${MediaStore.Files.FileColumns.BUCKET_ID} = ?"
+        val effectiveBucketIds = if (!bucketIds.isNullOrEmpty()) bucketIds else if (bucketId != null) listOf(bucketId) else null
+        val selection = if (!effectiveBucketIds.isNullOrEmpty()) {
+            val placeholders = effectiveBucketIds.joinToString(",") { "?" }
+            "$mediaTypeCondition AND ${MediaStore.Files.FileColumns.BUCKET_ID} IN ($placeholders)"
         } else {
             mediaTypeCondition
         }
 
-        val selectionArgs = if (bucketId != null) {
-            arrayOf(bucketId.toString())
-        } else {
-            null
-        }
+        val selectionArgs = effectiveBucketIds?.map { it.toString() }?.toTypedArray()
 
         val cursor = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -1155,5 +1157,7 @@ data class BucketInfo(
     val id: Long,
     val name: String,
     val count: Int,
-    val path: String? = null
+    val path: String? = null,
+    val mergedBucketIds: List<Long> = listOf(id),
+    val paths: List<String> = if (path != null) listOf(path) else emptyList()
 )

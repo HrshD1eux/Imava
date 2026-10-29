@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,8 +18,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.hrshd1eux.imava.core.util.HapticUtil
@@ -237,40 +244,82 @@ fun VaultUnlockDialog(
                 if (!isPinConfigured) {
                     // --- SETUP WIZARD ---
                     if (setupStage == 1) {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f)
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Warning,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Zero-Knowledge & Local-First",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Private Vault is completely local-first with zero tracking. There is NO password reset, NO backdoor, and NO cloud recovery. If you forget this password, all files inside the vault are permanently lost.\n\nSet a master password to encrypt your private files with AES-256.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
                         // Stage 1: Choose Type & Code
                         Text(
                             text = "Choose how to protect your Hidden Vault:",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Row(
-                                modifier = Modifier.clickable { setupLockType = "PIN" },
+                                modifier = Modifier.clickable { setupLockType = "PIN"; errorMessage = null },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
                                     selected = setupLockType == "PIN",
-                                    onClick = { setupLockType = "PIN" }
+                                    onClick = { setupLockType = "PIN"; errorMessage = null }
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("PIN Lock")
+                                Text("PIN", style = MaterialTheme.typography.bodySmall)
                             }
 
                             Row(
-                                modifier = Modifier.clickable { setupLockType = "PATTERN" },
+                                modifier = Modifier.clickable { setupLockType = "PATTERN"; errorMessage = null },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
                                     selected = setupLockType == "PATTERN",
-                                    onClick = { setupLockType = "PATTERN" }
+                                    onClick = { setupLockType = "PATTERN"; errorMessage = null }
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("Pattern Lock")
+                                Text("Pattern", style = MaterialTheme.typography.bodySmall)
+                            }
+
+                            Row(
+                                modifier = Modifier.clickable { setupLockType = "PASSWORD"; errorMessage = null },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = setupLockType == "PASSWORD",
+                                    onClick = { setupLockType = "PASSWORD"; errorMessage = null }
+                                )
+                                Text("Password", style = MaterialTheme.typography.bodySmall)
                             }
                         }
 
@@ -293,6 +342,7 @@ fun VaultUnlockDialog(
                                 label = { Text("4-6 Digit PIN") },
                                 singleLine = true,
                                 visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                                 modifier = Modifier.fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -307,6 +357,38 @@ fun VaultUnlockDialog(
                                 label = { Text("Confirm PIN") },
                                 singleLine = true,
                                 visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        } else if (setupLockType == "PASSWORD") {
+                            Text(
+                                text = "Create an alphanumeric master password (min 6 chars):",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            OutlinedTextField(
+                                value = setupPinInput,
+                                onValueChange = {
+                                    setupPinInput = it
+                                    errorMessage = null
+                                },
+                                label = { Text("Master Password") },
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = confirmPinInput,
+                                onValueChange = {
+                                    confirmPinInput = it
+                                    errorMessage = null
+                                },
+                                label = { Text("Confirm Master Password") },
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                                 modifier = Modifier.fillMaxWidth()
                             )
                         } else {
@@ -462,9 +544,12 @@ fun VaultUnlockDialog(
                                 pinInput = it
                                 errorMessage = null
                             },
-                            label = { Text("Enter Vault PIN") },
+                            label = { Text(if (storedLockType == "PASSWORD") "Enter Master Password" else "Enter Vault PIN") },
                             singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = if (storedLockType == "PASSWORD") KeyboardType.Password else KeyboardType.NumberPassword
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -474,15 +559,17 @@ fun VaultUnlockDialog(
         confirmButton = {
             if (!isPinConfigured) {
                 if (setupStage == 1) {
-                    if (setupLockType == "PIN") {
+                    if (setupLockType == "PIN" || setupLockType == "PASSWORD") {
                         Button(
                             onClick = {
-                                if (setupPinInput.length < 4) {
-                                    errorMessage = "PIN must be at least 4 digits."
+                                val minLen = if (setupLockType == "PIN") 4 else 6
+                                val label = if (setupLockType == "PIN") "PIN" else "Password"
+                                if (setupPinInput.length < minLen) {
+                                    errorMessage = "$label must be at least $minLen characters."
                                     return@Button
                                 }
                                 if (setupPinInput != confirmPinInput) {
-                                    errorMessage = "PINs do not match."
+                                    errorMessage = "${label}s do not match."
                                     return@Button
                                 }
                                 chosenCodeToSave = setupPinInput
@@ -501,7 +588,7 @@ fun VaultUnlockDialog(
                     }
                 }
             } else {
-                if (storedLockType == "PIN") {
+                if (storedLockType == "PIN" || storedLockType == "PASSWORD") {
                     Button(
                         onClick = {
                             if (pinInput.isNotBlank()) {

@@ -377,6 +377,33 @@ fun SettingsScreen(
 
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+                val mergeSameNamed by viewModel.mergeSameNamedAlbums.collectAsState()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Merge Same-Named Albums",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Combine folders with matching names (e.g. internal & SD Card Download) into one unified album card",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = mergeSameNamed,
+                        onCheckedChange = { viewModel.setMergeSameNamedAlbums(it) }
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
                 val storagePrefs = remember(context) { context.getSharedPreferences("storage_prefs", Context.MODE_PRIVATE) }
                 var sdTreeUri by remember { mutableStateOf(storagePrefs.getString("sd_tree_uri", null)) }
 

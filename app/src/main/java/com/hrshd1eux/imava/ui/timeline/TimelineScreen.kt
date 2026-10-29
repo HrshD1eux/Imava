@@ -185,16 +185,19 @@ fun TimelineScreen(
             }
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                val isPagingLoading = lazyPagingItems.loadState.refresh is androidx.paging.LoadState.Loading
                 if (lazyPagingItems.itemCount == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No media found on device",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    if (!isPagingLoading) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No media found on device",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 } else {
                     LazyVerticalStaggeredGrid(

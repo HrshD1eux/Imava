@@ -9,6 +9,7 @@ import com.hrshd1eux.imava.data.repository.MediaRepository
 class MediaPagingSource(
     private val repository: MediaRepository,
     private val bucketId: Long? = null,
+    private val bucketIds: List<Long>? = null,
     private val sortOrder: com.hrshd1eux.imava.ui.SortOrder = com.hrshd1eux.imava.ui.SortOrder.NEWEST_FIRST,
     private val mediaType: MediaTypeFilter = MediaTypeFilter.ALL
 ) : PagingSource<Int, MediaItem>() {
@@ -18,8 +19,8 @@ class MediaPagingSource(
         val limit = params.loadSize
 
         return try {
-            val totalCount = repository.getTotalMediaCount(bucketId, mediaType)
-            val items = repository.loadMediaPaged(limit = limit, offset = offset, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
+            val totalCount = repository.getTotalMediaCount(bucketId = bucketId, bucketIds = bucketIds, mediaType = mediaType)
+            val items = repository.loadMediaPaged(limit = limit, offset = offset, bucketId = bucketId, bucketIds = bucketIds, sortOrder = sortOrder, mediaType = mediaType)
             val nextKey = if (items.size < limit || offset + items.size >= totalCount) null else offset + items.size
             val prevKey = if (offset == 0) null else (offset - limit).coerceAtLeast(0)
             val itemsBefore = offset.coerceAtMost(totalCount)

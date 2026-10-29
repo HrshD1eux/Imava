@@ -88,7 +88,14 @@ class MediaRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadMediaPaged(limit: Int, offset: Int, bucketId: Long?, sortOrder: com.hrshd1eux.imava.ui.SortOrder, mediaType: MediaTypeFilter): List<MediaItem> = withContext(Dispatchers.IO) {
+    override suspend fun loadMediaPaged(
+        limit: Int,
+        offset: Int,
+        bucketId: Long?,
+        bucketIds: List<Long>?,
+        sortOrder: com.hrshd1eux.imava.ui.SortOrder,
+        mediaType: MediaTypeFilter
+    ): List<MediaItem> = withContext(Dispatchers.IO) {
         val isAscending = (sortOrder == com.hrshd1eux.imava.ui.SortOrder.OLDEST_FIRST)
         val thirdPartyMedia = try {
             getCleanedThirdPartyMedia(bucketId, mediaType)
@@ -97,7 +104,7 @@ class MediaRepositoryImpl @Inject constructor(
         }
 
         // Fast path: Bucket belongs entirely to third party media (e.g. WhatsApp Sent, .nomedia folders)
-        val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, mediaType)
+        val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, bucketIds, mediaType)
         if (baseCount == 0 && thirdPartyMedia.isNotEmpty()) {
             val sorted = if (isAscending) thirdPartyMedia.sortedBy { it.dateTaken } else thirdPartyMedia.sortedByDescending { it.dateTaken }
             return@withContext sorted.drop(offset).take(limit)
@@ -117,7 +124,14 @@ class MediaRepositoryImpl @Inject constructor(
         while (resultList.size < limit && !reachedEnd) {
             val remaining = limit - resultList.size
             val fetchBatch = if (remaining == Int.MAX_VALUE) 1000 else minOf(remaining, 1000)
-            val rawMedia = mediaStoreDataSource.fetchMedia(limit = fetchBatch, offset = currentOffset, bucketId = bucketId, isAscending = isAscending, mediaType = mediaType)
+            val rawMedia = mediaStoreDataSource.fetchMedia(
+                limit = fetchBatch,
+                offset = currentOffset,
+                bucketId = bucketId,
+                bucketIds = bucketIds,
+                isAscending = isAscending,
+                mediaType = mediaType
+            )
             if (rawMedia.isEmpty()) {
                 break
             }
@@ -157,8 +171,12 @@ class MediaRepositoryImpl @Inject constructor(
         return@withContext sortedCombined.take(limit)
     }
 
-    override suspend fun getTotalMediaCount(bucketId: Long?, mediaType: MediaTypeFilter): Int = withContext(Dispatchers.IO) {
-        val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, mediaType)
+    override suspend fun getTotalMediaCount(
+        bucketId: Long?,
+        bucketIds: List<Long>?,
+        mediaType: MediaTypeFilter
+    ): Int = withContext(Dispatchers.IO) {
+        val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, bucketIds, mediaType)
         try {
             val relevant = getCleanedThirdPartyMedia(bucketId, mediaType)
             if (baseCount == 0) {
@@ -255,6 +273,9 @@ class MediaRepositoryImpl @Inject constructor(
                         put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, originalName)
                         put(android.provider.MediaStore.MediaColumns.MIME_TYPE, mimeType)
                         put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/Restored")
+                        if (currentMeta.dateTaken > 0L) {
+                            put(android.provider.MediaStore.MediaColumns.DATE_TAKEN, currentMeta.dateTaken)
+                        }
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                             put(android.provider.MediaStore.MediaColumns.IS_PENDING, 1)
                         }

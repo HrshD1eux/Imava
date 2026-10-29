@@ -304,6 +304,8 @@ fun PhotoViewerScreen(
     var showRenameDialog by remember { mutableStateOf(false) }
     var renameInputText by remember { mutableStateOf("") }
     var showVaultConfirmDialog by remember { mutableStateOf(false) }
+    var showVaultSetupRequiredDialog by remember { mutableStateOf(false) }
+    var showVaultUnlockDialogForSetup by remember { mutableStateOf(false) }
     var showSetAsDialog by remember { mutableStateOf(false) }
     var showAlbumCoverChooserDialog by remember { mutableStateOf(false) }
     var showVideoTrimDialog by remember { mutableStateOf(false) }
@@ -1438,11 +1440,21 @@ fun PhotoViewerScreen(
                     Button(
                         onClick = {
                             showVaultConfirmDialog = false
-                            val currentIndex = pagerState.currentPage
-                            val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
-                            deletedMediaIds = deletedMediaIds + item.id
-                            viewModel.activeMediaItem = nextItem
-                            viewModel.toggleHidden(context, item, nextItem)
+                            val vaultPrefs = context.getSharedPreferences("vault_prefs", android.content.Context.MODE_PRIVATE)
+                            val storedPinHash = vaultPrefs.getString("vault_pin_hash", null)
+                            val legacyPin = vaultPrefs.getString("vault_pin", null)
+                            val isVaultDisabled = vaultPrefs.getBoolean("vault_disabled", false)
+                            val isConfigured = !isVaultDisabled && (storedPinHash != null || legacyPin != null)
+
+                            if (!isConfigured) {
+                                showVaultSetupRequiredDialog = true
+                            } else {
+                                val currentIndex = pagerState.currentPage
+                                val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                                deletedMediaIds = deletedMediaIds + item.id
+                                viewModel.activeMediaItem = nextItem
+                                viewModel.toggleHidden(context, item, nextItem)
+                            }
                         }
                     ) {
                         Text("Continue")
@@ -1452,6 +1464,49 @@ fun PhotoViewerScreen(
                     TextButton(onClick = { showVaultConfirmDialog = false }) {
                         Text("Cancel")
                     }
+                }
+            )
+        }
+
+        if (showVaultSetupRequiredDialog) {
+            val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
+            AlertDialog(
+                onDismissRequest = { showVaultSetupRequiredDialog = false },
+                icon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                title = { Text("Vault Setup Required") },
+                text = {
+                    Text("Private Vault has not been set up yet. Please create your master password, PIN, or pattern first so this item can be securely encrypted.")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showVaultSetupRequiredDialog = false
+                            showVaultUnlockDialogForSetup = true
+                        }
+                    ) {
+                        Text("Set Up Vault")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showVaultSetupRequiredDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (showVaultUnlockDialogForSetup) {
+            val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
+            com.hrshd1eux.imava.ui.vault.VaultUnlockDialog(
+                onDismiss = { showVaultUnlockDialogForSetup = false },
+                onUnlockSuccess = {
+                    showVaultUnlockDialogForSetup = false
+                    val currentIndex = pagerState.currentPage
+                    val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                    deletedMediaIds = deletedMediaIds + item.id
+                    viewModel.activeMediaItem = nextItem
+                    viewModel.toggleHidden(context, item, nextItem)
+                    android.widget.Toast.makeText(context, "Item safely protected in your new Vault!", android.widget.Toast.LENGTH_SHORT).show()
                 }
             )
         }

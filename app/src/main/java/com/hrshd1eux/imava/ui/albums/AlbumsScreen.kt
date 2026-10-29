@@ -131,14 +131,14 @@ fun AlbumsScreen(
                 subtitle = "Authenticate to open ${bucket.name}",
                 onSuccess = {
                     com.hrshd1eux.imava.core.util.AppLockManager.markAlbumUnlockedForSession(bucket.id)
-                    viewModel.selectBucket(bucket.id, bucket.name)
+                    viewModel.selectBucket(bucket.id, bucket.name, bucket.mergedBucketIds)
                 },
                 onError = { err ->
                     android.widget.Toast.makeText(context, "Album locked: $err", android.widget.Toast.LENGTH_SHORT).show()
                 }
             )
         } else {
-            viewModel.selectBucket(bucket.id, bucket.name)
+            viewModel.selectBucket(bucket.id, bucket.name, bucket.mergedBucketIds)
         }
     }
 
@@ -529,6 +529,7 @@ fun AlbumsScreen(
                             coverUri = coverUri,
                             title = "${bucket.name} 📌",
                             count = bucket.count,
+                            subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
                             onClick = { openBucket(bucket) },
                             onLongClick = { viewModel.togglePinBucket(bucket.id) }
                         )
@@ -570,12 +571,14 @@ fun AlbumsScreen(
             }
 
             if (visibleBuckets.isEmpty()) {
-                item {
-                    Text(
-                        text = "No albums found",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                if (allMedia.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "No albums found",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             } else {
                 if (numCols == 1) {
@@ -588,6 +591,7 @@ fun AlbumsScreen(
                             coverUri = coverUri,
                             title = bucket.name,
                             count = bucket.count,
+                            subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
                             onClick = { openBucket(bucket) },
                             onLongClick = { activeOptionsBucket = bucket }
                         )
@@ -828,6 +832,14 @@ fun AlbumsScreen(
                     title = { Text("Delete Album '${bucket.name}'?") },
                     text = {
                         Column {
+                            if (bucket.paths.size > 1) {
+                                Text(
+                                    text = "⚠️ This album unifies ${bucket.paths.size} separate folder locations.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                            }
                             Text("Choose how you want to delete this album:")
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -1083,7 +1095,7 @@ fun AlbumGridCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${bucket.count}",
+                    text = if (bucket.paths.size > 1) "${bucket.count} • ${bucket.paths.size} locations" else "${bucket.count}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

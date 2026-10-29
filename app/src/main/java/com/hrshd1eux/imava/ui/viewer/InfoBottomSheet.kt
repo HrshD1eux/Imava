@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -82,6 +83,7 @@ data class ExifDetails(
     val fileName: String,
     val filePath: String,
     val dateTaken: String?,
+    val dateModified: String? = null,
     val cameraModel: String?,
     val resolution: String?,
     val fileSize: String?,
@@ -289,6 +291,15 @@ fun InfoBottomSheet(
                             )
                         }
                     }
+                }
+
+                if (!info.dateModified.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    InfoRow(
+                        icon = Icons.Default.Schedule,
+                        title = "Date Modified",
+                        subtitle = info.dateModified
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -829,11 +840,19 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
         } catch (_: Exception) {}
     }
 
+    val fileObj = File(filePath)
+    val lastModMs = if (fileObj.exists()) fileObj.lastModified() else 0L
+    val diffFromTaken = if (lastModMs > 0L && item.dateTaken > 0L) kotlin.math.abs(lastModMs - item.dateTaken) else 0L
+    val dateModifiedText = if (diffFromTaken > 120_000L) {
+        SimpleDateFormat("dd MMM yyyy · hh:mm a", Locale.getDefault()).format(Date(lastModMs))
+    } else null
+
     if (exif == null) {
         return ExifDetails(
             fileName = fileName,
             filePath = filePath,
             dateTaken = formatDateTaken(null, item.dateTaken),
+            dateModified = dateModifiedText,
             cameraModel = null,
             resolution = "${item.width} × ${item.height}",
             fileSize = com.hrshd1eux.imava.core.util.FormatUtils.formatFileSize(item.size),
@@ -860,6 +879,7 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
             fileName = fileName,
             filePath = filePath,
             dateTaken = formattedDate,
+            dateModified = dateModifiedText,
             cameraModel = modelText,
             resolution = resolutionText,
             fileSize = sizeText,
@@ -873,6 +893,7 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
             fileName = fileName,
             filePath = filePath,
             dateTaken = formatDateTaken(null, item.dateTaken),
+            dateModified = dateModifiedText,
             cameraModel = null,
             resolution = "${item.width} × ${item.height}",
             fileSize = com.hrshd1eux.imava.core.util.FormatUtils.formatFileSize(item.size),
