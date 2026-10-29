@@ -235,7 +235,8 @@ Licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**. See [
 
 ## Author & Contact
 
-- **Author**: HrshD1eux
-- **Email**: `157795651+HrshD1eux@users.noreply.github.com`
+- **Author**: Harsh Pahal ([@HrshD1eux](https://github.com/HrshD1eux))
+- **Portfolio**: [hrshd1eux.vercel.app](https://hrshd1eux.vercel.app/)
+- **Email**: `HrshD1eux@proton.me`
 - **Issue Tracker**: https://github.com/HrshD1eux/Imava/issues
 - **Source Code**: https://github.com/HrshD1eux/Imava

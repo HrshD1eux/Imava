@@ -6,6 +6,7 @@ import android.net.Uri
 import com.hrshd1eux.imava.ui.common.AppUpdateDialog
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Code
@@ -972,12 +973,12 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Harsh (hrshd1eux)",
+                                text = "Harsh Pahal",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Lead Developer & Maintainer",
+                                text = "@HrshD1eux • Lead Developer",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -986,14 +987,14 @@ fun SettingsScreen(
                             onClick = {
                                 try {
                                     val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                        data = Uri.parse("mailto:hrshd1eux@gmail.com")
+                                        data = Uri.parse("mailto:HrshD1eux@proton.me")
                                         putExtra(Intent.EXTRA_SUBJECT, "Imava App Feedback / Inquiry")
                                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                     }
                                     context.startActivity(intent)
                                 } catch (_: Exception) {
                                     try {
-                                        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/hrshd1eux/imava/issues")).apply {
+                                        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HrshD1eux/imava/issues")).apply {
                                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                         }
                                         context.startActivity(webIntent)
@@ -1010,6 +1011,36 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(14.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                     Spacer(modifier = Modifier.height(14.dp))
+
+                    // Developer Portfolio Row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://hrshd1eux.vercel.app/")).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Developer Portfolio", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = "hrshd1eux.vercel.app", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
 
                     // Links & Source Code Rows
                     Row(
