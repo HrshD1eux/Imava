@@ -77,7 +77,6 @@ import com.hrshd1eux.imava.core.util.FormatUtils
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Crop
-import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.MovieFilter
 import androidx.compose.material3.FilledTonalButton
@@ -331,8 +330,6 @@ fun PhotoViewerScreen(
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showCompressDialog by remember { mutableStateOf(false) }
     var showMotionExportDialog by remember { mutableStateOf(false) }
-    var showOcrSheet by remember { mutableStateOf(false) }
-    var ocrRecognizedText by remember { mutableStateOf("") }
     var targetKbInput by remember { mutableStateOf("15") }
     var videoResizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
 
@@ -605,24 +602,6 @@ fun PhotoViewerScreen(
                         }
                     ) {
                         Icon(imageVector = Icons.Default.MovieFilter, contentDescription = "Motion Tools", tint = Color.White)
-                    }
-                }
-
-                if (currentItem is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
-                    IconButton(onClick = {
-                        scope.launch {
-                            android.widget.Toast.makeText(context, "Scanning image for text...", android.widget.Toast.LENGTH_SHORT).show()
-                            val result = com.hrshd1eux.imava.core.util.OcrHelper.recognizeTextFromUri(context, currentItem.uri)
-                            if (result != null && result.fullText.isNotBlank()) {
-                                ocrRecognizedText = result.fullText
-                                showOcrSheet = true
-                                viewModel.saveOcrText(currentItem.id, result.fullText)
-                            } else {
-                                android.widget.Toast.makeText(context, "No readable text detected", android.widget.Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }) {
-                        Icon(imageVector = Icons.Default.DocumentScanner, contentDescription = "Copy Text", tint = Color.White)
                     }
                 }
 
@@ -1870,13 +1849,6 @@ fun PhotoViewerScreen(
                 videoFile = motionVideoFile!!,
                 baseName = baseName,
                 onDismiss = { showMotionExportDialog = false }
-            )
-        }
-
-        if (showOcrSheet && ocrRecognizedText.isNotBlank()) {
-            OcrCopyBottomSheet(
-                recognizedText = ocrRecognizedText,
-                onDismiss = { showOcrSheet = false }
             )
         }
     }

@@ -1832,12 +1832,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun saveOcrText(mediaId: Long, text: String) {
-        viewModelScope.launch {
-            repository.saveOcrText(mediaId, text)
-        }
-    }
-
     fun emptyTrash(context: Context) {
         viewModelScope.launch {
             val trashedItems = trashed.value
@@ -2652,11 +2646,9 @@ class MainViewModel @Inject constructor(
 }
 
 enum class Screen {
-    Photos, Albums, Search, Settings, DuplicateFinder, Map
+    Photos, Albums, Search, Settings, DuplicateFinder
 }
 
 enum class SortOrder {
     NEWEST_FIRST, OLDEST_FIRST
 }
-
-private data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)

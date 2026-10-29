@@ -480,8 +480,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         } else if (viewModel.currentBucketId != null) {
             viewModel.selectBucket(null, null)
             viewModel.currentScreen = Screen.Albums
-        } else if (currentScreen == Screen.Map) {
-            viewModel.currentScreen = Screen.Albums
         } else if (currentScreen != Screen.Photos) {
             viewModel.currentScreen = Screen.Photos
         }
@@ -525,7 +523,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             slideshowItems != null ||
             showStorageDoctor ||
             currentScreen == Screen.DuplicateFinder ||
-            currentScreen == Screen.Map ||
             currentScreen == Screen.Search
 
     Scaffold(
@@ -918,7 +915,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         Screen.Albums -> AlbumsScreen(
                             viewModel = viewModel,
                             onStorageDoctorClick = { showStorageDoctor = true },
-                            onMapExplorerClick = { viewModel.currentScreen = Screen.Map }
                         )
                         Screen.Settings -> com.hrshd1eux.imava.ui.settings.SettingsScreen(viewModel = viewModel)
                         else -> TimelineScreen(viewModel = viewModel)
@@ -942,24 +938,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 com.hrshd1eux.imava.ui.search.DuplicateFinderScreen(
                     viewModel = viewModel,
                     onBackClick = { viewModel.currentScreen = Screen.Albums }
-                )
-            }
-
-            AnimatedVisibility(
-                visible = currentScreen == Screen.Map,
-                enter = fadeIn() + scaleIn(initialScale = 0.95f),
-                exit = fadeOut() + scaleOut(targetScale = 0.95f)
-            ) {
-                val allMedia by viewModel.visibleMediaItems.collectAsState()
-                com.hrshd1eux.imava.ui.map.MapExplorerScreen(
-                    mediaItems = allMedia,
-                    onBack = { viewModel.currentScreen = Screen.Albums },
-                    onPhotoClick = { mediaId ->
-                        val item = allMedia.find { it.id == mediaId }
-                        if (item != null) {
-                            viewModel.activeMediaItem = item
-                        }
-                    }
                 )
             }
 

@@ -23,6 +23,40 @@ import javax.inject.Inject
 
 private const val QUERY_ARG_MATCH_NOMEDIA = "android:query-arg-match-nomedia"
 
+private val THIRD_PARTY_PATH_PATTERNS = arrayOf(
+    "%/WhatsApp/%Sent/%",
+    "%/WhatsApp/%Private/%",
+    "%/WhatsApp/%Animated Gifs/%",
+    "%/WhatsApp/%.Shared/%",
+    "%/WhatsApp/%Stickers/%",
+    "%/WhatsApp Business/%Sent/%",
+    "%/WhatsApp Business/%Private/%",
+    "%/GBWhatsApp/%",
+    "%/FMWhatsApp/%",
+    "%/YoWhatsApp/%",
+    "%/WhatsApp Plus/%",
+    "%/Telegram/%",
+    "%/Discord/%",
+    "%/Snapchat/%",
+    "%/Signal/%",
+    "%/Viber/%",
+    "%/%.hidden/%",
+    "%/%.secret/%",
+    "%/%.vault/%",
+    "%/%.private/%",
+    "%/%.calculator/%",
+    "%/%.nomedia%"
+)
+
+private val THIRD_PARTY_SELECTION: String by lazy {
+    val pathConditions = THIRD_PARTY_PATH_PATTERNS.joinToString(" OR ") {
+        "${MediaStore.Files.FileColumns.DATA} LIKE ?"
+    }
+    val imageExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.gif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heic' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.bmp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.dng')"
+    val videoExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mkv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mov' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avi' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webm' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3gp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m4v')"
+    "($pathConditions) AND ($imageExtensions OR $videoExtensions OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
+}
+
 data class DeepScanResult(
     val newCount: Int,
     val totalCount: Int
@@ -664,40 +698,8 @@ class MediaStoreDataSource @Inject constructor(
         }
         val projection = projectionList.toTypedArray()
 
-        val pathPatterns = listOf(
-            "%/WhatsApp/%Sent/%",
-            "%/WhatsApp/%Private/%",
-            "%/WhatsApp/%Animated Gifs/%",
-            "%/WhatsApp/%.Shared/%",
-            "%/WhatsApp/%Stickers/%",
-            "%/WhatsApp Business/%Sent/%",
-            "%/WhatsApp Business/%Private/%",
-            "%/GBWhatsApp/%",
-            "%/FMWhatsApp/%",
-            "%/YoWhatsApp/%",
-            "%/WhatsApp Plus/%",
-            "%/Telegram/%",
-            "%/Discord/%",
-            "%/Snapchat/%",
-            "%/Signal/%",
-            "%/Viber/%",
-            "%/%.hidden/%",
-            "%/%.secret/%",
-            "%/%.vault/%",
-            "%/%.private/%",
-            "%/%.calculator/%",
-            "%/%.nomedia%"
-        )
-
-        val pathConditions = pathPatterns.joinToString(" OR ") {
-            "${MediaStore.Files.FileColumns.DATA} LIKE ?"
-        }
-
-        val imageExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.gif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heic' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.bmp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.dng')"
-        val videoExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mkv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mov' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avi' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webm' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3gp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m4v')"
-
-        val selection = "($pathConditions) AND ($imageExtensions OR $videoExtensions OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
-        val selectionArgs = pathPatterns.toTypedArray()
+        val selection = THIRD_PARTY_SELECTION
+        val selectionArgs = THIRD_PARTY_PATH_PATTERNS
 
         val cursor = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

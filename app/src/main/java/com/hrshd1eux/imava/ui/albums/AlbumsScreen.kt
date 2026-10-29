@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -83,8 +82,7 @@ import com.hrshd1eux.imava.ui.MainViewModel
 fun AlbumsScreen(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier,
-    onStorageDoctorClick: () -> Unit = {},
-    onMapExplorerClick: () -> Unit = {}
+    onStorageDoctorClick: () -> Unit = {}
 ) {
     val favorites by viewModel.favorites.collectAsState()
     val trashed by viewModel.trashed.collectAsState()
@@ -399,17 +397,6 @@ fun AlbumsScreen(
                     onClick = {
                         viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.DuplicateFinder
                     }
-                )
-            }
-
-            item {
-                AlbumRowItem(
-                    icon = Icons.Default.Map,
-                    title = "Photo Map 🗺️",
-                    count = 0,
-                    subtitle = "Explore photos plotted geographically",
-                    actionLabel = "Explore ↗",
-                    onClick = onMapExplorerClick
                 )
             }
 
