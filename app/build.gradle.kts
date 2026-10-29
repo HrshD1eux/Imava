@@ -29,6 +29,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        manifestPlaceholders["appName"] = "Imava"
     }
 
     signingConfigs {
@@ -49,6 +50,7 @@ android {
 
     buildTypes {
         release {
+            manifestPlaceholders["appName"] = "Imava"
             isMinifyEnabled = true
             isShrinkResources = true
             val releaseSigning = signingConfigs.findByName("release")
@@ -59,6 +61,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            manifestPlaceholders["appName"] = "Imava (Debug)"
         }
     }
     testOptions {
