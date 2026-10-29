@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.draw.shadow
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -580,76 +579,13 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 3. Private Vault Security Group
-            SettingsCategoryHeader(title = "Private Vault Security", icon = Icons.Default.Lock)
+            // 3. Storage Cleaners & Maintenance Group
+            SettingsCategoryHeader(title = "Storage Cleaners & Maintenance", icon = Icons.Default.Delete)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.VaultSettings
-                        }
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Vault Security & Encryption 🔒",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "Master password, decoy PIN, stealth trigger, and encrypted container backup",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
-                val vaultPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
-                var shakeLockEnabled by remember { mutableStateOf(vaultPrefs.getBoolean("vault_shake_lock_enabled", true)) }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Emergency Shake-to-Lock Vault ⚡🔒",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "Instantly lock and exit Hidden Vault when your phone is shaken",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = shakeLockEnabled,
-                        onCheckedChange = { enabled ->
-                            shakeLockEnabled = enabled
-                            vaultPrefs.edit().putBoolean("vault_shake_lock_enabled", enabled).apply()
-                            if (enabled) {
-                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            }
-                        }
-                    )
-                }
-
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
                 val secureShredEnabled by viewModel.isSecureShredEnabled.collectAsState()
 
                 Row(
@@ -679,17 +615,9 @@ fun SettingsScreen(
                         }
                     )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            // 4. Storage Cleaners & Maintenance Group
-            SettingsCategoryHeader(title = "Storage Cleaners & Maintenance", icon = Icons.Default.Delete)
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
                 var isPurgingThumbnails by remember { mutableStateOf(false) }
                 val purgeScope = rememberCoroutineScope()
 
@@ -986,10 +914,9 @@ fun SettingsScreen(
         item {
             SettingsCategoryHeader(title = "About & Legal", icon = Icons.Default.Info)
 
-            OutlinedCard(
+            Card(
                 shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
-                colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))

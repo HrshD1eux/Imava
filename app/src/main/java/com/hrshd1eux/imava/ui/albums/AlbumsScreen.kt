@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CleaningServices
@@ -699,10 +698,9 @@ fun AlbumsScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         // Section 1: Organization
-                        OutlinedCard(
+                        Card(
                             shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(6.dp)) {
@@ -774,10 +772,9 @@ fun AlbumsScreen(
                         }
 
                         // Section 2: Privacy & Protection
-                        OutlinedCard(
+                        Card(
                             shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(6.dp)) {
@@ -887,10 +884,9 @@ fun AlbumsScreen(
 
                         // Section 3: Danger Zone (Custom Albums only)
                         if (!isRootSystemAlbum) {
-                            OutlinedCard(
+                            Card(
                                 shape = RoundedCornerShape(16.dp),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
-                                colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f)),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(

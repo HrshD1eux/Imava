@@ -767,13 +767,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 onDismissRequest = { showVaultMenu = false },
                                 modifier = Modifier
                                     .widthIn(min = 250.dp, max = 290.dp)
-                                    .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp))
+                                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
                                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
                             ) {
                                 DropdownMenuItem(
                                     text = {
@@ -947,13 +942,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         onDismissRequest = { showSelectionMorePopup = false },
                                         modifier = Modifier
                                             .widthIn(min = 250.dp, max = 290.dp)
-                                            .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp))
+                                            .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
                                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                                            .border(
-                                                width = 1.dp,
-                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                                shape = RoundedCornerShape(16.dp)
-                                            )
                                     ) {
                                         DropdownMenuItem(
                                             text = {
@@ -1063,13 +1053,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         onDismissRequest = { showSelectionMorePopup = false },
                                         modifier = Modifier
                                             .widthIn(min = 250.dp, max = 290.dp)
-                                            .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp))
+                                            .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
                                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                                            .border(
-                                                width = 1.dp,
-                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                                shape = RoundedCornerShape(16.dp)
-                                            )
                                     ) {
                                         DropdownMenuItem(
                                             text = {
