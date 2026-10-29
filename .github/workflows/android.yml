@@ -139,6 +139,10 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           
+          # Fetch and rebase to guarantee latest remote commits
+          git fetch origin ${{ github.ref_name }}
+          git pull --rebase origin ${{ github.ref_name }} || true
+          
           python3 -c "
           import re
           with open('app/build.gradle.kts', 'r') as f:
@@ -166,4 +170,8 @@ jobs:
           
           git add app/build.gradle.kts
           git commit -m "chore: bump version for next build [skip ci]" || echo "No changes to commit"
-          git push origin HEAD:${{ github.ref_name }}
+          
+          # Resilient push with rebase retry
+          for i in 1 2 3; do
+            git pull --rebase origin ${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }} && break || sleep 2
+          done

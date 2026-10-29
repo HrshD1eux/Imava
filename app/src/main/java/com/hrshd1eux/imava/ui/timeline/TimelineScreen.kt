@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -39,8 +40,15 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.rememberUpdatedState
+import kotlin.math.roundToInt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
@@ -426,9 +434,7 @@ fun TimelineFilterChips(
     }
     var chipHiddenStr by remember { mutableStateOf(galleryPrefs.getString("timeline_chip_hidden", "") ?: "") }
 
-    var showAddTagFilterDialog by remember { mutableStateOf(false) }
     var showManageDialog by remember { mutableStateOf(false) }
-    var tagFilterInput by remember { mutableStateOf("") }
 
     val allChipsMap = remember(availableTags, selectedCustomTag) {
         val map = LinkedHashMap<String, TimelineFilterChipModel>()
@@ -480,6 +486,18 @@ fun TimelineFilterChips(
         var workingActive by remember { mutableStateOf(activeChips) }
         var workingHidden by remember { mutableStateOf(hiddenChips) }
 
+        var isAddingTag by remember { mutableStateOf(false) }
+        var newTagInput by remember { mutableStateOf("") }
+
+        var editingChip by remember { mutableStateOf<TimelineFilterChipModel?>(null) }
+        var editTagInput by remember { mutableStateOf("") }
+
+        var draggedIndex by remember { mutableStateOf<Int?>(null) }
+        var dragAccumulatedY by remember { mutableStateOf(0f) }
+
+        val density = LocalDensity.current
+        val estimatedRowHeightPx = with(density) { 52.dp.toPx() }
+
         AlertDialog(
             onDismissRequest = { showManageDialog = false },
             shape = RoundedCornerShape(20.dp),
@@ -502,7 +520,7 @@ fun TimelineFilterChips(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "Rearrange order (Move Left / Move Right) or delete filters. You can hide or delete any item including RAW, GIFs, Screenshots, categories, and custom tags.",
+                        text = "Long-press and drag any item to reorder it. Tap Delete to hide any filter (including RAW, GIFs, and defaults), or tap '+ Add Tag' to add custom tag filters.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -544,129 +562,304 @@ fun TimelineFilterChips(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    Text(
-                        text = "Active Filters (${workingActive.size})",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Active Filters (${workingActive.size})",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    workingActive.forEachIndexed { index, chip ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 3.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        OutlinedButton(
+                            onClick = {
+                                isAddingTag = !isAddingTag
+                                if (!isAddingTag) newTagInput = ""
+                            },
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
+                            shape = RoundedCornerShape(8.dp)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text(
-                                            text = "${index + 1}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
+                            Icon(
+                                imageVector = if (isAddingTag) Icons.Default.Close else Icons.Default.Add,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = if (isAddingTag) "Close" else "+ Add Tag",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
+                    }
+
+                    if (isAddingTag) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "Add Tag Filter",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                OutlinedTextField(
+                                    value = newTagInput,
+                                    onValueChange = { newTagInput = it },
+                                    placeholder = { Text("e.g. Vacation, Receipts, Work") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                val activeTagNames = workingActive.mapNotNull { it.customTag?.lowercase() }.toSet()
+                                val availableSuggestions = availableTags.map { it.trim() }.filter { it.isNotBlank() && !activeTagNames.contains(it.lowercase()) }
+
+                                if (availableSuggestions.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "Suggestions from media:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        items(availableSuggestions) { tag ->
+                                            FilterChip(
+                                                selected = false,
+                                                onClick = {
+                                                    val tagId = "TAG_${tag.lowercase()}"
+                                                    val newChip = TimelineFilterChipModel(
+                                                        id = tagId,
+                                                        label = "#$tag",
+                                                        isCustomTag = true,
+                                                        customTag = tag
+                                                    )
+                                                    val mutableActive = workingActive.toMutableList()
+                                                    if (!mutableActive.any { it.id.equals(tagId, ignoreCase = true) }) {
+                                                        mutableActive.add(newChip)
+                                                        workingActive = mutableActive
+                                                    }
+                                                    val mutableHidden = workingHidden.toMutableList()
+                                                    mutableHidden.removeAll { it.id.equals(tagId, ignoreCase = true) }
+                                                    workingHidden = mutableHidden
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                                    newTagInput = ""
+                                                    isAddingTag = false
+                                                },
+                                                label = { Text("#$tag", style = MaterialTheme.typography.labelSmall) }
+                                            )
+                                        }
                                     }
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                if (chip.isCustomTag) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.Label,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(16.dp)
-                                    )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    TextButton(onClick = {
+                                        isAddingTag = false
+                                        newTagInput = ""
+                                    }) {
+                                        Text("Cancel")
+                                    }
                                     Spacer(modifier = Modifier.width(4.dp))
-                                }
-                                Text(
-                                    text = chip.label,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(
-                                    onClick = {
-                                        if (index > 0) {
-                                            val mutable = workingActive.toMutableList()
-                                            val temp = mutable[index]
-                                            mutable[index] = mutable[index - 1]
-                                            mutable[index - 1] = temp
-                                            workingActive = mutable
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                        }
-                                    },
-                                    enabled = index > 0,
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Move Left",
-                                        tint = if (index > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = {
-                                        if (index < workingActive.size - 1) {
-                                            val mutable = workingActive.toMutableList()
-                                            val temp = mutable[index]
-                                            mutable[index] = mutable[index + 1]
-                                            mutable[index + 1] = temp
-                                            workingActive = mutable
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                        }
-                                    },
-                                    enabled = index < workingActive.size - 1,
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                        contentDescription = "Move Right",
-                                        tint = if (index < workingActive.size - 1) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = {
-                                        if (workingActive.size > 1) {
-                                            val mutableActive = workingActive.toMutableList()
-                                            val removed = mutableActive.removeAt(index)
-                                            workingActive = mutableActive
-                                            val mutableHidden = workingHidden.toMutableList()
-                                            if (!mutableHidden.any { it.id.equals(removed.id, ignoreCase = true) }) {
-                                                mutableHidden.add(removed)
+                                    Button(
+                                        onClick = {
+                                            val clean = newTagInput.trim().removePrefix("#")
+                                            if (clean.isNotBlank()) {
+                                                val tagId = "TAG_${clean.lowercase()}"
+                                                val newChip = TimelineFilterChipModel(
+                                                    id = tagId,
+                                                    label = "#$clean",
+                                                    isCustomTag = true,
+                                                    customTag = clean
+                                                )
+                                                val mutableActive = workingActive.toMutableList()
+                                                if (!mutableActive.any { it.id.equals(tagId, ignoreCase = true) }) {
+                                                    mutableActive.add(newChip)
+                                                    workingActive = mutableActive
+                                                }
+                                                val mutableHidden = workingHidden.toMutableList()
+                                                mutableHidden.removeAll { it.id.equals(tagId, ignoreCase = true) }
+                                                workingHidden = mutableHidden
+                                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                                newTagInput = ""
+                                                isAddingTag = false
                                             }
-                                            workingHidden = mutableHidden
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                        }
-                                    },
-                                    enabled = workingActive.size > 1,
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Hide or Delete filter",
-                                        tint = if (workingActive.size > 1) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                        modifier = Modifier.size(18.dp)
-                                    )
+                                        },
+                                        enabled = newTagInput.trim().removePrefix("#").isNotBlank()
+                                    ) {
+                                        Text("Add")
+                                    }
                                 }
                             }
                         }
-                        if (index < workingActive.size - 1) {
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    workingActive.forEachIndexed { index, chip ->
+                        val currentItemIndex by rememberUpdatedState(index)
+                        val isDragging = draggedIndex == index
+                        val elevation = if (isDragging) 8.dp else 0.dp
+
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 3.dp)
+                                .zIndex(if (isDragging) 10f else 1f)
+                                .offset { IntOffset(0, if (isDragging) dragAccumulatedY.roundToInt() else 0) },
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isDragging) {
+                                MaterialTheme.colorScheme.primaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                            },
+                            shadowElevation = elevation
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .pointerInput(Unit) {
+                                            detectDragGesturesAfterLongPress(
+                                                onDragStart = {
+                                                    draggedIndex = currentItemIndex
+                                                    dragAccumulatedY = 0f
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
+                                                },
+                                                onDrag = { change, dragAmount ->
+                                                    change.consume()
+                                                    dragAccumulatedY += dragAmount.y
+                                                    val currentIdx = draggedIndex ?: return@detectDragGesturesAfterLongPress
+                                                    if (dragAccumulatedY > estimatedRowHeightPx && currentIdx < workingActive.size - 1) {
+                                                        val mutable = workingActive.toMutableList()
+                                                        val item = mutable.removeAt(currentIdx)
+                                                        mutable.add(currentIdx + 1, item)
+                                                        workingActive = mutable
+                                                        draggedIndex = currentIdx + 1
+                                                        dragAccumulatedY -= estimatedRowHeightPx
+                                                        com.hrshd1eux.imava.core.util.HapticUtil.performTick(context)
+                                                    } else if (dragAccumulatedY < -estimatedRowHeightPx && currentIdx > 0) {
+                                                        val mutable = workingActive.toMutableList()
+                                                        val item = mutable.removeAt(currentIdx)
+                                                        mutable.add(currentIdx - 1, item)
+                                                        workingActive = mutable
+                                                        draggedIndex = currentIdx - 1
+                                                        dragAccumulatedY += estimatedRowHeightPx
+                                                        com.hrshd1eux.imava.core.util.HapticUtil.performTick(context)
+                                                    }
+                                                },
+                                                onDragEnd = {
+                                                    draggedIndex = null
+                                                    dragAccumulatedY = 0f
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
+                                                },
+                                                onDragCancel = {
+                                                    draggedIndex = null
+                                                    dragAccumulatedY = 0f
+                                                }
+                                            )
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DragHandle,
+                                        contentDescription = "Long press and drag to reorder",
+                                        tint = if (isDragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (isDragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = "${index + 1}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                color = if (isDragging) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    if (chip.isCustomTag) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.Label,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                    Text(
+                                        text = chip.label,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (chip.isCustomTag) {
+                                        IconButton(
+                                            onClick = {
+                                                editingChip = chip
+                                                editTagInput = chip.customTag ?: chip.label.removePrefix("#")
+                                            },
+                                            modifier = Modifier.size(32.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = "Edit tag",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(2.dp))
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            if (workingActive.size > 1) {
+                                                val mutableActive = workingActive.toMutableList()
+                                                val removed = mutableActive.removeAt(index)
+                                                workingActive = mutableActive
+                                                val mutableHidden = workingHidden.toMutableList()
+                                                if (!mutableHidden.any { it.id.equals(removed.id, ignoreCase = true) }) {
+                                                    mutableHidden.add(removed)
+                                                }
+                                                workingHidden = mutableHidden
+                                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                            }
+                                        },
+                                        enabled = workingActive.size > 1,
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Hide or Delete filter",
+                                            tint = if (workingActive.size > 1) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -764,100 +957,77 @@ fun TimelineFilterChips(
                 }
             }
         )
-    }
 
-    if (showAddTagFilterDialog) {
-        AlertDialog(
-            onDismissRequest = { showAddTagFilterDialog = false },
-            shape = RoundedCornerShape(20.dp),
-            title = { Text("Filter by Tag") },
-            text = {
-                Column {
-                    Text(
-                        text = "Enter a tag to search photos with that tag:",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(
-                        value = tagFilterInput,
-                        onValueChange = { tagFilterInput = it },
-                        placeholder = { Text("e.g. vacation, family") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    val existingTags = availableTags.filter { it.isNotBlank() }
-                    if (existingTags.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "Existing Tags:",
-                            style = MaterialTheme.typography.labelMedium
+        if (editingChip != null) {
+            val chipToEdit = editingChip!!
+            AlertDialog(
+                onDismissRequest = { editingChip = null },
+                shape = RoundedCornerShape(16.dp),
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            items(existingTags) { tag ->
-                                FilterChip(
-                                    selected = false,
-                                    onClick = {
-                                        tagFilterInput = tag
-                                        showAddTagFilterDialog = false
-                                        onCustomTagSelected(tag)
-                                        val tagId = "TAG_${tag.lowercase()}"
-                                        val currentHidden = chipHiddenStr.split(",").map { it.trim() }.filter { it.isNotEmpty() && !it.equals(tagId, ignoreCase = true) }
-                                        val newHiddenStr = currentHidden.joinToString(",")
-                                        val currentOrder = chipOrderStr.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
-                                        if (!currentOrder.any { it.equals(tagId, ignoreCase = true) }) {
-                                            currentOrder.add(tagId)
-                                        }
-                                        val newOrderStr = currentOrder.joinToString(",")
-                                        galleryPrefs.edit()
-                                            .putString("timeline_chip_order", newOrderStr)
-                                            .putString("timeline_chip_hidden", newHiddenStr)
-                                            .apply()
-                                        chipOrderStr = newOrderStr
-                                        chipHiddenStr = newHiddenStr
-                                    },
-                                    label = { Text("#$tag") }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Edit Tag")
+                    }
+                },
+                text = {
+                    Column {
+                        Text(
+                            text = "Rename tag '${chipToEdit.label}':",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(
+                            value = editTagInput,
+                            onValueChange = { editTagInput = it },
+                            placeholder = { Text("Tag name") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val clean = editTagInput.trim().removePrefix("#")
+                            if (clean.isNotBlank()) {
+                                val newId = "TAG_${clean.lowercase()}"
+                                val updatedChip = chipToEdit.copy(
+                                    id = newId,
+                                    label = "#$clean",
+                                    customTag = clean
                                 )
+                                val mutableActive = workingActive.toMutableList()
+                                val idx = mutableActive.indexOfFirst { it.id.equals(chipToEdit.id, ignoreCase = true) }
+                                if (idx >= 0) {
+                                    mutableActive[idx] = updatedChip
+                                    workingActive = mutableActive
+                                }
+                                if (selectedCustomTag != null && selectedCustomTag.equals(chipToEdit.customTag, ignoreCase = true)) {
+                                    onCustomTagSelected(clean)
+                                }
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                editingChip = null
                             }
-                        }
+                        },
+                        enabled = editTagInput.trim().removePrefix("#").isNotBlank()
+                    ) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { editingChip = null }) {
+                        Text("Cancel")
                     }
                 }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        val clean = tagFilterInput.trim().removePrefix("#")
-                        if (clean.isNotBlank()) {
-                            showAddTagFilterDialog = false
-                            onCustomTagSelected(clean)
-                            val tagId = "TAG_${clean.lowercase()}"
-                            val currentHidden = chipHiddenStr.split(",").map { it.trim() }.filter { it.isNotEmpty() && !it.equals(tagId, ignoreCase = true) }
-                            val newHiddenStr = currentHidden.joinToString(",")
-                            val currentOrder = chipOrderStr.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
-                            if (!currentOrder.any { it.equals(tagId, ignoreCase = true) }) {
-                                currentOrder.add(tagId)
-                            }
-                            val newOrderStr = currentOrder.joinToString(",")
-                            galleryPrefs.edit()
-                                .putString("timeline_chip_order", newOrderStr)
-                                .putString("timeline_chip_hidden", newHiddenStr)
-                                .apply()
-                            chipOrderStr = newOrderStr
-                            chipHiddenStr = newHiddenStr
-                        }
-                    },
-                    enabled = tagFilterInput.isNotBlank()
-                ) {
-                    Text("Filter")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddTagFilterDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
+            )
+        }
     }
 
     LazyRow(
@@ -916,23 +1086,6 @@ fun TimelineFilterChips(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-            )
-        }
-
-        // "+ Tag" Chip to add custom tag filter
-        item(key = "add_tag_filter_chip") {
-            FilterChip(
-                selected = false,
-                onClick = { showAddTagFilterDialog = true },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                },
-                label = { Text("Tag", style = MaterialTheme.typography.labelMedium) }
             )
         }
 

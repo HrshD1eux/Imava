@@ -535,7 +535,7 @@ fun AlbumsScreen(
                             count = bucket.count,
                             subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
                             onClick = { openBucket(bucket) },
-                            onLongClick = { viewModel.togglePinBucket(bucket.id) }
+                            onLongClick = { activeOptionsBucket = bucket }
                         )
                     }
                 } else {
@@ -557,7 +557,7 @@ fun AlbumsScreen(
                                         coverUri = coverUri,
                                         isPinned = true,
                                         onClick = { openBucket(bucket) },
-                                        onLongClick = { viewModel.togglePinBucket(bucket.id) },
+                                        onLongClick = { activeOptionsBucket = bucket },
                                         layoutMode = albumLayoutMode
                                     )
                                 }
@@ -1132,10 +1132,17 @@ fun AlbumGridCard(
     onLongClick: () -> Unit,
     layoutMode: MainViewModel.AlbumLayoutMode
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    onLongClick()
+                }
+            ),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
@@ -1229,12 +1236,19 @@ fun AlbumRowItem(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .then(
                 if (onLongClick != null) {
-                    Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                    Modifier.combinedClickable(
+                        onClick = onClick,
+                        onLongClick = {
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                            onLongClick()
+                        }
+                    )
                 } else {
                     Modifier.clickable(onClick = onClick)
                 }

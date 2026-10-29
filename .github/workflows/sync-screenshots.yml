@@ -34,7 +34,9 @@ jobs:
           if [ -n "$(git status --porcelain docs/ README.md)" ]; then
             git add docs/screenshots/ docs/index.html README.md
             git commit -m "chore: auto-sync screenshots to website and README [skip ci]"
-            git push
+            for i in 1 2 3; do
+              git pull --rebase origin ${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }} && break || sleep 2
+            done
             echo "Successfully committed and pushed updated screenshots."
           else
             echo "Everything already in sync. No changes."
