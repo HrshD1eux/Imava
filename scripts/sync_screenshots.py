@@ -55,11 +55,22 @@ PRIORITY_ORDER = {
 
 ACRONYMS = {'ocr': 'OCR', 'gps': 'GPS', 'exif': 'EXIF', 'ai': 'AI', 'ui': 'UI', 'apk': 'APK', 'gif': 'GIF', 'mp4': 'MP4'}
 TITLE_ALIASES = {
-    'photo': 'Photos',
-    'photos': 'Photos',
-    'album': 'Albums',
-    'albums': 'Albums',
-    'vault': 'Vault',
+    '01_photos': 'Photos Timeline',
+    'photos': 'Photos Timeline',
+    '02_albums': 'Albums & Memories',
+    'albums': 'Albums & Memories',
+    '03_selection': 'Batch Selection & Tools',
+    'selection': 'Batch Selection & Tools',
+    '04_tag_manager': 'Filter & Tag Manager',
+    'tag_manager': 'Filter & Tag Manager',
+    '05_vault_setup': 'Hardware Encrypted Vault',
+    'vault_setup': 'Hardware Encrypted Vault',
+    '06_privacy_shield': 'App Switcher Shield',
+    'privacy_shield': 'App Switcher Shield',
+    '07_about_legal': 'About & FOSS Transparency',
+    'about_legal': 'About & FOSS Transparency',
+    '08_album_privacy': 'Album Privacy & Security',
+    'album_privacy': 'Album Privacy & Security',
     'setting': 'Settings',
     'settings': 'Settings',
 }
@@ -75,6 +86,9 @@ def format_title(filename: str) -> str:
     lower_stem = stem.lower()
     if lower_stem in TITLE_ALIASES:
         return TITLE_ALIASES[lower_stem]
+    cleaned = re.sub(r'^\d+[-_]', '', lower_stem)
+    if cleaned in TITLE_ALIASES:
+        return TITLE_ALIASES[cleaned]
 
     words = re.split(r'[-_\s]+', stem)
     result = []

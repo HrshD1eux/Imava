@@ -17,20 +17,38 @@
   <table>
     <tr>
       <td align="center" width="25%">
-        <b>Photos</b><br><br>
-        <img src="screenshots/photos.png" width="100%" alt="Photos" />
+        <b>Photos Timeline</b><br><br>
+        <img src="screenshots/01_photos.png" width="100%" alt="Photos Timeline" />
       </td>
       <td align="center" width="25%">
-        <b>Albums</b><br><br>
-        <img src="screenshots/album.png" width="100%" alt="Albums" />
+        <b>Albums & Memories</b><br><br>
+        <img src="screenshots/02_albums.png" width="100%" alt="Albums & Memories" />
       </td>
       <td align="center" width="25%">
-        <b>Vault</b><br><br>
-        <img src="screenshots/vault.png" width="100%" alt="Vault" />
+        <b>Batch Selection & Tools</b><br><br>
+        <img src="screenshots/03_selection.png" width="100%" alt="Batch Selection & Tools" />
       </td>
       <td align="center" width="25%">
-        <b>Settings</b><br><br>
-        <img src="screenshots/setting.png" width="100%" alt="Settings" />
+        <b>Filter & Tag Manager</b><br><br>
+        <img src="screenshots/04_tag_manager.png" width="100%" alt="Filter & Tag Manager" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="25%">
+        <b>Hardware Encrypted Vault</b><br><br>
+        <img src="screenshots/05_vault_setup.png" width="100%" alt="Hardware Encrypted Vault" />
+      </td>
+      <td align="center" width="25%">
+        <b>App Switcher Shield</b><br><br>
+        <img src="screenshots/06_privacy_shield.png" width="100%" alt="App Switcher Shield" />
+      </td>
+      <td align="center" width="25%">
+        <b>About & FOSS Transparency</b><br><br>
+        <img src="screenshots/07_about_legal.png" width="100%" alt="About & FOSS Transparency" />
+      </td>
+      <td align="center" width="25%">
+        <b>Album Privacy & Security</b><br><br>
+        <img src="screenshots/08_album_privacy.png" width="100%" alt="Album Privacy & Security" />
       </td>
     </tr>
   </table>
