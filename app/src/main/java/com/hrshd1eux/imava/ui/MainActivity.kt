@@ -49,6 +49,9 @@ import androidx.compose.foundation.border
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.layout.widthIn
 import com.hrshd1eux.imava.ui.common.BulkCompressDialog
+import com.hrshd1eux.imava.ui.common.BulkTagDialog
+import com.hrshd1eux.imava.ui.common.DescriptiveIconButton
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
@@ -384,6 +387,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var pendingMoveToVaultIds by remember { androidx.compose.runtime.mutableStateOf(emptySet<Long>()) }
     var showSelectionMorePopup by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showBulkCompressDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showBulkTagDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showScrubCurrentAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var isScrubbingCurrentAlbum by remember { androidx.compose.runtime.mutableStateOf(false) }
     var currentAlbumScrubProgress by remember { androidx.compose.runtime.mutableStateOf(0) }
@@ -642,18 +646,22 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 },
                 actions = {
                     if (currentScreen == Screen.Photos) {
-                        IconButton(onClick = { viewModel.toggleGridStyle() }) {
+                        DescriptiveIconButton(
+                            onClick = { viewModel.toggleGridStyle() },
+                            title = "Grid Layout",
+                            description = if (viewModel.gridStyle == GridStyle.SQUARE) "Current: Square grid. Tap to switch to adaptive ratio." else "Current: Adaptive aspect ratio. Tap to switch to square."
+                        ) {
                             Icon(
-                                imageVector = if (viewModel.gridStyle == GridStyle.SQUARE) {
-                                    Icons.Default.CropSquare
-                                } else {
-                                    Icons.Default.GridView
-                                },
+                                imageVector = if (viewModel.gridStyle == GridStyle.SQUARE) Icons.Default.CropSquare else Icons.Default.GridView,
                                 contentDescription = "Toggle Grid Style"
                             )
                         }
 
-                        IconButton(onClick = { viewModel.toggleSortOrder() }) {
+                        DescriptiveIconButton(
+                            onClick = { viewModel.toggleSortOrder() },
+                            title = "Sort Order",
+                            description = if (viewModel.sortOrder == SortOrder.NEWEST_FIRST) "Current: Newest first. Tap to show oldest first." else "Current: Oldest first. Tap to show newest first."
+                        ) {
                             Icon(
                                 imageVector = androidx.compose.material.icons.Icons.Default.SwapVert,
                                 contentDescription = if (viewModel.sortOrder == SortOrder.NEWEST_FIRST) "Newest First" else "Oldest First",
@@ -661,13 +669,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             )
                         }
 
-                        IconButton(onClick = { viewModel.toggleSortMode() }) {
+                        DescriptiveIconButton(
+                            onClick = { viewModel.toggleSortMode() },
+                            title = "View Mode",
+                            description = if (viewModel.sortMode == TimelineSortMode.DATE_GROUPED) "Current: Grouped by date. Tap for continuous stream." else "Current: Continuous stream. Tap to group by date."
+                        ) {
                             Icon(
-                                imageVector = if (viewModel.sortMode == TimelineSortMode.DATE_GROUPED) {
-                                    Icons.Default.DateRange
-                                } else {
-                                    Icons.Default.ViewStream
-                                },
+                                imageVector = if (viewModel.sortMode == TimelineSortMode.DATE_GROUPED) Icons.Default.DateRange else Icons.Default.ViewStream,
                                 contentDescription = "Toggle Sort Mode"
                             )
                         }
@@ -939,6 +947,22 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             onClick = {
                                                 showSelectionMorePopup = false
                                                 showBulkCompressDialog = true
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Manage Tags", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Add or remove tags for selected items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                showBulkTagDialog = true
                                             }
                                         )
 
@@ -1672,6 +1696,32 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 showBulkCompressDialog = false
                 selectionState.clear()
                 viewModel.refreshAll()
+            }
+        )
+    }
+
+    if (showBulkTagDialog) {
+        val selectedIds = selectionState.selectedIds
+        val selectedIdsSet = remember(selectedIds) { selectedIds.toSet() }
+        val allVisible by viewModel.visibleMediaItems.collectAsState()
+        val selectedItems = remember(selectedIdsSet, allVisible) {
+            allVisible.filter { selectedIdsSet.contains(it.id) }
+        }
+        val distinctTags by viewModel.allDistinctTags.collectAsState()
+
+        BulkTagDialog(
+            selectedItems = selectedItems,
+            allExistingTags = distinctTags,
+            onDismiss = { showBulkTagDialog = false },
+            onConfirm = { tagsToAdd, tagsToRemove ->
+                showBulkTagDialog = false
+                viewModel.bulkUpdateMediaTags(selectedIdsSet, tagsToAdd, tagsToRemove)
+                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                android.widget.Toast.makeText(
+                    context,
+                    "Updated tags on ${selectedItems.size} items",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
         )
     }

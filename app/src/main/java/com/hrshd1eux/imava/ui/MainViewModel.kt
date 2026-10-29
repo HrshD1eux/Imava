@@ -101,8 +101,15 @@ class MainViewModel @Inject constructor(
     private val _selectedFilter = MutableStateFlow(MediaFilterType.ALL)
     val selectedFilter: StateFlow<MediaFilterType> = _selectedFilter.asStateFlow()
 
+    private val _selectedCustomTag = MutableStateFlow<String?>(null)
+    val selectedCustomTag: StateFlow<String?> = _selectedCustomTag.asStateFlow()
+
     fun setSelectedFilter(filter: MediaFilterType) {
         _selectedFilter.value = filter
+    }
+
+    fun setSelectedCustomTag(tag: String?) {
+        _selectedCustomTag.value = tag
     }
 
     val selectionState = SelectionState()
@@ -1021,8 +1028,8 @@ class MainViewModel @Inject constructor(
         combine(snapshotFlow { sortMode }, snapshotFlow { sortOrder }) { mode, order -> Pair(mode, order) },
         _excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion,
-        combine(_selectedFilter, refreshTrigger) { f, r -> Pair(f, r) }
-    ) { (bucketId, category), (mode, order), excluded, _, (filter, _) ->
+        combine(_selectedFilter, _selectedCustomTag, refreshTrigger) { f, tag, r -> Triple(f, tag, r) }
+    ) { (bucketId, category), (mode, order), excluded, _, (filter, customTag, _) ->
         val itemsFlow: Flow<PagingData<MediaItem>> = when (category) {
             "Favorites" -> favorites.map { list ->
                 val filtered = if (bucketId != null) {
@@ -1064,7 +1071,8 @@ class MainViewModel @Inject constructor(
             }
         }
         itemsFlow.map { pagingData ->
-            val filteredData = if (filter == MediaFilterType.ALL) pagingData else pagingData.filter { matchesFilter(it, filter) }
+            val baseFiltered = if (filter == MediaFilterType.ALL) pagingData else pagingData.filter { matchesFilter(it, filter) }
+            val filteredData = if (customTag.isNullOrBlank()) baseFiltered else baseFiltered.filter { it.tags.any { t -> t.equals(customTag, ignoreCase = true) } }
             val mapped: PagingData<TimelineItem> = filteredData.map { TimelineItem.Media(it) }
             if (mode == TimelineSortMode.DATE_GROUPED) {
                 mapped.insertSeparators { before: TimelineItem?, after: TimelineItem? ->
@@ -1441,6 +1449,25 @@ class MainViewModel @Inject constructor(
                     null -> null
                 }
             }
+            refreshAll()
+        }
+    }
+
+    fun bulkUpdateMediaTags(
+        itemIds: Set<Long>,
+        tagsToAdd: Set<String>,
+        tagsToRemove: Set<String>
+    ) {
+        if (itemIds.isEmpty()) return
+        viewModelScope.launch {
+            val items = visibleMediaItems.value.filter { itemIds.contains(it.id) }
+            items.forEach { item ->
+                val currentTags = item.tags.toMutableSet()
+                currentTags.addAll(tagsToAdd)
+                currentTags.removeAll(tagsToRemove)
+                repository.updateMediaTags(item.id, currentTags.toList().sorted())
+            }
+            selectionState.clear()
             refreshAll()
         }
     }

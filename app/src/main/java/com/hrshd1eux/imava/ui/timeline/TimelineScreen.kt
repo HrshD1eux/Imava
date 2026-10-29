@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,8 +34,16 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,6 +52,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -186,10 +196,18 @@ fun TimelineScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             if (showFilterChips) {
+                val selectedCustomTag by viewModel.selectedCustomTag.collectAsState()
+                val distinctTags by viewModel.allDistinctTags.collectAsState()
                 TimelineFilterChips(
                     selectedFilter = currentFilter,
+                    selectedCustomTag = selectedCustomTag,
+                    availableTags = distinctTags,
                     onFilterSelected = { filter ->
                         viewModel.setSelectedFilter(filter)
+                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                    },
+                    onCustomTagSelected = { tag ->
+                        viewModel.setSelectedCustomTag(tag)
                         com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                     }
                 )
@@ -326,23 +344,98 @@ fun TimelineScreen(
 @Composable
 fun TimelineFilterChips(
     selectedFilter: MediaFilterType,
+    selectedCustomTag: String?,
+    availableTags: List<String>,
     onFilterSelected: (MediaFilterType) -> Unit,
+    onCustomTagSelected: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showAddTagFilterDialog by remember { mutableStateOf(false) }
+    var tagFilterInput by remember { mutableStateOf("") }
+
+    if (showAddTagFilterDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddTagFilterDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            title = { Text("Filter by Tag") },
+            text = {
+                Column {
+                    Text(
+                        text = "Enter a tag to search photos with that tag:",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = tagFilterInput,
+                        onValueChange = { tagFilterInput = it },
+                        placeholder = { Text("e.g. vacation, family") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (availableTags.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Existing Tags:",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            items(availableTags) { tag ->
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {
+                                        tagFilterInput = tag
+                                        showAddTagFilterDialog = false
+                                        onCustomTagSelected(tag)
+                                    },
+                                    label = { Text("#$tag") }
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val clean = tagFilterInput.trim().removePrefix("#")
+                        if (clean.isNotBlank()) {
+                            showAddTagFilterDialog = false
+                            onCustomTagSelected(clean)
+                        }
+                    },
+                    enabled = tagFilterInput.isNotBlank()
+                ) {
+                    Text("Filter")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddTagFilterDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         items(
             items = MediaFilterType.entries.toTypedArray(),
             key = { it.name }
         ) { filter ->
-            val isSelected = filter == selectedFilter
+            val isSelected = filter == selectedFilter && selectedCustomTag == null
             FilterChip(
                 selected = isSelected,
-                onClick = { onFilterSelected(filter) },
+                onClick = {
+                    onCustomTagSelected(null)
+                    onFilterSelected(filter)
+                },
                 label = {
                     Text(
                         text = filter.label,
@@ -353,6 +446,98 @@ fun TimelineFilterChips(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
+            )
+        }
+
+        item {
+            VerticalDivider(
+                modifier = Modifier
+                    .height(24.dp)
+                    .padding(horizontal = 2.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+        }
+
+        // Active custom tag (if not in availableTags)
+        if (selectedCustomTag != null && !availableTags.contains(selectedCustomTag)) {
+            item(key = "active_custom_tag") {
+                FilterChip(
+                    selected = true,
+                    onClick = { onCustomTagSelected(null) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Label,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    },
+                    label = { Text("#$selectedCustomTag", style = MaterialTheme.typography.labelMedium) },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Clear tag filter",
+                            modifier = Modifier.size(14.dp)
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+            }
+        }
+
+        // Available custom tags
+        items(
+            items = availableTags,
+            key = { "tag_$it" }
+        ) { tag ->
+            val isTagSelected = tag.equals(selectedCustomTag, ignoreCase = true)
+            FilterChip(
+                selected = isTagSelected,
+                onClick = {
+                    onCustomTagSelected(if (isTagSelected) null else tag)
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Label,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = if (isTagSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+                    )
+                },
+                label = { Text("#$tag", style = MaterialTheme.typography.labelMedium) },
+                trailingIcon = if (isTagSelected) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Clear tag filter",
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                } else null,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        }
+
+        // "+ Tag" Chip to add custom tag filter
+        item(key = "add_tag_filter_chip") {
+            FilterChip(
+                selected = false,
+                onClick = { showAddTagFilterDialog = true },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                label = { Text("Tag", style = MaterialTheme.typography.labelMedium) }
             )
         }
     }
