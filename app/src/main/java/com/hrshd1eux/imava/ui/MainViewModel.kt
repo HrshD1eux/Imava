@@ -1032,7 +1032,16 @@ class MainViewModel @Inject constructor(
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion,
         combine(_selectedFilter, _selectedCustomTag, refreshTrigger) { f, tag, r -> Triple(f, tag, r) }
     ) { (bucketId, category), (mode, order), excluded, _, (filter, customTag, _) ->
-        val itemsFlow: Flow<PagingData<MediaItem>> = when (category) {
+        val itemsFlow: Flow<PagingData<MediaItem>> = if (!customTag.isNullOrBlank()) {
+            visibleMediaItems.map { allItems ->
+                val tagFiltered = allItems.filter { item ->
+                    val matchesBucket = if (bucketId != null) item.bucketId == bucketId else true
+                    matchesBucket && item.tags.any { t -> t.equals(customTag, ignoreCase = true) }
+                }
+                val sorted = if (order == SortOrder.OLDEST_FIRST) tagFiltered.sortedBy { it.dateTaken } else tagFiltered.sortedByDescending { it.dateTaken }
+                PagingData.from(sorted)
+            }
+        } else when (category) {
             "Favorites" -> favorites.map { list ->
                 val filtered = if (bucketId != null) {
                     if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, bucketId, currentBucketName)) emptyList()

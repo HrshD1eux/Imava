@@ -1,5 +1,16 @@
 package com.hrshd1eux.imava.ui.timeline
 
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.ui.graphics.graphicsLayer
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -440,16 +451,16 @@ fun TimelineFilterChips(
         val map = LinkedHashMap<String, TimelineFilterChipModel>()
         DEFAULT_TIMELINE_FILTER_CHIPS.forEach { map[it.id] = it }
         availableTags.forEach { tag ->
-            val clean = tag.trim()
-            if (clean.isNotEmpty()) {
+            val clean = tag.trim().removePrefix("#").removePrefix("+").trim().removePrefix("#").removePrefix("+").trim()
+            if (clean.isNotEmpty() && !clean.equals("tag", ignoreCase = true) && !clean.equals("+", ignoreCase = true)) {
                 val id = "TAG_${clean.lowercase()}"
                 map[id] = TimelineFilterChipModel(id, "#$clean", isCustomTag = true, customTag = clean)
             }
         }
         if (selectedCustomTag != null && selectedCustomTag.isNotBlank()) {
-            val clean = selectedCustomTag.trim()
+            val clean = selectedCustomTag.trim().removePrefix("#").removePrefix("+").trim()
             val id = "TAG_${clean.lowercase()}"
-            if (!map.containsKey(id)) {
+            if (!map.containsKey(id) && clean.isNotEmpty() && !clean.equals("tag", ignoreCase = true) && !clean.equals("+", ignoreCase = true)) {
                 map[id] = TimelineFilterChipModel(id, "#$clean", isCustomTag = true, customTag = clean)
             }
         }
@@ -461,7 +472,9 @@ fun TimelineFilterChips(
     }
 
     val (activeChips, hiddenChips) = remember(allChipsMap, chipOrderStr, hiddenIds) {
-        val orderedIds = chipOrderStr.split(",").map { it.trim().uppercase() }.filter { it.isNotEmpty() }
+        val orderedIds = chipOrderStr.split(",").map { it.trim().uppercase() }.filter {
+            it.isNotEmpty() && it != "ADD_TAG_FILTER_CHIP" && it != "ADD_TAG" && it != "TAG_TAG" && it != "TAG_+"
+        }
         val active = mutableListOf<TimelineFilterChipModel>()
 
         for (id in orderedIds) {
@@ -588,7 +601,7 @@ fun TimelineFilterChips(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = if (isAddingTag) "Close" else "+ Add Tag",
+                                text = if (isAddingTag) "Close" else "Add Tag",
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
@@ -673,7 +686,7 @@ fun TimelineFilterChips(
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Button(
                                         onClick = {
-                                            val clean = newTagInput.trim().removePrefix("#")
+                                            val clean = newTagInput.trim().removePrefix("#").removePrefix("+").trim()
                                             if (clean.isNotBlank()) {
                                                 val tagId = "TAG_${clean.lowercase()}"
                                                 val newChip = TimelineFilterChipModel(
@@ -995,7 +1008,7 @@ fun TimelineFilterChips(
                 confirmButton = {
                     Button(
                         onClick = {
-                            val clean = editTagInput.trim().removePrefix("#")
+                            val clean = editTagInput.trim().removePrefix("#").removePrefix("+").trim()
                             if (clean.isNotBlank()) {
                                 val newId = "TAG_${clean.lowercase()}"
                                 val updatedChip = chipToEdit.copy(
@@ -1047,15 +1060,51 @@ fun TimelineFilterChips(
                 chip.filterType == selectedFilter && selectedCustomTag == null
             }
 
+            val scale by animateFloatAsState(
+                targetValue = if (isSelected) 1.05f else 1.0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "chip_scale"
+            )
+
+            val targetContainerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            }
+            val containerColor by animateColorAsState(
+                targetValue = targetContainerColor,
+                animationSpec = tween(durationMillis = 180),
+                label = "chip_container"
+            )
+
+            val targetLabelColor = if (isSelected) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+            val labelColor by animateColorAsState(
+                targetValue = targetLabelColor,
+                animationSpec = tween(durationMillis = 180),
+                label = "chip_label"
+            )
+
             FilterChip(
                 selected = isSelected,
                 onClick = {
+                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                     if (chip.isCustomTag) {
                         onCustomTagSelected(if (isSelected) null else chip.customTag)
                     } else {
                         onCustomTagSelected(null)
                         chip.filterType?.let { onFilterSelected(it) }
                     }
+                },
+                modifier = Modifier.graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
                 },
                 leadingIcon = if (chip.isCustomTag) {
                     {
@@ -1070,21 +1119,30 @@ fun TimelineFilterChips(
                 label = {
                     Text(
                         text = chip.label,
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                     )
                 },
-                trailingIcon = if (chip.isCustomTag && isSelected) {
+                trailingIcon = if (chip.isCustomTag) {
                     {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Clear tag filter",
-                            modifier = Modifier.size(14.dp)
-                        )
+                        AnimatedVisibility(
+                            visible = isSelected,
+                            enter = fadeIn(animationSpec = tween(150)) + scaleIn(initialScale = 0.6f),
+                            exit = fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.6f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Clear tag filter",
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
                     }
                 } else null,
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    selectedContainerColor = containerColor,
+                    selectedLabelColor = labelColor,
+                    containerColor = containerColor,
+                    labelColor = labelColor
                 )
             )
         }
