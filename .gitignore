@@ -27,6 +27,8 @@ secrets/
 # Build & binary outputs
 *.apk
 *.aab
+*.webm
+screenshots/*.webm
 app/File*
 .kotlin/
 release_body.md

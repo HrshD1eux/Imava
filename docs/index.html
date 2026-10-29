@@ -1063,23 +1063,304 @@
       color: var(--primary);
     }
 
-    /* Responsive */
+    /* Mobile Hamburger Menu */
+    .mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      width: 42px;
+      height: 42px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--primary-subtle);
+      border-color: #C7D2FE;
+    }
+
+    .mobile-menu-btn .bar {
+      width: 20px;
+      height: 2px;
+      background: var(--text-main);
+      border-radius: 2px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .mobile-menu-btn.active .bar:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .mobile-menu-btn.active .bar:nth-child(2) {
+      opacity: 0;
+    }
+
+    .mobile-menu-btn.active .bar:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    .mobile-nav-drawer {
+      display: none;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px 22px;
+      gap: 6px;
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    .mobile-nav-drawer.open {
+      display: flex;
+      animation: navSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes navSlideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      text-decoration: none;
+      border-radius: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .mobile-nav-link:hover, .mobile-nav-link:active {
+      background: var(--primary-subtle);
+      color: var(--primary);
+    }
+
+    .mobile-nav-link .nav-icon {
+      font-size: 1.15rem;
+    }
+
+    .mobile-nav-cta {
+      margin-top: 8px;
+      padding: 13px 18px;
+      background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+      color: #FFF !important;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      box-shadow: 0 6px 16px var(--primary-glow);
+    }
+
+    /* Video Walkthrough Section */
+    .video-section {
+      padding: 56px 0 72px;
+      border-top: 1px solid var(--border);
+      background: #F8FAFC;
+    }
+
+    .video-player-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .phone-frame-mockup {
+      position: relative;
+      width: 100%;
+      max-width: 310px;
+      background: #0B0F19;
+      border: 8px solid #1E293B;
+      border-radius: 38px;
+      box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .phone-camera-lens {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 12px;
+      background: #000;
+      border-radius: 50%;
+      z-index: 10;
+      border: 1px solid #334155;
+      pointer-events: none;
+    }
+
+    .phone-frame-mockup video {
+      width: 100%;
+      height: auto;
+      display: block;
+      aspect-ratio: 540 / 1170;
+      background: #000;
+      border-radius: 28px;
+    }
+
+    .video-badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .v-badge {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Table Scroll Hint */
+    .table-scroll-hint {
+      display: none;
+      margin-top: 14px;
+    }
+
+    .table-scroll-hint span {
+      display: inline-block;
+      background: var(--primary-subtle);
+      border: 1px solid #C7D2FE;
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    /* Responsive Breakpoints */
     @media (max-width: 992px) {
       .hero-title { font-size: 2.75rem; }
       .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .screenshots-grid { grid-template-columns: repeat(2, 1fr); }
+      .screenshots-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
       .spec-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 640px) {
-      .hero-title { font-size: 2.1rem; }
-      .hero-subtitle { font-size: 1rem; }
-      .features-grid { grid-template-columns: 1fr; }
-      .screenshots-grid { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto; }
+    @media (max-width: 768px) {
       .nav-links { display: none; }
-      .test-banner { flex-direction: column; text-align: center; }
-      .stats-strip { flex-direction: column; gap: 10px; align-items: center; }
-      .compare-tab-btn { font-size: 0.85rem; padding: 10px 16px; width: 100%; justify-content: center; }
+      .mobile-menu-btn { display: flex; }
+
+      .hero { padding: 48px 0 36px; }
+      .hero-title { font-size: 2.25rem; letter-spacing: -0.8px; }
+      .hero-subtitle { font-size: 0.98rem; line-height: 1.6; margin-bottom: 24px; }
+      .badge { font-size: 0.78rem; padding: 5px 12px; line-height: 1.4; text-align: center; }
+
+      .hero-cta-group {
+        flex-direction: column;
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto 28px;
+        align-items: stretch;
+      }
+      .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
+        font-size: 0.98rem;
+      }
+
+      .test-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 14px 16px;
+        gap: 12px;
+      }
+      .test-banner-badge { width: 100%; justify-content: center; }
+
+      .stats-strip {
+        gap: 8px;
+        justify-content: center;
+      }
+      .stat-pill {
+        font-size: 0.8rem;
+        padding: 5px 12px;
+      }
+
+      /* Compact, beautiful 2-column mobile screenshot grid */
+      .showcase-section { padding: 42px 0 60px; }
+      .screenshots-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        max-width: 100% !important;
+        padding: 0 4px;
+      }
+      .phone-card {
+        border-radius: 14px !important;
+        box-shadow: var(--shadow-md) !important;
+      }
+      .phone-caption {
+        padding: 8px 6px !important;
+        font-size: 0.76rem !important;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Phone Video Mockup on Mobile */
+      .phone-frame-mockup {
+        max-width: 275px;
+        border-width: 6px;
+        border-radius: 32px;
+      }
+      .phone-frame-mockup video {
+        border-radius: 24px;
+      }
+
+      /* Capabilities Grid */
+      .features-section { padding: 40px 0; }
+      .features-grid { grid-template-columns: 1fr; gap: 12px; }
+      .feature-card { padding: 16px 18px; }
+
+      /* Comparison on Mobile */
+      .compare-section { padding: 42px 0; }
+      .table-scroll-hint { display: block; }
+      .compare-tabs { flex-direction: column; width: 100%; gap: 8px; }
+      .compare-tab-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 10px 14px;
+      }
+      .compare-table-view table {
+        font-size: 0.8rem;
+        min-width: 620px;
+      }
+      .compare-table-view th, .compare-table-view td {
+        padding: 8px 10px;
+      }
+      .pill {
+        font-size: 0.74rem;
+        padding: 4px 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 1.95rem; }
+      .section-title { font-size: 1.7rem; }
+      .screenshots-grid { gap: 8px !important; }
+      .phone-caption { font-size: 0.72rem !important; padding: 6px 4px !important; }
+      .v-badge { font-size: 0.75rem; padding: 5px 10px; }
     }
   </style>
 </head>
@@ -1088,20 +1369,50 @@
   <div class="ambient-glow"></div>
 
   <!-- Header -->
-  <header>
+  <header id="siteHeader">
     <div class="container nav-wrapper">
       <a href="#" class="logo-group">
         <img src="assets/icon.png" alt="Imava Logo">
         <span class="logo-text">Imava</span>
       </a>
-      <nav class="nav-links">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <nav class="nav-links" id="desktopNav">
         <a href="#showcase">Showcase</a>
+        <a href="#video">Demo Video</a>
         <a href="#features">Features</a>
         <a href="#compare">Comparison</a>
         <a href="#architecture">Architecture</a>
         <a href="#faq">FAQ</a>
         <a href="https://github.com/HrshD1eux/Imava" target="_blank" class="btn-header">⭐ Star on GitHub</a>
       </nav>
+    </div>
+    <!-- Mobile Dropdown Navigation Menu -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+      <a href="#showcase" class="mobile-nav-link">
+        <span class="nav-icon">📱</span> Showcase
+      </a>
+      <a href="#video" class="mobile-nav-link">
+        <span class="nav-icon">🎬</span> Demo Video
+      </a>
+      <a href="#features" class="mobile-nav-link">
+        <span class="nav-icon">⚡</span> Features &amp; Capabilities
+      </a>
+      <a href="#compare" class="mobile-nav-link">
+        <span class="nav-icon">📊</span> Security Comparison
+      </a>
+      <a href="#architecture" class="mobile-nav-link">
+        <span class="nav-icon">🏗️</span> Architecture &amp; Privacy
+      </a>
+      <a href="#faq" class="mobile-nav-link">
+        <span class="nav-icon">❓</span> Frequently Asked Questions
+      </a>
+      <a href="https://github.com/HrshD1eux/Imava" target="_blank" class="mobile-nav-cta">
+        ⭐ Star on GitHub
+      </a>
     </div>
   </header>
 
@@ -1151,6 +1462,33 @@
     </div>
   </section>
 
+  <!-- Video Walkthrough Demonstration -->
+  <section class="video-section" id="video">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Interactive Demo</span>
+        <h2 class="section-title">See Imava in Action</h2>
+        <p class="section-desc">Experience 120Hz smooth scrolling, instant offline album filtering, photo tuning, and hardware vault security.</p>
+      </div>
+
+      <div class="video-player-container">
+        <div class="phone-frame-mockup">
+          <div class="phone-camera-lens"></div>
+          <video id="walkthroughVideo" controls playsinline preload="metadata" poster="walkthrough_poster.jpg">
+            <source src="walkthrough.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+        <div class="video-badges-row">
+          <span class="v-badge">⚡ 120 FPS Fluid Animations</span>
+          <span class="v-badge">🛡️ Zero Cloud Lag</span>
+          <span class="v-badge">🎨 Built-in Photo Editor</span>
+          <span class="v-badge">🔒 Instant Hardware Lock</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Showcase / Screenshots -->
   <section class="showcase-section" id="showcase">
     <div class="container">
@@ -1162,20 +1500,36 @@
       <!-- SCREENSHOTS_START -->
       <div class="screenshots-grid">
         <div class="phone-card">
-          <img src="screenshots/photos.png" alt="Photos" loading="lazy">
-          <div class="phone-caption">Photos</div>
+          <img src="screenshots/01_photos.png" alt="Photos Timeline" loading="lazy">
+          <div class="phone-caption">Photos Timeline</div>
         </div>
         <div class="phone-card">
-          <img src="screenshots/album.png" alt="Albums" loading="lazy">
-          <div class="phone-caption">Albums</div>
+          <img src="screenshots/02_albums.png" alt="Albums & Memories" loading="lazy">
+          <div class="phone-caption">Albums & Memories</div>
         </div>
         <div class="phone-card">
-          <img src="screenshots/vault.png" alt="Vault" loading="lazy">
-          <div class="phone-caption">Vault</div>
+          <img src="screenshots/03_selection.png" alt="Batch Selection & Tools" loading="lazy">
+          <div class="phone-caption">Batch Selection & Tools</div>
         </div>
         <div class="phone-card">
-          <img src="screenshots/setting.png" alt="Settings" loading="lazy">
-          <div class="phone-caption">Settings</div>
+          <img src="screenshots/04_tag_manager.png" alt="Filter & Tag Manager" loading="lazy">
+          <div class="phone-caption">Filter & Tag Manager</div>
+        </div>
+        <div class="phone-card">
+          <img src="screenshots/05_vault_setup.png" alt="Hardware Encrypted Vault" loading="lazy">
+          <div class="phone-caption">Hardware Encrypted Vault</div>
+        </div>
+        <div class="phone-card">
+          <img src="screenshots/06_privacy_shield.png" alt="App Switcher Shield" loading="lazy">
+          <div class="phone-caption">App Switcher Shield</div>
+        </div>
+        <div class="phone-card">
+          <img src="screenshots/07_about_legal.png" alt="About & FOSS Transparency" loading="lazy">
+          <div class="phone-caption">About & FOSS Transparency</div>
+        </div>
+        <div class="phone-card">
+          <img src="screenshots/08_album_privacy.png" alt="Album Privacy & Security" loading="lazy">
+          <div class="phone-caption">Album Privacy & Security</div>
         </div>
       </div>
       <!-- SCREENSHOTS_END -->
@@ -1346,6 +1700,9 @@
         <span class="section-tag">Direct Benchmark</span>
         <h2 class="section-title">How Imava Stacks Up</h2>
         <p class="section-desc">Detailed feature-by-feature comparison against the 3 leading open-source galleries and 3 dominant proprietary photo apps.</p>
+        <div class="table-scroll-hint">
+          <span>👈 Swipe horizontally to explore full 7-app comparison matrix 👉</span>
+        </div>
       </div>
 
       <!-- Segmented Tab Controls -->
@@ -2164,6 +2521,37 @@
 
     // Run fetch on page load
     fetchLatestRelease();
+
+    // Mobile Hamburger Menu Toggle
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileNavDrawer = document.getElementById("mobileNavDrawer");
+
+    if (mobileMenuBtn && mobileNavDrawer) {
+      mobileMenuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = mobileNavDrawer.classList.toggle("open");
+        mobileMenuBtn.classList.toggle("active", isOpen);
+        mobileMenuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+
+      // Close menu when clicking on any mobile nav link
+      document.querySelectorAll(".mobile-nav-link, .mobile-nav-cta").forEach(link => {
+        link.addEventListener("click", () => {
+          mobileNavDrawer.classList.remove("open");
+          mobileMenuBtn.classList.remove("active");
+          mobileMenuBtn.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!mobileMenuBtn.contains(e.target) && !mobileNavDrawer.contains(e.target)) {
+          mobileNavDrawer.classList.remove("open");
+          mobileMenuBtn.classList.remove("active");
+          mobileMenuBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
 
     // 2. Comparison Tab Switcher
     const tabButtons = document.querySelectorAll(".compare-tab-btn");
