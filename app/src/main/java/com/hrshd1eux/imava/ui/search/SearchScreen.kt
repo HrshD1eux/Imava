@@ -18,7 +18,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.TextButton
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -73,6 +78,8 @@ fun SearchScreen(
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
+    val advancedFilter by viewModel.advancedFilterState.collectAsState()
+    var showAdvancedFilterDialog by remember { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
 
@@ -198,9 +205,154 @@ fun SearchScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // Quick Metadata Filter Chips Row
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                item {
+                    FilterChip(
+                        selected = advancedFilter.isActive,
+                        onClick = { showAdvancedFilterDialog = true },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = if (advancedFilter.isActive) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = if (advancedFilter.isActive) "Filters (${advancedFilter.activeFilterCount})" else "Filters",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = if (advancedFilter.isActive) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    )
+                }
 
-            if (searchQuery.isBlank()) {
+                item {
+                    val isSelected = advancedFilter.fileSize == FileSizeFilter.OVER_500MB
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            val next = advancedFilter.copy(fileSize = if (isSelected) FileSizeFilter.ANY else FileSizeFilter.OVER_500MB)
+                            viewModel.setAdvancedFilterState(next)
+                        },
+                        label = { Text("> 500 MB", style = MaterialTheme.typography.labelSmall) }
+                    )
+                }
+
+                item {
+                    val isSelected = advancedFilter.resolution == ResolutionFilter.UHD_4K
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            val next = advancedFilter.copy(resolution = if (isSelected) ResolutionFilter.ANY else ResolutionFilter.UHD_4K)
+                            viewModel.setAdvancedFilterState(next)
+                        },
+                        label = { Text("4K UHD", style = MaterialTheme.typography.labelSmall) }
+                    )
+                }
+
+                item {
+                    val isSelected = advancedFilter.resolution == ResolutionFilter.PANORAMA
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            val next = advancedFilter.copy(resolution = if (isSelected) ResolutionFilter.ANY else ResolutionFilter.PANORAMA)
+                            viewModel.setAdvancedFilterState(next)
+                        },
+                        label = { Text("Panorama", style = MaterialTheme.typography.labelSmall) }
+                    )
+                }
+
+                item {
+                    val isSelected = advancedFilter.mediaType == MediaTypeFilterChoice.VIDEOS_ONLY
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            val next = advancedFilter.copy(mediaType = if (isSelected) MediaTypeFilterChoice.ALL else MediaTypeFilterChoice.VIDEOS_ONLY)
+                            viewModel.setAdvancedFilterState(next)
+                        },
+                        label = { Text("Videos", style = MaterialTheme.typography.labelSmall) }
+                    )
+                }
+
+                item {
+                    val isSelected = advancedFilter.mediaType == MediaTypeFilterChoice.RAW_DNG
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            val next = advancedFilter.copy(mediaType = if (isSelected) MediaTypeFilterChoice.ALL else MediaTypeFilterChoice.RAW_DNG)
+                            viewModel.setAdvancedFilterState(next)
+                        },
+                        label = { Text("RAW (DNG)", style = MaterialTheme.typography.labelSmall) }
+                    )
+                }
+
+                item {
+                    val isSelected = advancedFilter.datePreset == DatePreset.THIS_MONTH
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            val next = advancedFilter.copy(datePreset = if (isSelected) DatePreset.ANY else DatePreset.THIS_MONTH)
+                            viewModel.setAdvancedFilterState(next)
+                        },
+                        label = { Text("This Month", style = MaterialTheme.typography.labelSmall) }
+                    )
+                }
+            }
+
+            if (showAdvancedFilterDialog) {
+                AdvancedFilterDialog(
+                    initialState = advancedFilter,
+                    onApply = {
+                        viewModel.setAdvancedFilterState(it)
+                        showAdvancedFilterDialog = false
+                    },
+                    onReset = {
+                        viewModel.clearAdvancedFilter()
+                        showAdvancedFilterDialog = false
+                    },
+                    onDismiss = { showAdvancedFilterDialog = false }
+                )
+            }
+
+            if (advancedFilter.isActive) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val summaryList = listOfNotNull(
+                        if (advancedFilter.mediaType != MediaTypeFilterChoice.ALL) advancedFilter.mediaType.label else null,
+                        if (advancedFilter.fileSize != FileSizeFilter.ANY) advancedFilter.fileSize.label else null,
+                        if (advancedFilter.resolution != ResolutionFilter.ANY) advancedFilter.resolution.label else null,
+                        if (advancedFilter.datePreset != DatePreset.ANY) advancedFilter.datePreset.label else null,
+                        if (advancedFilter.cameraModelQuery.isNotBlank()) "Camera: ${advancedFilter.cameraModelQuery}" else null
+                    )
+                    Text(
+                        text = "Active: ${summaryList.joinToString(" • ")}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TextButton(onClick = { viewModel.clearAdvancedFilter() }) {
+                        Text("Reset", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (searchQuery.isBlank() && !advancedFilter.isActive) {
                 val tags by viewModel.allDistinctTags.collectAsState()
 
                 Column(
@@ -267,7 +419,7 @@ fun SearchScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No matching media found for \"$searchQuery\"",
+                            text = if (searchQuery.isNotBlank()) "No matching media found for \"$searchQuery\"" else "No matching media found with active filters",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

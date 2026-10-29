@@ -41,6 +41,10 @@ import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PushPin
@@ -906,6 +910,81 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
+            var showWebDavDialog by remember { mutableStateOf(false) }
+            val webDavConfig = remember(showWebDavDialog) { com.hrshd1eux.imava.data.sync.webdav.WebDavConfigManager.loadConfig(context) }
+            val allMediaItems by viewModel.visibleMediaItems.collectAsState()
+
+            SettingsCategoryHeader(title = "Backup & Local NAS", icon = Icons.Default.CloudUpload)
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { showWebDavDialog = true }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.CloudUpload,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Local NAS / WebDAV Sync",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = if (webDavConfig.isConfigured) {
+                                "Configured • ${webDavConfig.lastBackupStatus}"
+                            } else {
+                                "Zero-cloud backup to Synology, Nextcloud, TrueNAS, or home server"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Configure",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            if (showWebDavDialog) {
+                WebDavSettingsDialog(
+                    allItems = allMediaItems,
+                    onDismiss = { showWebDavDialog = false }
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))

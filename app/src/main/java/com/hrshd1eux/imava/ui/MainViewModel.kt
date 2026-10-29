@@ -815,18 +815,105 @@ class MainViewModel @Inject constructor(
         _searchQuery.value = query
     }
 
+    private val _advancedFilterState = MutableStateFlow(com.hrshd1eux.imava.ui.search.AdvancedFilterState())
+    val advancedFilterState: StateFlow<com.hrshd1eux.imava.ui.search.AdvancedFilterState> = _advancedFilterState.asStateFlow()
+
+    fun setAdvancedFilterState(filter: com.hrshd1eux.imava.ui.search.AdvancedFilterState) {
+        _advancedFilterState.value = filter
+    }
+
+    fun clearAdvancedFilter() {
+        _advancedFilterState.value = com.hrshd1eux.imava.ui.search.AdvancedFilterState()
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val searchResults: StateFlow<List<MediaItem>> = combine(
         _searchQuery.debounce(300),
+        _advancedFilterState,
         _excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion
-    ) { query, excluded, _ ->
-        if (query.isBlank()) {
+    ) { query, advFilter, excluded, _ ->
+        val cleanQuery = query.trim().removePrefix("#")
+        if (cleanQuery.isBlank() && !advFilter.isActive) {
             emptyList()
         } else {
-            repository.searchMedia(query).filter { item ->
-                !excluded.contains(item.bucketId.toString()) &&
-                !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, item.bucketId, item.bucketName)
+            val baseList = if (cleanQuery.isNotBlank()) {
+                repository.searchMedia(cleanQuery).filter { item ->
+                    !excluded.contains(item.bucketId.toString()) &&
+                    !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, item.bucketId, item.bucketName)
+                }
+            } else {
+                visibleMediaItems.value.filter { item ->
+                    !excluded.contains(item.bucketId.toString()) &&
+                    !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, item.bucketId, item.bucketName)
+                }
+            }
+
+            if (!advFilter.isActive) {
+                baseList
+            } else {
+                val now = System.currentTimeMillis()
+                val (dateStart, dateEnd) = when (advFilter.datePreset) {
+                    com.hrshd1eux.imava.ui.search.DatePreset.THIS_WEEK -> Pair(now - 7L * 86400000L, now + 86400000L)
+                    com.hrshd1eux.imava.ui.search.DatePreset.THIS_MONTH -> Pair(now - 30L * 86400000L, now + 86400000L)
+                    com.hrshd1eux.imava.ui.search.DatePreset.LAST_3_MONTHS -> Pair(now - 90L * 86400000L, now + 86400000L)
+                    com.hrshd1eux.imava.ui.search.DatePreset.THIS_YEAR -> Pair(now - 365L * 86400000L, now + 86400000L)
+                    com.hrshd1eux.imava.ui.search.DatePreset.CUSTOM -> Pair(advFilter.customStartDate ?: 0L, advFilter.customEndDate ?: Long.MAX_VALUE)
+                    com.hrshd1eux.imava.ui.search.DatePreset.ANY -> Pair(0L, Long.MAX_VALUE)
+                }
+
+                baseList.filter { item ->
+                    when (advFilter.mediaType) {
+                        com.hrshd1eux.imava.ui.search.MediaTypeFilterChoice.ALL -> {}
+                        com.hrshd1eux.imava.ui.search.MediaTypeFilterChoice.PHOTOS_ONLY -> if (item.isVideo) return@filter false
+                        com.hrshd1eux.imava.ui.search.MediaTypeFilterChoice.VIDEOS_ONLY -> if (!item.isVideo) return@filter false
+                        com.hrshd1eux.imava.ui.search.MediaTypeFilterChoice.RAW_DNG -> {
+                            val isRaw = item.mimeType.contains("dng", ignoreCase = true) || item.mimeType.contains("raw", ignoreCase = true) || item.path.endsWith(".dng", ignoreCase = true)
+                            if (!isRaw) return@filter false
+                        }
+                        com.hrshd1eux.imava.ui.search.MediaTypeFilterChoice.GIFS -> {
+                            val isGif = item.mimeType.contains("gif", ignoreCase = true) || item.path.endsWith(".gif", ignoreCase = true)
+                            if (!isGif) return@filter false
+                        }
+                    }
+
+                    if (advFilter.fileSize.minBytes != null && item.size < advFilter.fileSize.minBytes) return@filter false
+                    if (advFilter.fileSize.maxBytes != null && item.size > advFilter.fileSize.maxBytes) return@filter false
+
+                    when (advFilter.resolution) {
+                        com.hrshd1eux.imava.ui.search.ResolutionFilter.ANY -> {}
+                        com.hrshd1eux.imava.ui.search.ResolutionFilter.UHD_4K -> {
+                            val is4k = (item.width >= 3840 && item.height >= 2160) || (item.height >= 3840 && item.width >= 2160)
+                            if (!is4k) return@filter false
+                        }
+                        com.hrshd1eux.imava.ui.search.ResolutionFilter.FULL_HD_1080 -> {
+                            val isFhd = (item.width >= 1920 && item.height >= 1080) || (item.height >= 1920 && item.width >= 1080)
+                            if (!isFhd) return@filter false
+                        }
+                        com.hrshd1eux.imava.ui.search.ResolutionFilter.PANORAMA -> {
+                            val w = item.width.toFloat()
+                            val h = maxOf(1, item.height).toFloat()
+                            val isPano = (w / h) >= 2.05f || (h / w) >= 2.05f
+                            if (!isPano) return@filter false
+                        }
+                        com.hrshd1eux.imava.ui.search.ResolutionFilter.PORTRAIT -> {
+                            if (item.height <= item.width) return@filter false
+                        }
+                        com.hrshd1eux.imava.ui.search.ResolutionFilter.LANDSCAPE -> {
+                            if (item.width <= item.height) return@filter false
+                        }
+                    }
+
+                    if (advFilter.datePreset != com.hrshd1eux.imava.ui.search.DatePreset.ANY) {
+                        if (item.dateTaken < dateStart || item.dateTaken > dateEnd) return@filter false
+                    }
+
+                    if (advFilter.cameraModelQuery.isNotBlank()) {
+                        if (!item.path.contains(advFilter.cameraModelQuery, ignoreCase = true)) return@filter false
+                    }
+
+                    true
+                }
             }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
