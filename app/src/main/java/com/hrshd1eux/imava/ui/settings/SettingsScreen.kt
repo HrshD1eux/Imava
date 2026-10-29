@@ -332,7 +332,8 @@ fun SettingsScreen(
             val autoScrubSet by viewModel.autoScrubBucketIds.collectAsState()
             var showManageAutoScrubDialog by remember { mutableStateOf(false) }
 
-            SettingsCategoryHeader(title = "Privacy & Folders", icon = Icons.Default.Folder)
+            // 1. Folders & Media Access Group
+            SettingsCategoryHeader(title = "Folders & Media Access", icon = Icons.Default.Folder)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -464,9 +465,17 @@ fun SettingsScreen(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
+            }
 
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // 2. App Lock & Device Privacy Group
+            SettingsCategoryHeader(title = "App Lock & Device Privacy", icon = Icons.Default.Shield)
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 var appLockEnabled by remember { mutableStateOf(com.hrshd1eux.imava.core.util.AppLockManager.isAppLockEnabled(context)) }
 
                 Row(
@@ -503,6 +512,105 @@ fun SettingsScreen(
                                 }
                             )
                         }
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                val vaultPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
+                var recentsPrivacyShield by remember {
+                    mutableStateOf(vaultPrefs.getBoolean("recents_privacy_shield_enabled", true))
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "App Switcher Privacy Shield 🛡️",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Blank out gallery thumbnails in the Android recent apps overview to prevent shoulder surfing",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = recentsPrivacyShield,
+                        onCheckedChange = { enabled ->
+                            recentsPrivacyShield = enabled
+                            vaultPrefs.edit().putBoolean("recents_privacy_shield_enabled", enabled).apply()
+                            if (enabled) {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                            }
+                        }
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Guest Hand-Off (App Pinning) 📌",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "When handing your phone to someone, tap the Pin 📌 icon in the photo viewer to lock the screen to that single item. Guests cannot swipe to adjacent media without biometric or PIN authentication.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.PushPin,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 3. Private Vault Security Group
+            SettingsCategoryHeader(title = "Private Vault Security", icon = Icons.Default.Lock)
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.VaultSettings
+                        }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Vault Security & Encryption 🔒",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Master password, decoy PIN, stealth trigger, and encrypted container backup",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -556,7 +664,7 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Physically overwrite deleted photos with random data & zeroes to prevent recovery by data recovery tools",
+                            text = "Physically overwrite deleted photos with random data & zeroes to prevent recovery by forensic tools",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -571,70 +679,17 @@ fun SettingsScreen(
                         }
                     )
                 }
+            }
 
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Guest Hand-Off (App Pinning) 📌",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "When handing your phone to someone, tap the Pin 📌 icon in the photo viewer to lock the screen to that single item. Guests cannot swipe to adjacent media or exit the gallery without biometric or PIN authentication.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.PushPin,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+            // 4. Storage Cleaners & Maintenance Group
+            SettingsCategoryHeader(title = "Storage Cleaners & Maintenance", icon = Icons.Default.Delete)
 
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
-                var recentsPrivacyShield by remember {
-                    mutableStateOf(vaultPrefs.getBoolean("recents_privacy_shield_enabled", true))
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "App Switcher Privacy Shield 🛡️",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "Blank out gallery thumbnails in the Android recent apps overview to prevent shoulder surfing",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = recentsPrivacyShield,
-                        onCheckedChange = { enabled ->
-                            recentsPrivacyShield = enabled
-                            vaultPrefs.edit().putBoolean("recents_privacy_shield_enabled", enabled).apply()
-                            if (enabled) {
-                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            }
-                        }
-                    )
-                }
-
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 var isPurgingThumbnails by remember { mutableStateOf(false) }
                 val purgeScope = rememberCoroutineScope()
 

@@ -222,6 +222,51 @@ fun OpenSourceLicensesScreen(
                 description = "Next-generation Material You design system components.",
                 url = "https://m3.material.io",
                 fullLicenseText = apache2License
+            ),
+            OpenSourceLibraryFull(
+                id = "corektx",
+                name = "AndroidX Core KTX",
+                author = "Google LLC",
+                licenseType = "Apache License 2.0",
+                description = "Kotlin extensions for Android system APIs and backward-compatible core utilities.",
+                url = "https://developer.android.com/jetpack/androidx/releases/core",
+                fullLicenseText = apache2License
+            ),
+            OpenSourceLibraryFull(
+                id = "activitycompose",
+                name = "AndroidX Activity Compose",
+                author = "Google LLC",
+                licenseType = "Apache License 2.0",
+                description = "ComponentActivity extensions for Jetpack Compose integration and system back handling.",
+                url = "https://developer.android.com/jetpack/androidx/releases/activity",
+                fullLicenseText = apache2License
+            ),
+            OpenSourceLibraryFull(
+                id = "lifecycle",
+                name = "AndroidX Lifecycle Runtime KTX",
+                author = "Google LLC",
+                licenseType = "Apache License 2.0",
+                description = "Lifecycle-aware components, coroutine scopes, and viewmodel state management.",
+                url = "https://developer.android.com/jetpack/androidx/releases/lifecycle",
+                fullLicenseText = apache2License
+            ),
+            OpenSourceLibraryFull(
+                id = "palette",
+                name = "AndroidX Palette KTX",
+                author = "Google LLC",
+                licenseType = "Apache License 2.0",
+                description = "Extracts vibrant and muted color profiles from images for adaptive UI rendering.",
+                url = "https://developer.android.com/jetpack/androidx/releases/palette",
+                fullLicenseText = apache2License
+            ),
+            OpenSourceLibraryFull(
+                id = "print_fragment",
+                name = "AndroidX Print & Fragment KTX",
+                author = "Google LLC",
+                licenseType = "Apache License 2.0",
+                description = "System document printing pipeline and Kotlin fragment extensions.",
+                url = "https://developer.android.com/jetpack/androidx/releases/print",
+                fullLicenseText = apache2License
             )
         )
     }

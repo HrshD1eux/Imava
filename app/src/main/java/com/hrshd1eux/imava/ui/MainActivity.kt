@@ -376,6 +376,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var selectionSharePrivacyMode by remember { androidx.compose.runtime.mutableStateOf(com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL) }
     var showSelectionDeleteConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showSelectionDeletePermanentlyConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showSelectionRestoreConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showMoveToAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showTimeShiftDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showBatchRenameDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -386,7 +387,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var slideshowItems by remember { androidx.compose.runtime.mutableStateOf<List<com.hrshd1eux.imava.data.model.MediaItem>?>(null) }
     var showVaultPreConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showVaultSetupRequiredDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
-    var showVaultUnlockDialogForSetup by remember { androidx.compose.runtime.mutableStateOf(false) }
     var pendingMoveToVaultIds by remember { androidx.compose.runtime.mutableStateOf(emptySet<Long>()) }
     var showSelectionMorePopup by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showBulkCompressDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -526,6 +526,14 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             viewModel.currentScreen = Screen.AboutLegal
         } else if (currentScreen == Screen.AboutLegal) {
             viewModel.currentScreen = Screen.Settings
+        } else if (currentScreen == Screen.VaultSetup) {
+            viewModel.currentScreen = Screen.Albums
+        } else if (currentScreen == Screen.VaultSettings) {
+            if (viewModel.currentCategoryName == "Hidden Vault") {
+                viewModel.currentScreen = Screen.Photos
+            } else {
+                viewModel.currentScreen = Screen.Settings
+            }
         } else if (viewModel.currentCategoryName != null) {
             if (viewModel.currentCategoryName == "Hidden Vault") {
                 viewModel.lockVault(context)
@@ -582,7 +590,9 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             currentScreen == Screen.Search ||
             currentScreen == Screen.AboutLegal ||
             currentScreen == Screen.PermissionsTransparency ||
-            currentScreen == Screen.OpenSourceLicenses
+            currentScreen == Screen.OpenSourceLicenses ||
+            currentScreen == Screen.VaultSetup ||
+            currentScreen == Screen.VaultSettings
 
     Scaffold(
         topBar = {
@@ -744,7 +754,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
 
                         if (categoryName == "Hidden Vault") {
                             var showVaultMenu by remember { mutableStateOf(false) }
-                            var showVaultSecurityDialog by remember { mutableStateOf(false) }
 
                             IconButton(onClick = { showVaultMenu = true }) {
                                 Icon(
@@ -755,26 +764,44 @@ fun MainScreenLayout(viewModel: MainViewModel) {
 
                             DropdownMenu(
                                 expanded = showVaultMenu,
-                                onDismissRequest = { showVaultMenu = false }
+                                onDismissRequest = { showVaultMenu = false },
+                                modifier = Modifier
+                                    .widthIn(min = 250.dp, max = 290.dp)
+                                    .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp))
+                                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Vault Security Settings 🔒") },
-                                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                                    text = {
+                                        Column {
+                                            Text("Lock Vault Now", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                            Text("Immediately lock and hide private media", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    },
+                                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                                     onClick = {
                                         showVaultMenu = false
-                                        showVaultSecurityDialog = true
+                                        viewModel.lockVault(context)
                                     }
                                 )
-                            }
 
-                            if (showVaultSecurityDialog) {
-                                com.hrshd1eux.imava.ui.vault.VaultSecurityDialog(
-                                    viewModel = viewModel,
-                                    onDismiss = { showVaultSecurityDialog = false },
-                                    onVaultDeleted = {
-                                        showVaultSecurityDialog = false
-                                        viewModel.currentCategoryName = null
-                                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Albums
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+                                DropdownMenuItem(
+                                    text = {
+                                        Column {
+                                            Text("Vault Security Settings", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                            Text("Master password, decoy PIN, backup & delete", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    },
+                                    leadingIcon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                                    onClick = {
+                                        showVaultMenu = false
+                                        viewModel.currentScreen = Screen.VaultSettings
                                     }
                                 )
                             }
@@ -850,6 +877,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         val selectedIds = selectionState.selectedIds
                         val isViewingTrash = categoryName == "Trash" || (selectedIds.isNotEmpty() && trashedList.any { selectedIds.contains(it.id) })
 
+                        val isViewingVault = categoryName == "Hidden Vault"
+
                         if (isViewingTrash) {
                             Row(
                                 modifier = Modifier
@@ -862,7 +891,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.RestoreFromTrash,
                                     label = "Restore",
-                                    onClick = { viewModel.restoreSelectedMedia(context) }
+                                    onClick = { showSelectionRestoreConfirmDialog = true }
                                 )
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
@@ -871,6 +900,108 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     tint = MaterialTheme.colorScheme.error,
                                     onClick = { showSelectionDeletePermanentlyConfirmDialog = true }
                                 )
+                            }
+                        } else if (isViewingVault) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.Visibility,
+                                    label = "Unhide",
+                                    onClick = {
+                                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                        viewModel.hideSelectedMedia(context)
+                                    }
+                                )
+
+                                SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.Share,
+                                    label = "Share",
+                                    onClick = { showSelectionShareDialog = true }
+                                )
+
+                                SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.DeleteForever,
+                                    label = "Delete",
+                                    tint = MaterialTheme.colorScheme.error,
+                                    onClick = { showSelectionDeletePermanentlyConfirmDialog = true }
+                                )
+
+                                Box(modifier = Modifier.weight(1f)) {
+                                    SelectionActionButton(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        icon = Icons.Default.MoreVert,
+                                        label = "More",
+                                        onClick = { showSelectionMorePopup = true }
+                                    )
+
+                                    DropdownMenu(
+                                        expanded = showSelectionMorePopup,
+                                        onDismissRequest = { showSelectionMorePopup = false },
+                                        modifier = Modifier
+                                            .widthIn(min = 250.dp, max = 290.dp)
+                                            .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+                                            .border(
+                                                width = 1.dp,
+                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                                shape = RoundedCornerShape(16.dp)
+                                            )
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text("Favorite", style = MaterialTheme.typography.bodyMedium)
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                                viewModel.toggleFavoriteSelectedMedia(selectedIds.toSet())
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Compress Images", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Bulk compress photos to target size", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Compress, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                showBulkCompressDialog = true
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Manage Tags", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Add or remove tags for selected items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                showBulkTagDialog = true
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         } else {
                             val allVisibleItems by viewModel.visibleMediaItems.collectAsState()
@@ -926,8 +1057,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         label = "More",
                                         onClick = { showSelectionMorePopup = true }
                                     )
-
-                                    val isViewingVault = categoryName == "Hidden Vault"
 
                                     DropdownMenu(
                                         expanded = showSelectionMorePopup,
@@ -1296,11 +1425,21 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
+                val currentFilterType by viewModel.selectedFilter.collectAsState()
+                val currentCustomTagVal by viewModel.selectedCustomTag.collectAsState()
+                val isInsideSubView = viewModel.currentCategoryName != null ||
+                        viewModel.currentBucketId != null ||
+                        currentFilterType != MediaFilterType.ALL ||
+                        currentCustomTagVal != null ||
+                        selectionState.inSelectionMode ||
+                        viewModel.activeMediaItem != null ||
+                        isFullScreenOverlayActive
+
                 HorizontalPager(
                     state = mainPagerState,
                     beyondBoundsPageCount = 0,
                     modifier = Modifier.fillMaxSize(),
-                    userScrollEnabled = viewModel.activeMediaItem == null
+                    userScrollEnabled = !isInsideSubView
                 ) { page ->
                     when (screens[page]) {
                         Screen.Photos -> TimelineScreen(viewModel = viewModel)
@@ -1362,6 +1501,49 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             ) {
                 com.hrshd1eux.imava.ui.settings.OpenSourceLicensesScreen(
                     onBackClick = { viewModel.currentScreen = Screen.AboutLegal }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = currentScreen == Screen.VaultSetup,
+                enter = fadeIn() + scaleIn(initialScale = 0.95f),
+                exit = fadeOut() + scaleOut(targetScale = 0.95f)
+            ) {
+                com.hrshd1eux.imava.ui.vault.VaultSetupScreen(
+                    onBackClick = { viewModel.currentScreen = Screen.Albums },
+                    onSetupComplete = {
+                        if (pendingMoveToVaultIds.isNotEmpty()) {
+                            viewModel.hideMediaByIds(context, pendingMoveToVaultIds)
+                            pendingMoveToVaultIds = emptySet()
+                            android.widget.Toast.makeText(context, "Items safely moved to your Private Vault!", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                        viewModel.currentBucketId = null
+                        viewModel.currentBucketName = null
+                        viewModel.currentCategoryName = "Hidden Vault"
+                        viewModel.currentScreen = Screen.Photos
+                        viewModel.unlockVault()
+                    }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = currentScreen == Screen.VaultSettings,
+                enter = fadeIn() + scaleIn(initialScale = 0.95f),
+                exit = fadeOut() + scaleOut(targetScale = 0.95f)
+            ) {
+                com.hrshd1eux.imava.ui.vault.VaultSettingsScreen(
+                    viewModel = viewModel,
+                    onBackClick = {
+                        if (viewModel.currentCategoryName == "Hidden Vault") {
+                            viewModel.currentScreen = Screen.Photos
+                        } else {
+                            viewModel.currentScreen = Screen.Settings
+                        }
+                    },
+                    onVaultDeleted = {
+                        viewModel.currentCategoryName = null
+                        viewModel.currentScreen = Screen.Albums
+                    }
                 )
             }
 
@@ -1588,7 +1770,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 Button(
                     onClick = {
                         showVaultSetupRequiredDialog = false
-                        showVaultUnlockDialogForSetup = true
+                        viewModel.currentScreen = Screen.VaultSetup
                     }
                 ) {
                     Text("Set Up Vault")
@@ -1607,18 +1789,27 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         )
     }
 
-    if (showVaultUnlockDialogForSetup) {
-        com.hrshd1eux.imava.ui.vault.VaultUnlockDialog(
-            onDismiss = {
-                showVaultUnlockDialogForSetup = false
-                pendingMoveToVaultIds = emptySet()
+    if (showSelectionRestoreConfirmDialog) {
+        val count = selectionState.selectedIds.size
+        AlertDialog(
+            onDismissRequest = { showSelectionRestoreConfirmDialog = false },
+            icon = { Icon(Icons.Default.RestoreFromTrash, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text("Restore items?") },
+            text = { Text("Are you sure you want to restore $count ${if (count == 1) "item" else "items"} from Trash back to your gallery?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showSelectionRestoreConfirmDialog = false
+                        com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                        viewModel.restoreSelectedMedia(context)
+                    }
+                ) {
+                    Text("Restore")
+                }
             },
-            onUnlockSuccess = {
-                showVaultUnlockDialogForSetup = false
-                if (pendingMoveToVaultIds.isNotEmpty()) {
-                    viewModel.hideMediaByIds(context, pendingMoveToVaultIds)
-                    pendingMoveToVaultIds = emptySet()
-                    android.widget.Toast.makeText(context, "Items safely protected in your new Vault!", android.widget.Toast.LENGTH_SHORT).show()
+            dismissButton = {
+                TextButton(onClick = { showSelectionRestoreConfirmDialog = false }) {
+                    Text("Cancel")
                 }
             }
         )

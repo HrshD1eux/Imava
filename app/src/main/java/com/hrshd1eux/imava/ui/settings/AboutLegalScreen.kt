@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,9 +64,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.AppUpdateManager
 import com.hrshd1eux.imava.core.util.UpdateInfo
 import com.hrshd1eux.imava.ui.common.AppUpdateDialog
@@ -153,20 +156,14 @@ fun AboutLegalScreen(
                         .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(18.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.size(68.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(36.dp)
-                            )
-                        }
-                    }
+                    Image(
+                        painter = painterResource(id = R.mipmap.ic_launcher),
+                        contentDescription = "Imava Logo",
+                        modifier = Modifier
+                            .size(68.dp)
+                            .clip(RoundedCornerShape(18.dp))
+                            .shadow(4.dp, RoundedCornerShape(18.dp))
+                    )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -263,20 +260,14 @@ fun AboutLegalScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(48.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.size(26.dp)
-                                )
-                            }
-                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_hrshd1eux_logo),
+                            contentDescription = "Harsh Pahal Avatar",
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .shadow(2.dp, CircleShape)
+                        )
 
                         Spacer(modifier = Modifier.width(14.dp))
 
