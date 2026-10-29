@@ -1,5 +1,11 @@
 package com.hrshd1eux.imava.ui.timeline
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -216,7 +222,9 @@ fun TimelineScreen(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 val isPagingLoading = lazyPagingItems.loadState.refresh is androidx.paging.LoadState.Loading
                 if (lazyPagingItems.itemCount == 0) {
-                    if (!isPagingLoading) {
+                    if (isPagingLoading) {
+                        TimelineSkeletonGrid(columns = viewModel.gridColumnCount)
+                    } else {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -719,6 +727,46 @@ fun MediaGridCell(
                     color = Color.White
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun TimelineSkeletonGrid(columns: Int) {
+    val transition = rememberInfiniteTransition(label = "ShimmerTransition")
+    val alpha by transition.animateFloat(
+        initialValue = 0.22f,
+        targetValue = 0.58f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 850, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "ShimmerAlpha"
+    )
+
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Fixed(columns.coerceIn(2, 6)),
+        contentPadding = PaddingValues(start = 2.dp, end = 2.dp, top = 8.dp, bottom = 100.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalItemSpacing = 2.dp,
+        modifier = Modifier.fillMaxSize(),
+        userScrollEnabled = false
+    ) {
+        items(20) { index ->
+            val heightDp = when (index % 5) {
+                0 -> 130.dp
+                1 -> 165.dp
+                2 -> 140.dp
+                3 -> 180.dp
+                else -> 120.dp
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(heightDp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = alpha))
+            )
         }
     }
 }

@@ -2703,7 +2703,7 @@ class MainViewModel @Inject constructor(
 }
 
 enum class Screen {
-    Photos, Albums, Search, Settings, DuplicateFinder
+    Photos, Albums, Search, Settings, DuplicateFinder, AboutLegal, PermissionsTransparency, OpenSourceLicenses
 }
 
 enum class SortOrder {

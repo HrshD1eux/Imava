@@ -3,8 +3,8 @@ package com.hrshd1eux.imava.ui.settings
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.hrshd1eux.imava.ui.common.AppUpdateDialog
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.BugReport
@@ -929,381 +929,65 @@ fun SettingsScreen(
         }
 
         item {
-            var showPermissionsDialog by remember { mutableStateOf(false) }
-            var showOpenSourceDialog by remember { mutableStateOf(false) }
+            SettingsCategoryHeader(title = "About & Legal", icon = Icons.Default.Info)
 
-            if (showPermissionsDialog) {
-                PermissionsTransparencyDialog(onDismiss = { showPermissionsDialog = false })
-            }
-
-            if (showOpenSourceDialog) {
-                OpenSourceLicensesDialog(onDismiss = { showOpenSourceDialog = false })
-            }
-
-            SettingsCategoryHeader(title = "Developer & Open Source", icon = Icons.Default.Code)
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                modifier = Modifier.fillMaxWidth()
+            OutlinedCard(
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+                colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.AboutLegal
+                    }
             ) {
-                Column(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Developer Profile Row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(44.dp)
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(44.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Harsh Pahal",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "@HrshD1eux • Lead Developer",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(24.dp)
                             )
                         }
-                        TextButton(
-                            onClick = {
-                                try {
-                                    val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                        data = Uri.parse("mailto:HrshD1eux@proton.me")
-                                        putExtra(Intent.EXTRA_SUBJECT, "Imava App Feedback / Inquiry")
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {
-                                    try {
-                                        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HrshD1eux/imava/issues")).apply {
-                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                        }
-                                        context.startActivity(webIntent)
-                                    } catch (_: Exception) {}
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Email")
-                        }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
 
-                    // Developer Portfolio Row
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://hrshd1eux.vercel.app/")).apply {
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {}
-                            }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Language,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "About & Legal",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Developer Portfolio", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "hrshd1eux.vercel.app", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                    }
-
-                    // Links & Source Code Rows
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/hrshd1eux/imava")).apply {
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {}
-                            }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Code,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
+                        Text(
+                            text = "Developer, updates, licenses & permissions",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Source Code (GitHub)", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "github.com/hrshd1eux/imava", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/hrshd1eux/imava/issues")).apply {
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {}
-                            }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.BugReport,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Report Issues & Requests", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "Submit bug reports and feature requests", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Legal & Transparency Rows
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { showOpenSourceDialog = true }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Gavel,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Open Source Licenses", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "Third-party libraries & GPL-3.0 app license", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { showPermissionsDialog = true }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Shield,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Permission Transparency", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "18 permissions: Standard & Technical Dev explanations", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        item {
-            SettingsCategoryHeader(title = "About & Updates", icon = Icons.Default.Info)
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Imava",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
-                    val appVersionName = remember(context) {
-                        try {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                                context.packageManager.getPackageInfo(context.packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0)).versionName
-                            } else {
-                                @Suppress("DEPRECATION")
-                                context.packageManager.getPackageInfo(context.packageName, 0).versionName
-                            } ?: "1.1.3"
-                        } catch (_: Exception) {
-                            "1.1.3"
-                        }
-                    }
-                    Text(
-                        text = "Version $appVersionName (GPL-3.0)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "A fast, local-first, zero-tracking gallery and secure vault for your photos and videos.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    val settingsPrefs = remember(context) { context.getSharedPreferences("settings_prefs", Context.MODE_PRIVATE) }
-                    var autoCheckUpdates by remember { mutableStateOf(settingsPrefs.getBoolean("auto_check_updates", true)) }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Auto-Check for Updates", style = MaterialTheme.typography.titleMedium)
-                            Text(
-                                text = "Notify once when new GitHub release is available",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Switch(
-                            checked = autoCheckUpdates,
-                            onCheckedChange = { enabled ->
-                                autoCheckUpdates = enabled
-                                settingsPrefs.edit().putBoolean("auto_check_updates", enabled).apply()
-                            }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    var isCheckingUpdate by remember { mutableStateOf(false) }
-                    var updateInfoResult by remember { mutableStateOf<com.hrshd1eux.imava.core.util.UpdateInfo?>(null) }
-                    var showNoUpdateDialog by remember { mutableStateOf(false) }
-                    val scope = rememberCoroutineScope()
-
-                    Button(
-                        onClick = {
-                            isCheckingUpdate = true
-                            scope.launch {
-                                val info = com.hrshd1eux.imava.core.util.AppUpdateManager.checkForUpdates(context)
-                                isCheckingUpdate = false
-                                updateInfoResult = info
-                                if (!info.hasUpdate) {
-                                    showNoUpdateDialog = true
-                                }
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (isCheckingUpdate) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Checking GitHub...")
-                        } else {
-                            Icon(imageVector = Icons.Default.SystemUpdate, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Check for Updates")
-                        }
-                    }
-
-                    val currentInfo = updateInfoResult
-                    if (currentInfo != null && currentInfo.hasUpdate) {
-                        AppUpdateDialog(
-                            updateInfo = currentInfo,
-                            onDismiss = { updateInfoResult = null }
-                        )
-                    }
-
-                    if (showNoUpdateDialog && currentInfo != null && !currentInfo.hasUpdate) {
-                        AlertDialog(
-                            onDismissRequest = { showNoUpdateDialog = false },
-                            icon = { Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                            title = { Text("App Up-to-Date (v${currentInfo.currentVersion})") },
-                            text = {
-                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    Text("You are using the latest version of Imava! 🎉")
-                                    if (currentInfo.releaseNotes.isNotBlank() && !currentInfo.releaseNotes.startsWith("Could not check") && !currentInfo.releaseNotes.startsWith("Error")) {
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                        Text("Current Release Highlights:", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        val cleanedNotes = remember(currentInfo.releaseNotes) {
-                                            com.hrshd1eux.imava.core.util.AppUpdateManager.formatCleanReleaseNotes(currentInfo.releaseNotes)
-                                        }
-                                        Text(
-                                            text = cleanedNotes,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            },
-                            confirmButton = {
-                                Button(onClick = { showNoUpdateDialog = false }) {
-                                    Text("OK")
-                                }
-                            }
-                        )
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

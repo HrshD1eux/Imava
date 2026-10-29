@@ -26,6 +26,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CleaningServices
@@ -634,171 +639,283 @@ fun AlbumsScreen(
             val isCustomAlbum = !systemFolderNames.contains(bucket.name)
             val isPinned = pinnedBucketIds.contains(bucket.id.toString())
 
+            val isAlbumLockedConfigured = com.hrshd1eux.imava.core.util.AppLockManager.isAlbumConfiguredLocked(context, bucket.id, bucket.name)
+            val isAutoScrub = viewModel.isAutoScrubEnabled(bucket.id)
+            val isRootSystemAlbum = bucket.name.equals("Camera", ignoreCase = true) ||
+                    bucket.name.equals("DCIM", ignoreCase = true) ||
+                    bucket.name.equals("Pictures", ignoreCase = true) ||
+                    bucket.name.equals("Download", ignoreCase = true) ||
+                    bucket.name.equals("Downloads", ignoreCase = true) ||
+                    bucket.name.equals("Movies", ignoreCase = true) ||
+                    bucket.name.equals("Screenshots", ignoreCase = true) ||
+                    bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES).absolutePath, ignoreCase = true) ||
+                    bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DCIM).absolutePath, ignoreCase = true) ||
+                    bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).absolutePath, ignoreCase = true) ||
+                    bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_MOVIES).absolutePath, ignoreCase = true)
+
             AlertDialog(
                 onDismissRequest = { activeOptionsBucket = null },
-                title = { Text(bucket.name) },
+                shape = RoundedCornerShape(24.dp),
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Folder,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = bucket.name,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = "${bucket.count} items",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                },
                 text = {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        TextButton(
-                            onClick = {
-                                viewModel.togglePinBucket(bucket.id)
-                                activeOptionsBucket = null
-                            },
+                        // Section 1: Organization
+                        OutlinedCard(
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Icon(Icons.Default.Folder, contentDescription = null)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text(if (isPinned) "Unpin Album 📌" else "Pin Album to Top 📌")
-                            }
-                        }
-
-                        TextButton(
-                            onClick = {
-                                viewModel.excludeBucket(bucket.id)
-                                activeOptionsBucket = null
-                                android.widget.Toast.makeText(context, "Album hidden from gallery", android.widget.Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Icon(Icons.Default.LockOpen, contentDescription = null)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("Exclude / Hide Album 🚫")
-                            }
-                        }
-
-                        val isAlbumLockedConfigured = com.hrshd1eux.imava.core.util.AppLockManager.isAlbumConfiguredLocked(context, bucket.id, bucket.name)
-                        TextButton(
-                            onClick = {
-                                if (isAlbumLockedConfigured) {
-                                    com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
-                                        activity = context,
-                                        title = "Unlock Album",
-                                        subtitle = "Verify biometric to unlock ${bucket.name}",
-                                        onSuccess = {
-                                            com.hrshd1eux.imava.core.util.AppLockManager.unlockAlbum(context, bucket.id, bucket.name, bucket.path)
-                                            viewModel.refreshAll()
+                            Column(modifier = Modifier.padding(6.dp)) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable {
+                                            viewModel.togglePinBucket(bucket.id)
                                             activeOptionsBucket = null
-                                            android.widget.Toast.makeText(context, "Album unlocked", android.widget.Toast.LENGTH_SHORT).show()
-                                        },
-                                        onError = { err ->
-                                            android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
                                         }
-                                    )
-                                } else {
-                                    com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
-                                        activity = context,
-                                        title = "Lock Album",
-                                        subtitle = "Verify biometric to lock ${bucket.name}",
-                                        onSuccess = {
-                                            com.hrshd1eux.imava.core.util.AppLockManager.lockAlbum(context, bucket.id, bucket.name, bucket.path)
-                                            viewModel.refreshAll()
-                                            activeOptionsBucket = null
-                                            android.widget.Toast.makeText(context, "Album locked with Biometrics 🔒", android.widget.Toast.LENGTH_SHORT).show()
-                                        },
-                                        onError = { err ->
-                                            android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
-                                        }
-                                    )
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Icon(if (isAlbumLockedConfigured) Icons.Default.LockOpen else Icons.Default.Lock, contentDescription = null)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text(if (isAlbumLockedConfigured) "Unlock Album 🔓" else "Lock Album with Biometrics 🔒")
-                            }
-                        }
-
-                        if (isCustomAlbum) {
-                            TextButton(
-                                onClick = {
-                                    activeOptionsBucket = null
-                                    viewModel.selectBucket(bucket.id, bucket.name)
-                                    viewModel.shareSelectedMedia(context, stripMetadata = true)
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(Icons.Default.Share, contentDescription = null)
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.PushPin, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Share Album 📤")
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(if (isPinned) "Unpin Album" else "Pin to Top", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text("Keep album at the top of the grid", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f), modifier = Modifier.padding(horizontal = 8.dp))
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable {
+                                            viewModel.excludeBucket(bucket.id)
+                                            activeOptionsBucket = null
+                                            android.widget.Toast.makeText(context, "Album hidden from gallery", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.VisibilityOff, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Exclude from Gallery", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text("Hide this folder from media scans", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+
+                                if (isCustomAlbum) {
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f), modifier = Modifier.padding(horizontal = 8.dp))
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .clickable {
+                                                activeOptionsBucket = null
+                                                viewModel.selectBucket(bucket.id, bucket.name)
+                                                viewModel.shareSelectedMedia(context, stripMetadata = true)
+                                            }
+                                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text("Share Album", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                            Text("Export & share all album photos", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    }
                                 }
                             }
                         }
 
-                        val isAutoScrub = viewModel.isAutoScrubEnabled(bucket.id)
-                        TextButton(
-                            onClick = {
-                                val b = bucket
-                                activeOptionsBucket = null
-                                bucketToScrub = b
-                            },
+                        // Section 2: Privacy & Protection
+                        OutlinedCard(
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Icon(Icons.Default.Security, contentDescription = null)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("Scrub Album Metadata 🛡️")
+                            Column(modifier = Modifier.padding(6.dp)) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable {
+                                            if (isAlbumLockedConfigured) {
+                                                com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                                    activity = context,
+                                                    title = "Unlock Album",
+                                                    subtitle = "Verify biometric to unlock ${bucket.name}",
+                                                    onSuccess = {
+                                                        com.hrshd1eux.imava.core.util.AppLockManager.unlockAlbum(context, bucket.id, bucket.name, bucket.path)
+                                                        viewModel.refreshAll()
+                                                        activeOptionsBucket = null
+                                                        android.widget.Toast.makeText(context, "Album unlocked", android.widget.Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    onError = { err ->
+                                                        android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                                    }
+                                                )
+                                            } else {
+                                                com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                                    activity = context,
+                                                    title = "Lock Album",
+                                                    subtitle = "Verify biometric to lock ${bucket.name}",
+                                                    onSuccess = {
+                                                        com.hrshd1eux.imava.core.util.AppLockManager.lockAlbum(context, bucket.id, bucket.name, bucket.path)
+                                                        viewModel.refreshAll()
+                                                        activeOptionsBucket = null
+                                                        android.widget.Toast.makeText(context, "Album locked with Biometrics", android.widget.Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    onError = { err ->
+                                                        android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                                    }
+                                                )
+                                            }
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = if (isAlbumLockedConfigured) Icons.Default.LockOpen else Icons.Default.Fingerprint,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(if (isAlbumLockedConfigured) "Unlock Album" else "Lock with Biometrics", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(if (isAlbumLockedConfigured) "Fingerprint required" else "Protect album with fingerprint", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f), modifier = Modifier.padding(horizontal = 8.dp))
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable {
+                                            val b = bucket
+                                            activeOptionsBucket = null
+                                            bucketToScrub = b
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Scrub Album Metadata", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text("Strip EXIF, GPS location & camera info", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f), modifier = Modifier.padding(horizontal = 8.dp))
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable {
+                                            val newState = viewModel.toggleAutoScrubBucket(bucket.id)
+                                            activeOptionsBucket = null
+                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                if (newState) "Auto-Scrub enabled for ${bucket.name}" else "Auto-Scrub disabled for ${bucket.name}",
+                                                android.widget.Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Sync, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Auto-Scrub New Photos", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(if (isAutoScrub) "Enabled: auto-strips incoming photos" else "Disabled: preserves original metadata", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
                             }
                         }
 
-                        TextButton(
-                            onClick = {
-                                val newState = viewModel.toggleAutoScrubBucket(bucket.id)
-                                activeOptionsBucket = null
-                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                                android.widget.Toast.makeText(
-                                    context,
-                                    if (newState) "Auto-Scrub enabled for ${bucket.name} 🔄" else "Auto-Scrub disabled for ${bucket.name}",
-                                    android.widget.Toast.LENGTH_SHORT
-                                ).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Icon(Icons.Default.Sync, contentDescription = null)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text(if (isAutoScrub) "Auto-Scrub: Enabled ✓" else "Auto-Scrub: Disabled 🔄")
-                            }
-                        }
-
-                        val isRootSystemAlbum = bucket.name.equals("Camera", ignoreCase = true) ||
-                                bucket.name.equals("DCIM", ignoreCase = true) ||
-                                bucket.name.equals("Pictures", ignoreCase = true) ||
-                                bucket.name.equals("Download", ignoreCase = true) ||
-                                bucket.name.equals("Downloads", ignoreCase = true) ||
-                                bucket.name.equals("Movies", ignoreCase = true) ||
-                                bucket.name.equals("Screenshots", ignoreCase = true) ||
-                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES).absolutePath, ignoreCase = true) ||
-                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DCIM).absolutePath, ignoreCase = true) ||
-                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).absolutePath, ignoreCase = true) ||
-                                bucket.path.equals(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_MOVIES).absolutePath, ignoreCase = true)
-
+                        // Section 3: Danger Zone (Custom Albums only)
                         if (!isRootSystemAlbum) {
-                            TextButton(
-                                onClick = {
-                                    showDeleteAlbumConfirm = true
-                                },
+                            OutlinedCard(
+                                shape = RoundedCornerShape(16.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
+                                colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .clickable {
+                                            showDeleteAlbumConfirm = true
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Delete Album 🗑️", color = MaterialTheme.colorScheme.error)
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Delete Album", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error)
+                                        Text("Permanently delete album & all contents", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f))
+                                    }
                                 }
                             }
                         }
                     }
                 },
                 confirmButton = {
-                    TextButton(onClick = { activeOptionsBucket = null }) { Text("Close") }
+                    TextButton(onClick = { activeOptionsBucket = null }) { Text("Done") }
                 }
             )
 

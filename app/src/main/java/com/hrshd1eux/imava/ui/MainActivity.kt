@@ -522,6 +522,10 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             }
         } else if (viewModel.isExternalViewIntent) {
             activity?.finish()
+        } else if (currentScreen == Screen.PermissionsTransparency || currentScreen == Screen.OpenSourceLicenses) {
+            viewModel.currentScreen = Screen.AboutLegal
+        } else if (currentScreen == Screen.AboutLegal) {
+            viewModel.currentScreen = Screen.Settings
         } else if (viewModel.currentCategoryName != null) {
             if (viewModel.currentCategoryName == "Hidden Vault") {
                 viewModel.lockVault(context)
@@ -575,7 +579,10 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             slideshowItems != null ||
             showStorageDoctor ||
             currentScreen == Screen.DuplicateFinder ||
-            currentScreen == Screen.Search
+            currentScreen == Screen.Search ||
+            currentScreen == Screen.AboutLegal ||
+            currentScreen == Screen.PermissionsTransparency ||
+            currentScreen == Screen.OpenSourceLicenses
 
     Scaffold(
         topBar = {
@@ -927,10 +934,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         onDismissRequest = { showSelectionMorePopup = false },
                                         modifier = Modifier
                                             .widthIn(min = 250.dp, max = 290.dp)
-                                            .heightIn(max = 440.dp)
-                                            .verticalScroll(rememberScrollState())
                                             .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp))
-                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
                                             .border(
                                                 width = 1.dp,
                                                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
@@ -1325,6 +1330,38 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 com.hrshd1eux.imava.ui.search.DuplicateFinderScreen(
                     viewModel = viewModel,
                     onBackClick = { viewModel.currentScreen = Screen.Albums }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = currentScreen == Screen.AboutLegal,
+                enter = fadeIn() + scaleIn(initialScale = 0.95f),
+                exit = fadeOut() + scaleOut(targetScale = 0.95f)
+            ) {
+                com.hrshd1eux.imava.ui.settings.AboutLegalScreen(
+                    onBackClick = { viewModel.currentScreen = Screen.Settings },
+                    onOpenPermissions = { viewModel.currentScreen = Screen.PermissionsTransparency },
+                    onOpenLicenses = { viewModel.currentScreen = Screen.OpenSourceLicenses }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = currentScreen == Screen.PermissionsTransparency,
+                enter = fadeIn() + scaleIn(initialScale = 0.95f),
+                exit = fadeOut() + scaleOut(targetScale = 0.95f)
+            ) {
+                com.hrshd1eux.imava.ui.settings.PermissionsTransparencyScreen(
+                    onBackClick = { viewModel.currentScreen = Screen.AboutLegal }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = currentScreen == Screen.OpenSourceLicenses,
+                enter = fadeIn() + scaleIn(initialScale = 0.95f),
+                exit = fadeOut() + scaleOut(targetScale = 0.95f)
+            ) {
+                com.hrshd1eux.imava.ui.settings.OpenSourceLicensesScreen(
+                    onBackClick = { viewModel.currentScreen = Screen.AboutLegal }
                 )
             }
 
