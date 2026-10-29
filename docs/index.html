@@ -51,7 +51,7 @@
     "operatingSystem": "Android 8.0+",
     "applicationCategory": "MultimediaApplication",
     "applicationSubCategory": "Photo & Video Gallery",
-    "softwareVersion": "1.1.50",
+    "softwareVersion": "1.1.57",
     "fileSize": "8.5MB",
     "license": "https://www.gnu.org/licenses/gpl-3.0.html",
     "downloadUrl": "https://github.com/HrshD1eux/Imava/releases",
@@ -69,11 +69,15 @@
     },
     "featureList": [
       "100% Offline with Zero Network Telemetry (0 KB sent)",
-      "Hardware-backed AES-256-GCM Vault via AndroidKeyStore (TEE/StrongBox)",
+      "Hardware-backed AES-256-GCM Vault via AndroidKeyStore (TEE/StrongBox) with Mixed Alphanumeric Master Password",
+      "Customizable Timeline Filter & Tag Manager with Left/Right Reordering and Hide/Delete Any Filter",
       "Decoy PIN for Plausible Deniability under duress",
+      "App Switcher Privacy Shield (OS snapshot prevention via FLAG_SECURE)",
       "Multi-Pass CSPRNG Forensic File Shredder to prevent data recovery",
+      "Bulk Image & Photo Compressor (JPEG/WEBP with live space recovery)",
       "Guest Hand-Off Jail Mode to restrict viewing to selected photos",
       "Ghost Thumbnail & Cache Purger to wipe leaked OS media caches",
+      "18 Audited Open Source Apache 2.0 Components & Permission Transparency Matrix",
       "Camera Companion with ACTION_VIEW intent filter for default camera apps and file managers",
       "EXIF GPS Location Fuzzing and Metadata Sanitizer",
       "Native 2-9 Photo Collage Maker with lossless export",
@@ -1097,15 +1101,15 @@
           <h4>📱 Hiring Managers & Testers:</h4>
           <p>Download the pre-compiled APK directly from GitHub Releases and install in 10 seconds.</p>
         </div>
-        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.50/Imava-v1.1.50.apk" id="recruiterDownloadBtn" class="test-banner-badge apk-download-trigger">
-          <span id="recruiterBtnText">⬇️ Get Release APK (v1.1.50)</span>
+        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.57/Imava-v1.1.57.apk" id="recruiterDownloadBtn" class="test-banner-badge apk-download-trigger">
+          <span id="recruiterBtnText">⬇️ Get Release APK (v1.1.57)</span>
         </a>
       </div>
 
       <div class="hero-cta-group">
-        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.50/Imava-v1.1.50.apk" id="mainDownloadBtn" class="btn-primary apk-download-trigger">
+        <a href="https://github.com/HrshD1eux/Imava/releases/download/v1.1.57/Imava-v1.1.57.apk" id="mainDownloadBtn" class="btn-primary apk-download-trigger">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span id="mainBtnText">Download APK (v1.1.50)</span>
+          <span id="mainBtnText">Download APK (v1.1.57)</span>
         </a>
         <a href="https://github.com/HrshD1eux/Imava" target="_blank" class="btn-secondary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
@@ -1273,9 +1277,27 @@
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon">🗺️</div>
-          <h3 class="feature-title">Interactive Map Explorer</h3>
-          <p class="feature-text">Cluster and browse your geotagged memories across the globe using privacy-first OpenStreetMap with dynamic location search.</p>
+          <div class="feature-icon">🎛️</div>
+          <h3 class="feature-title">Customizable Filter & Tag Manager</h3>
+          <p class="feature-text">Rearrange timeline chips left or right to position daily necessity tags (#Daily, #Work) first. Delete or hide any filter including RAW, GIFs, Screenshots, and custom tags with 1-tap restore.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3 class="feature-title">App Switcher Privacy Shield</h3>
+          <p class="feature-text">Hardware window FLAG_SECURE protection automatically shields your gallery preview in the Android Recent Apps switcher, preventing accidental shoulder surfing and OS task snapshots.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🗜️</div>
+          <h3 class="feature-title">Bulk Image Compressor</h3>
+          <p class="feature-text">Losslessly or lossy recompress multiple photos at once with adjustable quality sliders (JPEG & WEBP) and live space saving calculations right from the multi-select menu.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⚖️</div>
+          <h3 class="feature-title">18 Audited FOSS Components & Permission Transparency</h3>
+          <p class="feature-text">100% Apache 2.0 open-source library architecture with zero Google proprietary blobs, paired with an interactive 18-permission comparative transparency matrix.</p>
         </div>
 
         <div class="feature-card">
@@ -1322,7 +1344,7 @@
             <thead>
               <tr>
                 <th>Security & Feature Criterion</th>
-                <th class="highlight-col">Imava (v1.1.50)</th>
+                <th class="highlight-col">Imava (v1.1.57)</th>
                 <th>Fossify Gallery</th>
                 <th>Aves Libre</th>
                 <th>Ente Photos</th>
@@ -1439,7 +1461,7 @@
             <thead>
               <tr>
                 <th>Security & Feature Criterion</th>
-                <th class="highlight-col">Imava (v1.1.50)</th>
+                <th class="highlight-col">Imava (v1.1.57)</th>
                 <th>Default Cloud Gallery</th>
                 <th>Stock OEM Gallery</th>
                 <th>Commercial Closed Gallery</th>
@@ -1907,7 +1929,7 @@
 
   <script>
     // 1. Dynamic Latest Release APK Resolver
-    const FALLBACK_APK_URL = "https://github.com/HrshD1eux/Imava/releases/download/v1.1.50/Imava-v1.1.50.apk";
+    const FALLBACK_APK_URL = "https://github.com/HrshD1eux/Imava/releases/download/v1.1.57/Imava-v1.1.57.apk";
     let latestApkUrl = FALLBACK_APK_URL;
 
     async function fetchLatestRelease() {
@@ -1916,7 +1938,7 @@
         if (!response.ok) throw new Error("GitHub API status: " + response.status);
         const data = await response.json();
         
-        const tagName = data.tag_name || "v1.1.50";
+        const tagName = data.tag_name || "v1.1.57";
         const apkAsset = data.assets && data.assets.find(a => a.name && a.name.endsWith(".apk"));
         
         if (apkAsset && apkAsset.browser_download_url) {

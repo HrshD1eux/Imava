@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import com.hrshd1eux.imava.ui.MediaFilterType
@@ -38,7 +39,10 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Add
@@ -46,6 +50,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -373,6 +378,24 @@ fun TimelineScreen(
     }
 }
 
+data class TimelineFilterChipModel(
+    val id: String,
+    val label: String,
+    val isCustomTag: Boolean,
+    val filterType: MediaFilterType? = null,
+    val customTag: String? = null
+)
+
+private val DEFAULT_TIMELINE_FILTER_CHIPS = listOf(
+    TimelineFilterChipModel("ALL", "All", isCustomTag = false, filterType = MediaFilterType.ALL),
+    TimelineFilterChipModel("PHOTOS", "Photos", isCustomTag = false, filterType = MediaFilterType.PHOTOS),
+    TimelineFilterChipModel("VIDEOS", "Videos", isCustomTag = false, filterType = MediaFilterType.VIDEOS),
+    TimelineFilterChipModel("SCREENSHOTS", "Screenshots", isCustomTag = false, filterType = MediaFilterType.SCREENSHOTS),
+    TimelineFilterChipModel("FAVORITES", "Favorites", isCustomTag = false, filterType = MediaFilterType.FAVORITES),
+    TimelineFilterChipModel("GIFS", "GIFs", isCustomTag = false, filterType = MediaFilterType.GIFS),
+    TimelineFilterChipModel("RAW", "RAW", isCustomTag = false, filterType = MediaFilterType.RAW)
+)
+
 @Composable
 fun TimelineFilterChips(
     selectedFilter: MediaFilterType,
@@ -384,50 +407,164 @@ fun TimelineFilterChips(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val galleryPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
-    var customTagOrderStr by remember { mutableStateOf(galleryPrefs.getString("custom_tag_order", "") ?: "") }
 
-    var showAddTagFilterDialog by remember { mutableStateOf(false) }
-    var showReorderDialog by remember { mutableStateOf(false) }
-    var tagFilterInput by remember { mutableStateOf("") }
-
-    val sortedTags = remember(availableTags, customTagOrderStr) {
-        if (customTagOrderStr.isBlank()) {
-            availableTags
+    var chipOrderStr by remember {
+        val initial = galleryPrefs.getString("timeline_chip_order", null)
+        if (initial == null) {
+            val legacy = galleryPrefs.getString("custom_tag_order", "") ?: ""
+            if (legacy.isNotBlank()) {
+                val legacyTags = legacy.split(",").map { "TAG_${it.trim().lowercase()}" }.joinToString(",")
+                val migrated = "ALL,PHOTOS,VIDEOS,SCREENSHOTS,FAVORITES,GIFS,RAW,$legacyTags"
+                galleryPrefs.edit().putString("timeline_chip_order", migrated).apply()
+                mutableStateOf(migrated)
+            } else {
+                mutableStateOf("ALL,PHOTOS,VIDEOS,SCREENSHOTS,FAVORITES,GIFS,RAW")
+            }
         } else {
-            val preferredOrder = customTagOrderStr.split(",").map { it.trim() }.filter { it.isNotBlank() }
-            val inPreferred = preferredOrder.filter { preferred -> availableTags.any { it.equals(preferred, ignoreCase = true) } }
-            val remaining = availableTags.filter { tag -> !preferredOrder.any { it.equals(tag, ignoreCase = true) } }
-            inPreferred + remaining
+            mutableStateOf(initial)
         }
     }
+    var chipHiddenStr by remember { mutableStateOf(galleryPrefs.getString("timeline_chip_hidden", "") ?: "") }
 
-    if (showReorderDialog) {
-        var reorderList by remember { mutableStateOf(sortedTags) }
+    var showAddTagFilterDialog by remember { mutableStateOf(false) }
+    var showManageDialog by remember { mutableStateOf(false) }
+    var tagFilterInput by remember { mutableStateOf("") }
+
+    val allChipsMap = remember(availableTags, selectedCustomTag) {
+        val map = LinkedHashMap<String, TimelineFilterChipModel>()
+        DEFAULT_TIMELINE_FILTER_CHIPS.forEach { map[it.id] = it }
+        availableTags.forEach { tag ->
+            val clean = tag.trim()
+            if (clean.isNotEmpty()) {
+                val id = "TAG_${clean.lowercase()}"
+                map[id] = TimelineFilterChipModel(id, "#$clean", isCustomTag = true, customTag = clean)
+            }
+        }
+        if (selectedCustomTag != null && selectedCustomTag.isNotBlank()) {
+            val clean = selectedCustomTag.trim()
+            val id = "TAG_${clean.lowercase()}"
+            if (!map.containsKey(id)) {
+                map[id] = TimelineFilterChipModel(id, "#$clean", isCustomTag = true, customTag = clean)
+            }
+        }
+        map
+    }
+
+    val hiddenIds = remember(chipHiddenStr) {
+        chipHiddenStr.split(",").map { it.trim().uppercase() }.filter { it.isNotEmpty() }.toSet()
+    }
+
+    val (activeChips, hiddenChips) = remember(allChipsMap, chipOrderStr, hiddenIds) {
+        val orderedIds = chipOrderStr.split(",").map { it.trim().uppercase() }.filter { it.isNotEmpty() }
+        val active = mutableListOf<TimelineFilterChipModel>()
+
+        for (id in orderedIds) {
+            val chip = allChipsMap.entries.firstOrNull { it.key.equals(id, ignoreCase = true) }?.value
+            if (chip != null && !hiddenIds.contains(chip.id.uppercase())) {
+                active.add(chip)
+            }
+        }
+
+        for ((_, chip) in allChipsMap) {
+            if (!active.any { it.id.equals(chip.id, ignoreCase = true) } && !hiddenIds.contains(chip.id.uppercase())) {
+                active.add(chip)
+            }
+        }
+
+        val hidden = allChipsMap.values.filter { hiddenIds.contains(it.id.uppercase()) }
+        val finalActive = if (active.isEmpty()) listOf(DEFAULT_TIMELINE_FILTER_CHIPS[0]) else active
+        Pair(finalActive, hidden)
+    }
+
+    if (showManageDialog) {
+        var workingActive by remember { mutableStateOf(activeChips) }
+        var workingHidden by remember { mutableStateOf(hiddenChips) }
 
         AlertDialog(
-            onDismissRequest = { showReorderDialog = false },
+            onDismissRequest = { showManageDialog = false },
             shape = RoundedCornerShape(20.dp),
-            title = { Text("Rearrange Filter Tags") },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Manage Filters & Tags")
+                }
+            },
             text = {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
                     Text(
-                        text = "Move your most frequent or daily necessity tags to the top so they appear first in the filter row:",
+                        text = "Rearrange order (Move Left / Move Right) or delete filters. You can hide or delete any item including RAW, GIFs, Screenshots, categories, and custom tags.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    reorderList.forEachIndexed { index, tag ->
+                    Text(
+                        text = "Horizontal Preview:",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                                RoundedCornerShape(10.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        itemsIndexed(workingActive) { idx, chip ->
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.85f)
+                            ) {
+                                Text(
+                                    text = "${idx + 1}. ${chip.label}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Text(
+                        text = "Active Filters (${workingActive.size})",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    workingActive.forEachIndexed { index, chip ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp),
+                                .padding(vertical = 3.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Surface(
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = RoundedCornerShape(6.dp),
                                     color = MaterialTheme.colorScheme.primaryContainer,
                                     modifier = Modifier.size(24.dp)
                                 ) {
@@ -440,50 +577,141 @@ fun TimelineFilterChips(
                                         )
                                     }
                                 }
-                                Spacer(modifier = Modifier.width(10.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                if (chip.isCustomTag) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.Label,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                }
                                 Text(
-                                    text = "#$tag",
+                                    text = chip.label,
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
 
-                            Row {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(
                                     onClick = {
                                         if (index > 0) {
-                                            val mutable = reorderList.toMutableList()
+                                            val mutable = workingActive.toMutableList()
                                             val temp = mutable[index]
                                             mutable[index] = mutable[index - 1]
                                             mutable[index - 1] = temp
-                                            reorderList = mutable
+                                            workingActive = mutable
+                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                         }
                                     },
                                     enabled = index > 0,
                                     modifier = Modifier.size(32.dp)
                                 ) {
-                                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Move Up")
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Move Left",
+                                        tint = if (index > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
 
                                 IconButton(
                                     onClick = {
-                                        if (index < reorderList.size - 1) {
-                                            val mutable = reorderList.toMutableList()
+                                        if (index < workingActive.size - 1) {
+                                            val mutable = workingActive.toMutableList()
                                             val temp = mutable[index]
                                             mutable[index] = mutable[index + 1]
                                             mutable[index + 1] = temp
-                                            reorderList = mutable
+                                            workingActive = mutable
+                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                         }
                                     },
-                                    enabled = index < reorderList.size - 1,
+                                    enabled = index < workingActive.size - 1,
                                     modifier = Modifier.size(32.dp)
                                 ) {
-                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Move Down")
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = "Move Right",
+                                        tint = if (index < workingActive.size - 1) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        if (workingActive.size > 1) {
+                                            val mutableActive = workingActive.toMutableList()
+                                            val removed = mutableActive.removeAt(index)
+                                            workingActive = mutableActive
+                                            val mutableHidden = workingHidden.toMutableList()
+                                            if (!mutableHidden.any { it.id.equals(removed.id, ignoreCase = true) }) {
+                                                mutableHidden.add(removed)
+                                            }
+                                            workingHidden = mutableHidden
+                                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                        }
+                                    },
+                                    enabled = workingActive.size > 1,
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Hide or Delete filter",
+                                        tint = if (workingActive.size > 1) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
                             }
                         }
-                        if (index < reorderList.size - 1) {
+                        if (index < workingActive.size - 1) {
                             HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+                        }
+                    }
+
+                    if (workingHidden.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Hidden / Deleted Filters (${workingHidden.size})",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            text = "Tap any filter or '+' to restore it to the timeline:",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(workingHidden) { hiddenChip ->
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {
+                                        val mutableHidden = workingHidden.toMutableList()
+                                        mutableHidden.removeAll { it.id.equals(hiddenChip.id, ignoreCase = true) }
+                                        workingHidden = mutableHidden
+                                        val mutableActive = workingActive.toMutableList()
+                                        mutableActive.add(hiddenChip)
+                                        workingActive = mutableActive
+                                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = "Restore",
+                                            modifier = Modifier.size(14.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
+                                    label = { Text(hiddenChip.label, style = MaterialTheme.typography.labelSmall) }
+                                )
+                            }
                         }
                     }
                 }
@@ -491,19 +719,48 @@ fun TimelineFilterChips(
             confirmButton = {
                 Button(
                     onClick = {
-                        val orderToSave = reorderList.joinToString(",")
-                        galleryPrefs.edit().putString("custom_tag_order", orderToSave).apply()
-                        customTagOrderStr = orderToSave
-                        showReorderDialog = false
+                        val orderToSave = workingActive.joinToString(",") { it.id }
+                        val hiddenToSave = workingHidden.joinToString(",") { it.id }
+                        galleryPrefs.edit()
+                            .putString("timeline_chip_order", orderToSave)
+                            .putString("timeline_chip_hidden", hiddenToSave)
+                            .apply()
+                        chipOrderStr = orderToSave
+                        chipHiddenStr = hiddenToSave
+
+                        if (selectedCustomTag != null && workingHidden.any { it.customTag.equals(selectedCustomTag, ignoreCase = true) }) {
+                            onCustomTagSelected(null)
+                        }
+                        if (selectedCustomTag == null && workingHidden.any { it.filterType == selectedFilter }) {
+                            val firstVisibleBuiltin = workingActive.firstOrNull { !it.isCustomTag }?.filterType ?: MediaFilterType.ALL
+                            onFilterSelected(firstVisibleBuiltin)
+                        }
+
+                        showManageDialog = false
                         com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                     }
                 ) {
-                    Text("Save Order")
+                    Text("Save & Apply")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showReorderDialog = false }) {
-                    Text("Cancel")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(
+                        onClick = {
+                            val resetActive = DEFAULT_TIMELINE_FILTER_CHIPS.toMutableList()
+                            val customChips = (workingActive + workingHidden).filter { it.isCustomTag }.distinctBy { it.id }
+                            resetActive.addAll(customChips)
+                            workingActive = resetActive
+                            workingHidden = emptyList()
+                            com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                        }
+                    ) {
+                        Text("Reset Defaults")
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    TextButton(onClick = { showManageDialog = false }) {
+                        Text("Cancel")
+                    }
                 }
             }
         )
@@ -529,7 +786,8 @@ fun TimelineFilterChips(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    if (sortedTags.isNotEmpty()) {
+                    val existingTags = availableTags.filter { it.isNotBlank() }
+                    if (existingTags.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "Existing Tags:",
@@ -537,13 +795,27 @@ fun TimelineFilterChips(
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            items(sortedTags) { tag ->
+                            items(existingTags) { tag ->
                                 FilterChip(
                                     selected = false,
                                     onClick = {
                                         tagFilterInput = tag
                                         showAddTagFilterDialog = false
                                         onCustomTagSelected(tag)
+                                        val tagId = "TAG_${tag.lowercase()}"
+                                        val currentHidden = chipHiddenStr.split(",").map { it.trim() }.filter { it.isNotEmpty() && !it.equals(tagId, ignoreCase = true) }
+                                        val newHiddenStr = currentHidden.joinToString(",")
+                                        val currentOrder = chipOrderStr.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+                                        if (!currentOrder.any { it.equals(tagId, ignoreCase = true) }) {
+                                            currentOrder.add(tagId)
+                                        }
+                                        val newOrderStr = currentOrder.joinToString(",")
+                                        galleryPrefs.edit()
+                                            .putString("timeline_chip_order", newOrderStr)
+                                            .putString("timeline_chip_hidden", newHiddenStr)
+                                            .apply()
+                                        chipOrderStr = newOrderStr
+                                        chipHiddenStr = newHiddenStr
                                     },
                                     label = { Text("#$tag") }
                                 )
@@ -559,6 +831,20 @@ fun TimelineFilterChips(
                         if (clean.isNotBlank()) {
                             showAddTagFilterDialog = false
                             onCustomTagSelected(clean)
+                            val tagId = "TAG_${clean.lowercase()}"
+                            val currentHidden = chipHiddenStr.split(",").map { it.trim() }.filter { it.isNotEmpty() && !it.equals(tagId, ignoreCase = true) }
+                            val newHiddenStr = currentHidden.joinToString(",")
+                            val currentOrder = chipOrderStr.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+                            if (!currentOrder.any { it.equals(tagId, ignoreCase = true) }) {
+                                currentOrder.add(tagId)
+                            }
+                            val newOrderStr = currentOrder.joinToString(",")
+                            galleryPrefs.edit()
+                                .putString("timeline_chip_order", newOrderStr)
+                                .putString("timeline_chip_hidden", newHiddenStr)
+                                .apply()
+                            chipOrderStr = newOrderStr
+                            chipHiddenStr = newHiddenStr
                         }
                     },
                     enabled = tagFilterInput.isNotBlank()
@@ -582,89 +868,42 @@ fun TimelineFilterChips(
         verticalAlignment = Alignment.CenterVertically
     ) {
         items(
-            items = MediaFilterType.entries.toTypedArray(),
-            key = { it.name }
-        ) { filter ->
-            val isSelected = filter == selectedFilter && selectedCustomTag == null
+            items = activeChips,
+            key = { it.id }
+        ) { chip ->
+            val isSelected = if (chip.isCustomTag) {
+                chip.customTag.equals(selectedCustomTag, ignoreCase = true)
+            } else {
+                chip.filterType == selectedFilter && selectedCustomTag == null
+            }
+
             FilterChip(
                 selected = isSelected,
                 onClick = {
-                    onCustomTagSelected(null)
-                    onFilterSelected(filter)
+                    if (chip.isCustomTag) {
+                        onCustomTagSelected(if (isSelected) null else chip.customTag)
+                    } else {
+                        onCustomTagSelected(null)
+                        chip.filterType?.let { onFilterSelected(it) }
+                    }
                 },
-                label = {
-                    Text(
-                        text = filter.label,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-        }
-
-        item {
-            VerticalDivider(
-                modifier = Modifier
-                    .height(24.dp)
-                    .padding(horizontal = 2.dp),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-            )
-        }
-
-        // Active custom tag (if not in sortedTags)
-        if (selectedCustomTag != null && !sortedTags.contains(selectedCustomTag)) {
-            item(key = "active_custom_tag") {
-                FilterChip(
-                    selected = true,
-                    onClick = { onCustomTagSelected(null) },
-                    leadingIcon = {
+                leadingIcon = if (chip.isCustomTag) {
+                    {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Label,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
                         )
-                    },
-                    label = { Text("#$selectedCustomTag", style = MaterialTheme.typography.labelMedium) },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Clear tag filter",
-                            modifier = Modifier.size(14.dp)
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                )
-            }
-        }
-
-        // Available custom tags in sorted order
-        items(
-            items = sortedTags,
-            key = { "tag_$it" }
-        ) { tag ->
-            val isTagSelected = tag.equals(selectedCustomTag, ignoreCase = true)
-            FilterChip(
-                selected = isTagSelected,
-                onClick = {
-                    onCustomTagSelected(if (isTagSelected) null else tag)
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Label,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = if (isTagSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+                    }
+                } else null,
+                label = {
+                    Text(
+                        text = chip.label,
+                        style = MaterialTheme.typography.labelMedium
                     )
                 },
-                label = { Text("#$tag", style = MaterialTheme.typography.labelMedium) },
-                trailingIcon = if (isTagSelected) {
+                trailingIcon = if (chip.isCustomTag && isSelected) {
                     {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -697,23 +936,21 @@ fun TimelineFilterChips(
             )
         }
 
-        // Reorder tags chip if 2 or more tags exist
-        if (sortedTags.size >= 2) {
-            item(key = "reorder_tags_chip") {
-                FilterChip(
-                    selected = false,
-                    onClick = { showReorderDialog = true },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.SwapVert,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    label = { Text("Reorder", style = MaterialTheme.typography.labelMedium) }
-                )
-            }
+        // "Manage" Chip to reorder left/right and delete any filter/tag
+        item(key = "manage_filters_chip") {
+            FilterChip(
+                selected = false,
+                onClick = { showManageDialog = true },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                label = { Text("Manage", style = MaterialTheme.typography.labelMedium) }
+            )
         }
     }
 }
