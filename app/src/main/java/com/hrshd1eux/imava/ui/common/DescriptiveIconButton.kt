@@ -3,7 +3,6 @@ package com.hrshd1eux.imava.ui.common
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -89,8 +88,7 @@ fun DescriptiveIconButton(
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.inverseSurface,
-                    shadowElevation = 8.dp,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
+                    shadowElevation = 6.dp,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .widthIn(min = 180.dp, max = 260.dp)
