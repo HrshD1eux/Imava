@@ -996,6 +996,26 @@ class MainViewModel @Inject constructor(
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    fun getHeaderTitleForMedia(media: MediaItem, category: String? = null): String {
+        val zoneId = ZoneId.systemDefault()
+        val today = LocalDate.now(zoneId)
+        val yesterday = today.minusDays(1)
+        val sameYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())
+        val otherYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
+        val dateMs = if (category == "Trash" && media.trashTime > 0L) media.trashTime else media.dateTaken
+        val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
+        val localDate = Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
+        return when (localDate) {
+            today -> "Today"
+            yesterday -> "Yesterday"
+            else -> if (localDate.year == today.year) {
+                localDate.format(sameYearFormatter)
+            } else {
+                localDate.format(otherYearFormatter)
+            }
+        }
+    }
+
     val pagingDataFlow: Flow<PagingData<TimelineItem>> = combine(
         combine(snapshotFlow { currentBucketId }, _currentCategoryName) { bId, cat -> Pair(bId, cat) },
         combine(snapshotFlow { sortMode }, snapshotFlow { sortOrder }) { mode, order -> Pair(mode, order) },
@@ -1048,35 +1068,11 @@ class MainViewModel @Inject constructor(
             val mapped: PagingData<TimelineItem> = filteredData.map { TimelineItem.Media(it) }
             if (mode == TimelineSortMode.DATE_GROUPED) {
                 mapped.insertSeparators { before: TimelineItem?, after: TimelineItem? ->
-                    val zoneId = ZoneId.systemDefault()
-                    val today = LocalDate.now(zoneId)
-                    val yesterday = today.minusDays(1)
-                    val sameYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())
-                    val otherYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
-
-                    fun getItemTime(media: MediaItem): Long {
-                        return if (category == "Trash" && media.trashTime > 0L) media.trashTime else media.dateTaken
-                    }
-
-                    fun getHeaderTitle(dateMs: Long): String {
-                        val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
-                        val localDate = Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
-                        return when (localDate) {
-                            today -> "Today"
-                            yesterday -> "Yesterday"
-                            else -> if (localDate.year == today.year) {
-                                localDate.format(sameYearFormatter)
-                            } else {
-                                localDate.format(otherYearFormatter)
-                            }
-                        }
-                    }
-
                     if (before == null && after is TimelineItem.Media) {
-                        TimelineItem.Header(getHeaderTitle(getItemTime(after.item)))
+                        TimelineItem.Header(getHeaderTitleForMedia(after.item, category))
                     } else if (before is TimelineItem.Media && after is TimelineItem.Media) {
-                        val beforeTitle = getHeaderTitle(getItemTime(before.item))
-                        val afterTitle = getHeaderTitle(getItemTime(after.item))
+                        val beforeTitle = getHeaderTitleForMedia(before.item, category)
+                        val afterTitle = getHeaderTitleForMedia(after.item, category)
                         if (beforeTitle != afterTitle) {
                             TimelineItem.Header(afterTitle)
                         } else {

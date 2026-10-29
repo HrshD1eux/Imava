@@ -33,6 +33,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -70,6 +72,15 @@ fun TimelineScreen(
     val lazyPagingItems = viewModel.pagingDataFlow.collectAsLazyPagingItems()
     val context = LocalContext.current
     val selectionState = viewModel.selectionState
+
+    val visibleItems by viewModel.visibleMediaItems.collectAsState()
+    val currentCategory by viewModel.currentCategoryNameFlow.collectAsState()
+    val headerToMediaIdsMap = remember(visibleItems, currentCategory) {
+        visibleItems.groupBy(
+            keySelector = { viewModel.getHeaderTitleForMedia(it, currentCategory) },
+            valueTransform = { it.id }
+        )
+    }
 
     var zoomAccumulator by remember { mutableFloatStateOf(1f) }
 
@@ -239,7 +250,21 @@ fun TimelineScreen(
                             if (item != null) {
                                 when (item) {
                                     is TimelineItem.Header -> {
-                                        TimelineHeader(title = item.title)
+                                        val dateMediaIds = headerToMediaIdsMap[item.title] ?: emptyList()
+                                        val isAllDateSelected = dateMediaIds.isNotEmpty() && selectionState.selectedIds.containsAll(dateMediaIds)
+                                        TimelineHeader(
+                                            title = item.title,
+                                            inSelectionMode = selectionState.inSelectionMode,
+                                            isAllSelected = isAllDateSelected,
+                                            onToggleSelection = {
+                                                if (isAllDateSelected) {
+                                                    selectionState.deselectAll(dateMediaIds)
+                                                } else {
+                                                    selectionState.selectAll(dateMediaIds)
+                                                }
+                                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                            }
+                                        )
                                     }
                                     is TimelineItem.Media -> {
                                         val mediaItem = item.item
@@ -334,17 +359,44 @@ fun TimelineFilterChips(
 }
 
 @Composable
-fun TimelineHeader(title: String) {
-    Box(
+fun TimelineHeader(
+    title: String,
+    inSelectionMode: Boolean = false,
+    isAllSelected: Boolean = false,
+    onToggleSelection: () -> Unit = {}
+) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp, horizontal = 4.dp)
+            .padding(start = 12.dp, end = 8.dp, top = 14.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.weight(1f)
         )
+        if (inSelectionMode) {
+            TextButton(
+                onClick = onToggleSelection,
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            ) {
+                Icon(
+                    imageVector = if (isAllSelected) Icons.Default.CheckCircle else Icons.Outlined.CheckCircle,
+                    contentDescription = if (isAllSelected) "Deselect date" else "Select date",
+                    tint = if (isAllSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = if (isAllSelected) "Deselect" else "Select",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (isAllSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 

@@ -33,6 +33,10 @@ class SelectionState {
         selectedIds = selectedIds + ids
     }
 
+    fun deselectAll(ids: Collection<Long>) {
+        selectedIds = selectedIds - ids.toSet()
+    }
+
 
     fun selectRange(startId: Long, endId: Long, allItems: List<MediaItem>) {
         val startIndex = allItems.indexOfFirst { it.id == startId }

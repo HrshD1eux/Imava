@@ -42,6 +42,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.Compress
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.layout.widthIn
+import com.hrshd1eux.imava.ui.common.BulkCompressDialog
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
@@ -375,7 +382,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var showVaultSetupRequiredDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showVaultUnlockDialogForSetup by remember { androidx.compose.runtime.mutableStateOf(false) }
     var pendingMoveToVaultIds by remember { androidx.compose.runtime.mutableStateOf(emptySet<Long>()) }
-    var showSelectionMoreSheet by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showSelectionMorePopup by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showBulkCompressDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showScrubCurrentAlbumDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var isScrubbingCurrentAlbum by remember { androidx.compose.runtime.mutableStateOf(false) }
     var currentAlbumScrubProgress by remember { androidx.compose.runtime.mutableStateOf(0) }
@@ -572,16 +580,24 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             }
                         },
                         actions = {
-                            IconButton(onClick = {
-                                if (isAllSelected) {
-                                    selectionState.clear()
-                                } else {
-                                    selectionState.selectAll(allIds)
+                            TextButton(
+                                onClick = {
+                                    if (isAllSelected) {
+                                        selectionState.clear()
+                                    } else {
+                                        selectionState.selectAll(allIds)
+                                    }
                                 }
-                            }) {
+                            ) {
                                 Icon(
                                     imageVector = if (isAllSelected) Icons.Default.Deselect else Icons.Default.SelectAll,
-                                    contentDescription = if (isAllSelected) "Deselect All" else "Select All"
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = if (isAllSelected) "Deselect All" else "Select All",
+                                    style = MaterialTheme.typography.labelLarge
                                 )
                             }
                         },
@@ -871,12 +887,319 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     onClick = { showSelectionDeleteConfirmDialog = true }
                                 )
 
-                                SelectionActionButton(
-                                    modifier = Modifier.weight(1f),
-                                    icon = Icons.Default.MoreVert,
-                                    label = "More",
-                                    onClick = { showSelectionMoreSheet = true }
-                                )
+                                Box(modifier = Modifier.weight(1f)) {
+                                    SelectionActionButton(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        icon = Icons.Default.MoreVert,
+                                        label = "More",
+                                        onClick = { showSelectionMorePopup = true }
+                                    )
+
+                                    val isViewingVault = categoryName == "Hidden Vault"
+
+                                    DropdownMenu(
+                                        expanded = showSelectionMorePopup,
+                                        onDismissRequest = { showSelectionMorePopup = false },
+                                        modifier = Modifier
+                                            .widthIn(min = 250.dp, max = 290.dp)
+                                            .heightIn(max = 440.dp)
+                                            .verticalScroll(rememberScrollState())
+                                            .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(16.dp))
+                                            .border(
+                                                width = 1.dp,
+                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                                shape = RoundedCornerShape(16.dp)
+                                            )
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text("Favorite", style = MaterialTheme.typography.bodyMedium)
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                                viewModel.toggleFavoriteSelectedMedia(selectedIds.toSet())
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Compress Images", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Bulk compress photos to target size", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Compress, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                showBulkCompressDialog = true
+                                            }
+                                        )
+
+                                        if (!isViewingVault) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text("Move / Copy", style = MaterialTheme.typography.bodyMedium)
+                                                        Text("Move or copy to an album", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    showMoveToAlbumDialog = true
+                                                }
+                                            )
+                                        }
+
+                                        if (!viewModel.isVaultDisabled || isViewingVault) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text(if (isViewingVault) "Unhide" else "Move to Vault", style = MaterialTheme.typography.bodyMedium)
+                                                        Text(if (isViewingVault) "Restore to gallery" else "Protect with PIN/Password", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(if (isViewingVault) Icons.Default.Visibility else Icons.Default.VisibilityOff, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    if (isViewingVault) {
+                                                        viewModel.hideSelectedMedia(context)
+                                                    } else {
+                                                        showVaultPreConfirmDialog = true
+                                                    }
+                                                }
+                                            )
+                                        }
+
+                                        if (!isViewingVault) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text(if (selectedIds.size == 1) "Rename" else "Batch Rename", style = MaterialTheme.typography.bodyMedium)
+                                                        Text(if (selectedIds.size == 1) "Rename item" else "Rename ${selectedIds.size} items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.DriveFileRenameOutline, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    if (selectedIds.size == 1) {
+                                                        showSingleRenameDialog = true
+                                                    } else {
+                                                        showBatchRenameDialog = true
+                                                    }
+                                                }
+                                            )
+                                        }
+
+                                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Create PDF", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Convert photos into PDF", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.PictureAsPdf, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                scope.launch {
+                                                    val itemsToExport = viewModel.getSelectedMediaItems(selectedIds.toSet())
+                                                    if (itemsToExport.isNotEmpty()) {
+                                                        android.widget.Toast.makeText(context, "Generating PDF...", android.widget.Toast.LENGTH_SHORT).show()
+                                                        val pdfUri = com.hrshd1eux.imava.core.util.PdfConverter.createPdfFromImages(context, itemsToExport)
+                                                        if (pdfUri != null) {
+                                                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                                            com.hrshd1eux.imava.core.util.PdfConverter.sharePdf(context, pdfUri)
+                                                        } else {
+                                                            com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                                                            android.widget.Toast.makeText(context, "Could not create PDF from selected items", android.widget.Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    } else {
+                                                        android.widget.Toast.makeText(context, "No photos selected for PDF", android.widget.Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Clean Copy (Strip EXIF)", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Export copies without metadata", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                scope.launch {
+                                                    val items = viewModel.getSelectedMediaItems(selectedIds.toSet())
+                                                    if (items.isNotEmpty()) {
+                                                        viewModel.exportCleanCopies(context, items)
+                                                    } else {
+                                                        android.widget.Toast.makeText(context, "No photos selected to export", android.widget.Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Lossless Rotate", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Rotate photos 90° clockwise", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.AutoMirrored.Filled.RotateRight, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                scope.launch {
+                                                    val items = viewModel.getSelectedMediaItems(selectedIds.toSet())
+                                                    val photos = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>()
+                                                    if (photos.isNotEmpty()) {
+                                                        photos.forEach { p ->
+                                                            viewModel.rotateMediaLosslessly(context, p, clockwise = true)
+                                                        }
+                                                        selectionState.clear()
+                                                    } else {
+                                                        android.widget.Toast.makeText(context, "Select photos to rotate", android.widget.Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                            }
+                                        )
+
+                                        if (!isViewingVault) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text("Collage", style = MaterialTheme.typography.bodyMedium)
+                                                        Text(if (selectedIds.size in 2..9) "Create collage" else "Requires 2 to 9 photos", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Dashboard, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                enabled = selectedIds.size in 2..9,
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    scope.launch {
+                                                        val items = viewModel.getSelectedMediaItems(selectedIds.toSet())
+                                                        val photoUris = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().map { it.uri }
+                                                        if (photoUris.size in 2..9) {
+                                                            selectionState.clear()
+                                                            collageImageUris = photoUris
+                                                        } else {
+                                                            android.widget.Toast.makeText(context, "Select 2 to 9 photos for collage", android.widget.Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    }
+                                                }
+                                            )
+
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text("Compare", style = MaterialTheme.typography.bodyMedium)
+                                                        Text(if (selectedIds.size == 2) "Compare 2 items side-by-side" else "Requires exactly 2 items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Compare, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                enabled = selectedIds.size == 2,
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    scope.launch {
+                                                        val items = viewModel.getSelectedMediaItems(selectedIds.toSet())
+                                                        if (items.size == 2) {
+                                                            compareItems = Pair(items[0], items[1])
+                                                        }
+                                                    }
+                                                }
+                                            )
+
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text("Slideshow", style = MaterialTheme.typography.bodyMedium)
+                                                        Text("Play animated slideshow", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Slideshow, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    scope.launch {
+                                                        val items = viewModel.getSelectedMediaItems(selectedIds.toSet())
+                                                        if (items.isNotEmpty()) {
+                                                            selectionState.clear()
+                                                            slideshowItems = items
+                                                        }
+                                                    }
+                                                }
+                                            )
+
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text("Print", style = MaterialTheme.typography.bodyMedium)
+                                                        Text("Send photo to printer", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Print, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    scope.launch {
+                                                        val items = viewModel.getSelectedMediaItems(selectedIds.toSet())
+                                                        val firstPhoto = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().firstOrNull()
+                                                        if (firstPhoto != null) {
+                                                            com.hrshd1eux.imava.core.util.PrintUtil.printPhoto(context, firstPhoto)
+                                                        } else {
+                                                            android.widget.Toast.makeText(context, "Select a photo to print", android.widget.Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    }
+                                                }
+                                            )
+
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text("Shift Timestamp", style = MaterialTheme.typography.bodyMedium)
+                                                        Text("Adjust date and time", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    showTimeShiftDialog = true
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1334,236 +1657,23 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         }
     }
 
-    if (showSelectionMoreSheet) {
+    if (showBulkCompressDialog) {
         val selectedIds = selectionState.selectedIds
         val selectedIdsSet = remember(selectedIds) { selectedIds.toSet() }
-        val categoryName by viewModel.currentCategoryNameFlow.collectAsState()
-        val isViewingVault = categoryName == "Hidden Vault"
-
-        ModalBottomSheet(
-            onDismissRequest = { showSelectionMoreSheet = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .navigationBarsPadding()
-            ) {
-                Text(
-                    text = "More Options (${selectedIds.size} selected)",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                SelectionMoreOptionItem(
-                    icon = Icons.Default.Favorite,
-                    title = "Favorite",
-                    subtitle = "Toggle favorite status",
-                    onClick = {
-                        showSelectionMoreSheet = false
-                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
-                        viewModel.toggleFavoriteSelectedMedia(selectedIdsSet)
-                    }
-                )
-
-                if (!isViewingVault) {
-                    SelectionMoreOptionItem(
-                        icon = Icons.AutoMirrored.Filled.DriveFileMove,
-                        title = "Move / Copy",
-                        subtitle = "Move or copy items to an album",
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            showMoveToAlbumDialog = true
-                        }
-                    )
-                }
-
-                if (!viewModel.isVaultDisabled || isViewingVault) {
-                    SelectionMoreOptionItem(
-                        icon = if (isViewingVault) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        title = if (isViewingVault) "Unhide" else "Move to Vault",
-                        subtitle = if (isViewingVault) "Restore to public gallery" else "Protect with biometric / PIN lock",
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            if (isViewingVault) {
-                                viewModel.hideSelectedMedia(context)
-                            } else {
-                                showVaultPreConfirmDialog = true
-                            }
-                        }
-                    )
-                }
-
-                if (!isViewingVault) {
-                    SelectionMoreOptionItem(
-                        icon = Icons.Default.DriveFileRenameOutline,
-                        title = if (selectedIds.size == 1) "Rename" else "Batch Rename",
-                        subtitle = if (selectedIds.size == 1) "Rename selected item" else "Rename ${selectedIds.size} items in sequence",
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            if (selectedIds.size == 1) {
-                                showSingleRenameDialog = true
-                            } else {
-                                showBatchRenameDialog = true
-                            }
-                        }
-                    )
-                }
-
-                SelectionMoreOptionItem(
-                    icon = Icons.Default.PictureAsPdf,
-                    title = "Create PDF",
-                    subtitle = "Convert selected photos into a PDF document",
-                    onClick = {
-                        showSelectionMoreSheet = false
-                        scope.launch {
-                            val itemsToExport = viewModel.getSelectedMediaItems(selectedIdsSet)
-                            if (itemsToExport.isNotEmpty()) {
-                                android.widget.Toast.makeText(context, "Generating PDF...", android.widget.Toast.LENGTH_SHORT).show()
-                                val pdfUri = com.hrshd1eux.imava.core.util.PdfConverter.createPdfFromImages(context, itemsToExport)
-                                if (pdfUri != null) {
-                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                    com.hrshd1eux.imava.core.util.PdfConverter.sharePdf(context, pdfUri)
-                                } else {
-                                    com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                                    android.widget.Toast.makeText(context, "Could not create PDF from selected items", android.widget.Toast.LENGTH_SHORT).show()
-                                }
-                            } else {
-                                android.widget.Toast.makeText(context, "No photos selected for PDF", android.widget.Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                )
-
-                SelectionMoreOptionItem(
-                    icon = Icons.Default.Security,
-                    title = "Clean Copy (Strip EXIF)",
-                    subtitle = "Export copies without location or metadata",
-                    onClick = {
-                        showSelectionMoreSheet = false
-                        scope.launch {
-                            val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                            if (items.isNotEmpty()) {
-                                viewModel.exportCleanCopies(context, items)
-                            } else {
-                                android.widget.Toast.makeText(context, "No photos selected to export", android.widget.Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                )
-
-                SelectionMoreOptionItem(
-                    icon = Icons.AutoMirrored.Filled.RotateRight,
-                    title = "Lossless Rotate",
-                    subtitle = "Rotate photos 90° clockwise without re-encoding",
-                    onClick = {
-                        showSelectionMoreSheet = false
-                        scope.launch {
-                            val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                            val photos = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>()
-                            if (photos.isNotEmpty()) {
-                                photos.forEach { p ->
-                                    viewModel.rotateMediaLosslessly(context, p, clockwise = true)
-                                }
-                                selectionState.clear()
-                            } else {
-                                android.widget.Toast.makeText(context, "Select photos to rotate", android.widget.Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                )
-
-                if (!isViewingVault) {
-                    SelectionMoreOptionItem(
-                        icon = Icons.Default.Dashboard,
-                        title = "Collage",
-                        subtitle = if (selectedIds.size in 2..9) "Create collage from selected photos" else "Requires 2 to 9 photos",
-                        enabled = selectedIds.size in 2..9,
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            scope.launch {
-                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                val photoUris = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().map { it.uri }
-                                if (photoUris.size in 2..9) {
-                                    selectionState.clear()
-                                    collageImageUris = photoUris
-                                } else {
-                                    android.widget.Toast.makeText(context, "Select 2 to 9 photos for collage", android.widget.Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    )
-
-                    SelectionMoreOptionItem(
-                        icon = Icons.Default.Compare,
-                        title = "Compare",
-                        subtitle = if (selectedIds.size == 2) "Compare 2 items side-by-side" else "Requires exactly 2 items",
-                        enabled = selectedIds.size == 2,
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            scope.launch {
-                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                if (items.size == 2) {
-                                    compareItems = Pair(items[0], items[1])
-                                }
-                            }
-                        }
-                    )
-
-                    SelectionMoreOptionItem(
-                        icon = Icons.Default.Slideshow,
-                        title = "Slideshow",
-                        subtitle = "Play animated slideshow of selected items",
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            scope.launch {
-                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                if (items.isNotEmpty()) {
-                                    selectionState.clear()
-                                    slideshowItems = items
-                                }
-                            }
-                        }
-                    )
-
-                    SelectionMoreOptionItem(
-                        icon = Icons.Default.Print,
-                        title = "Print",
-                        subtitle = "Send photo to printer",
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            scope.launch {
-                                val items = viewModel.getSelectedMediaItems(selectedIdsSet)
-                                val firstPhoto = items.filterIsInstance<com.hrshd1eux.imava.data.model.MediaItem.Photo>().firstOrNull()
-                                if (firstPhoto != null) {
-                                    com.hrshd1eux.imava.core.util.PrintUtil.printPhoto(context, firstPhoto)
-                                } else {
-                                    android.widget.Toast.makeText(context, "Select a photo to print", android.widget.Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    )
-
-                    SelectionMoreOptionItem(
-                        icon = Icons.Default.AccessTime,
-                        title = "Shift Timestamp",
-                        subtitle = "Adjust date and time for selected media",
-                        onClick = {
-                            showSelectionMoreSheet = false
-                            showTimeShiftDialog = true
-                        }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+        val allVisible by viewModel.visibleMediaItems.collectAsState()
+        val selectedItems = remember(selectedIdsSet, allVisible) {
+            allVisible.filter { selectedIdsSet.contains(it.id) }
         }
+
+        BulkCompressDialog(
+            selectedItems = selectedItems,
+            onDismiss = { showBulkCompressDialog = false },
+            onComplete = {
+                showBulkCompressDialog = false
+                selectionState.clear()
+                viewModel.refreshAll()
+            }
+        )
     }
 
     if (showScrubCurrentAlbumDialog && viewModel.currentBucketId != null) {
@@ -1702,48 +1812,5 @@ fun SelectionActionButton(
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1
         )
-    }
-}
-
-@Composable
-fun SelectionMoreOptionItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String? = null,
-    modifier: Modifier = Modifier,
-    tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
-    enabled: Boolean = true,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(enabled = enabled, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.38f)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = tint,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
     }
 }
