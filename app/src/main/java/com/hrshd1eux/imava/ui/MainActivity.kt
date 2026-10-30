@@ -87,6 +87,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material.icons.filled.Compare
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.automirrored.filled.RotateRight
@@ -292,6 +293,9 @@ class MainActivity : FragmentActivity() {
             isAppLockedState.value = true
             promptAppUnlock()
         }
+        if (viewModel.currentCategoryName == "Trash" && com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(this)) {
+            viewModel.currentCategoryName = null
+        }
         viewModel.onAppForegrounded(this)
         checkPermissions()
         if (hasPermissionsState.value) {
@@ -373,6 +377,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var showSelectionShareDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showImavaDropDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var selectionSharePrivacyMode by remember { androidx.compose.runtime.mutableStateOf(com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL) }
     var showSelectionDeleteConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showSelectionDeletePermanentlyConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -711,6 +716,17 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             Icon(
                                 imageVector = if (viewModel.sortMode == TimelineSortMode.DATE_GROUPED) Icons.Default.DateRange else Icons.Default.ViewStream,
                                 contentDescription = "Toggle Sort Mode"
+                            )
+                        }
+
+                        DescriptiveIconButton(
+                            onClick = { showImavaDropDialog = true },
+                            title = "Wi-Fi Drop ⚡",
+                            description = "Transfer media directly to PC, Mac, or phone over local Wi-Fi without cloud"
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.WifiTethering,
+                                contentDescription = "Wi-Fi Drop"
                             )
                         }
 
@@ -1163,6 +1179,22 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                 }
                                             )
                                         }
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Wi-Fi Drop ⚡", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Transfer uncompressed to PC or phone over Wi-Fi", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.WifiTethering, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                showImavaDropDialog = true
+                                            }
+                                        )
 
                                         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -1676,6 +1708,47 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             Text("Preserve original EXIF markers and exact GPS position", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showSelectionShareDialog = false
+                                showImavaDropDialog = true
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.WifiTethering,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Send via Imava Wi-Fi Drop ⚡",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Direct high-speed P2P transfer to PC, Mac or phone (zero cloud)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
@@ -1693,6 +1766,22 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     Text("Cancel")
                 }
             }
+        )
+    }
+
+    if (showImavaDropDialog) {
+        val allVisible by viewModel.visibleMediaItems.collectAsState()
+        val selectedIds = selectionState.selectedIds
+        val itemsToDrop = remember(selectedIds, allVisible) {
+            if (selectedIds.isNotEmpty()) {
+                allVisible.filter { it.id in selectedIds }
+            } else {
+                allVisible
+            }
+        }
+        com.hrshd1eux.imava.ui.p2p.ImavaDropDialog(
+            itemsToShare = itemsToDrop,
+            onDismissRequest = { showImavaDropDialog = false }
         )
     }
 

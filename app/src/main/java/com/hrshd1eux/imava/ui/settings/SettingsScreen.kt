@@ -588,6 +588,47 @@ fun SettingsScreen(
 
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+                var trashLockEnabled by remember { mutableStateOf(com.hrshd1eux.imava.core.util.AppLockManager.isTrashLockEnabled(context)) }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Biometric Trash Lock 🗑️",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Require fingerprint, face, or PIN to open Trash and inspect deleted photos",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = trashLockEnabled,
+                        onCheckedChange = { enabled ->
+                            com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                activity = context,
+                                title = if (enabled) "Lock Trash" else "Unlock Trash",
+                                subtitle = if (enabled) "Verify identity to enable biometric Trash lock" else "Verify identity to disable Trash lock",
+                                onSuccess = {
+                                    com.hrshd1eux.imava.core.util.AppLockManager.setTrashLockEnabled(context, enabled)
+                                    trashLockEnabled = enabled
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                },
+                                onError = { err ->
+                                    android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
                 val vaultPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
                 var recentsPrivacyShield by remember {
                     mutableStateOf(vaultPrefs.getBoolean("recents_privacy_shield_enabled", true))

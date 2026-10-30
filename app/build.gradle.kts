@@ -150,6 +150,9 @@ dependencies {
     // Tesseract 5 OCR (100% FOSS, zero Google proprietary blobs)
     implementation(libs.tesseract4android)
 
+    // ZXing Core for Local QR Code generation (100% offline, zero cloud)
+    implementation(libs.zxing.core)
+
     // Testing
     testImplementation(libs.junit)
     testImplementation("io.mockk:mockk:1.13.9")

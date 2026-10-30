@@ -10,6 +10,7 @@ object AppLockManager {
 
     private const val PREFS_NAME = "imava_app_lock_prefs"
     private const val KEY_APP_LOCK_ENABLED = "app_lock_enabled"
+    private const val KEY_TRASH_LOCK_ENABLED = "trash_lock_enabled"
     private const val KEY_LOCKED_BUCKETS = "locked_bucket_ids"
     private const val KEY_LOCKED_NAMES = "locked_bucket_names"
     private const val KEY_LOCKED_PATHS = "locked_folder_paths"
@@ -23,6 +24,7 @@ object AppLockManager {
 
     // Session cache (resets when app is closed / killed)
     private var isAppUnlockedInSession = false
+    private var isTrashUnlockedInSession = false
     private val sessionUnlockedBuckets = mutableSetOf<Long>()
     private var lastBackgroundTimestamp = 0L
 
@@ -51,12 +53,49 @@ object AppLockManager {
         notifyLockStateChanged()
     }
 
+    fun isTrashLockEnabled(context: Context): Boolean {
+        return getPrefs(context).getBoolean(KEY_TRASH_LOCK_ENABLED, true)
+    }
+
+    fun isTrashLockActive(context: Context): Boolean {
+        return isTrashLockEnabled(context) && BiometricAuthHelper.canAuthenticate(context)
+    }
+
+    fun isTrashLocked(context: Context): Boolean {
+        return isTrashLockActive(context) && !isTrashUnlockedInSession
+    }
+
+    fun isTrashUnlockedForSession(): Boolean {
+        return isTrashUnlockedInSession
+    }
+
+    fun markTrashUnlockedForSession() {
+        isTrashUnlockedInSession = true
+        notifyLockStateChanged()
+    }
+
+    fun lockTrashSession() {
+        isTrashUnlockedInSession = false
+        notifyLockStateChanged()
+    }
+
+    fun setTrashLockEnabled(context: Context, enabled: Boolean) {
+        getPrefs(context).edit().putBoolean(KEY_TRASH_LOCK_ENABLED, enabled).apply()
+        if (!enabled) {
+            isTrashUnlockedInSession = true
+        } else {
+            isTrashUnlockedInSession = false
+        }
+        notifyLockStateChanged()
+    }
+
     fun onAppResume() {
         if (lastBackgroundTimestamp > 0L) {
             val elapsed = System.currentTimeMillis() - lastBackgroundTimestamp
             // Re-lock if backgrounded for more than 30 seconds
             if (elapsed > 30_000L) {
                 isAppUnlockedInSession = false
+                isTrashUnlockedInSession = false
                 sessionUnlockedBuckets.clear()
                 notifyLockStateChanged()
             }

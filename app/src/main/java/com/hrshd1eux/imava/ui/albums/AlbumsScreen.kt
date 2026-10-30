@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import com.hrshd1eux.imava.ui.common.ScrubAlbumDialog
 import androidx.compose.material3.AlertDialog
@@ -155,6 +156,7 @@ fun AlbumsScreen(
 
     val storageStats by viewModel.storageBreakdown.collectAsState()
     var showEmptyTrashConfirm by remember { mutableStateOf(false) }
+    var bucketToWiFiDrop by remember { mutableStateOf<BucketInfo?>(null) }
 
     val numCols = when (albumLayoutMode) {
         MainViewModel.AlbumLayoutMode.LIST -> 1
@@ -378,15 +380,45 @@ fun AlbumsScreen(
 
 
             item {
+                val isTrashLocked = com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(context)
+                val isTrashConfigured = com.hrshd1eux.imava.core.util.AppLockManager.isTrashLockActive(context)
                 AlbumRowItem(
                     icon = Icons.Default.Delete,
-                    title = "Trash",
-                    count = trashed.size,
+                    title = if (isTrashLocked) "Trash 🔒" else "Trash",
+                    count = if (isTrashLocked) 0 else trashed.size,
+                    subtitle = if (isTrashConfigured) {
+                        if (isTrashLocked) "Biometric protected · Tap to unlock" else "Unlocked for this session"
+                    } else null,
+                    actionLabel = if (isTrashLocked) "Locked" else null,
                     onClick = {
-                        viewModel.currentBucketId = null
-                        viewModel.currentBucketName = null
-                        viewModel.currentCategoryName = "Trash"
-                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        if (isTrashLocked) {
+                            val activity = context.findActivity()
+                            if (activity != null) {
+                                com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                    activity = activity,
+                                    title = "Unlock Trash",
+                                    subtitle = "Verify biometric or PIN to access deleted items",
+                                    onSuccess = {
+                                        com.hrshd1eux.imava.core.util.AppLockManager.markTrashUnlockedForSession()
+                                        com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                        viewModel.currentBucketId = null
+                                        viewModel.currentBucketName = null
+                                        viewModel.currentCategoryName = "Trash"
+                                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                                    },
+                                    onError = { err ->
+                                        android.widget.Toast.makeText(context, "Trash locked: $err", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            } else {
+                                android.widget.Toast.makeText(context, "Biometric required to view Trash", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            viewModel.currentBucketId = null
+                            viewModel.currentBucketName = null
+                            viewModel.currentCategoryName = "Trash"
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
                     }
                 )
             }
@@ -879,6 +911,28 @@ fun AlbumsScreen(
                                         Text(if (isAutoScrub) "Enabled: auto-strips incoming photos" else "Disabled: preserves original metadata", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
+
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f), modifier = Modifier.padding(horizontal = 8.dp))
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable {
+                                            val b = bucket
+                                            activeOptionsBucket = null
+                                            bucketToWiFiDrop = b
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.WifiTethering, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Share via Wi-Fi Drop ⚡", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text("Transfer album to PC / Mac / phone over local Wi-Fi", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
                             }
                         }
 
@@ -1041,6 +1095,18 @@ fun AlbumsScreen(
                         }
                     )
                 }
+            )
+        }
+
+        if (bucketToWiFiDrop != null) {
+            val b = bucketToWiFiDrop!!
+            val allVisible by viewModel.visibleMediaItems.collectAsState()
+            val albumItems = remember(b, allVisible) {
+                allVisible.filter { it.bucketId == b.id || (b.mergedBucketIds.isNotEmpty() && it.bucketId in b.mergedBucketIds) }
+            }
+            com.hrshd1eux.imava.ui.p2p.ImavaDropDialog(
+                itemsToShare = albumItems,
+                onDismissRequest = { bucketToWiFiDrop = null }
             )
         }
 

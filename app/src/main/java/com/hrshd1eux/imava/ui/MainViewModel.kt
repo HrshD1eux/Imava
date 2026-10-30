@@ -736,7 +736,7 @@ class MainViewModel @Inject constructor(
                 else if (currentBucketId != null) it.bucketId == currentBucketId
                 else !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
             }
-            "Trash" -> trash
+            "Trash" -> if (com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(application)) emptyList() else trash
             "Hidden Vault" -> if (isDecoyVault) emptyList() else vault
             "Videos" -> raw.filterIsInstance<MediaItem.Video>().let { videos ->
                 if (currentBucketId != null) {
@@ -1222,12 +1222,16 @@ class MainViewModel @Inject constructor(
                 PagingData.from(sorted)
             }
             "Trash" -> trashed.map { list ->
-                val sorted = if (order == SortOrder.OLDEST_FIRST) {
-                    list.sortedWith(compareBy<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenBy { it.id })
+                if (com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(application)) {
+                    PagingData.empty()
                 } else {
-                    list.sortedWith(compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenByDescending { it.id })
+                    val sorted = if (order == SortOrder.OLDEST_FIRST) {
+                        list.sortedWith(compareBy<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenBy { it.id })
+                    } else {
+                        list.sortedWith(compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenByDescending { it.id })
+                    }
+                    PagingData.from(sorted)
                 }
-                PagingData.from(sorted)
             }
             "Hidden Vault" -> hidden.map { list ->
                 val sorted = if (order == SortOrder.OLDEST_FIRST) list.sortedBy { it.dateTaken } else list.sortedByDescending { it.dateTaken }

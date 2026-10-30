@@ -116,10 +116,19 @@
 
 ### Albums & Privacy Lock
 - List, 2/3/4 column grid layouts with custom per-album sort orders
+- **Biometric Trash Lock**: Require fingerprint, face, or device PIN specifically before opening or viewing the Trash folder. Nosy friends or family members who borrow your phone can no longer snoop through deleted personal photos. Hides deleted item counts until authenticated and auto-relocks when backgrounded.
 - **Biometric Album Lock**: Lock individual albums with fingerprint/face/PIN
 - **Total Timeline Isolation**: Locked album photos are completely excluded from main timeline, videos, and search feeds
 - **System-Wide `.nomedia` Protection**: Automatically creates `.nomedia` inside locked album folders to hide contents from all other apps and system MediaStore
 - Pin, hide, and exclude folders with storage usage overview
+
+### Direct Wi-Fi P2P Drop ("AirDrop for Android Without Cloud")
+- **100% Offline & Zero Cloud**: High-speed peer-to-peer transfer between your Android device and any other device (Windows PC, Mac, iPhone, Linux, or secondary Android) on the same local Wi-Fi router or hotspot.
+- **No App or Account Required on Receiver**: Receivers simply scan an on-device QR code or type `http://192.168.x.x:8765` into any web browser (Chrome, Safari, Firefox, Edge).
+- **50–100+ MB/s Full-Speed Transfer**: Delivers full, uncompressed lossless original photos and 4K videos at native local Wi-Fi bandwidth without third-party cloud servers or compression.
+- **Download All as ZIP**: Streams dynamic ZIP archives on-the-fly directly to receiving browsers with zero intermediate disk space used on the phone.
+- **Bidirectional Web Upload**: Receiver devices (e.g. desktop PCs or laptops) can drag-and-drop photos and videos straight onto the browser page to send them directly into the phone's gallery (`Pictures/ImavaDrop`).
+- **High-Performance Wi-Fi Lock**: Prevents Android system power-saving from throttling transfer speeds during multi-gigabyte transfers.
 
 ### Motion Photos & Looping GIF Studio
 - Embedded micro-video playback with interactive frame scrubber

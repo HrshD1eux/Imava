@@ -62,6 +62,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Add
@@ -270,18 +272,68 @@ fun TimelineScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            val emptyMessage = when (viewModel.currentCategoryName) {
-                                "Favorites" -> "No favorite items yet"
-                                "Videos" -> "No videos found on device"
-                                "Trash" -> "Trash is empty"
-                                "Hidden Vault" -> "Vault is empty"
-                                else -> if (currentFilter != MediaFilterType.ALL || selectedCustomTag != null) "No media matches the selected filter" else "No media found on device"
+                            if (viewModel.currentCategoryName == "Trash" && com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(context)) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(52.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    Text(
+                                        text = "Trash is Locked 🔒",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = "Biometric authentication required to inspect deleted media",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(18.dp))
+                                    Button(
+                                        onClick = {
+                                            com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                                activity = context,
+                                                title = "Unlock Trash",
+                                                subtitle = "Verify identity to view deleted photos",
+                                                onSuccess = {
+                                                    com.hrshd1eux.imava.core.util.AppLockManager.markTrashUnlockedForSession()
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                                },
+                                                onError = { err ->
+                                                    android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                                }
+                                            )
+                                        },
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.Fingerprint, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Unlock Trash")
+                                    }
+                                }
+                            } else {
+                                val emptyMessage = when (viewModel.currentCategoryName) {
+                                    "Favorites" -> "No favorite items yet"
+                                    "Videos" -> "No videos found on device"
+                                    "Trash" -> "Trash is empty"
+                                    "Hidden Vault" -> "Vault is empty"
+                                    else -> if (currentFilter != MediaFilterType.ALL || selectedCustomTag != null) "No media matches the selected filter" else "No media found on device"
+                                }
+                                Text(
+                                    text = emptyMessage,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
-                            Text(
-                                text = emptyMessage,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 } else {

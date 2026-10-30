@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Style
@@ -96,6 +97,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -301,6 +303,7 @@ fun PhotoViewerScreen(
     var showOcrSheet by remember { mutableStateOf(false) }
     var showMoreMenu by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
+    var showImavaDropDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var showDeletePermanentlyConfirmDialog by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
@@ -1033,6 +1036,13 @@ fun PhotoViewerScreen(
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                            showImavaDropDialog = true
+                        }) {
+                            Icon(imageVector = Icons.Default.WifiTethering, contentDescription = "Wi-Fi Drop ⚡", tint = Color.White)
+                        }
+
+                        IconButton(onClick = {
+                            com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
                             showMoveToAlbumDialog = true
                         }) {
                             Icon(imageVector = Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = "Move to Album", tint = Color.White)
@@ -1116,6 +1126,47 @@ fun PhotoViewerScreen(
                                 Text("Preserve original EXIF markers and exact GPS position", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showShareDialog = false
+                                    showImavaDropDialog = true
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.WifiTethering,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = "Send via Imava Wi-Fi Drop ⚡",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = "Direct high-speed P2P transfer to PC, Mac or phone (zero cloud)",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                     }
                 },
                 confirmButton = {
@@ -1133,6 +1184,14 @@ fun PhotoViewerScreen(
                         Text("Cancel")
                     }
                 }
+            )
+        }
+
+        if (showImavaDropDialog) {
+            val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
+            com.hrshd1eux.imava.ui.p2p.ImavaDropDialog(
+                itemsToShare = listOf(item),
+                onDismissRequest = { showImavaDropDialog = false }
             )
         }
 

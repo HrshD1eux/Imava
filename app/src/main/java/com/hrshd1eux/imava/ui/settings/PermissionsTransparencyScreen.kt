@@ -119,7 +119,7 @@ fun PermissionsTransparencyScreen(
                 friendlyName = "Biometric Authentication",
                 technicalName = "android.permission.USE_BIOMETRIC",
                 category = "Security & Vault",
-                userFriendlyReason = "Allows using your device's fingerprint or face unlock to access your Private Vault and locked albums.",
+                userFriendlyReason = "Allows using your device's fingerprint or face unlock to access your Private Vault, Biometric Trash Lock, and concealed albums.",
                 technicalExplanation = "AndroidX BiometricPrompt API wrapper for hardware-backed KeyStore authentication.",
                 introducedApi = "API 28 (Android 9)"
             ),
@@ -127,7 +127,7 @@ fun PermissionsTransparencyScreen(
                 friendlyName = "Legacy Fingerprint Support",
                 technicalName = "android.permission.USE_FINGERPRINT",
                 category = "Security & Vault",
-                userFriendlyReason = "Backward-compatibility fallback for unlocking the vault via fingerprint on older devices.",
+                userFriendlyReason = "Backward-compatibility fallback for unlocking the vault or trash via fingerprint on older devices.",
                 technicalExplanation = "Deprecated fingerprint hardware API fallback for Android 9 and lower.",
                 introducedApi = "API 23 (Android 6)"
             ),
@@ -135,17 +135,33 @@ fun PermissionsTransparencyScreen(
                 friendlyName = "Internet & Local LAN Access",
                 technicalName = "android.permission.INTERNET",
                 category = "Network & Sync",
-                userFriendlyReason = "Used solely for local home NAS / WebDAV media backup over Wi-Fi and checking GitHub for app updates. Imava has zero tracking, zero analytics, zero advertising, and zero third-party cloud servers.",
-                technicalExplanation = "Normal permission for network socket creation. Used by WebDavClient for local LAN media synchronization and AppUpdateManager for GitHub Releases API.",
+                userFriendlyReason = "Used solely for local home NAS / WebDAV media backup, Imava Drop local Wi-Fi transfer, and checking GitHub for app updates. Imava has zero tracking, zero analytics, zero advertising, and zero third-party cloud servers.",
+                technicalExplanation = "Normal permission for network socket creation. Used by ImavaDropServer for embedded local HTTP P2P streaming, WebDavClient for local LAN media synchronization, and AppUpdateManager for GitHub Releases API.",
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.ACCESS_NETWORK_STATE" to PermissionDetail(
                 friendlyName = "Network State & Wi-Fi Check",
                 technicalName = "android.permission.ACCESS_NETWORK_STATE",
                 category = "Network & Sync",
-                userFriendlyReason = "Checks whether your device is connected to Wi-Fi before performing local NAS backups (enforcing 'Wi-Fi Only' mode) and checking GitHub for updates.",
+                userFriendlyReason = "Checks whether your device is connected to Wi-Fi before performing local NAS backups (enforcing 'Wi-Fi Only' mode), running Imava Drop, and checking GitHub for updates.",
                 technicalExplanation = "Normal permission used by ConnectivityManager and WorkManager network constraints to prevent cellular data consumption.",
                 introducedApi = "API 1 (Android 1)"
+            ),
+            "android.permission.ACCESS_WIFI_STATE" to PermissionDetail(
+                friendlyName = "Wi-Fi State & Local IP",
+                technicalName = "android.permission.ACCESS_WIFI_STATE",
+                category = "Network & Sync",
+                userFriendlyReason = "Used by Imava Drop to discover your phone's local IPv4 address and Wi-Fi state for direct high-speed P2P transfer to PC, Mac, or secondary phones.",
+                technicalExplanation = "Normal permission required to query WifiManager for local network connection info without cellular leakage.",
+                introducedApi = "API 1 (Android 1)"
+            ),
+            "android.permission.CHANGE_WIFI_MULTICAST_STATE" to PermissionDetail(
+                friendlyName = "Wi-Fi High-Performance Mode",
+                technicalName = "android.permission.CHANGE_WIFI_MULTICAST_STATE",
+                category = "Network & Sync",
+                userFriendlyReason = "Used by Imava Drop to acquire a high-performance Wi-Fi lock during large transfers, preventing Android from throttling transfer speeds.",
+                technicalExplanation = "Permits high-performance Wi-Fi lock acquisition during direct peer-to-peer HTTP socket streaming.",
+                introducedApi = "API 4 (Android 1.6)"
             ),
             "android.permission.ACCESS_LOCAL_NETWORK" to PermissionDetail(
                 friendlyName = "Local Network Discovery",
