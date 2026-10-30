@@ -276,6 +276,15 @@ fun OpenSourceLicensesScreen(
                 description = "High-performance HTTP & WebDAV streaming client for local NAS backup and updates.",
                 url = "https://square.github.io/okhttp/",
                 fullLicenseText = apache2License
+            ),
+            OpenSourceLibraryFull(
+                id = "tesseract",
+                name = "Tesseract 5 & Leptonica (Tesseract4Android)",
+                author = "Adaptech / Tesseract OCR Community",
+                licenseType = "Apache License 2.0",
+                description = "100% open-source C++ optical character recognition engine and image processing library.",
+                url = "https://github.com/adaptech-cz/Tesseract4Android",
+                fullLicenseText = apache2License
             )
         )
     }

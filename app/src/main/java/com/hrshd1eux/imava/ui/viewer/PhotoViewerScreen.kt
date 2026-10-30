@@ -79,6 +79,7 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.MovieFilter
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.DropdownMenu
@@ -297,6 +298,7 @@ fun PhotoViewerScreen(
         }
     }
     var showInfoSheet by remember { mutableStateOf(false) }
+    var showOcrSheet by remember { mutableStateOf(false) }
     var showMoreMenu by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
@@ -628,6 +630,12 @@ fun PhotoViewerScreen(
                 }
 
 
+                if (!currentItem.isVideo) {
+                    IconButton(onClick = { showOcrSheet = true }) {
+                        Icon(imageVector = Icons.Default.TextFields, contentDescription = "Scan Text (OCR)", tint = Color.White)
+                    }
+                }
+
                 IconButton(onClick = { showInfoSheet = true }) {
                     Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.White)
                 }
@@ -703,6 +711,22 @@ fun PhotoViewerScreen(
                                 showInfoSheet = true
                             }
                         )
+
+                        if (!item.isVideo) {
+                            DropdownMenuItem(
+                                text = { Text("Scan Text (OCR) 📝") },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.TextFields,
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = {
+                                    showMoreMenu = false
+                                    showOcrSheet = true
+                                }
+                            )
+                        }
 
                         if (!viewModel.isVaultDisabled || item.isHidden) {
                             DropdownMenuItem(
@@ -1112,6 +1136,15 @@ fun PhotoViewerScreen(
             )
         }
 
+
+        if (showOcrSheet) {
+            val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
+            OcrScanBottomSheet(
+                item = item,
+                viewModel = viewModel,
+                onDismiss = { showOcrSheet = false }
+            )
+        }
 
         if (showInfoSheet) {
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem

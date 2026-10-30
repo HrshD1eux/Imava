@@ -46,6 +46,13 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_6_7 = object : androidx.room.migration.Migration(6, 7) {
+        override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS media_ocr (mediaId INTEGER PRIMARY KEY NOT NULL, ocrText TEXT NOT NULL, scannedAt INTEGER NOT NULL DEFAULT 0)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_media_ocr_mediaId ON media_ocr(mediaId)")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): GalleryDatabase {
@@ -56,6 +63,12 @@ object DatabaseModule {
     @Singleton
     fun provideMetadataDao(db: GalleryDatabase): MetadataDao {
         return db.metadataDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOcrDao(db: GalleryDatabase): com.hrshd1eux.imava.data.database.OcrDao {
+        return db.ocrDao()
     }
 }
 

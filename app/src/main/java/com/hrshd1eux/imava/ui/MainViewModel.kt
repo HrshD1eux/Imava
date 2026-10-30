@@ -872,6 +872,44 @@ class MainViewModel @Inject constructor(
         _advancedFilterState.value = com.hrshd1eux.imava.ui.search.AdvancedFilterState()
     }
 
+    private val _ocrDownloadProgress = MutableStateFlow<Float?>(null)
+    val ocrDownloadProgress: StateFlow<Float?> = _ocrDownloadProgress.asStateFlow()
+
+    fun isOcrModelReady(context: Context): Boolean {
+        return com.hrshd1eux.imava.core.ocr.OcrModelManager.isModelReady(context)
+    }
+
+    suspend fun downloadOcrModel(context: Context): Result<java.io.File> {
+        _ocrDownloadProgress.value = 0f
+        return try {
+            val result = com.hrshd1eux.imava.core.ocr.OcrModelManager.downloadModel(context) { progress ->
+                _ocrDownloadProgress.value = progress
+            }
+            result
+        } finally {
+            _ocrDownloadProgress.value = null
+        }
+    }
+
+    suspend fun getCachedOcrText(mediaId: Long): String? {
+        return repository.getOcrText(mediaId)
+    }
+
+    suspend fun extractOcrText(context: Context, item: MediaItem): Result<String> {
+        val cached = repository.getOcrText(item.id)
+        if (!cached.isNullOrBlank()) {
+            return Result.success(cached)
+        }
+        val result = com.hrshd1eux.imava.core.ocr.TesseractOcrEngine.recognizeText(context, item.uri)
+        if (result.isSuccess) {
+            val text = result.getOrNull().orEmpty()
+            if (text.isNotBlank()) {
+                repository.saveOcrText(item.id, text)
+            }
+        }
+        return result
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val searchResults: StateFlow<List<MediaItem>> = combine(
         _searchQuery.debounce(300),

@@ -144,11 +144,12 @@
 - **Gallery Search Indexing**: Find photos instantly by searching any word from custom location descriptions
 - Asynchronous reverse geocoding with 1-tap "Open in Maps"
 
-### On-Device OCR & Selective Text Copy
-- Privacy-first on-device text recognition via Google Play Services ML Kit (~350 KB footprint)
-- **Selective Highlighting**: Drag selection handles or double-tap words to copy exact text snippets
-- **Smart Quick-Copy Chips**: 1-tap copy for detected phone numbers, URLs, addresses, and line totals
-- **Searchable Gallery**: Search for text visible inside photos directly from the main gallery search bar
+### On-Device OCR & Selective Text Copy (100% FOSS & Google-Free)
+- **Tesseract 5 C++ Engine**: 100% open-source on-device optical character recognition powered by Tesseract4Android (Apache 2.0). Zero dependencies on Google Play Services, Firebase, or proprietary closed-source blobs.
+- **On-Demand Model Loading**: The ~4.1 MB fast English model (`eng.traineddata`) is loaded on-demand only when you first use the feature—keeping the base APK ultra-lean with zero data tax for non-users.
+- **Selective Highlighting & Copy**: Full text selection handles with double-tap word selection or 1-tap "Copy All".
+- **Actionable Smart Chips**: Instant 1-tap detection and actions for phone numbers (dial/copy), URLs (open/copy), and emails (compose/copy).
+- **Searchable Gallery Indexing**: Extracted text is automatically indexed in your local SQLite Room database, enabling instant search for text visible in photos (receipts, signs, serial numbers) right from the gallery search bar.
 
 ### Lossless Move/Copy & Timestamp Preservation
 - Moving or copying photos between albums preserves exact original capture timestamps
@@ -246,6 +247,7 @@
 | Biometrics | AndroidX Biometric | 1.1.0 |
 | EXIF | AndroidX ExifInterface | 1.3.7 |
 | Network & WebDAV | OkHttp & Okio | 4.12.0 |
+| OCR | Tesseract 5 & Leptonica | 4.9.0 |
 | Crypto | AndroidKeyStore AES-256-GCM | API 29+ |
 
 ---

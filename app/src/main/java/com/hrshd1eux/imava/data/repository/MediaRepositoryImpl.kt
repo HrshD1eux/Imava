@@ -28,7 +28,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 class MediaRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaStoreDataSource: MediaStoreDataSource,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val ocrDao: com.hrshd1eux.imava.data.database.OcrDao? = null
 ) : MediaRepository {
 
     private suspend fun getMetadataForMediaIdsChunked(ids: List<Long>): List<MediaMetadataEntity> {
@@ -737,6 +738,7 @@ class MediaRepositoryImpl @Inject constructor(
                 if (metaFile.exists()) metaFile.delete()
             }
             metadataDao.delete(meta)
+            try { ocrDao?.deleteOcr(mediaId) } catch (_: Exception) {}
         }
     }
 
@@ -829,6 +831,11 @@ class MediaRepositoryImpl @Inject constructor(
         val rawResults = mediaStoreDataSource.searchMedia(cleanQuery)
         val tagMatchedEntities = metadataDao.getMetadataByTag(cleanQuery)
         val tagMatchedIds = tagMatchedEntities.map { it.mediaId }.toSet()
+        val ocrMatchedIds = try {
+            ocrDao?.searchMediaIdsByOcr(cleanQuery)?.toSet() ?: emptySet()
+        } catch (_: Exception) {
+            emptySet()
+        }
         val customLocationMatchedIds = try {
             val prefs = context.getSharedPreferences("imava_custom_locations", Context.MODE_PRIVATE)
             prefs.all.mapNotNull { (key, value) ->
@@ -840,13 +847,13 @@ class MediaRepositoryImpl @Inject constructor(
             emptySet()
         }
 
-        val allIds = (rawResults.map { it.id } + tagMatchedIds + customLocationMatchedIds).toList()
+        val allIds = (rawResults.map { it.id } + tagMatchedIds + customLocationMatchedIds + ocrMatchedIds).toList()
         if (allIds.isEmpty()) return@withContext emptyList()
 
         val metadataList = getMetadataForMediaIdsChunked(allIds)
         val metadataMap = metadataList.associateBy { it.mediaId }
 
-        val extraIds = (tagMatchedIds + customLocationMatchedIds) - rawResults.map { it.id }.toSet()
+        val extraIds = (tagMatchedIds + customLocationMatchedIds + ocrMatchedIds) - rawResults.map { it.id }.toSet()
         val extraItems = if (extraIds.isNotEmpty()) {
             mediaStoreDataSource.fetchMediaByIds(extraIds)
         } else emptyList<MediaItem>()
@@ -855,6 +862,16 @@ class MediaRepositoryImpl @Inject constructor(
             val meta = metadataMap[item.id]
             applyMetadata(item, meta)
         }.filter { !it.isHidden && !it.isTrashed }
+    }
+
+    override suspend fun saveOcrText(mediaId: Long, text: String) = withContext(Dispatchers.IO) {
+        if (text.isNotBlank()) {
+            ocrDao?.saveOcr(com.hrshd1eux.imava.data.database.MediaOcrEntity(mediaId = mediaId, ocrText = text.trim()))
+        }
+    }
+
+    override suspend fun getOcrText(mediaId: Long): String? = withContext(Dispatchers.IO) {
+        ocrDao?.getOcrText(mediaId)
     }
 
     override suspend fun updateMediaTags(mediaId: Long, tags: List<String>) = withContext(Dispatchers.IO) {

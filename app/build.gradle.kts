@@ -147,6 +147,9 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
 
+    // Tesseract 5 OCR (100% FOSS, zero Google proprietary blobs)
+    implementation(libs.tesseract4android)
+
     // Testing
     testImplementation(libs.junit)
     testImplementation("io.mockk:mockk:1.13.9")
