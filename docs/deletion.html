@@ -30,10 +30,12 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
     body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg-base); color: var(--text-main); line-height: 1.7; }
-    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    .container { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
     
     header {
+      width: 100%; max-width: 100%; box-sizing: border-box;
       position: sticky; top: 0; z-index: 100;
       background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(12px);

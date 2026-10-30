@@ -297,6 +297,9 @@
 
     html {
       scroll-behavior: smooth;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     body {
@@ -304,7 +307,10 @@
       background-color: var(--bg-base);
       color: var(--text-main);
       line-height: 1.6;
+      width: 100%;
+      max-width: 100%;
       overflow-x: hidden;
+      position: relative;
     }
 
     h1, h2, h3, h4, h5, .brand-font {
@@ -323,38 +329,48 @@
       top: -120px;
       left: 50%;
       transform: translateX(-50%);
-      width: 1000px;
+      width: min(1000px, 100vw);
+      max-width: 100%;
       height: 480px;
       background: radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, rgba(124, 58, 237, 0.08) 45%, rgba(248, 250, 252, 0) 70%);
       filter: blur(70px);
       pointer-events: none;
       z-index: 0;
+      overflow: hidden;
     }
 
     .container {
+      width: 100%;
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 24px;
       position: relative;
       z-index: 1;
+      box-sizing: border-box;
     }
 
     /* Navbar */
     header {
-      padding: 18px 0;
+      width: 100%;
+      max-width: 100%;
+      padding: 16px 0;
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.95);
       box-shadow: var(--shadow-sm);
+      box-sizing: border-box;
     }
 
     .nav-wrapper {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      box-sizing: border-box;
     }
 
     .logo-group {
@@ -774,6 +790,9 @@
 
     .compare-table-view {
       display: none;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .compare-table-view.active {
@@ -781,12 +800,15 @@
     }
 
     .table-wrapper {
+      width: 100%;
+      max-width: 100%;
       overflow-x: auto;
       border-radius: 16px;
       border: 1px solid var(--border);
       background: var(--bg-surface);
       box-shadow: var(--shadow-md);
       -webkit-overflow-scrolling: touch;
+      box-sizing: border-box;
     }
 
     table {
@@ -1108,6 +1130,8 @@
 
     .mobile-nav-drawer {
       display: none;
+      width: 100%;
+      max-width: 100%;
       flex-direction: column;
       background: rgba(255, 255, 255, 0.98);
       backdrop-filter: blur(20px);
@@ -1116,6 +1140,7 @@
       padding: 16px 20px 22px;
       gap: 6px;
       box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+      box-sizing: border-box;
     }
 
     .mobile-nav-drawer.open {
@@ -1257,43 +1282,52 @@
     }
 
     @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      .ambient-glow { width: 100vw; max-width: 100%; }
+
       .nav-links { display: none; }
       .mobile-menu-btn { display: flex; }
 
-      .hero { padding: 48px 0 36px; }
-      .hero-title { font-size: 2.25rem; letter-spacing: -0.8px; }
+      .hero { padding: 40px 0 30px; }
+      .hero-title { font-size: 2.2rem; letter-spacing: -0.8px; }
       .hero-subtitle { font-size: 0.98rem; line-height: 1.6; margin-bottom: 24px; }
       .badge { font-size: 0.78rem; padding: 5px 12px; line-height: 1.4; text-align: center; }
 
       .hero-cta-group {
         flex-direction: column;
         width: 100%;
-        max-width: 320px;
-        margin: 0 auto 28px;
+        max-width: 380px;
+        margin: 0 auto 24px;
         align-items: stretch;
+        gap: 12px;
       }
       .btn-primary, .btn-secondary {
         width: 100%;
         justify-content: center;
-        padding: 12px 20px;
-        font-size: 0.98rem;
+        padding: 14px 20px;
+        font-size: 1rem;
       }
 
       .test-banner {
         flex-direction: column;
         text-align: center;
-        padding: 14px 16px;
+        padding: 16px 18px;
         gap: 12px;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto 24px;
       }
       .test-banner-badge { width: 100%; justify-content: center; }
 
       .stats-strip {
         gap: 8px;
         justify-content: center;
+        width: 100%;
+        max-width: 100%;
       }
       .stat-pill {
         font-size: 0.8rem;
-        padding: 5px 12px;
+        padding: 6px 12px;
       }
 
       /* Compact, beautiful 2-column mobile screenshot grid */
@@ -1465,17 +1499,6 @@
         <div class="stat-pill">🎭 <span>Decoy PIN Mode</span></div>
         <div class="stat-pill">🪓 <span>CSPRNG Shredder</span></div>
         <div class="stat-pill">🚫 <span>0 KB Data Sent</span></div>
-        <div class="feature-card">
-          <div class="feature-icon">🎚️</div>
-          <h3 class="feature-title">Advanced Metadata Search & Filter</h3>
-          <p class="feature-text">Instant, zero-network filtering by hardware attributes: file sizes (>500MB, >1GB), resolutions (4K UHD, 1080p FHD, Panoramas, Portait), custom date ranges, and camera device models.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🌐</div>
-          <h3 class="feature-title">Direct WebDAV / Local NAS Backup (Zero Cloud)</h3>
-          <p class="feature-text">Private, direct background synchronization to your home Synology, Nextcloud, TrueNAS, QNAP, or personal WebDAV server over local Wi-Fi. True privacy with zero third-party cloud dependence.</p>
-        </div>
       </div>
     </div>
   </section>
@@ -1718,6 +1741,18 @@
           <div class="feature-icon">🔇</div>
           <h3 class="feature-title">1-Second Lossless Video Muter</h3>
           <p class="feature-text">Losslessly demux and strip audio tracks from videos using native Android MediaMuxer without re-encoding—instantaneous even on 4K 60fps clips.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3 class="feature-title">Advanced Metadata Search &amp; Filter</h3>
+          <p class="feature-text">Instant, zero-network filtering by hardware attributes: file sizes (&gt;500MB, &gt;1GB), resolutions (4K UHD, 1080p FHD, Panoramas, Portrait), custom date ranges, and camera device models.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3 class="feature-title">Direct WebDAV / Local NAS Backup (Zero Cloud)</h3>
+          <p class="feature-text">Private, direct background synchronization to your home Synology, Nextcloud, TrueNAS, QNAP, or personal WebDAV server over local Wi-Fi. True privacy with zero third-party cloud dependence.</p>
         </div>
       </div>
     </div>
