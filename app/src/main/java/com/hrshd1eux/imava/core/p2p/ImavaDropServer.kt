@@ -69,6 +69,7 @@ object ImavaDropServer {
 
     private var appContext: Context? = null
     private val scope = CoroutineScope(Dispatchers.IO)
+    var onFileReceived: (() -> Unit)? = null
 
     fun isRunning(): Boolean = _state.value.isRunning
 
@@ -216,6 +217,15 @@ object ImavaDropServer {
             val method = parts[0].uppercase(Locale.ROOT)
             val fullPath = parts[1]
             val path = fullPath.substringBefore("?")
+            val queryString = fullPath.substringAfter("?", "")
+            val queryParams = if (queryString.isNotBlank()) {
+                queryString.split("&").filter { it.contains("=") }.associate {
+                    val kv = it.split("=", limit = 2)
+                    kv[0].lowercase(Locale.ROOT) to try { URLDecoder.decode(kv[1], "UTF-8") } catch (_: Exception) { kv[1] }
+                }
+            } else {
+                emptyMap()
+            }
 
             val headers = mutableMapOf<String, String>()
             var line: String? = readAsciiLine(bis)
@@ -232,6 +242,16 @@ object ImavaDropServer {
             val clientIp = client.inetAddress.hostAddress ?: "Unknown"
 
             when {
+                method == "OPTIONS" -> {
+                    val res = "HTTP/1.1 204 No Content\r\n" +
+                            "Access-Control-Allow-Origin: *\r\n" +
+                            "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" +
+                            "Access-Control-Allow-Headers: *\r\n" +
+                            "Access-Control-Max-Age: 86400\r\n" +
+                            "Connection: close\r\n\r\n"
+                    output.write(res.toByteArray(Charsets.UTF_8))
+                    output.flush()
+                }
                 method == "GET" && (path == "/" || path == "/index.html") -> {
                     serveHtmlClient(output)
                 }
@@ -259,7 +279,7 @@ object ImavaDropServer {
                     }
                 }
                 method == "POST" && path == "/upload" -> {
-                    handleUpload(headers, bis, output, clientIp)
+                    handleUpload(headers, queryParams, bis, output, clientIp)
                 }
                 method == "GET" && path == "/api/status" -> {
                     serveJsonStatus(output)
@@ -773,7 +793,7 @@ object ImavaDropServer {
                 fill.style.width = Math.round(((i) / files.length) * 100) + "%";
 
                 try {
-                    await fetch('/upload', {
+                    await fetch('/upload?filename=' + encodeURIComponent(file.name), {
                         method: 'POST',
                         headers: {
                             'X-Filename': encodeURIComponent(file.name),
@@ -854,6 +874,7 @@ object ImavaDropServer {
 
                 val headers = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: image/jpeg\r\n" +
+                        "Access-Control-Allow-Origin: *\r\n" +
                         "Content-Length: ${bytes.size}\r\n" +
                         "Cache-Control: public, max-age=86400\r\n" +
                         "Connection: close\r\n\r\n"
@@ -951,6 +972,7 @@ object ImavaDropServer {
 
                 val headerStr = "HTTP/1.1 206 Partial Content\r\n" +
                         "Content-Type: ${item.mimeType}\r\n" +
+                        "Access-Control-Allow-Origin: *\r\n" +
                         "Content-Range: bytes $start-$end/$fileLength\r\n" +
                         "Content-Length: $contentLength\r\n" +
                         "Accept-Ranges: bytes\r\n" +
@@ -963,6 +985,7 @@ object ImavaDropServer {
             } else {
                 val headerStr = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: ${item.mimeType}\r\n" +
+                        "Access-Control-Allow-Origin: *\r\n" +
                         "Content-Length: $fileLength\r\n" +
                         "Accept-Ranges: bytes\r\n" +
                         "Content-Disposition: inline; filename=\"$filename\"\r\n" +
@@ -1030,12 +1053,13 @@ object ImavaDropServer {
 
     private fun handleUpload(
         headers: Map<String, String>,
+        queryParams: Map<String, String>,
         input: InputStream,
         output: OutputStream,
         clientIp: String
     ) {
         val ctx = appContext ?: return send404(output)
-        val rawFilename = headers["x-filename"]?.let {
+        val rawFilename = queryParams["filename"] ?: headers["x-filename"]?.let {
             try { URLDecoder.decode(it, "UTF-8") } catch (_: Exception) { null }
         } ?: "imava_drop_${System.currentTimeMillis()}.jpg"
 
@@ -1044,25 +1068,33 @@ object ImavaDropServer {
 
         val ext = cleanFilename.substringAfterLast('.', "").lowercase(Locale.ROOT)
         val isVideo = ext in setOf("mp4", "mkv", "webm", "mov", "avi", "3gp")
+        val isPhoto = ext in setOf("jpg", "jpeg", "png", "webp", "gif", "bmp", "heic", "heif", "avif", "dng")
         val mimeType = headers["content-type"]?.takeIf { it != "application/octet-stream" && it.isNotBlank() }
             ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
-            ?: if (isVideo) "video/mp4" else "image/jpeg"
+            ?: if (isVideo) "video/mp4" else if (isPhoto) "image/jpeg" else "application/octet-stream"
 
         var targetFile: File? = null
         var targetUri: Uri? = null
 
         try {
             // First attempt: Scoped Storage insert via ContentResolver (guaranteed MediaStore realtime visibility)
-            val collection = if (isVideo) {
-                MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-            } else {
-                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            val collection = when {
+                isVideo -> MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                isPhoto -> MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                else -> MediaStore.Files.getContentUri("external")
+            }
+
+            val relativePath = when {
+                isVideo -> "${Environment.DIRECTORY_MOVIES}/ImavaDrop"
+                isPhoto -> "${Environment.DIRECTORY_PICTURES}/ImavaDrop"
+                else -> "${Environment.DIRECTORY_DOWNLOADS}/ImavaDrop"
             }
 
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, cleanFilename)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/ImavaDrop")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
             }
 
@@ -1084,8 +1116,12 @@ object ImavaDropServer {
                 values.put(MediaStore.MediaColumns.IS_PENDING, 0)
                 ctx.contentResolver.update(targetUri, values, null, null)
             } else {
-                // Fallback: Direct filesystem write to Pictures/ImavaDrop
-                val dropDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "ImavaDrop")
+                // Fallback: Direct filesystem write
+                val dropDir = File(Environment.getExternalStoragePublicDirectory(
+                    if (isVideo) Environment.DIRECTORY_MOVIES
+                    else if (isPhoto) Environment.DIRECTORY_PICTURES
+                    else Environment.DIRECTORY_DOWNLOADS
+                ), "ImavaDrop")
                 if (!dropDir.exists()) dropDir.mkdirs()
 
                 var file = File(dropDir, cleanFilename)
@@ -1108,8 +1144,17 @@ object ImavaDropServer {
             addLog("Received from $clientIp: $cleanFilename")
             _state.value = _state.value.copy(filesReceivedCount = _state.value.filesReceivedCount + 1)
 
+            // Trigger real-time callback so the app refreshes gallery instantaneously
+            try {
+                onFileReceived?.invoke()
+            } catch (_: Exception) {}
+
             val json = """{"status":"ok","filename":"$cleanFilename"}"""
-            val res = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ${json.length}\r\nConnection: close\r\n\r\n$json"
+            val res = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Type: application/json\r\n" +
+                    "Access-Control-Allow-Origin: *\r\n" +
+                    "Content-Length: ${json.length}\r\n" +
+                    "Connection: close\r\n\r\n$json"
             output.write(res.toByteArray(Charsets.UTF_8))
             output.flush()
         } catch (e: Exception) {
@@ -1119,7 +1164,11 @@ object ImavaDropServer {
             addLog("Upload failed from $clientIp: ${e.message}")
 
             val errJson = """{"status":"error","message":"${e.message}"}"""
-            val res = "HTTP/1.1 500 Internal Error\r\nContent-Type: application/json\r\nContent-Length: ${errJson.length}\r\nConnection: close\r\n\r\n$errJson"
+            val res = "HTTP/1.1 500 Internal Error\r\n" +
+                    "Content-Type: application/json\r\n" +
+                    "Access-Control-Allow-Origin: *\r\n" +
+                    "Content-Length: ${errJson.length}\r\n" +
+                    "Connection: close\r\n\r\n$errJson"
             output.write(res.toByteArray(Charsets.UTF_8))
             output.flush()
         }

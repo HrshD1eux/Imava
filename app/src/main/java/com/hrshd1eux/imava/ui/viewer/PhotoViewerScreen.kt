@@ -1057,13 +1057,6 @@ fun PhotoViewerScreen(
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
-                            showImavaDropDialog = true
-                        }) {
-                            Icon(imageVector = Icons.Default.WifiTethering, contentDescription = "Wi-Fi Drop ⚡", tint = Color.White)
-                        }
-
-                        IconButton(onClick = {
-                            com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
                             showMoveToAlbumDialog = true
                         }) {
                             Icon(imageVector = Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = "Move to Album", tint = Color.White)
