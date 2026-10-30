@@ -553,6 +553,13 @@ class MainViewModel @Inject constructor(
         prefs.edit().putString("album_layout_mode", mode.name).apply()
     }
 
+    fun safeToast(context: Context?, message: String, duration: Int = android.widget.Toast.LENGTH_SHORT) {
+        if (context == null) return
+        try {
+            android.widget.Toast.makeText(context, message, duration)?.show()
+        } catch (_: Exception) {}
+    }
+
     private val _lastDeletedMediaId = MutableStateFlow<Long?>(null)
     val lastDeletedMediaId: StateFlow<Long?> = _lastDeletedMediaId.asStateFlow()
 
@@ -1699,8 +1706,8 @@ class MainViewModel @Inject constructor(
                         selectionState.clear()
                         refreshAll()
                         if (count > 0) {
-                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            android.widget.Toast.makeText(context, "Renamed $count items", android.widget.Toast.LENGTH_SHORT).show()
+                            try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                            safeToast(context, "Renamed $count items")
                         }
                     }
                 } else {
@@ -1708,8 +1715,8 @@ class MainViewModel @Inject constructor(
                     selectionState.clear()
                     refreshAll()
                     if (count > 0) {
-                        com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                        android.widget.Toast.makeText(context, "Renamed $count items", android.widget.Toast.LENGTH_SHORT).show()
+                        try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                        safeToast(context, "Renamed $count items")
                     }
                 }
             } else {
@@ -1717,8 +1724,8 @@ class MainViewModel @Inject constructor(
                 selectionState.clear()
                 refreshAll()
                 if (count > 0) {
-                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                    android.widget.Toast.makeText(context, "Renamed $count items", android.widget.Toast.LENGTH_SHORT).show()
+                    try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                    safeToast(context, "Renamed $count items")
                 }
             }
         }
@@ -1769,7 +1776,7 @@ class MainViewModel @Inject constructor(
                             pendingMoveSourceItems = null
                             pendingMoveRollbackTargets = null
                             pendingMoveOnComplete = null
-                            android.widget.Toast.makeText(context, "Move failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                            safeToast(context, "Move failed: ${e.message}")
                         }
                     } else if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.Q) {
                         try {
@@ -1802,17 +1809,17 @@ class MainViewModel @Inject constructor(
                     pendingMoveSourceItems = null
                     pendingMoveRollbackTargets = null
                     pendingMoveOnComplete = null
-                    android.widget.Toast.makeText(context, "Move failed: Activity context not found", android.widget.Toast.LENGTH_SHORT).show()
+                    safeToast(context, "Move failed: Activity context not found")
                 }
             } else {
                 loadBuckets()
                 refreshAll()
                 if (count > 0) {
-                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                    try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
                     val actionName = if (isCopy) "Copied" else "Moved"
-                    android.widget.Toast.makeText(context, "$actionName $count items to ${targetDirectory.name}", android.widget.Toast.LENGTH_SHORT).show()
+                    safeToast(context, "$actionName $count items to ${targetDirectory.name}")
                 } else if (items.isNotEmpty()) {
-                    android.widget.Toast.makeText(context, "Items are already in this album", android.widget.Toast.LENGTH_SHORT).show()
+                    safeToast(context, "Items are already in this album")
                 }
                 onComplete(count)
             }
@@ -1851,8 +1858,8 @@ class MainViewModel @Inject constructor(
             selectionState.clear()
             refreshAll()
             if (count > 0) {
-                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                android.widget.Toast.makeText(context, "Adjusted date/time for $count items", android.widget.Toast.LENGTH_SHORT).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                safeToast(context, "Adjusted date/time for $count items")
             }
             onComplete(count)
         }
@@ -2324,7 +2331,8 @@ class MainViewModel @Inject constructor(
 
             if (brokenOrphanItems.isNotEmpty()) {
                 brokenOrphanItems.forEach { orphan ->
-                    repository.deleteMetadataPermanently(orphan.id)
+                    // Mark as trashed in Room DB so it is filtered out everywhere in the UI
+                    repository.toggleTrashed(orphan)
                     repository.evictSecondaryDiskItem(orphan.id, orphan.path)
                     try { context.contentResolver.delete(orphan.uri, null, null) } catch (_: Exception) {}
                     try {
@@ -2343,8 +2351,8 @@ class MainViewModel @Inject constructor(
             if (validItems.isEmpty()) {
                 selectionState.clear()
                 refreshAll()
-                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                android.widget.Toast.makeText(context, "Removed ${brokenOrphanItems.size} broken item(s)", android.widget.Toast.LENGTH_SHORT).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                safeToast(context, "Moved ${brokenOrphanItems.size} broken item(s) to Trash")
                 return@launch
             }
 
@@ -2433,7 +2441,7 @@ class MainViewModel @Inject constructor(
 
                 if (brokenOrphanItems.isNotEmpty()) {
                     brokenOrphanItems.forEach { orphan ->
-                        repository.deleteMetadataPermanently(orphan.id)
+                        repository.toggleTrashed(orphan)
                         repository.evictSecondaryDiskItem(orphan.id, orphan.path)
                         try { context.contentResolver.delete(orphan.uri, null, null) } catch (_: Exception) {}
                         try {
@@ -2557,8 +2565,8 @@ class MainViewModel @Inject constructor(
                 }
                 selectionState.clear()
                 refreshAll()
-                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                android.widget.Toast.makeText(context, "Restored ${trashedItems.size} items", android.widget.Toast.LENGTH_SHORT).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                safeToast(context, "Restored ${trashedItems.size} items")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -2592,26 +2600,20 @@ class MainViewModel @Inject constructor(
                         repository.evictSecondaryDiskItem(orphan.id, orphan.path)
                         try { context.contentResolver.delete(orphan.uri, null, null) } catch (_: Exception) {}
                         try { context.contentResolver.delete(getMediaProviderUri(orphan), null, null) } catch (_: Exception) {}
+                        try { android.media.MediaScannerConnection.scanFile(context, arrayOf(orphan.path), null, null) } catch (_: Exception) {}
                     }
                     val orphanIds = brokenOrphans.map { it.id }.toSet()
                     _mediaItems.value = _mediaItems.value.filter { it.id !in orphanIds }
                     selectionState.deselectAll(orphanIds)
                 }
 
-                if (validItems.isEmpty()) {
-                    selectionState.clear()
-                    refreshAll()
-                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                    android.widget.Toast.makeText(context, "Permanently removed ${brokenOrphans.size} item(s)", android.widget.Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     val activity = context.findActivity()
-                    if (activity != null) {
-                        pendingBatchActionItems = validItems
+                    val mediaStoreItems = selectedItems.filter { it.id > 0 }
+                    if (activity != null && mediaStoreItems.isNotEmpty()) {
+                        pendingBatchActionItems = selectedItems
                         try {
-                            val uris = validItems.map { getMediaProviderUri(it) }
+                            val uris = mediaStoreItems.map { getMediaProviderUri(it) }
                             val pendingIntent = android.provider.MediaStore.createDeleteRequest(
                                 context.contentResolver,
                                 uris
@@ -2629,6 +2631,14 @@ class MainViewModel @Inject constructor(
                             // Fall back to physical deletion
                         }
                     }
+                }
+
+                if (validItems.isEmpty()) {
+                    selectionState.clear()
+                    refreshAll()
+                    try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                    safeToast(context, "Permanently removed ${brokenOrphans.size} item(s)")
+                    return@launch
                 }
 
                 val secureShred = com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)
@@ -2776,9 +2786,9 @@ class MainViewModel @Inject constructor(
                             pendingBatchActionItems = null
                             refreshAll()
                             if (context != null) {
-                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
                                 val msg = if (isCurrentlyTrashed) "Restored $count items" else "Moved $count items to Trash"
-                                android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                                safeToast(context, msg)
                             }
                         }
                     } else {
@@ -2841,8 +2851,8 @@ class MainViewModel @Inject constructor(
                             loadBuckets()
                             refreshAll()
                             if (context != null) {
-                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                android.widget.Toast.makeText(context, "Moved ${sourceItems.size} items successfully", android.widget.Toast.LENGTH_SHORT).show()
+                                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                                safeToast(context, "Moved ${sourceItems.size} items successfully")
                             }
                             onCompleteCallback?.invoke(sourceItems.size)
                         }
@@ -2857,8 +2867,8 @@ class MainViewModel @Inject constructor(
                             pendingBatchRenames = null
                             refreshAll()
                             if (count > 0) {
-                                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                android.widget.Toast.makeText(context, "Renamed $count items", android.widget.Toast.LENGTH_SHORT).show()
+                                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                                safeToast(context, "Renamed $count items")
                             }
                         }
                     } else {
@@ -2889,7 +2899,7 @@ class MainViewModel @Inject constructor(
                     loadBuckets()
                     refreshAll()
                     if (context != null) {
-                        android.widget.Toast.makeText(context, "Move cancelled: Permission to remove original was denied", android.widget.Toast.LENGTH_SHORT).show()
+                        safeToast(context, "Move cancelled: Permission to remove original was denied")
                     }
                 }
             } else {
@@ -2933,43 +2943,43 @@ class MainViewModel @Inject constructor(
                     activeMediaItem = repository.getMediaByIds(setOf(item.id)).firstOrNull() ?: item
                 }
             } else {
-                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                android.widget.Toast.makeText(context, "Could not rotate losslessly", android.widget.Toast.LENGTH_SHORT).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
+                safeToast(context, "Could not rotate losslessly")
             }
         }
     }
 
     fun exportCleanCopy(context: Context, item: MediaItem) {
         viewModelScope.launch {
-            android.widget.Toast.makeText(context, "Sanitizing & exporting clean copy...", android.widget.Toast.LENGTH_SHORT).show()
+            safeToast(context, "Sanitizing & exporting clean copy...")
             val file = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
             if (file != null) {
-                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                android.widget.Toast.makeText(context, "Saved clean copy to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                safeToast(context, "Saved clean copy to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG)
                 refreshAll()
             } else {
-                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                android.widget.Toast.makeText(context, "Failed to export clean copy", android.widget.Toast.LENGTH_SHORT).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
+                safeToast(context, "Failed to export clean copy")
             }
         }
     }
 
     fun exportCleanCopies(context: Context, items: List<MediaItem>) {
         viewModelScope.launch {
-            android.widget.Toast.makeText(context, "Sanitizing ${items.size} photos...", android.widget.Toast.LENGTH_SHORT).show()
+            safeToast(context, "Sanitizing ${items.size} photos...")
             var count = 0
             for (item in items) {
                 val f = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
                 if (f != null) count++
             }
             if (count > 0) {
-                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                android.widget.Toast.makeText(context, "Saved $count clean photos to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                safeToast(context, "Saved $count clean photos to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG)
                 selectionState.clear()
                 refreshAll()
             } else {
-                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                android.widget.Toast.makeText(context, "Failed to export clean photos", android.widget.Toast.LENGTH_SHORT).show()
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
+                safeToast(context, "Failed to export clean photos")
             }
         }
     }

@@ -433,16 +433,18 @@ fun TimelineScreen(
                         }
                     }
 
-                    // Floating scroll scrubber on the right edge
-                    val dateHeaders by viewModel.datePositionHeaders.collectAsState()
-                    TimelineScrubber(
-                        gridState = gridState,
-                        headers = dateHeaders,
-                        totalItemCount = lazyPagingItems.itemCount,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(vertical = 16.dp)
-                    )
+                    // Floating scroll scrubber on the right edge (hidden during multi-selection to avoid overlapping action buttons)
+                    if (!selectionState.inSelectionMode) {
+                        val dateHeaders by viewModel.datePositionHeaders.collectAsState()
+                        TimelineScrubber(
+                            gridState = gridState,
+                            headers = dateHeaders,
+                            totalItemCount = lazyPagingItems.itemCount,
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(vertical = 16.dp)
+                        )
+                    }
                 }
             }
         }

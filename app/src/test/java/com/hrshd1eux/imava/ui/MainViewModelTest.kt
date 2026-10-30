@@ -33,6 +33,10 @@ class MainViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        io.mockk.mockkStatic(android.widget.Toast::class)
+        val mockToast = mockk<android.widget.Toast>(relaxed = true)
+        every { android.widget.Toast.makeText(any(), any<CharSequence>(), any()) } returns mockToast
+        every { android.widget.Toast.makeText(any(), any<Int>(), any()) } returns mockToast
         
         every { mockApplication.getSharedPreferences(any(), any()) } returns mockk(relaxed = true)
         every { mockRepository.getFavoriteMediaFlow() } returns flowOf(emptyList())
@@ -49,6 +53,7 @@ class MainViewModelTest {
 
     @After
     fun tearDown() {
+        io.mockk.unmockkStatic(android.widget.Toast::class)
         Dispatchers.resetMain()
     }
 
@@ -162,7 +167,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun testSearchQuery_triggersRepositorySearch() = runTest {
+    fun testSearchQuery_triggersRepositorySearch() = runTest(testDispatcher) {
         val mockUri = mockk<android.net.Uri>(relaxed = true)
         val searchResultItem = MediaItem.Photo(500L, mockUri, "/path/vacation.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
         
@@ -187,7 +192,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun testDismissMemoriesFor24Hours_setsTimestamp() = runTest {
+    fun testDismissMemoriesFor24Hours_setsTimestamp() = runTest(testDispatcher) {
         assertEquals(0L, viewModel.memoriesDismissedTimestamp.value)
         viewModel.dismissMemoriesFor24Hours()
         org.junit.Assert.assertTrue(viewModel.memoriesDismissedTimestamp.value > 0L)
