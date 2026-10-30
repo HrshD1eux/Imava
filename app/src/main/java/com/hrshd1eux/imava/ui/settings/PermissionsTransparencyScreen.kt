@@ -132,19 +132,19 @@ fun PermissionsTransparencyScreen(
                 introducedApi = "API 23 (Android 6)"
             ),
             "android.permission.INTERNET" to PermissionDetail(
-                friendlyName = "Internet Access",
+                friendlyName = "Internet & Local LAN Access",
                 technicalName = "android.permission.INTERNET",
-                category = "Network & Updates",
-                userFriendlyReason = "Used solely to check GitHub Releases for app updates. Imava has zero analytics, zero crash loggers, and zero telemetry.",
-                technicalExplanation = "Normal permission for network socket creation. Used only by AppUpdateManager for GitHub Releases API.",
+                category = "Network & Sync",
+                userFriendlyReason = "Used solely for local home NAS / WebDAV media backup over Wi-Fi and checking GitHub for app updates. Imava has zero tracking, zero analytics, zero advertising, and zero third-party cloud servers.",
+                technicalExplanation = "Normal permission for network socket creation. Used by WebDavClient for local LAN media synchronization and AppUpdateManager for GitHub Releases API.",
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.ACCESS_NETWORK_STATE" to PermissionDetail(
-                friendlyName = "Network State Check",
+                friendlyName = "Network State & Wi-Fi Check",
                 technicalName = "android.permission.ACCESS_NETWORK_STATE",
-                category = "Network & Updates",
-                userFriendlyReason = "Checks if your device is connected to Wi-Fi or mobile data before checking GitHub for updates.",
-                technicalExplanation = "Normal permission used by ConnectivityManager to prevent failed network requests when offline.",
+                category = "Network & Sync",
+                userFriendlyReason = "Checks whether your device is connected to Wi-Fi before performing local NAS backups (enforcing 'Wi-Fi Only' mode) and checking GitHub for updates.",
+                technicalExplanation = "Normal permission used by ConnectivityManager and WorkManager network constraints to prevent cellular data consumption.",
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.ACCESS_LOCAL_NETWORK" to PermissionDetail(

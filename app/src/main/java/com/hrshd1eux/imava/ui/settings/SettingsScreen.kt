@@ -96,6 +96,8 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val appTheme = viewModel.appTheme
+    var showWebDavDialog by remember { mutableStateOf(false) }
+    val allMediaItems by viewModel.visibleMediaItems.collectAsState()
 
     LazyColumn(
         modifier = modifier
@@ -320,6 +322,72 @@ fun SettingsScreen(
                                 com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                             }
                         }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
+            val webDavConfig = remember(showWebDavDialog) { com.hrshd1eux.imava.data.sync.webdav.WebDavConfigManager.loadConfig(context) }
+
+            SettingsCategoryHeader(title = "Backup & Local NAS (Zero Cloud)", icon = Icons.Default.CloudUpload)
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { showWebDavDialog = true }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.CloudUpload,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Local NAS / WebDAV Sync",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = if (webDavConfig.isConfigured) {
+                                "Configured • ${webDavConfig.lastBackupStatus}"
+                            } else {
+                                "Zero-cloud backup to Synology, Nextcloud, TrueNAS, or home server over Wi-Fi"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Configure",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -916,81 +984,6 @@ fun SettingsScreen(
         }
 
         item {
-            var showWebDavDialog by remember { mutableStateOf(false) }
-            val webDavConfig = remember(showWebDavDialog) { com.hrshd1eux.imava.data.sync.webdav.WebDavConfigManager.loadConfig(context) }
-            val allMediaItems by viewModel.visibleMediaItems.collectAsState()
-
-            SettingsCategoryHeader(title = "Backup & Local NAS", icon = Icons.Default.CloudUpload)
-
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { showWebDavDialog = true }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.size(44.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Default.CloudUpload,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(14.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Local NAS / WebDAV Sync",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = if (webDavConfig.isConfigured) {
-                                "Configured • ${webDavConfig.lastBackupStatus}"
-                            } else {
-                                "Zero-cloud backup to Synology, Nextcloud, TrueNAS, or home server"
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Configure",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
-            if (showWebDavDialog) {
-                WebDavSettingsDialog(
-                    allItems = allMediaItems,
-                    onDismiss = { showWebDavDialog = false }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        item {
             SettingsCategoryHeader(title = "About & Legal", icon = Icons.Default.Info)
 
             Card(
@@ -1050,6 +1043,13 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+
+    if (showWebDavDialog) {
+        WebDavSettingsDialog(
+            allItems = allMediaItems,
+            onDismiss = { showWebDavDialog = false }
+        )
     }
 }
 

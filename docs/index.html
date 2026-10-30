@@ -107,10 +107,10 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Is Imava completely offline? Does it upload any photos or telemetry to the cloud?",
+        "name": "Is Imava private? Does it upload any photos or telemetry to third-party cloud servers?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, Imava is completely offline. It does not declare the Android INTERNET permission for media management, meaning zero bytes of photo data, metadata, facial analysis, or telemetry ever leave your device. All thumbnails, Room SQLite indexing, and machine learning OCR run locally."
+          "text": "Imava is 100% private with zero cloud telemetry. The INTERNET permission is used solely for checking GitHub for app updates and optional direct backup to your home NAS / WebDAV server over local Wi-Fi. Zero bytes of photo data, metadata, or analytics are ever transmitted to third parties or proprietary cloud servers."
         }
       },
       {
@@ -2402,11 +2402,11 @@
       <div class="faq-grid">
         <details class="faq-item" open>
           <summary class="faq-header">
-            <span>Is Imava completely offline? Does it upload anything to the cloud?</span>
+            <span>Is Imava private? Does it upload anything to third-party cloud servers?</span>
             <span class="faq-icon-arrow">▾</span>
           </summary>
           <div class="faq-body">
-            Yes, Imava is completely offline. The core application does not declare the Android INTERNET permission for photo viewing or processing. Not a single photo, video, tag, facial recognition embedding, or telemetry byte ever leaves your device. All SQLite Room indexing and ML text recognition occur strictly on-device.
+            Imava is 100% private with zero cloud telemetry. The Android INTERNET permission is used solely for checking GitHub Releases for app updates and optional direct backup to your home NAS / WebDAV server over local Wi-Fi. Not a single photo, video, tag, facial recognition embedding, or telemetry byte is ever sent to third parties or proprietary cloud servers. All Room SQLite indexing and ML text recognition occur strictly on-device.
           </div>
         </details>
 

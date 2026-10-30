@@ -187,6 +187,23 @@
 - Perceptual hashing (dHash + aHash) on 32x32 micro-thumbnails
 - Progress reporting
 
+### Advanced Metadata Search & Filter
+- Real camera attributes & hardware metadata filtering directly from the Room database (zero network overhead, instant SQLite speed)
+- Filter by file size thresholds (`> 100 MB`, `> 500 MB`, `> 1 GB`) for rapid storage management
+- Filter by exact resolutions: 4K UHD (`>= 3840x2160`), 1080p Full HD, Panorama (`aspect ratio >= 2:1`), and Portrait
+- Filter by camera/phone make and model (e.g., Pixel 8 Pro vs Sony A7IV)
+- Date range presets (This Week, This Month, Last 3 Months, Custom Date Range)
+- Multi-dimensional compound filtering seamlessly combined with custom tags and favorites
+
+### Direct WebDAV / Local NAS Backup (Zero Cloud)
+- **Zero Cloud Reliance**: Optional private backup directly to home NAS appliances (Synology, Nextcloud, TrueNAS, QNAP, ownCloud) or custom WebDAV endpoints over local Wi-Fi.
+- **Total Local Privacy**: Zero third-party cloud servers, zero external telemetry, zero subscription lock-in. Your media never leaves your local network.
+- **Streaming Native HTTP PUT**: High-performance RFC 4918 WebDAV streaming engine powered by OkHttp, uploading multi-gigabyte 4K video files without memory spikes.
+- **Incremental Sync Ledger**: Local Room database sync tracking ensures only newly created or modified media files are transferred, avoiding duplicate uploads.
+- **Automated WorkManager Scheduling**: 24-hour periodic background backups with strict **Wi-Fi Only** and **Device Charging** constraints to safeguard cellular data and battery life.
+- **Homelab Ready**: Full support for custom ports, basic authentication, configurable destination paths, and optional self-signed SSL/TLS certificates.
+- **Live Connection Diagnostics**: One-tap in-app server reachability and credential validator.
+
 ### Trash & Cryptographic File Shredder
 - **30-day auto-purge**: Configurable trash retention via WorkManager
 - **Cryptographic File Shredding (Anti-Recovery)**: Standard OS file deletion (`unlink`) only removes the catalog entry, leaving raw JPEG/MP4 blocks physically intact on flash memory where data recovery tools (DiskDigger, Recuva, PhotoRec) can easily carve them back.
@@ -228,6 +245,7 @@
 | Pagination | Paging 3 | 3.2.1 |
 | Biometrics | AndroidX Biometric | 1.1.0 |
 | EXIF | AndroidX ExifInterface | 1.3.7 |
+| Network & WebDAV | OkHttp & Okio | 4.12.0 |
 | Crypto | AndroidKeyStore AES-256-GCM | API 29+ |
 
 ---

@@ -267,6 +267,15 @@ fun OpenSourceLicensesScreen(
                 description = "System document printing pipeline and Kotlin fragment extensions.",
                 url = "https://developer.android.com/jetpack/androidx/releases/print",
                 fullLicenseText = apache2License
+            ),
+            OpenSourceLibraryFull(
+                id = "okhttp",
+                name = "OkHttp & Okio",
+                author = "Square, Inc.",
+                licenseType = "Apache License 2.0",
+                description = "High-performance HTTP & WebDAV streaming client for local NAS backup and updates.",
+                url = "https://square.github.io/okhttp/",
+                fullLicenseText = apache2License
             )
         )
     }
