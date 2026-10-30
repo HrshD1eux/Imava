@@ -90,6 +90,25 @@
             </intent-filter>
         </activity>
 
+        <!-- System Share Target: Clean Share Proxy (Strips EXIF & GPS from any app) -->
+        <activity
+            android:name=".ui.share.CleanShareActivity"
+            android:label="Imava Clean Share (No GPS)"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.hrshd1eux.imava.fileprovider"
