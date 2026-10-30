@@ -1544,6 +1544,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         story = story,
                         onDismiss = { viewModel.activeMemoryStory = null },
                         onOpenMediaInViewer = { item ->
+                            viewModel.setCustomViewerMediaItems(story.items)
                             viewModel.activeMemoryStory = null
                             viewModel.activeMediaItem = item
                         }

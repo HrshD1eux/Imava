@@ -435,7 +435,10 @@ fun SearchScreen(
                         items(searchResults, key = { it.id }) { item ->
                             SearchResultGridCell(
                                 item = item,
-                                onClick = { viewModel.activeMediaItem = item }
+                                onClick = {
+                                    viewModel.setCustomViewerMediaItems(searchResults)
+                                    viewModel.activeMediaItem = item
+                                }
                             )
                         }
                     }

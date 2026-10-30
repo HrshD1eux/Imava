@@ -808,6 +808,52 @@ class MainViewModel @Inject constructor(
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    private val _customViewerMediaItems = MutableStateFlow<List<MediaItem>?>(null)
+    val customViewerMediaItems: StateFlow<List<MediaItem>?> = _customViewerMediaItems.asStateFlow()
+
+    fun setCustomViewerMediaItems(items: List<MediaItem>?) {
+        _customViewerMediaItems.value = items
+    }
+
+    private fun computeViewerItems(
+        visible: List<MediaItem>,
+        customTag: String?,
+        filter: MediaFilterType,
+        customList: List<MediaItem>?
+    ): List<MediaItem> {
+        if (customList != null) return customList
+
+        var result = visible
+        if (!customTag.isNullOrBlank()) {
+            val cleanTag = customTag.trim().removePrefix("#").removePrefix("+").trim()
+            result = result.filter { item ->
+                item.tags.any { t ->
+                    val cleanT = t.trim().removePrefix("#").removePrefix("+").trim()
+                    cleanT.equals(cleanTag, ignoreCase = true)
+                }
+            }
+        }
+        if (filter != MediaFilterType.ALL) {
+            result = result.filter { matchesFilter(it, filter) }
+        }
+        return result
+    }
+
+    val viewerMediaItems: StateFlow<List<MediaItem>> = combine(
+        visibleMediaItems,
+        _selectedCustomTag,
+        _selectedFilter,
+        _customViewerMediaItems
+    ) { visible, customTag, filter, customList ->
+        computeViewerItems(visible, customTag, filter, customList)
+    }
+    .flowOn(Dispatchers.Default)
+    .stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        emptyList()
+    )
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
@@ -1816,7 +1862,7 @@ class MainViewModel @Inject constructor(
             if (targetNextItem != null && targetNextItem.id != deletedItem.id) {
                 activeMediaItem = targetNextItem
             } else {
-                val list = visibleMediaItems.value
+                val list = viewerMediaItems.value
                 val idx = list.indexOfFirst { it.id == deletedItem.id }
                 activeMediaItem = if (idx != -1) {
                     if (idx + 1 < list.size) list[idx + 1]

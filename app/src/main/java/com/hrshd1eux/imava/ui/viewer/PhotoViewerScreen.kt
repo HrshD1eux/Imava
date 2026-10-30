@@ -143,10 +143,11 @@ fun PhotoViewerScreen(
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
 
-    // Reset orientation on viewer exit
+    // Reset orientation & custom viewer playlist on viewer exit
     DisposableEffect(Unit) {
         onDispose {
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            viewModel.setCustomViewerMediaItems(null)
         }
     }
 
@@ -175,7 +176,7 @@ fun PhotoViewerScreen(
         }
     }
 
-    val visibleMediaItems by viewModel.visibleMediaItems.collectAsState()
+    val visibleMediaItems by viewModel.viewerMediaItems.collectAsState()
 
     val activeItem = viewModel.activeMediaItem ?: return
 
