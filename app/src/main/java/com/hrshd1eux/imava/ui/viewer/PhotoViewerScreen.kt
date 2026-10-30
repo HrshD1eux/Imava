@@ -46,7 +46,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.RestoreFromTrash
 import androidx.compose.material.icons.filled.Favorite
@@ -317,8 +316,6 @@ fun PhotoViewerScreen(
     var showSetAsDialog by remember { mutableStateOf(false) }
     var showAlbumCoverChooserDialog by remember { mutableStateOf(false) }
     var showVideoTrimDialog by remember { mutableStateOf(false) }
-    var showVideoCompressorDialog by remember { mutableStateOf(false) }
-    var showDocumentScannerDialog by remember { mutableStateOf(false) }
 
     var isMotionPhoto by remember { mutableStateOf(false) }
     var isPlayingMotionPhoto by remember { mutableStateOf(false) }
@@ -805,15 +802,6 @@ fun PhotoViewerScreen(
                                     }
                                 }
                             )
-
-                            DropdownMenuItem(
-                                text = { Text("Flatten & Scan Document 📄") },
-                                leadingIcon = { Icon(Icons.Default.DocumentScanner, contentDescription = null) },
-                                onClick = {
-                                    showMoreMenu = false
-                                    showDocumentScannerDialog = true
-                                }
-                            )
                         }
 
                         if (item is com.hrshd1eux.imava.data.model.MediaItem.Video) {
@@ -843,15 +831,6 @@ fun PhotoViewerScreen(
                                 onClick = {
                                     showMoreMenu = false
                                     showVideoTrimDialog = true
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text("Compress Video (Hardware) ⚡") },
-                                leadingIcon = { Icon(Icons.Default.Compress, contentDescription = null) },
-                                onClick = {
-                                    showMoreMenu = false
-                                    showVideoCompressorDialog = true
                                 }
                             )
 
@@ -2028,30 +2007,6 @@ fun PhotoViewerScreen(
                     mediaItem = item,
                     onDismiss = { showVideoTrimDialog = false },
                     onSuccess = { viewModel.refreshAll() }
-                )
-            }
-        }
-
-        if (showVideoCompressorDialog) {
-            val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
-            if (item is com.hrshd1eux.imava.data.model.MediaItem.Video) {
-                VideoCompressorDialog(
-                    videoUri = item.uri,
-                    onDismissRequest = {
-                        showVideoCompressorDialog = false
-                        viewModel.refreshAll()
-                    }
-                )
-            }
-        }
-
-        if (showDocumentScannerDialog) {
-            val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
-            if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
-                DocumentScannerDialog(
-                    photoUri = item.uri,
-                    onDismissRequest = { showDocumentScannerDialog = false },
-                    onDocumentSaved = { viewModel.refreshAll() }
                 )
             }
         }

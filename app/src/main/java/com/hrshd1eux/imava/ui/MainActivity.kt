@@ -90,9 +90,6 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material.icons.filled.Compare
-import androidx.compose.material.icons.filled.DocumentScanner
-import com.hrshd1eux.imava.ui.viewer.DocumentScannerDialog
-import com.hrshd1eux.imava.ui.viewer.VideoCompressorDialog
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.automirrored.filled.RotateRight
 import androidx.compose.material.icons.filled.SelectAll
@@ -402,10 +399,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     var showVaultSetupRequiredDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var pendingMoveToVaultIds by remember { androidx.compose.runtime.mutableStateOf(emptySet<Long>()) }
     var showSelectionMorePopup by remember { androidx.compose.runtime.mutableStateOf(false) }
-    var showSelectionVideoCompressorDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
-    var selectionVideoForCompressor by remember { androidx.compose.runtime.mutableStateOf<Uri?>(null) }
-    var showSelectionDocumentScannerDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
-    var selectionPhotoForScanner by remember { androidx.compose.runtime.mutableStateOf<Uri?>(null) }
     var showBulkCompressDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
 
     DisposableEffect(Unit) {
@@ -646,6 +639,15 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             }
                         },
                         actions = {
+                            IconButton(
+                                onClick = { showImavaDropDialog = true }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.WifiTethering,
+                                    contentDescription = "Wi-Fi Drop",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                             TextButton(
                                 onClick = {
                                     if (isAllSelected) {
@@ -1105,65 +1107,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
                                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
                                     ) {
-                                        val singleSelectedItem = remember(selectedIds, allVisibleItems) {
-                                            if (selectedIds.size == 1) allVisibleItems.firstOrNull { it.id == selectedIds.first() } else null
-                                        }
-
-                                        if (singleSelectedItem is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Column {
-                                                        Text("Scan Document (Keystoning) 📄", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                                        Text("Flatten perspective angles with native setPolyToPoly", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                                    }
-                                                },
-                                                leadingIcon = {
-                                                    Icon(Icons.Default.DocumentScanner, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                                                },
-                                                onClick = {
-                                                    showSelectionMorePopup = false
-                                                    selectionPhotoForScanner = singleSelectedItem.uri
-                                                    showSelectionDocumentScannerDialog = true
-                                                }
-                                            )
-                                        }
-
-                                        if (singleSelectedItem is com.hrshd1eux.imava.data.model.MediaItem.Video) {
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Column {
-                                                        Text("Compress Video (Hardware) ⚡", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                                        Text("Hardware MediaCodec: Discord <24MB & compact presets", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                                    }
-                                                },
-                                                leadingIcon = {
-                                                    Icon(Icons.Default.Compress, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                                                },
-                                                onClick = {
-                                                    showSelectionMorePopup = false
-                                                    selectionVideoForCompressor = singleSelectedItem.uri
-                                                    showSelectionVideoCompressorDialog = true
-                                                }
-                                            )
-                                        }
-
-                                        DropdownMenuItem(
-                                            text = {
-                                                Column {
-                                                    Text("Clean Share (Privacy Strip) 🛡️", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                                    Text("Scrub all EXIF & GPS before sharing to any app", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                                }
-                                            },
-                                            leadingIcon = {
-                                                Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                                            },
-                                            onClick = {
-                                                showSelectionMorePopup = false
-                                                viewModel.shareSelectedMedia(context, com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL)
-                                            }
-                                        )
-
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                                         DropdownMenuItem(
                                             text = {
                                                 Text("Favorite", style = MaterialTheme.typography.bodyMedium)
@@ -2075,32 +2018,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         } else {
             showSingleRenameDialog = false
         }
-    }
-
-    if (showSelectionVideoCompressorDialog && selectionVideoForCompressor != null) {
-        VideoCompressorDialog(
-            videoUri = selectionVideoForCompressor!!,
-            onDismissRequest = {
-                showSelectionVideoCompressorDialog = false
-                selectionVideoForCompressor = null
-            }
-        )
-    }
-
-    if (showSelectionDocumentScannerDialog && selectionPhotoForScanner != null) {
-        DocumentScannerDialog(
-            photoUri = selectionPhotoForScanner!!,
-            onDismissRequest = {
-                showSelectionDocumentScannerDialog = false
-                selectionPhotoForScanner = null
-            },
-            onDocumentSaved = {
-                showSelectionDocumentScannerDialog = false
-                selectionPhotoForScanner = null
-                selectionState.clear()
-                viewModel.refreshAll()
-            }
-        )
     }
 
     if (showBulkCompressDialog) {

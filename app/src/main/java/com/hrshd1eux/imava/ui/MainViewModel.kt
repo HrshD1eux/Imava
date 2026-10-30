@@ -1988,6 +1988,10 @@ class MainViewModel @Inject constructor(
     }
 
     fun toggleTrashed(context: Context, item: MediaItem, targetNextItem: MediaItem? = null) {
+        if (!item.isTrashed) {
+            _mediaItems.value = _mediaItems.value.filter { it.id != item.id }
+            try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+        }
         viewModelScope.launch {
             try {
                 val isDirectDiskFile = item.uri.scheme != android.content.ContentResolver.SCHEME_CONTENT || item.id <= 0
@@ -2020,8 +2024,10 @@ class MainViewModel @Inject constructor(
                     if (srcFile.exists()) {
                         val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
                         try {
-                            srcFile.copyTo(destFile, overwrite = true)
-                            srcFile.delete()
+                            if (!srcFile.renameTo(destFile)) {
+                                srcFile.copyTo(destFile, overwrite = true)
+                                srcFile.delete()
+                            }
                         } catch (_: Exception) {}
                     }
                     try {
@@ -2040,8 +2046,10 @@ class MainViewModel @Inject constructor(
                     if (trashedFile.exists()) {
                         try {
                             origFile.parentFile?.mkdirs()
-                            trashedFile.copyTo(origFile, overwrite = true)
-                            trashedFile.delete()
+                            if (!trashedFile.renameTo(origFile)) {
+                                trashedFile.copyTo(origFile, overwrite = true)
+                                trashedFile.delete()
+                            }
                         } catch (_: Exception) {}
                     }
                     try {
@@ -2208,6 +2216,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun deletePermanently(context: Context, item: MediaItem, targetNextItem: MediaItem? = null) {
+        _mediaItems.value = _mediaItems.value.filter { it.id != item.id }
+        try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
         viewModelScope.launch {
             try {
                 val isDirectDiskFile = item.uri.scheme != android.content.ContentResolver.SCHEME_CONTENT || item.id <= 0
@@ -2306,6 +2316,11 @@ class MainViewModel @Inject constructor(
         val selectedIds = selectionState.selectedIds.toSet()
         if (selectedIds.isEmpty()) return
 
+        // Instant UI feedback: dismiss selection and remove items immediately (0ms perceived latency)
+        selectionState.clear()
+        _mediaItems.value = _mediaItems.value.filter { it.id !in selectedIds }
+        try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+
         viewModelScope.launch {
             val visibleMap = visibleMediaItems.value.associateBy { it.id }
             val resolvedItems = selectedIds.mapNotNull { visibleMap[it] }.toMutableList()
@@ -2319,7 +2334,6 @@ class MainViewModel @Inject constructor(
                 selectedIds.forEach { id ->
                     repository.deleteMetadataPermanently(id)
                 }
-                selectionState.clear()
                 refreshAll()
                 return@launch
             }
@@ -2343,15 +2357,10 @@ class MainViewModel @Inject constructor(
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(orphan.path), null, null)
                     } catch (_: Exception) {}
                 }
-                val orphanIds = brokenOrphanItems.map { it.id }.toSet()
-                _mediaItems.value = _mediaItems.value.filter { it.id !in orphanIds }
-                selectionState.deselectAll(orphanIds)
             }
 
             if (validItems.isEmpty()) {
-                selectionState.clear()
                 refreshAll()
-                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
                 safeToast(context, "Moved ${brokenOrphanItems.size} broken item(s) to Trash")
                 return@launch
             }
@@ -2389,8 +2398,10 @@ class MainViewModel @Inject constructor(
                     if (srcFile.exists()) {
                         val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
                         try {
-                            srcFile.copyTo(destFile, overwrite = true)
-                            srcFile.delete()
+                            if (!srcFile.renameTo(destFile)) {
+                                srcFile.copyTo(destFile, overwrite = true)
+                                srcFile.delete()
+                            }
                         } catch (_: Exception) {}
                     }
                     try {
@@ -2405,7 +2416,6 @@ class MainViewModel @Inject constructor(
                     } catch (_: Exception) {}
                     repository.toggleTrashed(item)
                 }
-                selectionState.clear()
                 refreshAll()
             } catch (e: Exception) {
                 val recoverable = e as? android.app.RecoverableSecurityException
@@ -2576,6 +2586,12 @@ class MainViewModel @Inject constructor(
     fun deleteSelectedMediaPermanently(context: Context) {
         val selectedIds = selectionState.selectedIds.toSet()
         if (selectedIds.isEmpty()) return
+
+        // Instant UI feedback: dismiss selection and remove items immediately (0ms perceived latency)
+        selectionState.clear()
+        _mediaItems.value = _mediaItems.value.filter { it.id !in selectedIds }
+        try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+
         viewModelScope.launch {
             val selectedItems = trashed.value.filter { selectedIds.contains(it.id) }.ifEmpty {
                 repository.getMediaByIds(selectedIds)
