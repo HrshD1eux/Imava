@@ -35,3 +35,7 @@ app/File*
 .kotlin/
 release_body.md
 
+
+# Python caches
+__pycache__/
+*.pyc
