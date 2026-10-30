@@ -285,15 +285,6 @@ fun OpenSourceLicensesScreen(
                 description = "100% open-source C++ optical character recognition engine and image processing library.",
                 url = "https://github.com/adaptech-cz/Tesseract4Android",
                 fullLicenseText = apache2License
-            ),
-            OpenSourceLibraryFull(
-                id = "zxing",
-                name = "ZXing Core (Zebra Crossing)",
-                author = "ZXing Authors / Apache 2.0 Contributors",
-                licenseType = "Apache License 2.0",
-                description = "100% open-source QR code image processing library used for Imava Drop local Wi-Fi peer-to-peer pairing.",
-                url = "https://github.com/zxing/zxing",
-                fullLicenseText = apache2License
             )
         )
     }

@@ -22,8 +22,8 @@ android {
         applicationId = "com.hrshd1eux.imava"
         minSdk = 29
         targetSdk = 35
-        versionCode = 65
-        versionName = "1.1.64"
+        versionCode = 66
+        versionName = "1.1.65"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -149,9 +149,6 @@ dependencies {
 
     // Tesseract 5 OCR (100% FOSS, zero Google proprietary blobs)
     implementation(libs.tesseract4android)
-
-    // ZXing Core for Local QR Code generation (100% offline, zero cloud)
-    implementation(libs.zxing.core)
 
     // Testing
     testImplementation(libs.junit)

@@ -22,14 +22,11 @@ work = "2.9.0"
 print = "1.0.0"
 palette = "1.0.0"
 tesseract = "4.9.0"
-zxing = "3.5.3"
 
 [libraries]
 # Tesseract 5 OCR (100% FOSS, zero Google proprietary blobs)
 tesseract4android = { group = "cz.adaptech.tesseract4android", name = "tesseract4android", version.ref = "tesseract" }
 
-# ZXing Core for Local Wi-Fi Drop QR Codes (Apache 2.0, 100% FOSS)
-zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 androidx-palette = { group = "androidx.palette", name = "palette-ktx", version.ref = "palette" }
 androidx-print = { group = "androidx.print", name = "print", version.ref = "print" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
