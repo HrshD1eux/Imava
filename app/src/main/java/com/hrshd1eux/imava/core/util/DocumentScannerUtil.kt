@@ -28,9 +28,33 @@ object DocumentScannerUtil {
         CLEAN_ENHANCED
     }
 
+    fun calculateWarpDimensions(
+        tlX: Float, tlY: Float,
+        trX: Float, trY: Float,
+        brX: Float, brY: Float,
+        blX: Float, blY: Float
+    ): Pair<Int, Int> {
+        val widthTop = hypot((trX - tlX).toDouble(), (trY - tlY).toDouble())
+        val widthBottom = hypot((brX - blX).toDouble(), (brY - blY).toDouble())
+        val targetWidth = max(widthTop, widthBottom).toInt().coerceAtLeast(100)
+
+        val heightLeft = hypot((blX - tlX).toDouble(), (blY - tlY).toDouble())
+        val heightRight = hypot((brX - trX).toDouble(), (brY - trY).toDouble())
+        val targetHeight = max(heightLeft, heightRight).toInt().coerceAtLeast(100)
+
+        return Pair(targetWidth, targetHeight)
+    }
+
+    fun calculateWarpDimensions(
+        tl: PointF,
+        tr: PointF,
+        br: PointF,
+        bl: PointF
+    ): Pair<Int, Int> = calculateWarpDimensions(tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y)
+
     /**
      * Corrects perspective distortion using Android's native Matrix.setPolyToPoly (API 1+).
-     * Zero external libraries, zero OpenCV, 100% native hardware acceleration.
+     * Zero external libraries, zero OpenCV, fully native hardware acceleration.
      */
     fun warpPerspective(
         source: Bitmap,
@@ -39,14 +63,7 @@ object DocumentScannerUtil {
         br: PointF,
         bl: PointF
     ): Bitmap {
-        // Calculate true dimensions using Euclidean distance of opposite sides
-        val widthTop = hypot((tr.x - tl.x).toDouble(), (tr.y - tl.y).toDouble())
-        val widthBottom = hypot((br.x - bl.x).toDouble(), (br.y - bl.y).toDouble())
-        val targetWidth = max(widthTop, widthBottom).toInt().coerceAtLeast(100)
-
-        val heightLeft = hypot((bl.x - tl.x).toDouble(), (bl.y - tl.y).toDouble())
-        val heightRight = hypot((br.x - tr.x).toDouble(), (br.y - tr.y).toDouble())
-        val targetHeight = max(heightLeft, heightRight).toInt().coerceAtLeast(100)
+        val (targetWidth, targetHeight) = calculateWarpDimensions(tl, tr, br, bl)
 
         val srcPoints = floatArrayOf(
             tl.x, tl.y,

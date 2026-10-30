@@ -64,5 +64,6 @@ interface MediaRepository {
     suspend fun updateMediaTags(mediaId: Long, tags: List<String>)
     suspend fun saveOcrText(mediaId: Long, text: String)
     suspend fun getOcrText(mediaId: Long): String?
+    fun evictSecondaryDiskItem(mediaId: Long, path: String = "")
     fun observeMediaChanges(): Flow<Unit>
 }

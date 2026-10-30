@@ -1,10 +1,12 @@
 package com.hrshd1eux.imava.core.p2p
 
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -301,8 +303,14 @@ object ImavaDropServer {
         val totalSizeStr = FormatUtils.formatFileSize(_state.value.totalBytes)
         val deviceModel = "${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}"
 
+        val itemsJson = items.joinToString(",", "[", "]") { item ->
+            val filename = getFilename(item).replace("\\", "\\\\").replace("\"", "\\\"")
+            val isVideo = item is MediaItem.Video
+            """{"id":${item.id},"name":"$filename","size":"${FormatUtils.formatFileSize(item.size)}","isVideo":$isVideo}"""
+        }
+
         val cardsHtml = StringBuilder()
-        for (item in items) {
+        for ((idx, item) in items.withIndex()) {
             val filename = getFilename(item)
             val sizeStr = FormatUtils.formatFileSize(item.size)
             val isVideo = item is MediaItem.Video
@@ -310,15 +318,15 @@ object ImavaDropServer {
             val badgeColor = if (isVideo) "#7c4dff" else "#00b0ff"
 
             cardsHtml.append("""
-                <div class="card">
+                <div class="card" onclick="openLightbox($idx)">
                     <div class="thumb-container">
-                        <img src="/thumb/${item.id}" alt="$filename" loading="lazy">
+                        <img src="/thumb/${item.id}" alt="$filename" loading="lazy" onerror="this.onerror=null;this.src='/file/${item.id}';">
                         <span class="badge" style="background:${badgeColor};">$typeBadge</span>
                     </div>
                     <div class="card-info">
                         <div class="filename" title="$filename">$filename</div>
                         <div class="filesize">$sizeStr</div>
-                        <a href="/file/${item.id}" class="btn-download" download="$filename">Download</a>
+                        <a href="/file/${item.id}" class="btn-download" download="$filename" onclick="event.stopPropagation()">Download</a>
                     </div>
                 </div>
             """.trimIndent())
@@ -460,6 +468,7 @@ object ImavaDropServer {
             flex-direction: column;
             transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
             box-shadow: var(--card-shadow);
+            cursor: pointer;
         }
         .card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); border-color: #cbd5e1; }
         .thumb-container {
@@ -530,6 +539,91 @@ object ImavaDropServer {
             font-size: 12px;
             color: var(--text-sub);
         }
+        /* Lightbox modal styles */
+        .lightbox {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            user-select: none;
+        }
+        .lightbox.active { display: flex; }
+        .lb-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
+            gap: 16px;
+        }
+        .lb-info { display: flex; align-items: center; gap: 14px; font-size: 14px; min-width: 0; }
+        #lbIndex { font-weight: 600; color: #94a3b8; font-size: 13px; }
+        .lb-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+        .lb-size { color: #94a3b8; font-size: 12px; white-space: nowrap; }
+        .lb-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .btn-lb-download {
+            background: var(--primary-color);
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+        .btn-lb-download:hover { background: var(--primary-hover); }
+        .btn-lb-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .btn-lb-close:hover { background: rgba(255, 255, 255, 0.3); }
+        .lb-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .lb-media-box {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .lb-nav {
+            background: rgba(255, 255, 255, 0.12);
+            border: none;
+            color: #fff;
+            font-size: 32px;
+            width: 48px;
+            height: 64px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.1s;
+            z-index: 10;
+        }
+        .lb-nav:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -572,7 +666,86 @@ object ImavaDropServer {
         </footer>
     </div>
 
+    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+        <div class="lb-header">
+            <div class="lb-info">
+                <span id="lbIndex">1 / 1</span>
+                <span id="lbTitle" class="lb-title"></span>
+                <span id="lbSize" class="lb-size"></span>
+            </div>
+            <div class="lb-actions">
+                <a id="lbDownload" class="btn-lb-download" download>⬇ Download</a>
+                <button class="btn-lb-close" onclick="closeLightboxDirect()">✕</button>
+            </div>
+        </div>
+        <div class="lb-content" onclick="event.stopPropagation()">
+            <button class="lb-nav lb-prev" onclick="navLightbox(-1)">‹</button>
+            <div id="lbMediaContainer" class="lb-media-box"></div>
+            <button class="lb-nav lb-next" onclick="navLightbox(1)">›</button>
+        </div>
+    </div>
+
     <script>
+        const sharedFiles = $itemsJson;
+        let currentIndex = -1;
+
+        function openLightbox(index) {
+            if (index < 0 || index >= sharedFiles.length) return;
+            currentIndex = index;
+            const item = sharedFiles[index];
+            const lb = document.getElementById('lightbox');
+            const container = document.getElementById('lbMediaContainer');
+            const title = document.getElementById('lbTitle');
+            const size = document.getElementById('lbSize');
+            const idxText = document.getElementById('lbIndex');
+            const download = document.getElementById('lbDownload');
+
+            title.innerText = item.name;
+            size.innerText = item.size;
+            idxText.innerText = (index + 1) + ' / ' + sharedFiles.length;
+            download.href = '/file/' + item.id;
+            download.setAttribute('download', item.name);
+
+            if (item.isVideo) {
+                container.innerHTML = '<video src="/file/' + item.id + '" controls autoplay playsinline style="max-width:90vw;max-height:80vh;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);"></video>';
+            } else {
+                container.innerHTML = '<img src="/file/' + item.id + '" alt="' + item.name + '" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);">';
+            }
+            lb.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightboxDirect() {
+            const lb = document.getElementById('lightbox');
+            const container = document.getElementById('lbMediaContainer');
+            lb.classList.remove('active');
+            container.innerHTML = '';
+            document.body.style.overflow = '';
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === 'lightbox' || e.target.classList.contains('lb-content')) {
+                closeLightboxDirect();
+            }
+        }
+
+        function navLightbox(direction) {
+            if (sharedFiles.length === 0) return;
+            let next = currentIndex + direction;
+            if (next < 0) next = sharedFiles.length - 1;
+            if (next >= sharedFiles.length) next = 0;
+            openLightbox(next);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const lb = document.getElementById('lightbox');
+            if (lb.classList.contains('active')) {
+                if (e.key === 'Escape') closeLightboxDirect();
+                else if (e.key === 'ArrowLeft') navLightbox(-1);
+                else if (e.key === 'ArrowRight') navLightbox(1);
+            }
+        });
+
         const dropZone = document.getElementById('dropZone');
         ['dragenter', 'dragover'].forEach(name => {
             dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }, false);
@@ -616,7 +789,10 @@ object ImavaDropServer {
             }
             fill.style.width = '100%';
             status.innerText = "Successfully transferred " + files.length + " file(s) to phone!";
-            setTimeout(() => { bar.style.display = 'none'; }, 2000);
+            setTimeout(() => {
+                bar.style.display = 'none';
+                window.location.reload();
+            }, 1200);
         }
     </script>
 </body>
@@ -631,6 +807,30 @@ object ImavaDropServer {
         output.write(headers.toByteArray(Charsets.UTF_8))
         output.write(bytes)
         output.flush()
+    }
+
+    private fun openItemInputStream(context: Context, item: MediaItem): InputStream? {
+        return try {
+            context.contentResolver.openInputStream(item.uri)
+        } catch (_: Exception) {
+            null
+        } ?: try {
+            val file = File(item.path)
+            if (file.exists() && file.canRead()) FileInputStream(file) else null
+        } catch (_: Exception) {
+            null
+        } ?: try {
+            if (item.id > 0) {
+                val contentUri = if (item is MediaItem.Video) {
+                    ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, item.id)
+                } else {
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, item.id)
+                }
+                context.contentResolver.openInputStream(contentUri)
+            } else null
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun serveThumbnail(item: MediaItem, output: OutputStream) {
@@ -648,7 +848,7 @@ object ImavaDropServer {
 
             if (bitmap != null) {
                 val baos = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
                 val bytes = baos.toByteArray()
                 bitmap.recycle()
 
@@ -661,7 +861,8 @@ object ImavaDropServer {
                 output.write(bytes)
                 output.flush()
             } else {
-                send404(output)
+                // If thumbnail generation completely fails, stream the file as fallback so UI shows preview
+                serveSingleFile(item, emptyMap(), output)
             }
         } catch (_: Exception) {
             send404(output)
@@ -672,13 +873,25 @@ object ImavaDropServer {
         return try {
             if (item is MediaItem.Video) {
                 val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(context, item.uri)
-                val frame = retriever.getFrameAtTime(1_000_000)
-                retriever.release()
-                frame
+                try {
+                    try {
+                        retriever.setDataSource(context, item.uri)
+                    } catch (_: Exception) {
+                        val file = File(item.path)
+                        if (file.exists()) {
+                            retriever.setDataSource(file.absolutePath)
+                        }
+                    }
+                    val frame = retriever.getFrameAtTime(1_000_000)
+                    retriever.release()
+                    frame
+                } catch (_: Exception) {
+                    try { retriever.release() } catch (_: Exception) {}
+                    null
+                }
             } else {
                 val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                context.contentResolver.openInputStream(item.uri)?.use {
+                openItemInputStream(context, item)?.use {
                     BitmapFactory.decodeStream(it, null, options)
                 }
                 var sample = 1
@@ -686,8 +899,32 @@ object ImavaDropServer {
                     sample *= 2
                 }
                 val decodeOpts = BitmapFactory.Options().apply { inSampleSize = sample }
-                context.contentResolver.openInputStream(item.uri)?.use {
+                val rawBitmap = openItemInputStream(context, item)?.use {
                     BitmapFactory.decodeStream(it, null, decodeOpts)
+                }
+                val orientation = try {
+                    openItemInputStream(context, item)?.use {
+                        androidx.exifinterface.media.ExifInterface(it).getAttributeInt(
+                            androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION,
+                            androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
+                        )
+                    } ?: androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
+                } catch (_: Exception) {
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
+                }
+                val rotation = when (orientation) {
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                    else -> 0f
+                }
+                if (rotation != 0f && rawBitmap != null) {
+                    val matrix = Matrix().apply { postRotate(rotation) }
+                    val rotated = Bitmap.createBitmap(rawBitmap, 0, 0, rawBitmap.width, rawBitmap.height, matrix, true)
+                    rawBitmap.recycle()
+                    rotated
+                } else {
+                    rawBitmap
                 }
             }
         } catch (_: Exception) {
@@ -701,12 +938,7 @@ object ImavaDropServer {
         val filename = getFilename(item)
         val rangeHeader = headers["range"]
 
-        val inStream: InputStream = try {
-            ctx.contentResolver.openInputStream(item.uri)
-                ?: if (File(item.path).exists()) FileInputStream(File(item.path)) else return send404(output)
-        } catch (_: Exception) {
-            return send404(output)
-        }
+        val inStream: InputStream = openItemInputStream(ctx, item) ?: return send404(output)
 
         inStream.use { stream ->
             if (rangeHeader != null && rangeHeader.startsWith("bytes=")) {
@@ -722,7 +954,7 @@ object ImavaDropServer {
                         "Content-Range: bytes $start-$end/$fileLength\r\n" +
                         "Content-Length: $contentLength\r\n" +
                         "Accept-Ranges: bytes\r\n" +
-                        "Content-Disposition: attachment; filename=\"$filename\"\r\n" +
+                        "Content-Disposition: inline; filename=\"$filename\"\r\n" +
                         "Connection: close\r\n\r\n"
                 output.write(headerStr.toByteArray(Charsets.UTF_8))
 
@@ -733,7 +965,7 @@ object ImavaDropServer {
                         "Content-Type: ${item.mimeType}\r\n" +
                         "Content-Length: $fileLength\r\n" +
                         "Accept-Ranges: bytes\r\n" +
-                        "Content-Disposition: attachment; filename=\"$filename\"\r\n" +
+                        "Content-Disposition: inline; filename=\"$filename\"\r\n" +
                         "Connection: close\r\n\r\n"
                 output.write(headerStr.toByteArray(Charsets.UTF_8))
                 stream.copyTo(output, 65536)

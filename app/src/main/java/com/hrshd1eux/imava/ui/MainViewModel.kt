@@ -2300,16 +2300,61 @@ class MainViewModel @Inject constructor(
         if (selectedIds.isEmpty()) return
 
         viewModelScope.launch {
-            val selectedItems = repository.getMediaByIds(selectedIds)
-            if (selectedItems.isEmpty()) return@launch
+            val visibleMap = visibleMediaItems.value.associateBy { it.id }
+            val resolvedItems = selectedIds.mapNotNull { visibleMap[it] }.toMutableList()
+            val missingIds = selectedIds - resolvedItems.map { it.id }.toSet()
+            if (missingIds.isNotEmpty()) {
+                val dbItems = repository.getMediaByIds(missingIds)
+                resolvedItems.addAll(dbItems)
+            }
+
+            if (resolvedItems.isEmpty()) {
+                selectedIds.forEach { id ->
+                    repository.deleteMetadataPermanently(id)
+                }
+                selectionState.clear()
+                refreshAll()
+                return@launch
+            }
+
+            val (brokenOrphanItems, validItems) = resolvedItems.partition { item ->
+                val srcFile = java.io.File(item.path)
+                !srcFile.exists() || (srcFile.isFile && srcFile.length() == 0L)
+            }
+
+            if (brokenOrphanItems.isNotEmpty()) {
+                brokenOrphanItems.forEach { orphan ->
+                    repository.deleteMetadataPermanently(orphan.id)
+                    repository.evictSecondaryDiskItem(orphan.id, orphan.path)
+                    try { context.contentResolver.delete(orphan.uri, null, null) } catch (_: Exception) {}
+                    try {
+                        val mediaUri = getMediaProviderUri(orphan)
+                        context.contentResolver.delete(mediaUri, null, null)
+                    } catch (_: Exception) {}
+                    try {
+                        android.media.MediaScannerConnection.scanFile(context, arrayOf(orphan.path), null, null)
+                    } catch (_: Exception) {}
+                }
+                val orphanIds = brokenOrphanItems.map { it.id }.toSet()
+                _mediaItems.value = _mediaItems.value.filter { it.id !in orphanIds }
+                selectionState.deselectAll(orphanIds)
+            }
+
+            if (validItems.isEmpty()) {
+                selectionState.clear()
+                refreshAll()
+                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                android.widget.Toast.makeText(context, "Removed ${brokenOrphanItems.size} broken item(s)", android.widget.Toast.LENGTH_SHORT).show()
+                return@launch
+            }
 
             try {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     val activity = context.findActivity()
                     if (activity != null) {
-                        pendingBatchActionItems = selectedItems
+                        pendingBatchActionItems = validItems
                         try {
-                            val uris = selectedItems.map { getMediaProviderUri(it) }
+                            val uris = validItems.map { getMediaProviderUri(it) }
                             val pendingIntent = android.provider.MediaStore.createTrashRequest(
                                 context.contentResolver,
                                 uris,
@@ -2331,7 +2376,7 @@ class MainViewModel @Inject constructor(
                 }
 
                 val trashDir = java.io.File(context.filesDir, "imava_trash").apply { mkdirs() }
-                selectedItems.forEach { item ->
+                validItems.forEach { item ->
                     val srcFile = java.io.File(item.path)
                     if (srcFile.exists()) {
                         val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
@@ -2360,7 +2405,7 @@ class MainViewModel @Inject constructor(
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
                     val activity = context.findActivity()
                     if (activity != null) {
-                        pendingBatchActionItems = selectedItems
+                        pendingBatchActionItems = validItems
                         activity.startIntentSenderForResult(
                             recoverable.userAction.actionIntent.intentSender,
                             1005,
@@ -2381,12 +2426,39 @@ class MainViewModel @Inject constructor(
         if (items.isEmpty()) return
         viewModelScope.launch {
             try {
+                val (brokenOrphanItems, validItems) = items.partition { item ->
+                    val srcFile = java.io.File(item.path)
+                    !srcFile.exists() || (srcFile.isFile && srcFile.length() == 0L)
+                }
+
+                if (brokenOrphanItems.isNotEmpty()) {
+                    brokenOrphanItems.forEach { orphan ->
+                        repository.deleteMetadataPermanently(orphan.id)
+                        repository.evictSecondaryDiskItem(orphan.id, orphan.path)
+                        try { context.contentResolver.delete(orphan.uri, null, null) } catch (_: Exception) {}
+                        try {
+                            val mediaUri = getMediaProviderUri(orphan)
+                            context.contentResolver.delete(mediaUri, null, null)
+                        } catch (_: Exception) {}
+                        try {
+                            android.media.MediaScannerConnection.scanFile(context, arrayOf(orphan.path), null, null)
+                        } catch (_: Exception) {}
+                    }
+                    val orphanIds = brokenOrphanItems.map { it.id }.toSet()
+                    _mediaItems.value = _mediaItems.value.filter { it.id !in orphanIds }
+                }
+
+                if (validItems.isEmpty()) {
+                    refreshAll()
+                    return@launch
+                }
+
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     val activity = context.findActivity()
                     if (activity != null) {
-                        pendingBatchActionItems = items
+                        pendingBatchActionItems = validItems
                         try {
-                            val uris = items.map { getMediaProviderUri(it) }
+                            val uris = validItems.map { getMediaProviderUri(it) }
                             val pendingIntent = android.provider.MediaStore.createTrashRequest(
                                 context.contentResolver,
                                 uris,
@@ -2407,7 +2479,7 @@ class MainViewModel @Inject constructor(
                     }
                 }
                 val trashDir = java.io.File(context.filesDir, "imava_trash").apply { mkdirs() }
-                items.forEach { item ->
+                validItems.forEach { item ->
                     val srcFile = java.io.File(item.path)
                     if (srcFile.exists()) {
                         val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
@@ -2494,16 +2566,52 @@ class MainViewModel @Inject constructor(
     }
 
     fun deleteSelectedMediaPermanently(context: Context) {
-        val selectedItems = trashed.value.filter { selectionState.selectedIds.contains(it.id) }
-        if (selectedItems.isEmpty()) return
+        val selectedIds = selectionState.selectedIds.toSet()
+        if (selectedIds.isEmpty()) return
         viewModelScope.launch {
+            val selectedItems = trashed.value.filter { selectedIds.contains(it.id) }.ifEmpty {
+                repository.getMediaByIds(selectedIds)
+            }
+            if (selectedItems.isEmpty()) {
+                selectedIds.forEach { id -> repository.deleteMetadataPermanently(id) }
+                selectionState.clear()
+                refreshAll()
+                return@launch
+            }
             try {
+                val trashDir = java.io.File(context.filesDir, "imava_trash")
+                val (brokenOrphans, validItems) = selectedItems.partition { item ->
+                    val file = java.io.File(item.path)
+                    val trashedFile = java.io.File(trashDir, "${item.id}_${file.name}")
+                    !file.exists() && !trashedFile.exists()
+                }
+
+                if (brokenOrphans.isNotEmpty()) {
+                    brokenOrphans.forEach { orphan ->
+                        repository.deleteMetadataPermanently(orphan.id)
+                        repository.evictSecondaryDiskItem(orphan.id, orphan.path)
+                        try { context.contentResolver.delete(orphan.uri, null, null) } catch (_: Exception) {}
+                        try { context.contentResolver.delete(getMediaProviderUri(orphan), null, null) } catch (_: Exception) {}
+                    }
+                    val orphanIds = brokenOrphans.map { it.id }.toSet()
+                    _mediaItems.value = _mediaItems.value.filter { it.id !in orphanIds }
+                    selectionState.deselectAll(orphanIds)
+                }
+
+                if (validItems.isEmpty()) {
+                    selectionState.clear()
+                    refreshAll()
+                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                    android.widget.Toast.makeText(context, "Permanently removed ${brokenOrphans.size} item(s)", android.widget.Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     val activity = context.findActivity()
                     if (activity != null) {
-                        pendingBatchActionItems = selectedItems
+                        pendingBatchActionItems = validItems
                         try {
-                            val uris = selectedItems.map { getMediaProviderUri(it) }
+                            val uris = validItems.map { getMediaProviderUri(it) }
                             val pendingIntent = android.provider.MediaStore.createDeleteRequest(
                                 context.contentResolver,
                                 uris
@@ -2523,9 +2631,8 @@ class MainViewModel @Inject constructor(
                     }
                 }
 
-                val trashDir = java.io.File(context.filesDir, "imava_trash")
                 val secureShred = com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)
-                selectedItems.forEach { item ->
+                validItems.forEach { item ->
                     val file = java.io.File(item.path)
                     if (file.exists()) {
                         try {

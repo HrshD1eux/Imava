@@ -819,7 +819,15 @@ class MediaRepositoryImpl @Inject constructor(
                     )
                 }
             }
-            mappedStoreItems + vaultItems
+            val remainingMissing = missingIds - vaultItems.map { it.id }.toSet()
+            val thirdPartyItems = if (remainingMissing.isNotEmpty()) {
+                try {
+                    fetchThirdPartyAppMedia().filter { it.id in remainingMissing }
+                } catch (_: Exception) {
+                    emptyList()
+                }
+            } else emptyList()
+            mappedStoreItems + vaultItems + thirdPartyItems
         } else {
             mappedStoreItems
         }
@@ -1410,5 +1418,9 @@ class MediaRepositoryImpl @Inject constructor(
             if (success) count++
         }
         Result.success(count)
+    }
+
+    override fun evictSecondaryDiskItem(mediaId: Long, path: String) {
+        mediaStoreDataSource.evictItem(mediaId, path)
     }
 }

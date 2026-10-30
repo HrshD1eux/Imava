@@ -64,6 +64,35 @@ object VideoCompressor {
         }
     }
 
+    fun calculateTargetBitrate(preset: CompressionPreset, durationSecs: Long): Int {
+        return if (preset == CompressionPreset.DISCORD_EMAIL) {
+            val targetBytes = 22L * 1024L * 1024L // 22 MB target
+            val calculated = ((targetBytes * 8L) / maxOf(1L, durationSecs)).toInt()
+            calculated.coerceIn(500_000, 3_500_000)
+        } else {
+            preset.defaultBitrate
+        }
+    }
+
+    fun calculateTargetDimensions(width: Int, height: Int, maxDim: Int): Pair<Int, Int> {
+        val isLandscape = width >= height
+        return if (isLandscape) {
+            if (width > maxDim) {
+                val scale = maxDim.toFloat() / width
+                Pair(maxDim, ((height * scale).toInt() / 2) * 2)
+            } else {
+                Pair((width / 2) * 2, (height / 2) * 2)
+            }
+        } else {
+            if (height > maxDim) {
+                val scale = maxDim.toFloat() / height
+                Pair(((width * scale).toInt() / 2) * 2, maxDim)
+            } else {
+                Pair((width / 2) * 2, (height / 2) * 2)
+            }
+        }
+    }
+
     suspend fun compressVideo(
         context: Context,
         inputUri: Uri,
@@ -73,33 +102,8 @@ object VideoCompressor {
         val info = getVideoInfo(context, inputUri) ?: return@withContext null
         val durationSecs = maxOf(1L, info.durationMs / 1000)
 
-        // Calculate dynamic bitrate for Discord/Email to guarantee <24 MB
-        val targetBitrate = if (preset == CompressionPreset.DISCORD_EMAIL) {
-            val targetBytes = 22L * 1024L * 1024L // 22 MB target
-            val calculated = ((targetBytes * 8L) / durationSecs).toInt()
-            calculated.coerceIn(500_000, 3_500_000)
-        } else {
-            preset.defaultBitrate
-        }
-
-        // Calculate output dimensions maintaining aspect ratio
-        val maxDim = preset.maxDimension
-        val isLandscape = info.width >= info.height
-        val (targetWidth, targetHeight) = if (isLandscape) {
-            if (info.width > maxDim) {
-                val scale = maxDim.toFloat() / info.width
-                Pair(maxDim, ((info.height * scale).toInt() / 2) * 2)
-            } else {
-                Pair((info.width / 2) * 2, (info.height / 2) * 2)
-            }
-        } else {
-            if (info.height > maxDim) {
-                val scale = maxDim.toFloat() / info.height
-                Pair(((info.width * scale).toInt() / 2) * 2, maxDim)
-            } else {
-                Pair((info.width / 2) * 2, (info.height / 2) * 2)
-            }
-        }
+        val targetBitrate = calculateTargetBitrate(preset, durationSecs)
+        val (targetWidth, targetHeight) = calculateTargetDimensions(info.width, info.height, preset.maxDimension)
 
         val tempOutputFile = File(context.cacheDir, "compressed_${System.currentTimeMillis()}.mp4")
         val extractor = MediaExtractor()

@@ -24,7 +24,7 @@ palette = "1.0.0"
 tesseract = "4.9.0"
 
 [libraries]
-# Tesseract 5 OCR (100% FOSS, zero Google proprietary blobs)
+# Tesseract 5 OCR (Pure FOSS, zero Google proprietary blobs)
 tesseract4android = { group = "cz.adaptech.tesseract4android", name = "tesseract4android", version.ref = "tesseract" }
 
 androidx-palette = { group = "androidx.palette", name = "palette-ktx", version.ref = "palette" }

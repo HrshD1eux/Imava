@@ -892,7 +892,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     BottomAppBar(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
                         contentColor = MaterialTheme.colorScheme.onSurface,
-                        tonalElevation = 8.dp
+                        tonalElevation = 8.dp,
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                     ) {
                         val categoryName by viewModel.currentCategoryNameFlow.collectAsState()
                         val trashedList by viewModel.trashed.collectAsState()
@@ -1025,7 +1026,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                                    .padding(horizontal = 4.dp, vertical = 2.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -1039,7 +1040,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.WifiTethering,
-                                    label = "Wi-Fi Drop",
+                                    label = "Drop",
+                                    contentDescription = "Wi-Fi Drop",
                                     onClick = { showImavaDropDialog = true }
                                 )
 
@@ -1074,7 +1076,10 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     onClick = { showSelectionDeleteConfirmDialog = true }
                                 )
 
-                                Box(modifier = Modifier.weight(1f)) {
+                                Box(
+                                    modifier = Modifier.weight(1f),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     SelectionActionButton(
                                         modifier = Modifier.fillMaxWidth(),
                                         icon = Icons.Default.MoreVert,
@@ -1090,6 +1095,21 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
                                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
                                     ) {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text("Wi-Fi Drop ⚡", style = MaterialTheme.typography.bodyMedium)
+                                                    Text("Direct P2P share to PC or phone", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                }
+                                            },
+                                            leadingIcon = {
+                                                Icon(Icons.Default.WifiTethering, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                            },
+                                            onClick = {
+                                                showSelectionMorePopup = false
+                                                showImavaDropDialog = true
+                                            }
+                                        )
                                         DropdownMenuItem(
                                             text = {
                                                 Text("Favorite", style = MaterialTheme.typography.bodyMedium)
@@ -2182,6 +2202,7 @@ fun SelectionActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     modifier: Modifier = Modifier,
+    contentDescription: String = label,
     tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
     onClick: () -> Unit
@@ -2190,14 +2211,15 @@ fun SelectionActionButton(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier
+            .fillMaxWidth()
             .clip(MaterialTheme.shapes.small)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled) 1f else 0.38f)
-            .padding(horizontal = 4.dp, vertical = 6.dp)
+            .padding(horizontal = 2.dp, vertical = 4.dp)
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = label,
+            contentDescription = contentDescription,
             tint = tint,
             modifier = Modifier.size(22.dp)
         )
@@ -2206,7 +2228,9 @@ fun SelectionActionButton(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
     }
 }

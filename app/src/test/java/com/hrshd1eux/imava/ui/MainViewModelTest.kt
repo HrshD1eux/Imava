@@ -41,6 +41,7 @@ class MainViewModelTest {
         every { mockRepository.observeMediaChanges() } returns kotlinx.coroutines.flow.emptyFlow()
         every { mockRepository.getMediaFlow(any(), any(), any()) } returns flowOf(emptyList())
         coEvery { mockRepository.loadMediaPaged(any(), any(), any(), any(), any(), any()) } returns emptyList()
+        every { mockRepository.evictSecondaryDiskItem(any(), any()) } returns Unit
         
         viewModel = MainViewModel(mockApplication, mockRepository, SavedStateHandle())
         testDispatcher.scheduler.advanceUntilIdle()

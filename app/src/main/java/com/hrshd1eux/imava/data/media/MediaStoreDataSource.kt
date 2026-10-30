@@ -754,6 +754,13 @@ class MediaStoreDataSource @Inject constructor(
 
     private val secondaryDiskMediaCache = java.util.concurrent.CopyOnWriteArrayList<MediaItem>()
 
+    fun evictItem(id: Long, path: String = "") {
+        val removed = secondaryDiskMediaCache.removeAll { it.id == id || (path.isNotBlank() && it.path == path) }
+        if (removed) {
+            saveCacheToDisk()
+        }
+    }
+
     private fun saveCacheToDisk() {
         try {
             val file = java.io.File(context.filesDir, "deep_scan_cache.json")
