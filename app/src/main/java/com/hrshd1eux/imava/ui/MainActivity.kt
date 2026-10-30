@@ -1038,6 +1038,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
 
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.WifiTethering,
+                                    label = "Wi-Fi Drop",
+                                    onClick = { showImavaDropDialog = true }
+                                )
+
+                                SelectionActionButton(
+                                    modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Edit,
                                     label = "Edit",
                                     enabled = selectedIds.size == 1,

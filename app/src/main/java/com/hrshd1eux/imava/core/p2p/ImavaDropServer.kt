@@ -1,14 +1,19 @@
 package com.hrshd1eux.imava.core.p2p
 
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Size
+import android.webkit.MimeTypeMap
 import com.hrshd1eux.imava.core.util.FormatUtils
 import com.hrshd1eux.imava.data.model.MediaItem
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -126,6 +132,10 @@ object ImavaDropServer {
             listenLoop(finalSocket)
         }
 
+        try {
+            ImavaDropService.start(context)
+        } catch (_: Exception) {}
+
         return true
     }
 
@@ -140,7 +150,13 @@ object ImavaDropServer {
     }
 
     @Synchronized
-    fun stop() {
+    fun stop(stopService: Boolean = true) {
+        if (stopService) {
+            appContext?.let {
+                try { ImavaDropService.stop(it) } catch (_: Exception) {}
+            }
+        }
+
         try {
             serverSocket?.close()
         } catch (_: Exception) {}
@@ -185,13 +201,13 @@ object ImavaDropServer {
 
     private fun handleClient(client: Socket) {
         try {
-            client.soTimeout = 30_000
-            val input = client.getInputStream()
+            client.soTimeout = 60_000
+            val rawInput = client.getInputStream()
+            val bis = BufferedInputStream(rawInput, 65536)
             val output = client.getOutputStream()
 
-            // Read request line and headers
-            val reader = input.bufferedReader()
-            val requestLine = reader.readLine() ?: return
+            // Read request line and headers byte-safely without consuming binary payload
+            val requestLine = readAsciiLine(bis) ?: return
             val parts = requestLine.split(" ")
             if (parts.size < 2) return
 
@@ -200,7 +216,7 @@ object ImavaDropServer {
             val path = fullPath.substringBefore("?")
 
             val headers = mutableMapOf<String, String>()
-            var line: String? = reader.readLine()
+            var line: String? = readAsciiLine(bis)
             while (!line.isNullOrBlank()) {
                 val colonIdx = line.indexOf(':')
                 if (colonIdx != -1) {
@@ -208,7 +224,7 @@ object ImavaDropServer {
                     val value = line.substring(colonIdx + 1).trim()
                     headers[key] = value
                 }
-                line = reader.readLine()
+                line = readAsciiLine(bis)
             }
 
             val clientIp = client.inetAddress.hostAddress ?: "Unknown"
@@ -241,7 +257,7 @@ object ImavaDropServer {
                     }
                 }
                 method == "POST" && path == "/upload" -> {
-                    handleUpload(headers, input, output, clientIp)
+                    handleUpload(headers, bis, output, clientIp)
                 }
                 method == "GET" && path == "/api/status" -> {
                     serveJsonStatus(output)
@@ -254,6 +270,23 @@ object ImavaDropServer {
         } finally {
             try { client.close() } catch (_: Exception) {}
         }
+    }
+
+    private fun readAsciiLine(input: InputStream): String? {
+        val sb = StringBuilder()
+        while (true) {
+            val b = input.read()
+            if (b == -1) {
+                return if (sb.isEmpty()) null else sb.toString()
+            }
+            if (b == '\n'.code) {
+                break
+            }
+            if (b != '\r'.code) {
+                sb.append(b.toChar())
+            }
+        }
+        return sb.toString()
     }
 
     private fun getFilename(item: MediaItem): String {
@@ -775,39 +808,84 @@ object ImavaDropServer {
         } ?: "imava_drop_${System.currentTimeMillis()}.jpg"
 
         val cleanFilename = rawFilename.replace(Regex("[^a-zA-Z0-9._-]"), "_")
-        val dropDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "ImavaDrop")
-        if (!dropDir.exists()) dropDir.mkdirs()
-
-        var targetFile = File(dropDir, cleanFilename)
-        if (targetFile.exists()) {
-            val base = cleanFilename.substringBeforeLast('.')
-            val ext = cleanFilename.substringAfterLast('.', "")
-            targetFile = File(dropDir, "${base}_${System.currentTimeMillis()}${if (ext.isNotEmpty()) ".$ext" else ""}")
-        }
-
         val contentLength = headers["content-length"]?.toLongOrNull() ?: -1L
+
+        val ext = cleanFilename.substringAfterLast('.', "").lowercase(Locale.ROOT)
+        val isVideo = ext in setOf("mp4", "mkv", "webm", "mov", "avi", "3gp")
+        val mimeType = headers["content-type"]?.takeIf { it != "application/octet-stream" && it.isNotBlank() }
+            ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+            ?: if (isVideo) "video/mp4" else "image/jpeg"
+
+        var targetFile: File? = null
+        var targetUri: Uri? = null
+
         try {
-            FileOutputStream(targetFile).use { fos ->
-                if (contentLength > 0L) {
-                    copyStreamWithLimit(input, fos, contentLength)
-                } else {
-                    input.copyTo(fos, 65536)
-                }
+            // First attempt: Scoped Storage insert via ContentResolver (guaranteed MediaStore realtime visibility)
+            val collection = if (isVideo) {
+                MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            } else {
+                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
             }
 
-            // Immediately scan into Android MediaStore so gallery surfaces it
-            MediaScannerConnection.scanFile(ctx, arrayOf(targetFile.absolutePath), null, null)
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, cleanFilename)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/ImavaDrop")
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
 
-            val sizeStr = FormatUtils.formatFileSize(targetFile.length())
-            addLog("Received from $clientIp: ${targetFile.name} ($sizeStr)")
+            targetUri = try {
+                ctx.contentResolver.insert(collection, values)
+            } catch (_: Exception) {
+                null
+            }
+
+            if (targetUri != null) {
+                ctx.contentResolver.openOutputStream(targetUri)?.use { os ->
+                    if (contentLength > 0L) {
+                        copyStreamWithLimit(input, os, contentLength)
+                    } else {
+                        input.copyTo(os, 65536)
+                    }
+                }
+                values.clear()
+                values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                ctx.contentResolver.update(targetUri, values, null, null)
+            } else {
+                // Fallback: Direct filesystem write to Pictures/ImavaDrop
+                val dropDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "ImavaDrop")
+                if (!dropDir.exists()) dropDir.mkdirs()
+
+                var file = File(dropDir, cleanFilename)
+                if (file.exists()) {
+                    val base = cleanFilename.substringBeforeLast('.')
+                    file = File(dropDir, "${base}_${System.currentTimeMillis()}${if (ext.isNotEmpty()) ".$ext" else ""}")
+                }
+                targetFile = file
+
+                FileOutputStream(file).use { fos ->
+                    if (contentLength > 0L) {
+                        copyStreamWithLimit(input, fos, contentLength)
+                    } else {
+                        input.copyTo(fos, 65536)
+                    }
+                }
+                MediaScannerConnection.scanFile(ctx, arrayOf(file.absolutePath), arrayOf(mimeType), null)
+            }
+
+            addLog("Received from $clientIp: $cleanFilename")
             _state.value = _state.value.copy(filesReceivedCount = _state.value.filesReceivedCount + 1)
 
-            val json = """{"status":"ok","filename":"${targetFile.name}"}"""
+            val json = """{"status":"ok","filename":"$cleanFilename"}"""
             val res = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ${json.length}\r\nConnection: close\r\n\r\n$json"
             output.write(res.toByteArray(Charsets.UTF_8))
             output.flush()
         } catch (e: Exception) {
             e.printStackTrace()
+            targetUri?.let { try { ctx.contentResolver.delete(it, null, null) } catch (_: Exception) {} }
+            targetFile?.let { try { if (it.exists()) it.delete() } catch (_: Exception) {} }
+            addLog("Upload failed from $clientIp: ${e.message}")
+
             val errJson = """{"status":"error","message":"${e.message}"}"""
             val res = "HTTP/1.1 500 Internal Error\r\nContent-Type: application/json\r\nContent-Length: ${errJson.length}\r\nConnection: close\r\n\r\n$errJson"
             output.write(res.toByteArray(Charsets.UTF_8))
