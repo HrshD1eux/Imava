@@ -54,15 +54,27 @@ object AppLockManager {
     }
 
     fun isTrashLockEnabled(context: Context): Boolean {
-        return getPrefs(context).getBoolean(KEY_TRASH_LOCK_ENABLED, true)
+        return try {
+            getPrefs(context).getBoolean(KEY_TRASH_LOCK_ENABLED, true)
+        } catch (_: Exception) {
+            true
+        }
     }
 
     fun isTrashLockActive(context: Context): Boolean {
-        return isTrashLockEnabled(context) && BiometricAuthHelper.canAuthenticate(context)
+        return try {
+            isTrashLockEnabled(context) && BiometricAuthHelper.canAuthenticate(context)
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun isTrashLocked(context: Context): Boolean {
-        return isTrashLockActive(context) && !isTrashUnlockedInSession
+        return try {
+            isTrashLockActive(context) && !isTrashUnlockedInSession
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun isTrashUnlockedForSession(): Boolean {

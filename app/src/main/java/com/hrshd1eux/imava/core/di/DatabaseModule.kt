@@ -48,8 +48,27 @@ object DatabaseModule {
 
     val MIGRATION_6_7 = object : androidx.room.migration.Migration(6, 7) {
         override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            db.execSQL("DROP INDEX IF EXISTS index_media_ocr_mediaId")
             db.execSQL("CREATE TABLE IF NOT EXISTS media_ocr (mediaId INTEGER PRIMARY KEY NOT NULL, ocrText TEXT NOT NULL, scannedAt INTEGER NOT NULL DEFAULT 0)")
-            db.execSQL("CREATE INDEX IF NOT EXISTS index_media_ocr_mediaId ON media_ocr(mediaId)")
+        }
+    }
+
+    val MIGRATION_7_8 = object : androidx.room.migration.Migration(7, 8) {
+        override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            db.execSQL("DROP INDEX IF EXISTS index_media_ocr_mediaId")
+            db.execSQL("CREATE TABLE IF NOT EXISTS media_ocr_new (mediaId INTEGER PRIMARY KEY NOT NULL, ocrText TEXT NOT NULL, scannedAt INTEGER NOT NULL)")
+            try {
+                db.execSQL("INSERT OR IGNORE INTO media_ocr_new (mediaId, ocrText, scannedAt) SELECT mediaId, ocrText, scannedAt FROM media_ocr")
+            } catch (_: Exception) {}
+            db.execSQL("DROP TABLE IF EXISTS media_ocr")
+            db.execSQL("ALTER TABLE media_ocr_new RENAME TO media_ocr")
+        }
+    }
+
+    val MIGRATION_6_8 = object : androidx.room.migration.Migration(6, 8) {
+        override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            db.execSQL("DROP TABLE IF EXISTS media_ocr")
+            db.execSQL("CREATE TABLE IF NOT EXISTS media_ocr (mediaId INTEGER PRIMARY KEY NOT NULL, ocrText TEXT NOT NULL, scannedAt INTEGER NOT NULL)")
         }
     }
 

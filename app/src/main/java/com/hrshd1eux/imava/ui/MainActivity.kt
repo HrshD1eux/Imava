@@ -286,15 +286,19 @@ class MainActivity : FragmentActivity() {
 
     override fun onResume() {
         super.onResume()
-        com.hrshd1eux.imava.core.util.AppLockManager.onAppResume()
-        if (com.hrshd1eux.imava.core.util.AppLockManager.isAppLockEnabled(this) &&
-            !com.hrshd1eux.imava.core.util.AppLockManager.isAppUnlockedForSession()
-        ) {
-            isAppLockedState.value = true
-            promptAppUnlock()
-        }
-        if (viewModel.currentCategoryName == "Trash" && com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(this)) {
-            viewModel.currentCategoryName = null
+        try {
+            com.hrshd1eux.imava.core.util.AppLockManager.onAppResume()
+            if (com.hrshd1eux.imava.core.util.AppLockManager.isAppLockEnabled(this) &&
+                !com.hrshd1eux.imava.core.util.AppLockManager.isAppUnlockedForSession()
+            ) {
+                isAppLockedState.value = true
+                promptAppUnlock()
+            }
+            if (viewModel.currentCategoryName == "Trash" && com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(this)) {
+                viewModel.currentCategoryName = null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         viewModel.onAppForegrounded(this)
         checkPermissions()

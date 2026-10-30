@@ -23,22 +23,35 @@ object BiometricAuthHelper {
     }
 
     fun canAuthenticate(context: Context, allowDeviceCredential: Boolean = true): Boolean {
-        val biometricManager = BiometricManager.from(context)
-        val authenticators = if (allowDeviceCredential) {
-            BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
-                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
-        } else {
-            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
-        }
-        val bioSuccess = biometricManager.canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS
-        if (bioSuccess) return true
+        return try {
+            val biometricManager = BiometricManager.from(context)
+            val canBio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && allowDeviceCredential) {
+                biometricManager.canAuthenticate(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                            BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                ) == BiometricManager.BIOMETRIC_SUCCESS
+            } else {
+                biometricManager.canAuthenticate(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                            BiometricManager.Authenticators.BIOMETRIC_WEAK
+                ) == BiometricManager.BIOMETRIC_SUCCESS
+            }
+            if (canBio) return true
 
-        if (allowDeviceCredential) {
-            val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-            if (km?.isDeviceSecure == true) return true
+            if (allowDeviceCredential) {
+                val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                if (km?.isDeviceSecure == true) return true
+            }
+            false
+        } catch (_: Exception) {
+            try {
+                val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                km?.isDeviceSecure == true
+            } catch (_: Exception) {
+                false
+            }
         }
-        return false
     }
 
     fun authenticate(
