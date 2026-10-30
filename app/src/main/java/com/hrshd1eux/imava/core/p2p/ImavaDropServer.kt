@@ -304,22 +304,24 @@ object ImavaDropServer {
     <title>Imava Drop · Local Wi-Fi Transfer</title>
     <style>
         :root {
-            --bg-color: #0f1015;
-            --surface-color: #1a1b23;
-            --card-color: #242632;
-            --primary-color: #8b5cf6;
-            --primary-hover: #7c3aed;
-            --accent-color: #10b981;
-            --text-main: #f3f4f6;
-            --text-sub: #9ca3af;
-            --border-color: #2e3244;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --card-color: #ffffff;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --accent-color: #059669;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --card-shadow-hover: 0 12px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            padding: 24px 16px 60px;
+            padding: 28px 16px 64px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -334,16 +336,16 @@ object ImavaDropServer {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(16,185,129,0.1));
-            border: 1px solid var(--border-color);
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
             padding: 6px 16px;
             border-radius: 9999px;
             font-size: 13px;
-            color: var(--accent-color);
+            color: var(--primary-color);
             font-weight: 600;
             margin-bottom: 12px;
         }
-        h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+        h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; color: var(--text-main); }
         .subtitle { color: var(--text-sub); font-size: 14px; }
         .hero-banner {
             background: var(--surface-color);
@@ -356,52 +358,55 @@ object ImavaDropServer {
             justify-content: space-between;
             gap: 16px;
             margin-bottom: 28px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--card-shadow);
         }
-        .stats-col h2 { font-size: 18px; font-weight: 700; }
+        .stats-col h2 { font-size: 18px; font-weight: 700; color: var(--text-main); }
         .stats-col p { color: var(--text-sub); font-size: 13px; margin-top: 4px; }
         .btn-zip {
             background: linear-gradient(135deg, var(--primary-color), #6366f1);
             color: #fff;
             text-decoration: none;
             font-weight: 700;
-            font-size: 15px;
-            padding: 12px 24px;
+            font-size: 14px;
+            padding: 12px 22px;
             border-radius: 12px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: transform 0.15s ease, filter 0.15s ease;
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
-        .btn-zip:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-zip:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4); }
         .upload-section {
             background: var(--surface-color);
-            border: 2px dashed var(--border-color);
+            border: 2px dashed #cbd5e1;
             border-radius: 18px;
             padding: 28px 20px;
             text-align: center;
             margin-bottom: 32px;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, background-color 0.2s;
             cursor: pointer;
+            box-shadow: var(--card-shadow);
         }
-        .upload-section.dragover { border-color: var(--accent-color); background: rgba(16,185,129,0.05); }
-        .upload-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+        .upload-section.dragover { border-color: var(--primary-color); background: #eef2ff; }
+        .upload-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
         .upload-section p { font-size: 13px; color: var(--text-sub); margin-bottom: 14px; }
         .btn-select {
-            background: #2e3244;
-            color: #fff;
+            background: #eef2ff;
+            color: var(--primary-color);
+            border: 1px solid #c7d2fe;
             padding: 8px 18px;
             font-size: 13px;
             font-weight: 600;
             border-radius: 8px;
-            border: none;
             cursor: pointer;
+            transition: background 0.15s;
         }
+        .btn-select:hover { background: #e0e7ff; }
         .progress-bar {
             width: 100%;
             height: 6px;
-            background: #2e3244;
+            background: #e2e8f0;
             border-radius: 4px;
             overflow: hidden;
             margin-top: 14px;
@@ -420,14 +425,15 @@ object ImavaDropServer {
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            box-shadow: var(--card-shadow);
         }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        .card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); border-color: #cbd5e1; }
         .thumb-container {
             position: relative;
             width: 100%;
             height: 160px;
-            background: #12131a;
+            background: #f1f5f9;
             overflow: hidden;
         }
         .thumb-container img {
@@ -445,6 +451,7 @@ object ImavaDropServer {
             padding: 3px 7px;
             border-radius: 6px;
             color: #fff;
+            background: rgba(15, 23, 42, 0.75);
             letter-spacing: 0.5px;
         }
         .card-info {
@@ -461,20 +468,22 @@ object ImavaDropServer {
             overflow: hidden;
             text-overflow: ellipsis;
             margin-bottom: 4px;
+            color: var(--text-main);
         }
         .filesize { font-size: 12px; color: var(--text-sub); margin-bottom: 12px; }
         .btn-download {
-            background: #373b4d;
-            color: #fff;
+            background: #f8fafc;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
             text-align: center;
             text-decoration: none;
             padding: 8px 12px;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
-            transition: background 0.15s;
+            transition: all 0.15s;
         }
-        .btn-download:hover { background: var(--primary-color); }
+        .btn-download:hover { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -494,7 +503,7 @@ object ImavaDropServer {
     <div class="container">
         <header>
             <div class="logo-row">
-                <span>⚡ Direct Wi-Fi P2P</span> · <span>100% Offline & Private</span>
+                <span>⚡ Direct Wi-Fi P2P</span> · <span>Offline & Private</span>
             </div>
             <h1>Imava Drop</h1>
             <p class="subtitle">Sharing originals directly from <strong>$deviceModel</strong></p>

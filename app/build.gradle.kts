@@ -22,8 +22,8 @@ android {
         applicationId = "com.hrshd1eux.imava"
         minSdk = 29
         targetSdk = 35
-        versionCode = 67
-        versionName = "1.1.67"
+        versionCode = 68
+        versionName = "1.1.68"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -147,7 +147,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
 
-    // Tesseract 5 OCR (100% FOSS, zero Google proprietary blobs)
+    // Tesseract 5 OCR (FOSS, zero Google proprietary blobs)
     implementation(libs.tesseract4android)
 
     // Testing

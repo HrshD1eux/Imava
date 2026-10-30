@@ -282,7 +282,7 @@ fun OpenSourceLicensesScreen(
                 name = "Tesseract 5 & Leptonica (Tesseract4Android)",
                 author = "Adaptech / Tesseract OCR Community",
                 licenseType = "Apache License 2.0",
-                description = "100% open-source C++ optical character recognition engine and image processing library.",
+                description = "Open-source C++ optical character recognition engine and image processing library.",
                 url = "https://github.com/adaptech-cz/Tesseract4Android",
                 fullLicenseText = apache2License
             )

@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.WifiTethering
@@ -330,6 +331,53 @@ fun ImavaDropDialog(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
+                // Step-by-Step Sharing Instructions
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f)
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "How to Share & Connect",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        InstructionRow(
+                            step = "1",
+                            title = "Connect to Same Wi-Fi",
+                            description = "Ensure the receiving PC, Mac, or phone is on the same Wi-Fi router or hotspot."
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        InstructionRow(
+                            step = "2",
+                            title = "Scan QR or Open Link",
+                            description = "Scan the QR code above with camera, or enter the URL into any web browser."
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        InstructionRow(
+                            step = "3",
+                            title = "Download or Send Files",
+                            description = "Download lossless originals or drag & drop files in the browser to send to this phone."
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 // Transfer Summary Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -345,20 +393,25 @@ fun ImavaDropDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Sharing ${serverState.sharedItems.size} items",
+                                text = if (serverState.sharedItems.isNotEmpty()) "Sharing ${serverState.sharedItems.size} items" else "No photos selected to send",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text(
-                                text = FormatUtils.formatFileSize(serverState.totalBytes),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            if (serverState.sharedItems.isNotEmpty()) {
+                                Text(
+                                    text = FormatUtils.formatFileSize(serverState.totalBytes),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "⚡ Full uncompressed originals · 50–100 MB/s speed\n📥 Drag & drop files on PC web page to send back to phone",
+                            text = if (serverState.sharedItems.isNotEmpty())
+                                "⚡ Full uncompressed originals · 50–100 MB/s speed\n📥 Drag & drop files on PC web page to send back to phone"
+                            else
+                                "💡 Select photos in gallery before tapping Wi-Fi Drop to share them.\nYou can still drop files onto the browser page to send to this phone.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
@@ -441,4 +494,46 @@ fun ImavaDropDialog(
             }
         }
     )
+}
+
+@Composable
+private fun InstructionRow(
+    step: String,
+    title: String,
+    description: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = step,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 14.sp
+            )
+        }
+    }
 }

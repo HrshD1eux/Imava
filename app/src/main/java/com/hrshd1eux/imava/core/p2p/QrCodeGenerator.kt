@@ -7,7 +7,7 @@ object QrCodeGenerator {
 
     /**
      * Generates a monochrome QR Code Bitmap from raw text.
-     * 100% pure Kotlin, zero Google libraries, zero external dependencies.
+     * Pure Kotlin, zero Google libraries, zero external dependencies.
      */
     fun generateQrBitmap(
         content: String,

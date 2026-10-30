@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 
 /**
- * 100% pure Kotlin, standalone QR Code Generator (ISO/IEC 18004).
+ * Pure Kotlin, standalone QR Code Generator (ISO/IEC 18004).
  * Completely zero external dependencies, zero Google libraries, zero proprietary code.
  * Generates standards-compliant QR Code bitmaps for local LAN URLs.
  */

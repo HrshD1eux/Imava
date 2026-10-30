@@ -83,7 +83,7 @@ SCREENSHOT_SPECS = [
     },
     {
         "filename": "07_about_legal.png",
-        "badge": "100% OFFLINE • ZERO TRACKERS",
+        "badge": "OFFLINE • ZERO TRACKERS",
         "title": "Pure Privacy. Zero Compromises.",
         "subtitle": "Audited open-source code with complete transparency.",
         "glow_color": (8, 145, 178),      # Cyan

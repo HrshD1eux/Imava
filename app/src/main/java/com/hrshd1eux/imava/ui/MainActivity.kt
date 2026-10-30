@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -724,7 +725,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         }
 
                         DescriptiveIconButton(
-                            onClick = { showImavaDropDialog = true },
+                            onClick = {
+                                if (selectionState.selectedIds.isEmpty()) {
+                                    Toast.makeText(context, "Select the images you want to share", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    showImavaDropDialog = true
+                                }
+                            },
                             title = "Wi-Fi Drop ⚡",
                             description = "Transfer media directly to PC, Mac, or phone over local Wi-Fi without cloud"
                         ) {
@@ -1780,7 +1787,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             if (selectedIds.isNotEmpty()) {
                 allVisible.filter { it.id in selectedIds }
             } else {
-                allVisible
+                emptyList()
             }
         }
         com.hrshd1eux.imava.ui.p2p.ImavaDropDialog(

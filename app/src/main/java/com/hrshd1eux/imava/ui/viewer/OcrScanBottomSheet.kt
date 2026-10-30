@@ -173,7 +173,7 @@ fun OcrScanBottomSheet(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "100% Offline • Tesseract 5 Engine",
+                            text = "Offline On-Device • Tesseract 5 Engine",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
