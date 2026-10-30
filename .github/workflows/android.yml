@@ -38,14 +38,56 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Extract Version Info
+      - name: Extract & Compute Release Version
         id: extract_version
         run: |
-          VERSION_NAME=$(grep -o 'versionName = "[^"]*"' app/build.gradle.kts | cut -d'"' -f2)
-          VERSION_CODE=$(grep -o 'versionCode = [0-9]*' app/build.gradle.kts | awk '{print $3}')
-          echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
-          echo "VERSION_CODE=${VERSION_CODE}" >> $GITHUB_ENV
-          echo "Extracted Version: ${VERSION_NAME} (Code: ${VERSION_CODE})"
+          python3 -c "
+          import os, re, subprocess
+
+          with open('app/build.gradle.kts', 'r') as f:
+              gradle_text = f.read()
+
+          code_match = re.search(r'versionCode\s*=\s*(\d+)', gradle_text)
+          name_match = re.search(r'versionName\s*=\s*\"([^\"]+)\"', gradle_text)
+
+          base_code = int(code_match.group(1)) if code_match else 63
+          base_name = name_match.group(1) if name_match else '1.1.62'
+
+          # Fetch remote tags to check for existing release collisions
+          subprocess.run(['git', 'fetch', '--tags', '--force'], check=False)
+          try:
+              tags_output = subprocess.check_output(['git', 'tag', '-l', 'v*'], text=True).splitlines()
+              existing_tags = set(t.strip() for t in tags_output if t.strip())
+          except Exception:
+              existing_tags = set()
+
+          target_name = base_name
+          target_code = base_code
+
+          # If the tag already exists on GitHub, increment patch version to guarantee a new release
+          while f'v{target_name}' in existing_tags:
+              match = re.match(r'^(\d+\.\d+\.)(\d+)$', target_name)
+              if match:
+                  prefix = match.group(1)
+                  patch = int(match.group(2)) + 1
+                  target_name = f'{prefix}{patch}'
+                  target_code += 1
+              else:
+                  break
+
+          if target_name != base_name or target_code != base_code:
+              gradle_text = re.sub(r'versionCode\s*=\s*\d+', f'versionCode = {target_code}', gradle_text)
+              gradle_text = re.sub(r'versionName\s*=\s*\"[^\"]+\"', f'versionName = \"{target_name}\"', gradle_text)
+              with open('app/build.gradle.kts', 'w') as f:
+                  f.write(gradle_text)
+              print(f'Detected existing release tag! Auto-incremented to new release: {target_name} (code: {target_code})')
+          else:
+              print(f'Using release version: {target_name} (code: {target_code})')
+
+          with open(os.environ['GITHUB_ENV'], 'a') as env_file:
+              env_file.write(f'VERSION_NAME={target_name}\n')
+              env_file.write(f'VERSION_CODE={target_code}\n')
+          "
 
       - name: Configure Keystore & Signing
         id: setup_keystore
@@ -130,7 +172,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Auto-Bump Version for Next Build
+      - name: Sync Version Back to Repository
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -139,39 +181,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           
-          # Fetch and rebase to guarantee latest remote commits
-          git fetch origin ${{ github.ref_name }}
-          git pull --rebase origin ${{ github.ref_name }} || true
-          
-          python3 -c "
-          import re
-          with open('app/build.gradle.kts', 'r') as f:
-              content = f.read()
-          
-          # Increment versionCode
-          code_match = re.search(r'versionCode\s*=\s*(\d+)', content)
-          if code_match:
-              old_code = int(code_match.group(1))
-              new_code = old_code + 1
-              content = re.sub(r'versionCode\s*=\s*\d+', f'versionCode = {new_code}', content)
-          
-          # Increment patch in versionName (e.g. 1.1.3 -> 1.1.4)
-          name_match = re.search(r'versionName\s*=\s*\"(\d+\.\d+\.)(\d+)\"', content)
-          if name_match:
-              prefix = name_match.group(1)
-              patch = int(name_match.group(2)) + 1
-              new_name = f'{prefix}{patch}'
-              content = re.sub(r'versionName\s*=\s*\"[^\"]+\"', f'versionName = \"{new_name}\"', content)
-              print(f'Successfully bumped version to {new_name} (versionCode: {new_code})')
-          
-          with open('app/build.gradle.kts', 'w') as f:
-              f.write(content)
-          "
-          
           git add app/build.gradle.kts
-          git commit -m "chore: bump version for next build [skip ci]" || echo "No changes to commit"
-          
-          # Resilient push with rebase retry
-          for i in 1 2 3; do
-            git pull --rebase origin ${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }} && break || sleep 2
-          done
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: release version ${{ env.VERSION_NAME }} [skip ci]"
+            for i in 1 2 3 4 5; do
+              git fetch origin ${{ github.ref_name }}
+              git rebase origin/${{ github.ref_name }} || git rebase --abort
+              git push origin HEAD:${{ github.ref_name }} && echo "Successfully pushed version bump" && break || sleep 2
+            done
+          else
+            echo "Version in build.gradle.kts already up to date with release."
+          fi
