@@ -181,13 +181,27 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           
-          git add app/build.gradle.kts
+          # Stage version bump and any doc/screenshot updates
+          git add app/build.gradle.kts docs/ README.md 2>/dev/null || git add app/build.gradle.kts
+          
           if ! git diff --staged --quiet; then
             git commit -m "chore: release version ${{ env.VERSION_NAME }} [skip ci]"
+            
+            # Pristine working tree: discard any remaining unstaged changes or build outputs
+            git reset --hard HEAD
+            git clean -fd
+            
             for i in 1 2 3 4 5; do
-              git fetch origin ${{ github.ref_name }}
-              git rebase origin/${{ github.ref_name }} || git rebase --abort
-              git push origin HEAD:${{ github.ref_name }} && echo "Successfully pushed version bump" && break || sleep 2
+              if git pull --rebase origin ${{ github.ref_name }}; then
+                if git push origin HEAD:${{ github.ref_name }}; then
+                  echo "Successfully pushed version bump"
+                  break
+                fi
+              else
+                git rebase --abort 2>/dev/null || true
+              fi
+              echo "Push retry $i failed, retrying in 2s..."
+              sleep 2
             done
           else
             echo "Version in build.gradle.kts already up to date with release."
