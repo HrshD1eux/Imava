@@ -14,13 +14,27 @@ class MediaPagingSource(
     private val mediaType: MediaTypeFilter = MediaTypeFilter.ALL
 ) : PagingSource<Int, MediaItem>() {
 
+    private var cachedTotalCount: Int? = null
+
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MediaItem> {
         val offset = params.key ?: 0
         val limit = params.loadSize
 
         return try {
-            val totalCount = repository.getTotalMediaCount(bucketId = bucketId, bucketIds = bucketIds, mediaType = mediaType)
-            val items = repository.loadMediaPaged(limit = limit, offset = offset, bucketId = bucketId, bucketIds = bucketIds, sortOrder = sortOrder, mediaType = mediaType)
+            val totalCount = cachedTotalCount ?: repository.getTotalMediaCount(
+                bucketId = bucketId,
+                bucketIds = bucketIds,
+                mediaType = mediaType
+            ).also { cachedTotalCount = it }
+
+            val items = repository.loadMediaPaged(
+                limit = limit,
+                offset = offset,
+                bucketId = bucketId,
+                bucketIds = bucketIds,
+                sortOrder = sortOrder,
+                mediaType = mediaType
+            )
             val nextKey = if (items.size < limit || offset + items.size >= totalCount) null else offset + items.size
             val prevKey = if (offset == 0) null else (offset - limit).coerceAtLeast(0)
             val itemsBefore = offset.coerceAtMost(totalCount)

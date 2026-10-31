@@ -906,8 +906,6 @@ class MediaRepositoryImpl @Inject constructor(
             .filter { !it.isHidden && !it.isTrashed }
     }
 
-    override suspend fun getDatePositionIndex(bucketId: Long?, sortOrder: com.hrshd1eux.imava.ui.SortOrder, mediaType: MediaTypeFilter): List<DatePositionHeader> = mediaStoreDataSource.getDatePositionIndex(bucketId, isAscending = (sortOrder == com.hrshd1eux.imava.ui.SortOrder.OLDEST_FIRST))
-
     override suspend fun renameMedia(
         context: Context,
         mediaItem: MediaItem,

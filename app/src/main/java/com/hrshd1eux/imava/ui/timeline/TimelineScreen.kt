@@ -436,18 +436,16 @@ fun TimelineScreen(
                         }
                     }
 
-                    // Floating scroll scrubber on the right edge (hidden during multi-selection to avoid overlapping action buttons)
-                    if (!selectionState.inSelectionMode) {
-                        val dateHeaders by viewModel.datePositionHeaders.collectAsState()
-                        TimelineScrubber(
-                            gridState = gridState,
-                            headers = dateHeaders,
-                            totalItemCount = lazyPagingItems.itemCount,
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(vertical = 16.dp)
-                        )
-                    }
+                    // Sleek fast-scroller and dynamic floating date bubble
+                    TimelineFastScroller(
+                        gridState = gridState,
+                        lazyPagingItems = lazyPagingItems,
+                        visibleItems = visibleItems,
+                        inSelectionMode = selectionState.inSelectionMode,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(top = 16.dp, bottom = 100.dp)
+                    )
                 }
             }
         }

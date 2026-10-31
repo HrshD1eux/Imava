@@ -1105,83 +1105,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    val datePositionHeaders: StateFlow<List<com.hrshd1eux.imava.data.repository.DatePositionHeader>> = visibleMediaItems.map { items ->
-        if (items.isEmpty()) return@map emptyList()
-
-        val zoneId = ZoneId.systemDefault()
-        val today = LocalDate.now(zoneId)
-        val yesterday = today.minusDays(1)
-
-        val firstItem = items.first()
-        val lastItem = items.last()
-        val firstDate = if (firstItem.trashTime > 0L) firstItem.trashTime else firstItem.dateTaken
-        val lastDate = if (lastItem.trashTime > 0L) lastItem.trashTime else lastItem.dateTaken
-        val minDate = minOf(firstDate, lastDate)
-        val maxDate = maxOf(firstDate, lastDate)
-
-        val localMin = Instant.ofEpochMilli(if (minDate > 0) minDate else System.currentTimeMillis()).atZone(zoneId).toLocalDate()
-        val localMax = Instant.ofEpochMilli(if (maxDate > 0) maxDate else System.currentTimeMillis()).atZone(zoneId).toLocalDate()
-        val spanDays = kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(localMin, localMax))
-        val spanYears = kotlin.math.abs(localMax.year - localMin.year)
-
-        val mode = when {
-            spanYears >= 2 || spanDays > 730 -> "YEAR"
-            spanDays > 60 -> "MONTH"
-            else -> "DAY"
-        }
-
-        val yearFormatter = DateTimeFormatter.ofPattern("yyyy", Locale.getDefault())
-        val yearShortFormatter = DateTimeFormatter.ofPattern("''yy", Locale.getDefault())
-        val monthFullFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
-        val monthShortWithYearFormatter = DateTimeFormatter.ofPattern("MMM ''yy", Locale.getDefault())
-        val monthShortFormatter = DateTimeFormatter.ofPattern("MMM", Locale.getDefault())
-        val dayFullFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
-        val dayShortFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
-
-        fun getHeaderAndLabel(dateMs: Long): Pair<String, String> {
-            val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
-            val localDate = Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
-            return when (mode) {
-                "YEAR" -> {
-                    val title = localDate.format(yearFormatter)
-                    val label = localDate.format(yearShortFormatter)
-                    Pair(title, label)
-                }
-                "MONTH" -> {
-                    val title = localDate.format(monthFullFormatter)
-                    val label = if (spanYears > 0) localDate.format(monthShortWithYearFormatter).uppercase()
-                                else localDate.format(monthShortFormatter).uppercase()
-                    Pair(title, label)
-                }
-                else -> {
-                    when (localDate) {
-                        today -> Pair("Today", "TD")
-                        yesterday -> Pair("Yesterday", "YS")
-                        else -> Pair(localDate.format(dayFullFormatter), localDate.format(dayShortFormatter))
-                    }
-                }
-            }
-        }
-
-        val result = mutableListOf<com.hrshd1eux.imava.data.repository.DatePositionHeader>()
-        var currentLabel = ""
-        val count = items.size
-        val sampleStep = (count / 80).coerceAtLeast(1)
-        var pos = 0
-        while (pos < count) {
-            val item = items[pos]
-            val itemDate = if (item.trashTime > 0L) item.trashTime else item.dateTaken
-            val (headerTitle, headerLabel) = getHeaderAndLabel(itemDate)
-            if (headerLabel != currentLabel) {
-                currentLabel = headerLabel
-                result.add(com.hrshd1eux.imava.data.repository.DatePositionHeader(headerTitle, pos, headerLabel))
-            }
-            pos += sampleStep
-        }
-        result
-    }.flowOn(Dispatchers.Default)
-    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getHeaderTitleForMedia(media: MediaItem, category: String? = null): String {
         val zoneId = ZoneId.systemDefault()
@@ -1245,7 +1168,7 @@ class MainViewModel @Inject constructor(
                 PagingData.from(sorted)
             }
             "Videos" -> Pager(
-                config = PagingConfig(pageSize = 60, prefetchDistance = 40, enablePlaceholders = false),
+                config = PagingConfig(pageSize = 100, prefetchDistance = 120, enablePlaceholders = false),
                 pagingSourceFactory = { MediaPagingSource(repository, bucketId, currentBucketIds.ifEmpty { null }, order, com.hrshd1eux.imava.data.media.MediaTypeFilter.VIDEOS) }
             ).flow.map { pagingData ->
                 if (bucketId != null) {
@@ -1254,7 +1177,7 @@ class MainViewModel @Inject constructor(
                 } else pagingData.filter { !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
             }
             else -> Pager(
-                config = PagingConfig(pageSize = 60, prefetchDistance = 40, enablePlaceholders = false),
+                config = PagingConfig(pageSize = 100, prefetchDistance = 120, enablePlaceholders = false),
                 pagingSourceFactory = { MediaPagingSource(repository, bucketId, currentBucketIds.ifEmpty { null }, order) }
             ).flow.map { pagingData ->
                 if (bucketId != null) {

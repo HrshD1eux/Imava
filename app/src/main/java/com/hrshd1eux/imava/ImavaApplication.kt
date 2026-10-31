@@ -40,6 +40,7 @@ class ImavaApplication : Application(), ImageLoaderFactory {
         return ImageLoader.Builder(this)
             .components {
                 add(com.hrshd1eux.imava.core.util.VaultFetcher.Factory())
+                add(com.hrshd1eux.imava.core.util.MediaStoreThumbnailFetcher.Factory(this@ImavaApplication))
                 add(VideoFrameDecoder.Factory())
                 add(GifDecoder.Factory())
             }

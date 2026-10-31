@@ -51,7 +51,6 @@ interface MediaRepository {
     suspend fun searchMedia(query: String): List<MediaItem>
     suspend fun scanSecondaryMediaDirectories(): DeepScanResult
     suspend fun fetchThirdPartyAppMedia(): List<MediaItem>
-    suspend fun getDatePositionIndex(bucketId: Long? = null, sortOrder: com.hrshd1eux.imava.ui.SortOrder = com.hrshd1eux.imava.ui.SortOrder.NEWEST_FIRST, mediaType: MediaTypeFilter = MediaTypeFilter.ALL): List<DatePositionHeader>
     suspend fun renameMedia(context: android.content.Context, mediaItem: MediaItem, newDisplayName: String): Boolean
     suspend fun batchRenameMedia(context: android.content.Context, itemsWithNewNames: List<Pair<MediaItem, String>>): Int
     suspend fun updateMediaDateTaken(context: android.content.Context, mediaItem: MediaItem, newDateMs: Long): Boolean
