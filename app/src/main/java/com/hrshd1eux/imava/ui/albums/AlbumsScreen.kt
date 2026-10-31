@@ -559,7 +559,7 @@ fun AlbumsScreen(
                     items(pinnedBuckets) { bucket ->
                         val customMediaId = customAlbumCovers[bucket.id]
                         val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                            ?: allMedia.firstOrNull { it.bucketId == bucket.id }?.uri
+                            ?: bucket.coverUri
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
                             coverUri = coverUri,
@@ -582,7 +582,7 @@ fun AlbumsScreen(
                             rowBuckets.forEach { bucket ->
                                 val customMediaId = customAlbumCovers[bucket.id]
                                 val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                                    ?: allMedia.firstOrNull { it.bucketId == bucket.id }?.uri
+                                    ?: bucket.coverUri
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(
                                         bucket = bucket,
@@ -621,7 +621,7 @@ fun AlbumsScreen(
                     items(unpinnedBuckets) { bucket ->
                         val customMediaId = customAlbumCovers[bucket.id]
                         val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                            ?: allMedia.firstOrNull { it.bucketId == bucket.id }?.uri
+                            ?: bucket.coverUri
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
                             coverUri = coverUri,
@@ -644,7 +644,7 @@ fun AlbumsScreen(
                             rowBuckets.forEach { bucket ->
                                 val customMediaId = customAlbumCovers[bucket.id]
                                 val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                                    ?: allMedia.firstOrNull { it.bucketId == bucket.id }?.uri
+                                    ?: bucket.coverUri
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(
                                         bucket = bucket,

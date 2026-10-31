@@ -127,11 +127,14 @@ fun TimelineScreen(
 
     val visibleItems by viewModel.visibleMediaItems.collectAsState()
     val currentCategory by viewModel.currentCategoryNameFlow.collectAsState()
-    val headerToMediaIdsMap = remember(visibleItems, currentCategory) {
-        visibleItems.groupBy(
-            keySelector = { viewModel.getHeaderTitleForMedia(it, currentCategory) },
-            valueTransform = { it.id }
-        )
+    var headerToMediaIdsMap by remember { mutableStateOf<Map<String, List<Long>>>(emptyMap()) }
+    LaunchedEffect(visibleItems, currentCategory) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+            headerToMediaIdsMap = visibleItems.groupBy(
+                keySelector = { viewModel.getHeaderTitleForMedia(it, currentCategory) },
+                valueTransform = { it.id }
+            )
+        }
     }
 
     var zoomAccumulator by remember { mutableFloatStateOf(1f) }

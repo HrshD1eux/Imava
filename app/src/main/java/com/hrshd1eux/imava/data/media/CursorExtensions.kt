@@ -11,6 +11,7 @@ class MediaCursorIndices(cursor: Cursor) {
     val mimeCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE)
     val dateCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_TAKEN)
     val addedCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)
+    val modifiedCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED)
     val sizeCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE)
     val widthCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.WIDTH)
     val heightCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT)
@@ -47,17 +48,13 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
     val rawDateTaken = if (indices.dateCol != -1) getLong(indices.dateCol) else 0L
     val addedSecs = if (indices.addedCol != -1) getLong(indices.addedCol) else 0L
     val addedMs = if (addedSecs > 0) addedSecs * 1000L else 0L
-    val fileLastModified = if (path.isNotBlank()) {
-        try {
-            val f = java.io.File(path)
-            if (f.exists()) f.lastModified() else 0L
-        } catch (_: Exception) { 0L }
-    } else 0L
+    val modSecs = if (indices.modifiedCol != -1) getLong(indices.modifiedCol) else 0L
+    val modMs = if (modSecs > 0) modSecs * 1000L else 0L
 
     val dateTaken = if (rawDateTaken > 100000000000L) {
         rawDateTaken
-    } else if (fileLastModified > 100000000000L) {
-        fileLastModified
+    } else if (modMs > 0) {
+        modMs
     } else if (addedMs > 0) {
         addedMs
     } else {
@@ -68,17 +65,21 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
     val width = if (indices.widthCol != -1) getInt(indices.widthCol) else 0
     val height = if (indices.heightCol != -1) getInt(indices.heightCol) else 0
 
-    val parentFile = if (path.isNotBlank()) java.io.File(path).parentFile else null
+    val parentPath = if (path.isNotBlank()) path.substringBeforeLast('/', "") else ""
     val bucketIdVal = if (indices.bucketIdCol != -1 && getLong(indices.bucketIdCol) != 0L) {
         getLong(indices.bucketIdCol)
+    } else if (parentPath.isNotEmpty()) {
+        parentPath.lowercase(java.util.Locale.ROOT).hashCode().toLong()
     } else {
-        parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L
+        0L
     }
     val rawBucketName = if (indices.bucketNameCol != -1) getString(indices.bucketNameCol) else null
     val bucketName = if (!rawBucketName.isNullOrBlank() && rawBucketName != "Unknown") {
         rawBucketName
+    } else if (parentPath.isNotEmpty()) {
+        parentPath.substringAfterLast('/')
     } else {
-        parentFile?.name ?: "Unknown"
+        "Unknown"
     }
 
     val mediaType = if (indices.mediaTypeCol != -1) getInt(indices.mediaTypeCol) else MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE

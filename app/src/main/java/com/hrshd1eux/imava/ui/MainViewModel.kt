@@ -1292,9 +1292,6 @@ class MainViewModel @Inject constructor(
     private val PAGE_SIZE = 200
 
     init {
-        loadNextPage()
-        loadBuckets()
-        
         viewModelScope.launch {
             combine(
                 snapshotFlow { currentBucketId },

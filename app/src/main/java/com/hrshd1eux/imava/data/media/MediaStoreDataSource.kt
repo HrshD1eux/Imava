@@ -1,6 +1,7 @@
 package com.hrshd1eux.imava.data.media
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
 import android.database.Cursor
@@ -174,6 +175,7 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.DATE_MODIFIED,
             MediaStore.Files.FileColumns.SIZE,
             MediaStore.Files.FileColumns.WIDTH,
             MediaStore.Files.FileColumns.HEIGHT,
@@ -253,6 +255,7 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.DATE_MODIFIED,
             MediaStore.Files.FileColumns.SIZE,
             MediaStore.Files.FileColumns.WIDTH,
             MediaStore.Files.FileColumns.HEIGHT,
@@ -349,6 +352,7 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.DATE_MODIFIED,
             MediaStore.Files.FileColumns.SIZE,
             MediaStore.Files.FileColumns.WIDTH,
             MediaStore.Files.FileColumns.HEIGHT,
@@ -406,51 +410,85 @@ class MediaStoreDataSource @Inject constructor(
     suspend fun fetchBuckets(): List<BucketInfo> = withContext(Dispatchers.IO) {
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(
+            MediaStore.Files.FileColumns._ID,
             MediaStore.Files.FileColumns.BUCKET_ID,
             MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
-            MediaStore.Files.FileColumns.DATA
+            MediaStore.Files.FileColumns.DATA,
+            MediaStore.Files.FileColumns.MEDIA_TYPE
         )
         val selection = getMediaTypeCondition(MediaTypeFilter.ALL)
 
         val bucketCounts = mutableMapOf<Long, Int>()
         val bucketNames = mutableMapOf<Long, String>()
         val bucketPaths = mutableMapOf<Long, String>()
+        val bucketCoverUris = mutableMapOf<Long, Uri>()
 
         val cursor = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val queryArgs = Bundle().apply {
                     putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
+                    putStringArray(
+                        ContentResolver.QUERY_ARG_SORT_COLUMNS,
+                        arrayOf(MediaStore.Files.FileColumns.DATE_MODIFIED, MediaStore.Files.FileColumns.DATE_ADDED)
+                    )
+                    putInt(
+                        ContentResolver.QUERY_ARG_SORT_DIRECTION,
+                        ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
+                    )
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
                 }
                 contentResolver.query(collection, projection, queryArgs, null)
             } else {
-                contentResolver.query(collection, projection, selection, null, null)
+                val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC, ${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+                contentResolver.query(collection, projection, selection, null, sortOrder)
             }
         } catch (_: Exception) {
             null
         }
 
         cursor?.use {
-            val idCol = it.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_ID)
+            val idCol = it.getColumnIndex(MediaStore.Files.FileColumns._ID)
+            val bucketIdCol = it.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_ID)
             val nameCol = it.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME)
             val pathCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
+            val mediaTypeCol = it.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE)
 
-            if (idCol != -1) {
-                while (it.moveToNext()) {
-                    var bucketId = it.getLong(idCol)
+            while (it.moveToNext()) {
+                val bIdRaw = if (bucketIdCol != -1) it.getLong(bucketIdCol) else 0L
+                val filePath = if (pathCol != -1) it.getString(pathCol) else null
+                val bucketId = if (bIdRaw != 0L) {
+                    bIdRaw
+                } else if (!filePath.isNullOrBlank()) {
+                    val parent = filePath.substringBeforeLast('/', "")
+                    if (parent.isNotEmpty()) parent.lowercase(java.util.Locale.ROOT).hashCode().toLong() else 0L
+                } else {
+                    0L
+                }
+                if (bucketId == 0L) continue
+
+                val count = (bucketCounts[bucketId] ?: 0) + 1
+                bucketCounts[bucketId] = count
+
+                if (count == 1) {
+                    val parent = if (!filePath.isNullOrBlank()) filePath.substringBeforeLast('/', "") else ""
                     var bucketName = if (nameCol != -1) it.getString(nameCol) else null
-                    val filePath = if (pathCol != -1) it.getString(pathCol) else null
-                    val parentFile = if (!filePath.isNullOrBlank()) java.io.File(filePath).parentFile else null
-                    if (bucketId == 0L && parentFile != null) {
-                        bucketId = parentFile.absolutePath.lowercase(java.util.Locale.ROOT).hashCode().toLong()
-                    }
                     if (bucketName.isNullOrBlank() || bucketName == "Unknown") {
-                        bucketName = parentFile?.name ?: "Unknown"
+                        bucketName = if (parent.isNotEmpty()) parent.substringAfterLast('/') else "Unknown"
                     }
-                    bucketCounts[bucketId] = (bucketCounts[bucketId] ?: 0) + 1
                     bucketNames[bucketId] = bucketName
-                    if (parentFile != null && !bucketPaths.containsKey(bucketId)) {
-                        bucketPaths[bucketId] = parentFile.absolutePath
+                    if (parent.isNotEmpty()) {
+                        bucketPaths[bucketId] = parent
+                    }
+
+                    val mediaId = if (idCol != -1) it.getLong(idCol) else 0L
+                    if (mediaId > 0L) {
+                        val mType = if (mediaTypeCol != -1) it.getInt(mediaTypeCol) else MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+                        val baseUri = if (mType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                        } else {
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        }
+                        bucketCoverUris[bucketId] = ContentUris.withAppendedId(baseUri, mediaId)
                     }
                 }
             }
@@ -469,8 +507,11 @@ class MediaStoreDataSource @Inject constructor(
                     if (!bucketPaths.containsKey(bId)) {
                         val p = items.firstOrNull()?.path
                         if (!p.isNullOrBlank()) {
-                            bucketPaths[bId] = java.io.File(p).parent ?: ""
+                            bucketPaths[bId] = p.substringBeforeLast('/', "")
                         }
+                    }
+                    if (!bucketCoverUris.containsKey(bId)) {
+                        items.firstOrNull()?.uri?.let { bucketCoverUris[bId] = it }
                     }
                 }
             }
@@ -478,7 +519,7 @@ class MediaStoreDataSource @Inject constructor(
 
         val buckets = mutableListOf<BucketInfo>()
         bucketCounts.forEach { (id, count) ->
-            buckets.add(BucketInfo(id, bucketNames[id] ?: "Unknown", count, bucketPaths[id]))
+            buckets.add(BucketInfo(id, bucketNames[id] ?: "Unknown", count, bucketPaths[id], coverUri = bucketCoverUris[id]))
         }
         buckets.sortedByDescending { it.count }
     }
@@ -494,6 +535,7 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.DATE_MODIFIED,
             MediaStore.Files.FileColumns.SIZE,
             MediaStore.Files.FileColumns.WIDTH,
             MediaStore.Files.FileColumns.HEIGHT,
@@ -687,6 +729,7 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.DATE_MODIFIED,
             MediaStore.Files.FileColumns.SIZE,
             MediaStore.Files.FileColumns.WIDTH,
             MediaStore.Files.FileColumns.HEIGHT,
@@ -740,9 +783,7 @@ class MediaStoreDataSource @Inject constructor(
         if (secondaryDiskMediaCache.isNotEmpty()) {
             val existingPaths = mediaList.mapTo(HashSet()) { it.path }
             for (cachedItem in secondaryDiskMediaCache) {
-                if (!java.io.File(cachedItem.path).exists()) {
-                    secondaryDiskMediaCache.remove(cachedItem)
-                } else if (cachedItem.path !in existingPaths) {
+                if (cachedItem.path !in existingPaths) {
                     existingPaths.add(cachedItem.path)
                     mediaList.add(cachedItem)
                 }
@@ -1166,5 +1207,6 @@ data class BucketInfo(
     val count: Int,
     val path: String? = null,
     val mergedBucketIds: List<Long> = listOf(id),
-    val paths: List<String> = if (path != null) listOf(path) else emptyList()
+    val paths: List<String> = if (path != null) listOf(path) else emptyList(),
+    val coverUri: android.net.Uri? = null
 )

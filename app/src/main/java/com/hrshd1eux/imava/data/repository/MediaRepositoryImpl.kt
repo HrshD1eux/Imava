@@ -34,11 +34,18 @@ class MediaRepositoryImpl @Inject constructor(
 
     private suspend fun getMetadataForMediaIdsChunked(ids: List<Long>): List<MediaMetadataEntity> {
         if (ids.isEmpty()) return emptyList()
-        val result = mutableListOf<MediaMetadataEntity>()
-        ids.chunked(500).forEach { chunk ->
-            result.addAll(metadataDao.getMetadataForMediaIds(chunk))
+        if (ids.size > 500) {
+            return try {
+                metadataDao.getAllMetadata()
+            } catch (_: Exception) {
+                emptyList()
+            }
         }
-        return result
+        return try {
+            metadataDao.getMetadataForMediaIds(ids)
+        } catch (_: Exception) {
+            emptyList()
+        }
     }
 
     private suspend fun deleteMetadataByIdsChunked(ids: List<Long>) {
@@ -209,7 +216,7 @@ class MediaRepositoryImpl @Inject constructor(
         val processedBuckets = rawBuckets.map { bucket ->
             val subtractCount = hiddenOrTrashedCounts[bucket.id] ?: 0
             val newCount = (bucket.count - subtractCount).coerceAtLeast(0)
-            BucketInfo(bucket.id, bucket.name, newCount, bucket.path)
+            BucketInfo(bucket.id, bucket.name, newCount, bucket.path, coverUri = bucket.coverUri)
         }.toMutableList()
 
         val existingNames = processedBuckets.map { it.name }.toSet()
