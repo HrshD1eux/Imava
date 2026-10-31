@@ -436,15 +436,14 @@ fun TimelineScreen(
                         }
                     }
 
-                    // Sleek fast-scroller and dynamic floating date bubble
-                    TimelineFastScroller(
+                    // Minimalist top-center floating date indicator (zero side-rail clutter)
+                    TimelineFloatingDateBadge(
                         gridState = gridState,
                         lazyPagingItems = lazyPagingItems,
                         visibleItems = visibleItems,
-                        inSelectionMode = selectionState.inSelectionMode,
                         modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(top = 16.dp, bottom = 100.dp)
+                            .align(Alignment.TopCenter)
+                            .padding(top = 10.dp)
                     )
                 }
             }
