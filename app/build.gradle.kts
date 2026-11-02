@@ -22,8 +22,8 @@ android {
         applicationId = "com.hrshd1eux.imava"
         minSdk = 29
         targetSdk = 35
-        versionCode = 78
-        versionName = "1.1.78"
+        versionCode = 79
+        versionName = "1.1.79"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
