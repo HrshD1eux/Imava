@@ -494,24 +494,27 @@ class MediaStoreDataSource @Inject constructor(
             }
         }
 
-        // Also ensure known secondary directories (WhatsApp Sent, etc.) are included as buckets if they have files
+        // Also ensure known secondary directories (WhatsApp Sent, etc.) are included as buckets if they have files.
+        // Option D: Use in-memory secondaryDiskMediaCache instead of running another heavy 21-LIKE MediaStore query.
         try {
-            val thirdPartyMedia = fetchThirdPartyAppMedia()
-            thirdPartyMedia.groupBy { it.bucketId }.forEach { (bId, items) ->
-                val currentCount = bucketCounts[bId] ?: 0
-                if (items.size > currentCount) {
-                    bucketCounts[bId] = items.size
-                    if (!bucketNames.containsKey(bId) || bucketNames[bId] == "Unknown") {
-                        bucketNames[bId] = items.firstOrNull()?.bucketName ?: "Unknown"
-                    }
-                    if (!bucketPaths.containsKey(bId)) {
-                        val p = items.firstOrNull()?.path
-                        if (!p.isNullOrBlank()) {
-                            bucketPaths[bId] = p.substringBeforeLast('/', "")
+            val diskMedia = secondaryDiskMediaCache
+            if (diskMedia.isNotEmpty()) {
+                diskMedia.groupBy { it.bucketId }.forEach { (bId, items) ->
+                    val currentCount = bucketCounts[bId] ?: 0
+                    if (items.size > currentCount) {
+                        bucketCounts[bId] = items.size
+                        if (!bucketNames.containsKey(bId) || bucketNames[bId] == "Unknown") {
+                            bucketNames[bId] = items.firstOrNull()?.bucketName ?: "Unknown"
                         }
-                    }
-                    if (!bucketCoverUris.containsKey(bId)) {
-                        items.firstOrNull()?.uri?.let { bucketCoverUris[bId] = it }
+                        if (!bucketPaths.containsKey(bId)) {
+                            val p = items.firstOrNull()?.path
+                            if (!p.isNullOrBlank()) {
+                                bucketPaths[bId] = p.substringBeforeLast('/', "")
+                            }
+                        }
+                        if (!bucketCoverUris.containsKey(bId)) {
+                            items.firstOrNull()?.uri?.let { bucketCoverUris[bId] = it }
+                        }
                     }
                 }
             }

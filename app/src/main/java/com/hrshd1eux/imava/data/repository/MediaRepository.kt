@@ -65,4 +65,5 @@ interface MediaRepository {
     suspend fun getOcrText(mediaId: Long): String?
     fun evictSecondaryDiskItem(mediaId: Long, path: String = "")
     fun observeMediaChanges(): Flow<Unit>
+    fun invalidateThirdPartyCache()
 }

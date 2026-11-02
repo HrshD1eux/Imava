@@ -128,7 +128,14 @@ fun TimelineScreen(
     val visibleItems by viewModel.visibleMediaItems.collectAsState()
     val currentCategory by viewModel.currentCategoryNameFlow.collectAsState()
     var headerToMediaIdsMap by remember { mutableStateOf<Map<String, List<Long>>>(emptyMap()) }
-    LaunchedEffect(visibleItems, currentCategory) {
+    val inSelectionMode = selectionState.inSelectionMode
+    LaunchedEffect(visibleItems, currentCategory, inSelectionMode) {
+        // Option B optimization: Do NOT run expensive O(N) groupBy on 70k items during cold start or normal scrolling.
+        // Only compute date header mapping when user actively enters multi-selection mode.
+        if (!inSelectionMode) {
+            if (headerToMediaIdsMap.isNotEmpty()) headerToMediaIdsMap = emptyMap()
+            return@LaunchedEffect
+        }
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
             headerToMediaIdsMap = visibleItems.groupBy(
                 keySelector = { viewModel.getHeaderTitleForMedia(it, currentCategory) },
@@ -379,7 +386,8 @@ fun TimelineScreen(
                             if (item != null) {
                                 when (item) {
                                     is TimelineItem.Header -> {
-                                        val dateMediaIds = headerToMediaIdsMap[item.title] ?: emptyList()
+                                        val dateMediaIds = headerToMediaIdsMap[item.title]
+                                            ?: visibleItems.filter { viewModel.getHeaderTitleForMedia(it, currentCategory) == item.title }.map { it.id }
                                         val isAllDateSelected = dateMediaIds.isNotEmpty() && selectionState.selectedIds.containsAll(dateMediaIds)
                                         TimelineHeader(
                                             title = item.title,

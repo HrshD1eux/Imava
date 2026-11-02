@@ -771,11 +771,9 @@ class MainViewModel @Inject constructor(
                 list.sortedWith(compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenByDescending { it.id })
             }
         } else {
-            if (sortOrder == SortOrder.OLDEST_FIRST) {
-                list.sortedBy { it.dateTaken }
-            } else {
-                list.sortedByDescending { it.dateTaken }
-            }
+            // Raw list from getMediaFlow() / Paging is already sorted in the requested sortOrder from MediaStore.
+            // Avoid redundant O(N log N) Kotlin re-sorting on every StateFlow emission.
+            list
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -1258,6 +1256,10 @@ class MainViewModel @Inject constructor(
             repository.observeMediaChanges()
                 .debounce(500)
                 .collectLatest {
+                    // Option E: Invalidate third-party cache on any MediaStore change
+                    // so new WhatsApp/Telegram files appear on next refresh without
+                    // waiting for the 60s TTL.
+                    repository.invalidateThirdPartyCache()
                     refreshAll()
                 }
         }
@@ -1378,7 +1380,7 @@ class MainViewModel @Inject constructor(
     fun loadNextPage() {
         viewModelScope.launch {
             val items = repository.loadMediaPaged(
-                limit = Int.MAX_VALUE,
+                limit = 200,
                 offset = 0,
                 bucketId = currentBucketId,
                 bucketIds = currentBucketIds.ifEmpty { null },
@@ -1397,6 +1399,8 @@ class MainViewModel @Inject constructor(
         currentBucketIds = bucketIds ?: (bucketId?.let { listOf(it) } ?: emptyList())
         currentBucketName = bucketName
         currentScreen = Screen.Photos
+        // refreshTrigger++ is called inside loadNextPage() above, which invalidates
+        // both pagingDataFlow and getMediaFlow. No MAX_VALUE scan needed.
         loadNextPage()
     }
 

@@ -55,17 +55,44 @@ class MediaRepositoryImpl @Inject constructor(
         }
     }
 
+    // ── Option C: Third-party media cache ──────────────────────────────────────
+    // Cache result for 60s to avoid running 15 LIKE-pattern MediaStore queries
+    // on every pager page load and every getTotalMediaCount() call.
+    @Volatile private var thirdPartyCache: List<MediaItem> = emptyList()
+    @Volatile private var thirdPartyCacheTime: Long = 0L
+    private val THIRD_PARTY_CACHE_TTL = 60_000L // 60 seconds
+
+    private suspend fun getCachedThirdPartyMedia(): List<MediaItem> {
+        val now = System.currentTimeMillis()
+        if (now - thirdPartyCacheTime < THIRD_PARTY_CACHE_TTL && thirdPartyCache.isNotEmpty()) {
+            return thirdPartyCache
+        }
+        val fresh = try { fetchThirdPartyAppMedia() } catch (_: Exception) { emptyList() }
+        thirdPartyCache = fresh
+        thirdPartyCacheTime = now
+        return fresh
+    }
+
+    // ── Option A & B: Progressive Media Flow ────────────────────────────────
+    // Fast initial emission (<50ms for first 200 items) so timeline UI displays instantly,
+    // followed by complete library emission in a single unpaged pass for memories,
+    // storage calculations, tags, and full-library viewer swiping.
     override fun getMediaFlow(bucketId: Long?, sortOrder: com.hrshd1eux.imava.ui.SortOrder, mediaType: MediaTypeFilter): Flow<List<MediaItem>> {
-        return combine(
-            mediaStoreDataSource.observeMediaStore().onStart { emit(Unit) },
-            metadataDao.getAllMetadataFlow().onStart { emit(emptyList()) }
-        ) { _, _ ->
-            loadMediaPaged(limit = Int.MAX_VALUE, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
+        return mediaStoreDataSource.observeMediaStore().onStart { emit(Unit) }.flatMapLatest {
+            flow {
+                val initialBatch = loadMediaPaged(limit = 200, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
+                emit(initialBatch)
+
+                val fullList = loadMediaPaged(limit = Int.MAX_VALUE, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
+                if (fullList.size != initialBatch.size || fullList != initialBatch) {
+                    emit(fullList)
+                }
+            }
         }.flowOn(Dispatchers.IO)
     }
 
     private suspend fun getCleanedThirdPartyMedia(bucketId: Long?, mediaType: MediaTypeFilter): List<MediaItem> {
-        val raw = fetchThirdPartyAppMedia()
+        val raw = getCachedThirdPartyMedia() // Option C: use cache instead of always fetching
         val filtered = when (mediaType) {
             MediaTypeFilter.ALL -> raw
             MediaTypeFilter.IMAGES -> raw.filterIsInstance<MediaItem.Photo>()
@@ -129,42 +156,56 @@ class MediaRepositoryImpl @Inject constructor(
         val resultList = mutableListOf<MediaItem>()
         var reachedEnd = false
 
-        while (resultList.size < limit && !reachedEnd) {
-            val remaining = limit - resultList.size
-            val fetchBatch = if (remaining == Int.MAX_VALUE) 1000 else minOf(remaining, 1000)
+        if (limit == Int.MAX_VALUE) {
+            // Option A: Single unpaged pass for complete library query (O(N) instead of O(N^2) quadratic offset scans)
             val rawMedia = mediaStoreDataSource.fetchMedia(
-                limit = fetchBatch,
-                offset = currentOffset,
+                limit = 0,
+                offset = 0,
                 bucketId = bucketId,
                 bucketIds = bucketIds,
                 isAscending = isAscending,
                 mediaType = mediaType
             )
-            if (rawMedia.isEmpty()) {
-                break
-            }
-            val ids = rawMedia.map { it.id }
-            val metaMap = getMetadataForMediaIdsChunked(ids).associateBy { it.mediaId }
-            val filtered = rawMedia.map { applyMetadata(it, metaMap[it.id]) }.filter { !it.isHidden && !it.isTrashed }
+            val allMeta = try { metadataDao.getAllMetadata().associateBy { it.mediaId } } catch (_: Exception) { emptyMap() }
+            val filtered = rawMedia.map { applyMetadata(it, allMeta[it.id]) }.filter { !it.isHidden && !it.isTrashed }
             resultList.addAll(filtered)
-            currentOffset += rawMedia.size
-            if (rawMedia.size < fetchBatch) {
-                break
+        } else {
+            while (resultList.size < limit && !reachedEnd) {
+                val remaining = limit - resultList.size
+                val fetchBatch = minOf(remaining, 500)
+                val rawMedia = mediaStoreDataSource.fetchMedia(
+                    limit = fetchBatch,
+                    offset = currentOffset,
+                    bucketId = bucketId,
+                    bucketIds = bucketIds,
+                    isAscending = isAscending,
+                    mediaType = mediaType
+                )
+                if (rawMedia.isEmpty()) {
+                    break
+                }
+                val ids = rawMedia.map { it.id }
+                val metaMap = getMetadataForMediaIdsChunked(ids).associateBy { it.mediaId }
+                val filtered = rawMedia.map { applyMetadata(it, metaMap[it.id]) }.filter { !it.isHidden && !it.isTrashed }
+                resultList.addAll(filtered)
+                currentOffset += rawMedia.size
+                if (rawMedia.size < fetchBatch) {
+                    break
+                }
             }
         }
 
         if (thirdPartyMedia.isEmpty()) {
-            return@withContext if (isAscending) {
-                resultList.sortedBy { it.dateTaken }
-            } else {
-                resultList.sortedByDescending { it.dateTaken }
-            }
+            return@withContext resultList
         }
 
         if (limit == Int.MAX_VALUE) {
-            val existingIds = resultList.mapTo(HashSet()) { it.id }
-            val existingPaths = resultList.mapTo(HashSet()) { it.path }
+            val existingIds = resultList.mapTo(HashSet(resultList.size)) { it.id }
+            val existingPaths = resultList.mapTo(HashSet(resultList.size)) { it.path }
             val newThirdParty = sortedThirdParty.filter { it.id !in existingIds && it.path !in existingPaths }
+            if (newThirdParty.isEmpty()) {
+                return@withContext resultList
+            }
             resultList.addAll(newThirdParty)
             return@withContext if (isAscending) {
                 resultList.sortedBy { it.dateTaken }
@@ -233,12 +274,14 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override fun getBucketsFlow(): Flow<List<BucketInfo>> {
-        return combine(
-            mediaStoreDataSource.observeMediaStore().onStart { emit(Unit) },
-            metadataDao.getAllMetadataFlow().onStart { emit(emptyList()) }
-        ) { _, _ ->
-            getBuckets()
-        }.flowOn(Dispatchers.IO)
+        // Option D: Only react to MediaStore changes (not every Room metadata write).
+        // getAllMetadataFlow emits on every favorite/tag/trash toggle — we don't need to
+        // re-scan all 70k MediaStore rows for that. MediaStore changes are the only
+        // thing that can add/remove buckets or change cover URIs.
+        return mediaStoreDataSource.observeMediaStore()
+            .onStart { emit(Unit) }
+            .map { getBuckets() }
+            .flowOn(Dispatchers.IO)
     }
 
     override suspend fun toggleFavorite(mediaItem: MediaItem) {
@@ -1427,5 +1470,9 @@ class MediaRepositoryImpl @Inject constructor(
 
     override fun evictSecondaryDiskItem(mediaId: Long, path: String) {
         mediaStoreDataSource.evictItem(mediaId, path)
+    }
+
+    override fun invalidateThirdPartyCache() {
+        thirdPartyCacheTime = 0L
     }
 }
