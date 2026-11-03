@@ -1103,25 +1103,47 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private val headerZoneId: ZoneId = ZoneId.systemDefault()
+    private val sameYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())
+    private val otherYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
+    private val headerTitleCache = java.util.concurrent.ConcurrentHashMap<Long, String>()
+    private var cachedTodayEpochDay: Long = -1L
+    private var cachedYesterdayEpochDay: Long = -1L
+    private var cachedCurrentYear: Int = -1
+
+    private fun updateCachedDays() {
+        val today = LocalDate.now(headerZoneId)
+        cachedTodayEpochDay = today.toEpochDay()
+        cachedYesterdayEpochDay = today.minusDays(1).toEpochDay()
+        cachedCurrentYear = today.year
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getHeaderTitleForMedia(media: MediaItem, category: String? = null): String {
-        val zoneId = ZoneId.systemDefault()
-        val today = LocalDate.now(zoneId)
-        val yesterday = today.minusDays(1)
-        val sameYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())
-        val otherYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
-        val dateMs = if (category == "Trash" && media.trashTime > 0L) media.trashTime else media.dateTaken
+        if (cachedTodayEpochDay == -1L) {
+            updateCachedDays()
+        }
+        val isTrash = category == "Trash"
+        val dateMs = if (isTrash && media.trashTime > 0L) media.trashTime else media.dateTaken
         val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
-        val localDate = Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
-        return when (localDate) {
-            today -> "Today"
-            yesterday -> "Yesterday"
-            else -> if (localDate.year == today.year) {
+        val localDate = Instant.ofEpochMilli(ms).atZone(headerZoneId).toLocalDate()
+        val epochDay = localDate.toEpochDay()
+
+        val cacheKey = if (isTrash) -epochDay - 1 else epochDay
+        val cached = headerTitleCache[cacheKey]
+        if (cached != null) return cached
+
+        val title = when (epochDay) {
+            cachedTodayEpochDay -> "Today"
+            cachedYesterdayEpochDay -> "Yesterday"
+            else -> if (localDate.year == cachedCurrentYear) {
                 localDate.format(sameYearFormatter)
             } else {
                 localDate.format(otherYearFormatter)
             }
         }
+        headerTitleCache[cacheKey] = title
+        return title
     }
 
     val pagingDataFlow: Flow<PagingData<TimelineItem>> = combine(

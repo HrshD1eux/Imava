@@ -67,8 +67,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.collectAsState
 import com.hrshd1eux.imava.R
+import com.hrshd1eux.imava.core.util.AppUpdateDownloadState
 import com.hrshd1eux.imava.core.util.AppUpdateManager
+import com.hrshd1eux.imava.core.util.FormatUtils
 import com.hrshd1eux.imava.core.util.UpdateInfo
 import com.hrshd1eux.imava.ui.common.AppUpdateDialog
 import kotlinx.coroutines.launch
@@ -86,6 +90,7 @@ fun AboutLegalScreen(
     var isCheckingUpdates by remember { mutableStateOf(false) }
     var updateResult by remember { mutableStateOf<UpdateInfo?>(null) }
     var showUpToDateDialog by remember { mutableStateOf(false) }
+    val downloadState by AppUpdateManager.downloadState.collectAsState()
 
     val packageInfo = remember(context) {
         try {
@@ -229,6 +234,139 @@ fun AboutLegalScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Check for Updates")
                         }
+                    }
+
+                    // Background Update Status Box
+                    when (val state = downloadState) {
+                        is AppUpdateDownloadState.Downloading -> {
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "Downloading v${state.version} (${state.progress}%)",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
+                                        val totalStr = if (state.totalBytes > 0) FormatUtils.formatFileSize(state.totalBytes) else "..."
+                                        Text(
+                                            text = "$downloadedStr / $totalStr",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    LinearProgressIndicator(
+                                        progress = { state.progress / 100f },
+                                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                        TextButton(onClick = { AppUpdateManager.pauseDownload(context) }) {
+                                            Text("Pause")
+                                        }
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
+                                            Text("Cancel")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        is AppUpdateDownloadState.Paused -> {
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
+                                    Text(
+                                        text = "Download Paused at ${state.progress}% ($downloadedStr)",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    LinearProgressIndicator(
+                                        progress = { state.progress / 100f },
+                                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                        Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
+                                            Text("Resume")
+                                        }
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
+                                            Text("Cancel")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        is AppUpdateDownloadState.Completed -> {
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Text(
+                                        text = "Update Ready: Imava v${state.version}",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.tertiary
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                        Button(onClick = { AppUpdateManager.installApk(context, state.apkFile) }) {
+                                            Text("Install Now")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        is AppUpdateDownloadState.Failed -> {
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Text(
+                                        text = "Download Failed: ${state.error}",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                        Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
+                                            Text("Retry / Resume")
+                                        }
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
+                                            Text("Dismiss")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        AppUpdateDownloadState.Idle -> {}
                     }
                 }
             }

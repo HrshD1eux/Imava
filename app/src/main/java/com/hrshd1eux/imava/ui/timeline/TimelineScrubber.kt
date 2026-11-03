@@ -45,29 +45,34 @@ fun TimelineFloatingDateBadge(
 
     val monthYearFormatter = remember { DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()) }
     val zoneId = remember { ZoneId.systemDefault() }
+    val monthCache = remember { HashMap<Long, String>() }
 
-    // Derive accurate date label from currently visible top item or proportional index
+    // Derive accurate date label without reading gridState.layoutInfo (which triggers on every pixel)
     val currentDateLabel by remember(totalCount) {
         derivedStateOf {
-            val firstVisible = gridState.layoutInfo.visibleItemsInfo.firstOrNull()
-            if (firstVisible != null && firstVisible.index in 0 until totalCount) {
-                val item = lazyPagingItems.peek(firstVisible.index)
+            val firstIndex = gridState.firstVisibleItemIndex
+            if (firstIndex in 0 until totalCount) {
+                val item = lazyPagingItems.peek(firstIndex)
                 when (item) {
                     is TimelineItem.Header -> item.title
                     is TimelineItem.Media -> {
                         val dateMs = if (item.item.trashTime > 0L) item.item.trashTime else item.item.dateTaken
                         val ms = if (dateMs > 0L) dateMs else System.currentTimeMillis()
-                        Instant.ofEpochMilli(ms).atZone(zoneId).format(monthYearFormatter)
+                        val localDate = Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
+                        val monthKey = localDate.year.toLong() * 100 + localDate.monthValue
+                        monthCache.getOrPut(monthKey) { localDate.format(monthYearFormatter) }
                     }
                     null -> null
                 }
             } else if (visibleItems.isNotEmpty()) {
-                val fraction = (gridState.firstVisibleItemIndex.toFloat() / (totalCount - 1).coerceAtLeast(1)).coerceIn(0f, 1f)
+                val fraction = (firstIndex.toFloat() / (totalCount - 1).coerceAtLeast(1)).coerceIn(0f, 1f)
                 val targetIdx = (fraction * (visibleItems.size - 1)).toInt().coerceIn(0, visibleItems.lastIndex)
                 val item = visibleItems[targetIdx]
                 val dateMs = if (item.trashTime > 0L) item.trashTime else item.dateTaken
                 val ms = if (dateMs > 0L) dateMs else System.currentTimeMillis()
-                Instant.ofEpochMilli(ms).atZone(zoneId).format(monthYearFormatter)
+                val localDate = Instant.ofEpochMilli(ms).atZone(zoneId).toLocalDate()
+                val monthKey = localDate.year.toLong() * 100 + localDate.monthValue
+                monthCache.getOrPut(monthKey) { localDate.format(monthYearFormatter) }
             } else null
         }
     }

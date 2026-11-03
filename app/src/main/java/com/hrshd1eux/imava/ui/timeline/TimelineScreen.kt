@@ -148,17 +148,16 @@ fun TimelineScreen(
 
     val gridState = rememberLazyStaggeredGridState()
 
-    var lastTopIndex by remember { androidx.compose.runtime.mutableIntStateOf(0) }
-    var lastTopOffset by remember { androidx.compose.runtime.mutableIntStateOf(0) }
-
-    LaunchedEffect(gridState.firstVisibleItemIndex, gridState.firstVisibleItemScrollOffset) {
-        lastTopIndex = gridState.firstVisibleItemIndex
-        lastTopOffset = gridState.firstVisibleItemScrollOffset
-    }
+    var previousColumnCount by remember { androidx.compose.runtime.mutableIntStateOf(viewModel.gridColumnCount) }
 
     LaunchedEffect(viewModel.gridColumnCount) {
-        if (lastTopIndex > 0) {
-            gridState.scrollToItem(lastTopIndex, lastTopOffset)
+        if (previousColumnCount != viewModel.gridColumnCount) {
+            val topIndex = gridState.firstVisibleItemIndex
+            val topOffset = gridState.firstVisibleItemScrollOffset
+            previousColumnCount = viewModel.gridColumnCount
+            if (topIndex > 0) {
+                gridState.scrollToItem(topIndex, topOffset)
+            }
         }
     }
 
@@ -373,6 +372,13 @@ fun TimelineScreen(
                                     null -> "placeholder_$index"
                                 }
                             },
+                            contentType = { index ->
+                                when (lazyPagingItems.peek(index)) {
+                                    is TimelineItem.Header -> 0
+                                    is TimelineItem.Media -> 1
+                                    null -> 2
+                                }
+                            },
                             span = { index ->
                                 val item = lazyPagingItems.peek(index)
                                 if (item is TimelineItem.Header) {
@@ -386,8 +392,11 @@ fun TimelineScreen(
                             if (item != null) {
                                 when (item) {
                                     is TimelineItem.Header -> {
-                                        val dateMediaIds = headerToMediaIdsMap[item.title]
-                                            ?: visibleItems.filter { viewModel.getHeaderTitleForMedia(it, currentCategory) == item.title }.map { it.id }
+                                        val dateMediaIds = if (selectionState.inSelectionMode) {
+                                            headerToMediaIdsMap[item.title] ?: emptyList()
+                                        } else {
+                                            emptyList()
+                                        }
                                         val isAllDateSelected = dateMediaIds.isNotEmpty() && selectionState.selectedIds.containsAll(dateMediaIds)
                                         TimelineHeader(
                                             title = item.title,
@@ -1306,16 +1315,6 @@ fun MediaGridCell(
             .build()
     }
 
-    val cellGradient = remember {
-        Brush.verticalGradient(
-            colors = listOf(
-                Color.Transparent,
-                Color.Black.copy(alpha = 0.4f)
-            ),
-            startY = 100f
-        )
-    }
-
     Box(
         modifier = modifier
             .aspectRatio(aspectRatio)
@@ -1330,13 +1329,6 @@ fun MediaGridCell(
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
-        )
-
-        // Gradient overlay for visual aesthetics and title visibility
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(cellGradient)
         )
 
         // Select mode overlays

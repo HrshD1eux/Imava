@@ -1,14 +1,31 @@
 package com.hrshd1eux.imava.core.util
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.hrshd1eux.imava.R
+import com.hrshd1eux.imava.ui.MainActivity
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -20,7 +37,45 @@ data class UpdateInfo(
     val apkDownloadUrl: String?
 )
 
+sealed class AppUpdateDownloadState {
+    object Idle : AppUpdateDownloadState()
+    data class Downloading(
+        val progress: Int,
+        val downloadedBytes: Long,
+        val totalBytes: Long,
+        val version: String
+    ) : AppUpdateDownloadState()
+    data class Paused(
+        val progress: Int,
+        val downloadedBytes: Long,
+        val totalBytes: Long,
+        val version: String
+    ) : AppUpdateDownloadState()
+    data class Completed(
+        val apkFile: File,
+        val version: String
+    ) : AppUpdateDownloadState()
+    data class Failed(
+        val error: String,
+        val downloadedBytes: Long,
+        val totalBytes: Long,
+        val version: String
+    ) : AppUpdateDownloadState()
+}
+
 object AppUpdateManager {
+
+    private const val CHANNEL_ID = "imava_app_updates"
+    private const val NOTIFICATION_ID = 1010
+
+    private val downloadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var currentDownloadJob: Job? = null
+
+    private val _downloadState = MutableStateFlow<AppUpdateDownloadState>(AppUpdateDownloadState.Idle)
+    val downloadState: StateFlow<AppUpdateDownloadState> = _downloadState.asStateFlow()
+
+    @Volatile private var isPauseRequested = false
+    private var activeUpdateInfo: UpdateInfo? = null
 
     suspend fun checkForUpdates(context: Context): UpdateInfo = withContext(Dispatchers.IO) {
         val currentVersion = try {
@@ -106,51 +161,390 @@ object AppUpdateManager {
         }
     }
 
+    /**
+     * Starts or resumes an update download in the background with HTTP Range support.
+     * Can continue while the app is in the background with ongoing notification.
+     */
+    fun startOrResumeDownload(context: Context, updateInfo: UpdateInfo) {
+        val downloadUrl = updateInfo.apkDownloadUrl ?: return
+        activeUpdateInfo = updateInfo
+        isPauseRequested = false
+
+        if (currentDownloadJob?.isActive == true) return
+
+        currentDownloadJob = downloadScope.launch {
+            val version = updateInfo.latestVersion
+            val updatesDir = File(context.cacheDir, "updates").apply { mkdirs() }
+            val completedFile = File(updatesDir, "update_${version}.apk")
+            val partFile = File(updatesDir, "update_${version}.apk.part")
+
+            // Check if already completed and valid
+            if (completedFile.exists() && completedFile.length() > 0) {
+                val pkg = context.packageManager.getPackageArchiveInfo(completedFile.absolutePath, 0)
+                if (pkg != null) {
+                    _downloadState.value = AppUpdateDownloadState.Completed(completedFile, version)
+                    showCompletedNotification(context, completedFile, version)
+                    return@launch
+                } else {
+                    completedFile.delete()
+                }
+            }
+
+            createNotificationChannel(context)
+
+            var existingBytes = if (partFile.exists()) partFile.length() else 0L
+
+            // Resolve GitHub redirect chain to final direct URL (e.g. AWS S3)
+            var targetUrl = downloadUrl
+            try {
+                for (hop in 0 until 5) {
+                    val probeConn = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
+                        instanceFollowRedirects = false
+                        connectTimeout = 10000
+                        readTimeout = 10000
+                        setRequestProperty("User-Agent", "Imava-App")
+                    }
+                    val code = probeConn.responseCode
+                    if (code in 300..399) {
+                        val location = probeConn.getHeaderField("Location")
+                        probeConn.disconnect()
+                        if (!location.isNullOrBlank()) {
+                            targetUrl = location
+                            continue
+                        }
+                    }
+                    probeConn.disconnect()
+                    break
+                }
+            } catch (_: Exception) {}
+
+            try {
+                val connection = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 15000
+                    readTimeout = 30000
+                    setRequestProperty("User-Agent", "Imava-App")
+                    if (existingBytes > 0L) {
+                        setRequestProperty("Range", "bytes=$existingBytes-")
+                    }
+                }
+
+                val responseCode = connection.responseCode
+                val isPartial = (responseCode == 206)
+
+                if (responseCode == 416) {
+                    // Range not satisfiable: partial file may be stale or corrupt. Reset.
+                    partFile.delete()
+                    existingBytes = 0L
+                    startOrResumeDownload(context, updateInfo)
+                    return@launch
+                }
+
+                if (responseCode != 200 && responseCode != 206) {
+                    throw IOException("HTTP Server returned response code $responseCode")
+                }
+
+                val streamLength = connection.contentLengthLong.takeIf { it > 0 } ?: connection.contentLength.toLong()
+                val totalBytes = if (isPartial && streamLength > 0) {
+                    existingBytes + streamLength
+                } else if (streamLength > 0) {
+                    streamLength
+                } else {
+                    0L
+                }
+
+                val append = isPartial && existingBytes > 0L
+                if (!append && partFile.exists()) {
+                    partFile.delete()
+                    existingBytes = 0L
+                }
+
+                var downloadedBytes = if (append) existingBytes else 0L
+                var lastProgressReported = -1
+                var lastNotificationTime = 0L
+
+                val initialPercent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
+                _downloadState.value = AppUpdateDownloadState.Downloading(
+                    progress = initialPercent,
+                    downloadedBytes = downloadedBytes,
+                    totalBytes = totalBytes,
+                    version = version
+                )
+                showProgressNotification(context, initialPercent, downloadedBytes, totalBytes, version)
+
+                connection.inputStream.use { input ->
+                    FileOutputStream(partFile, append).use { output ->
+                        val buffer = ByteArray(16384)
+                        var read: Int
+
+                        while (input.read(buffer).also { read = it } != -1) {
+                            if (isPauseRequested) {
+                                output.flush()
+                                val currentPct = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
+                                _downloadState.value = AppUpdateDownloadState.Paused(
+                                    progress = currentPct,
+                                    downloadedBytes = downloadedBytes,
+                                    totalBytes = totalBytes,
+                                    version = version
+                                )
+                                showPausedNotification(context, currentPct, downloadedBytes, totalBytes, version)
+                                return@launch
+                            }
+
+                            if (!isActive) {
+                                output.flush()
+                                return@launch
+                            }
+
+                            output.write(buffer, 0, read)
+                            downloadedBytes += read
+
+                            val percent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
+                            val now = System.currentTimeMillis()
+
+                            if (percent != lastProgressReported || (now - lastNotificationTime) >= 700L) {
+                                lastProgressReported = percent
+                                lastNotificationTime = now
+                                _downloadState.value = AppUpdateDownloadState.Downloading(
+                                    progress = percent,
+                                    downloadedBytes = downloadedBytes,
+                                    totalBytes = totalBytes,
+                                    version = version
+                                )
+                                showProgressNotification(context, percent, downloadedBytes, totalBytes, version)
+                            }
+                        }
+                        output.flush()
+                    }
+                }
+
+                if (partFile.exists() && partFile.length() > 0) {
+                    if (completedFile.exists()) completedFile.delete()
+                    partFile.renameTo(completedFile)
+
+                    _downloadState.value = AppUpdateDownloadState.Completed(completedFile, version)
+                    showCompletedNotification(context, completedFile, version)
+                } else {
+                    throw IOException("Downloaded package is empty")
+                }
+            } catch (e: Exception) {
+                if (isPauseRequested) {
+                    val total = partFile.length()
+                    _downloadState.value = AppUpdateDownloadState.Paused(
+                        progress = 0,
+                        downloadedBytes = total,
+                        totalBytes = total,
+                        version = version
+                    )
+                } else {
+                    e.printStackTrace()
+                    _downloadState.value = AppUpdateDownloadState.Failed(
+                        error = e.localizedMessage ?: "Download failed",
+                        downloadedBytes = partFile.length(),
+                        totalBytes = 0L,
+                        version = version
+                    )
+                    cancelNotification(context)
+                }
+            }
+        }
+    }
+
+    fun pauseDownload(context: Context) {
+        isPauseRequested = true
+        currentDownloadJob?.cancel()
+        currentDownloadJob = null
+        val state = _downloadState.value
+        if (state is AppUpdateDownloadState.Downloading) {
+            _downloadState.value = AppUpdateDownloadState.Paused(
+                progress = state.progress,
+                downloadedBytes = state.downloadedBytes,
+                totalBytes = state.totalBytes,
+                version = state.version
+            )
+            showPausedNotification(context, state.progress, state.downloadedBytes, state.totalBytes, state.version)
+        }
+    }
+
+    fun resumeDownload(context: Context) {
+        val currentInfo = activeUpdateInfo
+        if (currentInfo != null) {
+            startOrResumeDownload(context, currentInfo)
+        }
+    }
+
+    fun cancelDownload(context: Context) {
+        isPauseRequested = false
+        currentDownloadJob?.cancel()
+        currentDownloadJob = null
+        cancelNotification(context)
+
+        activeUpdateInfo?.latestVersion?.let { version ->
+            val updatesDir = File(context.cacheDir, "updates")
+            File(updatesDir, "update_${version}.apk.part").delete()
+            File(updatesDir, "update_${version}.apk").delete()
+        }
+
+        _downloadState.value = AppUpdateDownloadState.Idle
+    }
+
+    fun resetDownloadState() {
+        _downloadState.value = AppUpdateDownloadState.Idle
+    }
+
+    private fun createNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "App Updates",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Shows progress when downloading Imava updates"
+                setShowBadge(false)
+            }
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+            manager?.createNotificationChannel(channel)
+        }
+    }
+
+    private fun showProgressNotification(
+        context: Context,
+        progress: Int,
+        downloaded: Long,
+        total: Long,
+        version: String
+    ) {
+        if (!hasNotificationPermission(context)) return
+
+        val downloadedStr = FormatUtils.formatFileSize(downloaded)
+        val totalStr = if (total > 0) FormatUtils.formatFileSize(total) else "..."
+        val contentText = "$progress% • $downloadedStr / $totalStr"
+
+        val openIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingOpen = PendingIntent.getActivity(
+            context,
+            1010,
+            openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_imava_logo)
+            .setContentTitle("Downloading Imava v$version")
+            .setContentText(contentText)
+            .setContentIntent(pendingOpen)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setProgress(100, progress, total <= 0)
+
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        manager?.notify(NOTIFICATION_ID, builder.build())
+    }
+
+    private fun showPausedNotification(
+        context: Context,
+        progress: Int,
+        downloaded: Long,
+        total: Long,
+        version: String
+    ) {
+        if (!hasNotificationPermission(context)) return
+
+        val downloadedStr = FormatUtils.formatFileSize(downloaded)
+        val totalStr = if (total > 0) FormatUtils.formatFileSize(total) else "..."
+
+        val openIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingOpen = PendingIntent.getActivity(
+            context,
+            1010,
+            openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_imava_logo)
+            .setContentTitle("Update Download Paused (v$version)")
+            .setContentText("$progress% • $downloadedStr / $totalStr (Paused)")
+            .setContentIntent(pendingOpen)
+            .setOngoing(false)
+            .setAutoCancel(true)
+            .setProgress(100, progress, false)
+
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        manager?.notify(NOTIFICATION_ID, builder.build())
+    }
+
+    private fun showCompletedNotification(
+        context: Context,
+        apkFile: File,
+        version: String
+    ) {
+        if (!hasNotificationPermission(context)) return
+
+        val apkUri: Uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            apkFile
+        )
+
+        val installIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(apkUri, "application/vnd.android.package-archive")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        val pendingInstall = PendingIntent.getActivity(
+            context,
+            1011,
+            installIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_imava_logo)
+            .setContentTitle("Imava v$version Ready to Install")
+            .setContentText("Download complete. Tap to install the update now.")
+            .setContentIntent(pendingInstall)
+            .setOngoing(false)
+            .setAutoCancel(true)
+
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        manager?.notify(NOTIFICATION_ID, builder.build())
+    }
+
+    fun cancelNotification(context: Context) {
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        manager?.cancel(NOTIFICATION_ID)
+    }
+
+    private fun hasNotificationPermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
     suspend fun downloadAndInstallApk(
         context: Context,
         downloadUrl: String,
         onProgress: (Int) -> Unit
     ): Boolean = withContext(Dispatchers.IO) {
-        try {
-            val updatesDir = File(context.cacheDir, "updates").apply { mkdirs() }
-            val apkFile = File(updatesDir, "update.apk")
-            if (apkFile.exists()) apkFile.delete()
-
-            val url = URL(downloadUrl)
-            val connection = (url.openConnection() as HttpURLConnection).apply {
-                connectTimeout = 15000
-                readTimeout = 30000
-                instanceFollowRedirects = true
-            }
-
-            val totalSize = connection.contentLength
-            var downloaded = 0
-
-            connection.inputStream.use { input ->
-                FileOutputStream(apkFile).use { output ->
-                    val buffer = ByteArray(8192)
-                    var read: Int
-                    while (input.read(buffer).also { read = it } != -1) {
-                        output.write(buffer, 0, read)
-                        downloaded += read
-                        if (totalSize > 0) {
-                            val percent = ((downloaded.toLong() * 100) / totalSize).toInt()
-                            onProgress(percent)
-                        }
-                    }
-                }
-            }
-
-            if (apkFile.exists() && apkFile.length() > 0) {
-                installApk(context, apkFile)
-                true
-            } else {
-                false
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+        val info = UpdateInfo(
+            hasUpdate = true,
+            latestVersion = "latest",
+            currentVersion = "",
+            releaseNotes = "",
+            apkDownloadUrl = downloadUrl
+        )
+        startOrResumeDownload(context, info)
+        true
     }
 
     fun installApk(context: Context, apkFile: File) {

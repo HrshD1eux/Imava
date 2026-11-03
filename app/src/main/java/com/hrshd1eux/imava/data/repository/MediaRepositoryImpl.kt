@@ -139,15 +139,15 @@ class MediaRepositoryImpl @Inject constructor(
         }
 
         // Fast path: Bucket belongs entirely to third party media (e.g. WhatsApp Sent, .nomedia folders)
-        val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, bucketIds, mediaType)
-        if (baseCount == 0 && thirdPartyMedia.isNotEmpty()) {
-            val sorted = if (isAscending) thirdPartyMedia.sortedBy { it.dateTaken } else thirdPartyMedia.sortedByDescending { it.dateTaken }
-            return@withContext sorted.drop(offset).take(limit)
-        }
+        val sortedThirdParty = if (thirdPartyMedia.isNotEmpty()) {
+            if (isAscending) thirdPartyMedia.sortedBy { it.dateTaken } else thirdPartyMedia.sortedByDescending { it.dateTaken }
+        } else emptyList()
 
-        // Fetch from MediaStore with the loop to filter out hidden/trashed items
-        val sortedThirdParty = if (isAscending) thirdPartyMedia.sortedBy { it.dateTaken } else thirdPartyMedia.sortedByDescending { it.dateTaken }
         val unindexedBefore = if (thirdPartyMedia.isNotEmpty()) {
+            val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, bucketIds, mediaType)
+            if (baseCount == 0) {
+                return@withContext sortedThirdParty.drop(offset).take(limit)
+            }
             ((offset.toLong() * sortedThirdParty.size) / (baseCount + sortedThirdParty.size).coerceAtLeast(1)).toInt().coerceIn(0, sortedThirdParty.size)
         } else 0
         val storeOffset = if (limit == Int.MAX_VALUE) 0 else (offset - unindexedBefore).coerceAtLeast(0)

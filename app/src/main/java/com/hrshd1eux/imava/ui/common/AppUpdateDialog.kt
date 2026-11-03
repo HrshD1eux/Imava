@@ -50,9 +50,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import com.hrshd1eux.imava.core.util.AppUpdateDownloadState
 import com.hrshd1eux.imava.core.util.AppUpdateManager
+import com.hrshd1eux.imava.core.util.FormatUtils
 import com.hrshd1eux.imava.core.util.UpdateInfo
-import kotlinx.coroutines.launch
 
 @Composable
 fun AppUpdateDialog(
@@ -60,51 +62,197 @@ fun AppUpdateDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     var isNotesExpanded by remember { mutableStateOf(false) }
-    var isDownloading by remember { mutableStateOf(false) }
-    var downloadProgress by remember { mutableIntStateOf(0) }
+
+    val downloadState by AppUpdateManager.downloadState.collectAsState()
 
     fun dismissAndMarkSeen() {
         AppUpdateManager.markUpdateDismissed(context, updateInfo.latestVersion)
         onDismiss()
     }
 
-    if (isDownloading) {
-        AlertDialog(
-            onDismissRequest = {},
-            shape = RoundedCornerShape(20.dp),
-            title = { Text("Downloading Update...") },
-            text = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    LinearProgressIndicator(
-                        progress = { downloadProgress / 100f },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "$downloadProgress%",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Preparing package installer...",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+    // Active downloading or paused or completed state dialog
+    when (val state = downloadState) {
+        is AppUpdateDownloadState.Downloading -> {
+            AlertDialog(
+                onDismissRequest = { dismissAndMarkSeen() },
+                shape = RoundedCornerShape(22.dp),
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.SystemUpdate,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text("Downloading v${state.version}")
+                    }
+                },
+                text = {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        LinearProgressIndicator(
+                            progress = { state.progress / 100f },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${state.progress}%",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
+                            val totalStr = if (state.totalBytes > 0) FormatUtils.formatFileSize(state.totalBytes) else "..."
+                            Text(
+                                text = "$downloadedStr / $totalStr",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Download runs seamlessly in the background. You can safely close this dialog.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = { dismissAndMarkSeen() }) {
+                        Text("Run in Background")
+                    }
+                },
+                dismissButton = {
+                    Row {
+                        TextButton(onClick = { AppUpdateManager.pauseDownload(context) }) {
+                            Text("Pause")
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        TextButton(onClick = {
+                            AppUpdateManager.cancelDownload(context)
+                            dismissAndMarkSeen()
+                        }) {
+                            Text("Cancel")
+                        }
+                    }
                 }
-            },
-            confirmButton = {}
-        )
-        return
+            )
+            return
+        }
+        is AppUpdateDownloadState.Paused -> {
+            AlertDialog(
+                onDismissRequest = { dismissAndMarkSeen() },
+                shape = RoundedCornerShape(22.dp),
+                title = { Text("Download Paused (v${state.version})") },
+                text = {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        LinearProgressIndicator(
+                            progress = { state.progress / 100f },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
+                        val totalStr = if (state.totalBytes > 0) FormatUtils.formatFileSize(state.totalBytes) else "..."
+                        Text(
+                            text = "Paused at ${state.progress}% ($downloadedStr / $totalStr). You can resume anytime without losing progress.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
+                        Text("Resume")
+                    }
+                },
+                dismissButton = {
+                    Row {
+                        TextButton(onClick = { dismissAndMarkSeen() }) {
+                            Text("Background")
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        TextButton(onClick = {
+                            AppUpdateManager.cancelDownload(context)
+                            dismissAndMarkSeen()
+                        }) {
+                            Text("Cancel")
+                        }
+                    }
+                }
+            )
+            return
+        }
+        is AppUpdateDownloadState.Completed -> {
+            AlertDialog(
+                onDismissRequest = { dismissAndMarkSeen() },
+                shape = RoundedCornerShape(22.dp),
+                title = { Text("Update Ready to Install") },
+                text = {
+                    Text(
+                        text = "Imava v${state.version} has finished downloading. Tap Install to apply the update.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        AppUpdateManager.installApk(context, state.apkFile)
+                        dismissAndMarkSeen()
+                    }) {
+                        Text("Install Now")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { dismissAndMarkSeen() }) {
+                        Text("Later")
+                    }
+                }
+            )
+            return
+        }
+        is AppUpdateDownloadState.Failed -> {
+            AlertDialog(
+                onDismissRequest = { dismissAndMarkSeen() },
+                shape = RoundedCornerShape(22.dp),
+                title = { Text("Download Interrupted") },
+                text = {
+                    val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
+                    Text(
+                        text = "Network connection dropped (${state.error}). $downloadedStr has been saved. Tap Resume to continue from where you left off.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
+                        Text("Resume Download")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        AppUpdateManager.cancelDownload(context)
+                        dismissAndMarkSeen()
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+            return
+        }
+        AppUpdateDownloadState.Idle -> { /* Show main update prompt below */ }
     }
 
     AlertDialog(
@@ -245,26 +393,23 @@ fun AppUpdateDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    val apkUrl = updateInfo.apkDownloadUrl
-                    if (apkUrl != null) {
-                        isDownloading = true
-                        scope.launch {
-                            AppUpdateManager.downloadAndInstallApk(
-                                context = context,
-                                downloadUrl = apkUrl,
-                                onProgress = { progress -> downloadProgress = progress }
-                            )
-                            isDownloading = false
-                            dismissAndMarkSeen()
-                        }
-                    } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(
+                    onClick = {
+                        AppUpdateManager.startOrResumeDownload(context, updateInfo)
                         dismissAndMarkSeen()
                     }
+                ) {
+                    Text("Background")
                 }
-            ) {
-                Text("Update Now")
+                Spacer(modifier = Modifier.width(6.dp))
+                Button(
+                    onClick = {
+                        AppUpdateManager.startOrResumeDownload(context, updateInfo)
+                    }
+                ) {
+                    Text("Update Now")
+                }
             }
         },
         dismissButton = {
