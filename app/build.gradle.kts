@@ -22,14 +22,14 @@ android {
         applicationId = "com.hrshd1eux.imava"
         minSdk = 29
         targetSdk = 35
-        versionCode = 82
-        versionName = "1.1.82"
+        versionCode = 83
+        versionName = "1.1.83"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
-        manifestPlaceholders["appName"] = "Imava"
+        manifestPlaceholders["appName"] = "Imava Gallery"
     }
 
     signingConfigs {
@@ -50,7 +50,7 @@ android {
 
     buildTypes {
         release {
-            manifestPlaceholders["appName"] = "Imava"
+            manifestPlaceholders["appName"] = "Imava Gallery"
             isMinifyEnabled = true
             isShrinkResources = true
             val releaseSigning = signingConfigs.findByName("release")
@@ -63,7 +63,7 @@ android {
             )
         }
         debug {
-            manifestPlaceholders["appName"] = "Imava (Debug)"
+            manifestPlaceholders["appName"] = "Imava Gallery (Debug)"
         }
     }
     testOptions {

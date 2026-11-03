@@ -168,7 +168,7 @@ fun AboutLegalScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Imava",
+                        text = "Imava Gallery",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -325,7 +325,7 @@ fun AboutLegalScreen(
                             ) {
                                 Column(modifier = Modifier.padding(14.dp)) {
                                     Text(
-                                        text = "Update Ready: Imava v${state.version}",
+                                        text = "Update Ready: Imava Gallery v${state.version}",
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.tertiary
@@ -419,7 +419,7 @@ fun AboutLegalScreen(
                                 try {
                                     val intent = Intent(Intent.ACTION_SENDTO).apply {
                                         data = Uri.parse("mailto:HrshD1eux@proton.me")
-                                        putExtra(Intent.EXTRA_SUBJECT, "Imava App Feedback / Inquiry")
+                                        putExtra(Intent.EXTRA_SUBJECT, "Imava Gallery App Feedback / Inquiry")
                                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                     }
                                     context.startActivity(intent)
@@ -589,7 +589,7 @@ fun AboutLegalScreen(
                 icon = { Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                 title = { Text("App Up-to-Date (v${updateInfo.currentVersion})") },
                 text = {
-                    Text("You are using the latest version of Imava!")
+                    Text("You are using the latest version of Imava Gallery!")
                 },
                 confirmButton = {
                     Button(onClick = { showUpToDateDialog = false }) {

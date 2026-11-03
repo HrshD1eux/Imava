@@ -7,9 +7,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import android.graphics.BitmapFactory
 import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -66,7 +68,9 @@ sealed class AppUpdateDownloadState {
 object AppUpdateManager {
 
     private const val CHANNEL_ID = "imava_app_updates"
+    private const val CHANNEL_ID_COMPLETE = "imava_app_updates_complete"
     private const val NOTIFICATION_ID = 1010
+    private const val NOTIFICATION_COMPLETE_ID = 1011
 
     private val downloadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var currentDownloadJob: Job? = null
@@ -169,6 +173,17 @@ object AppUpdateManager {
         val downloadUrl = updateInfo.apkDownloadUrl ?: return
         activeUpdateInfo = updateInfo
         isPauseRequested = false
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission(context)) {
+            val activity = context.findActivity()
+            if (activity != null) {
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    1010
+                )
+            }
+        }
 
         if (currentDownloadJob?.isActive == true) return
 
@@ -393,16 +408,28 @@ object AppUpdateManager {
 
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+
+            val progressChannel = NotificationChannel(
                 CHANNEL_ID,
-                "App Updates",
+                "Imava Gallery Update Progress",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Shows progress when downloading Imava updates"
+                description = "Shows progress when downloading Imava Gallery updates"
                 setShowBadge(false)
             }
-            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-            manager?.createNotificationChannel(channel)
+            manager.createNotificationChannel(progressChannel)
+
+            val completeChannel = NotificationChannel(
+                CHANNEL_ID_COMPLETE,
+                "Imava Gallery Update Alerts",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Alerts when an Imava Gallery update is ready to install"
+                setShowBadge(true)
+                enableVibration(true)
+            }
+            manager.createNotificationChannel(completeChannel)
         }
     }
 
@@ -429,9 +456,18 @@ object AppUpdateManager {
             PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         )
 
+        val largeIconBitmap = try {
+            BitmapFactory.decodeResource(context.resources, R.drawable.ic_imava_logo)
+        } catch (_: Exception) {
+            null
+        }
+
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_imava_logo)
-            .setContentTitle("Downloading Imava v$version")
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .apply {
+                if (largeIconBitmap != null) setLargeIcon(largeIconBitmap)
+            }
+            .setContentTitle("Downloading Imava Gallery v$version")
             .setContentText(contentText)
             .setContentIntent(pendingOpen)
             .setOngoing(true)
@@ -464,8 +500,17 @@ object AppUpdateManager {
             PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         )
 
+        val largeIconBitmap = try {
+            BitmapFactory.decodeResource(context.resources, R.drawable.ic_imava_logo)
+        } catch (_: Exception) {
+            null
+        }
+
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_imava_logo)
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .apply {
+                if (largeIconBitmap != null) setLargeIcon(largeIconBitmap)
+            }
             .setContentTitle("Update Download Paused (v$version)")
             .setContentText("$progress% • $downloadedStr / $totalStr (Paused)")
             .setContentIntent(pendingOpen)
@@ -502,24 +547,38 @@ object AppUpdateManager {
             PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         )
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_imava_logo)
-            .setContentTitle("Imava v$version Ready to Install")
+        val largeIconBitmap = try {
+            BitmapFactory.decodeResource(context.resources, R.drawable.ic_imava_logo)
+        } catch (_: Exception) {
+            null
+        }
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_COMPLETE)
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .apply {
+                if (largeIconBitmap != null) setLargeIcon(largeIconBitmap)
+            }
+            .setContentTitle("Imava Gallery v$version Ready to Install")
             .setContentText("Download complete. Tap to install the update now.")
             .setContentIntent(pendingInstall)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setOngoing(false)
             .setAutoCancel(true)
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-        manager?.notify(NOTIFICATION_ID, builder.build())
+        // Clear progress notification and alert user with completion notification
+        manager?.cancel(NOTIFICATION_ID)
+        manager?.notify(NOTIFICATION_COMPLETE_ID, builder.build())
     }
 
     fun cancelNotification(context: Context) {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         manager?.cancel(NOTIFICATION_ID)
+        manager?.cancel(NOTIFICATION_COMPLETE_ID)
     }
 
-    private fun hasNotificationPermission(context: Context): Boolean {
+    fun hasNotificationPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 context,

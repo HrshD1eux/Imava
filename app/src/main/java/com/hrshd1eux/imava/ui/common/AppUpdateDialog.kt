@@ -204,7 +204,7 @@ fun AppUpdateDialog(
                 title = { Text("Update Ready to Install") },
                 text = {
                     Text(
-                        text = "Imava v${state.version} has finished downloading. Tap Install to apply the update.",
+                        text = "Imava Gallery v${state.version} has finished downloading. Tap Install to apply the update.",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },

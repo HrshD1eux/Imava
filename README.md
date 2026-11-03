@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icon.png" width="128" height="128" alt="Imava Icon" />
+  <img src="assets/icon.png" width="128" height="128" alt="Imava Gallery Icon" />
 </p>
 
-<h1 align="center">Imava</h1>
+<h1 align="center">Imava Gallery</h1>
 
 <p align="center">
   A privacy-focused Android gallery app built with Jetpack Compose, Hilt, Room, Coil, and Media3.

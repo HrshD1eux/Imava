@@ -167,13 +167,15 @@ class MainActivity : FragmentActivity() {
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.READ_MEDIA_VIDEO,
             Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
-            Manifest.permission.ACCESS_MEDIA_LOCATION
+            Manifest.permission.ACCESS_MEDIA_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
         )
     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.READ_MEDIA_VIDEO,
-            Manifest.permission.ACCESS_MEDIA_LOCATION
+            Manifest.permission.ACCESS_MEDIA_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
         )
     } else {
         arrayOf(
@@ -183,6 +185,12 @@ class MainActivity : FragmentActivity() {
     }
 
     private var hasPermissionsState = mutableStateOf(false)
+
+    private val requestNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ ->
+        // OS records notification permission grant or denial
+    }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -253,7 +261,7 @@ class MainActivity : FragmentActivity() {
     private fun promptAppUnlock() {
         com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
             activity = this,
-            title = "Imava is Locked",
+            title = "Imava Gallery is Locked",
             subtitle = "Authenticate to access gallery",
             onSuccess = {
                 com.hrshd1eux.imava.core.util.AppLockManager.markAppUnlocked()
@@ -354,6 +362,19 @@ class MainActivity : FragmentActivity() {
         hasPermissionsState.value = isGranted
         if (isGranted) {
             viewModel.refreshAll()
+
+            // Request POST_NOTIFICATIONS on Android 13+ (API 33+) once if not yet granted
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val hasNotif = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                if (!hasNotif) {
+                    val prefs = getSharedPreferences("gallery_prefs", MODE_PRIVATE)
+                    val askedAlready = prefs.getBoolean("has_prompted_post_notifications", false)
+                    if (!askedAlready) {
+                        prefs.edit().putBoolean("has_prompted_post_notifications", true).apply()
+                        requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+            }
         }
     }
 
