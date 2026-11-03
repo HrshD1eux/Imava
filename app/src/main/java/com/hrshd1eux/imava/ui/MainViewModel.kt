@@ -144,6 +144,11 @@ class MainViewModel @Inject constructor(
 
     private val refreshTrigger = MutableStateFlow(0L)
 
+    val scrollToTopEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    fun triggerScrollToTop() {
+        scrollToTopEvents.tryEmit(Unit)
+    }
+
     private val vaultState = com.hrshd1eux.imava.ui.vault.VaultStateHolder()
 
     val vaultConfigVersion: StateFlow<Int> = vaultState.vaultConfigVersion
@@ -1162,6 +1167,15 @@ class MainViewModel @Inject constructor(
                 val sorted = if (order == SortOrder.OLDEST_FIRST) tagFiltered.sortedBy { it.dateTaken } else tagFiltered.sortedByDescending { it.dateTaken }
                 PagingData.from(sorted)
             }
+        } else if (filter == MediaFilterType.SCREENSHOTS || filter == MediaFilterType.FAVORITES || filter == MediaFilterType.GIFS || filter == MediaFilterType.RAW) {
+            visibleMediaItems.map { allItems ->
+                val chipFiltered = allItems.filter { item ->
+                    val matchesBucket = if (bucketId != null) item.bucketId == bucketId else true
+                    matchesBucket && matchesFilter(item, filter)
+                }
+                val sorted = if (order == SortOrder.OLDEST_FIRST) chipFiltered.sortedBy { it.dateTaken } else chipFiltered.sortedByDescending { it.dateTaken }
+                PagingData.from(sorted)
+            }
         } else when (category) {
             "Favorites" -> favorites.map { list ->
                 val filtered = if (bucketId != null) {
@@ -1196,18 +1210,21 @@ class MainViewModel @Inject constructor(
                     else pagingData
                 } else pagingData.filter { !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
             }
-            else -> Pager(
-                config = PagingConfig(pageSize = 100, prefetchDistance = 120, enablePlaceholders = false),
-                pagingSourceFactory = { MediaPagingSource(repository, bucketId, currentBucketIds.ifEmpty { null }, order) }
-            ).flow.map { pagingData ->
-                if (bucketId != null) {
-                    if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, bucketId, currentBucketName)) PagingData.empty()
-                    else pagingData
-                } else pagingData.filter { !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
+            else -> {
+                val mediaType = if (filter == MediaFilterType.PHOTOS) com.hrshd1eux.imava.data.media.MediaTypeFilter.IMAGES else com.hrshd1eux.imava.data.media.MediaTypeFilter.ALL
+                Pager(
+                    config = PagingConfig(pageSize = 100, prefetchDistance = 120, enablePlaceholders = false),
+                    pagingSourceFactory = { MediaPagingSource(repository, bucketId, currentBucketIds.ifEmpty { null }, order, mediaType) }
+                ).flow.map { pagingData ->
+                    if (bucketId != null) {
+                        if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, bucketId, currentBucketName)) PagingData.empty()
+                        else pagingData
+                    } else pagingData.filter { !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
+                }
             }
         }
         itemsFlow.map { pagingData ->
-            val baseFiltered = if (filter == MediaFilterType.ALL) pagingData else pagingData.filter { matchesFilter(it, filter) }
+            val baseFiltered = if (filter == MediaFilterType.ALL || filter == MediaFilterType.PHOTOS || filter == MediaFilterType.SCREENSHOTS || filter == MediaFilterType.FAVORITES || filter == MediaFilterType.GIFS || filter == MediaFilterType.RAW) pagingData else pagingData.filter { matchesFilter(it, filter) }
             val filteredData = if (customTag.isNullOrBlank()) baseFiltered else baseFiltered.filter { it.tags.any { t -> t.equals(customTag, ignoreCase = true) } }
             val mapped: PagingData<TimelineItem> = filteredData.map { TimelineItem.Media(it) }
             if (mode == TimelineSortMode.DATE_GROUPED) {
@@ -1276,7 +1293,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             @OptIn(FlowPreview::class)
             repository.observeMediaChanges()
-                .debounce(500)
+                .debounce(200)
                 .collectLatest {
                     // Option E: Invalidate third-party cache on any MediaStore change
                     // so new WhatsApp/Telegram files appear on next refresh without

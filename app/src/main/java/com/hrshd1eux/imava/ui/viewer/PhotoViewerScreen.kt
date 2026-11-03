@@ -417,9 +417,10 @@ fun PhotoViewerScreen(
                     val maxTextureDim = 4096
                     val builder = coil.request.ImageRequest.Builder(context)
                         .data(item.uri)
-                        .crossfade(false)
+                        .crossfade(true)
                         .diskCachePolicy(coil.request.CachePolicy.ENABLED)
                         .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
+                        .placeholderMemoryCacheKey(item.uri.toString())
                         .allowHardware(true)
                         .error(android.R.drawable.ic_menu_report_image)
                         .fallback(android.R.drawable.ic_menu_report_image)

@@ -148,6 +148,16 @@ fun TimelineScreen(
 
     val gridState = rememberLazyStaggeredGridState()
 
+    LaunchedEffect(Unit) {
+        viewModel.scrollToTopEvents.collect {
+            if (gridState.firstVisibleItemIndex < 40) {
+                gridState.animateScrollToItem(0)
+            } else {
+                gridState.scrollToItem(0, 0)
+            }
+        }
+    }
+
     var previousColumnCount by remember { androidx.compose.runtime.mutableIntStateOf(viewModel.gridColumnCount) }
 
     LaunchedEffect(viewModel.gridColumnCount) {
@@ -1309,6 +1319,7 @@ fun MediaGridCell(
             .size(targetWidth, targetHeight)
             .diskCachePolicy(coil.request.CachePolicy.ENABLED)
             .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
+            .memoryCacheKey(item.uri.toString())
             .precision(coil.size.Precision.INEXACT)
             .error(android.R.drawable.ic_menu_report_image)
             .fallback(android.R.drawable.ic_menu_report_image)

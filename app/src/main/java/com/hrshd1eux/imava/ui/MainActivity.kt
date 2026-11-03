@@ -676,16 +676,29 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 } else {
                 TopAppBar(
                 title = {
-                    Text(
-                        text = if (viewModel.currentCategoryName != null && currentScreen == Screen.Photos) {
-                            viewModel.currentCategoryName!!
-                        } else if (viewModel.currentBucketName != null && currentScreen == Screen.Photos) {
-                            viewModel.currentBucketName!!
-                        } else {
-                            currentScreen.name
-                        },
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Box(
+                        modifier = Modifier
+                            .clickable(
+                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                if (currentScreen == Screen.Photos) {
+                                    viewModel.triggerScrollToTop()
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                }
+                            }
+                    ) {
+                        Text(
+                            text = if (viewModel.currentCategoryName != null && currentScreen == Screen.Photos) {
+                                viewModel.currentCategoryName!!
+                            } else if (viewModel.currentBucketName != null && currentScreen == Screen.Photos) {
+                                viewModel.currentBucketName!!
+                            } else {
+                                currentScreen.name
+                            },
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 },
                 navigationIcon = {
                     if (viewModel.currentCategoryName != null && currentScreen == Screen.Photos) {
@@ -1422,8 +1435,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         NavigationBarItem(
                             selected = currentScreen == Screen.Photos,
                             onClick = {
-                                viewModel.setSearchQuery("")
-                                viewModel.currentScreen = Screen.Photos
+                                if (currentScreen == Screen.Photos) {
+                                    viewModel.triggerScrollToTop()
+                                    com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                } else {
+                                    viewModel.setSearchQuery("")
+                                    viewModel.currentScreen = Screen.Photos
+                                }
                             },
                             icon = { Icon(Icons.Default.Photo, contentDescription = "Photos") },
                             label = { Text("Photos") }
