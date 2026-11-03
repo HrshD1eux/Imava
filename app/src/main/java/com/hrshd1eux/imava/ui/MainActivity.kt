@@ -51,7 +51,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.layout.widthIn
 import com.hrshd1eux.imava.ui.common.AppUpdateDialog
 import com.hrshd1eux.imava.core.util.AppUpdateManager
+import com.hrshd1eux.imava.core.util.AppUpdateDownloadState
 import com.hrshd1eux.imava.core.util.UpdateInfo
+import androidx.compose.material.icons.filled.SystemUpdate
 import com.hrshd1eux.imava.ui.common.BulkCompressDialog
 import com.hrshd1eux.imava.ui.common.BulkTagDialog
 import com.hrshd1eux.imava.ui.common.DescriptiveIconButton
@@ -2088,6 +2090,66 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         AppUpdateDialog(
             updateInfo = currentAppUpdate,
             onDismiss = { appUpdateInfoToPrompt = null }
+        )
+    }
+
+    val appUpdateDownloadState by AppUpdateManager.downloadState.collectAsState()
+    var installPromptDismissedVersion by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) }
+    val completedUpdateState = appUpdateDownloadState as? AppUpdateDownloadState.Completed
+
+    if (completedUpdateState != null && currentAppUpdate == null && installPromptDismissedVersion != completedUpdateState.version) {
+        AlertDialog(
+            onDismissRequest = { installPromptDismissedVersion = completedUpdateState.version },
+            shape = RoundedCornerShape(24.dp),
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.SystemUpdate,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(36.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = "Update Ready to Install",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Imava v${completedUpdateState.version} has finished downloading. Install it now to apply the update.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Tap Install Now to begin installation.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        installPromptDismissedVersion = completedUpdateState.version
+                        AppUpdateManager.installApk(context, completedUpdateState.apkFile)
+                    },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Install Now")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { installPromptDismissedVersion = completedUpdateState.version }
+                ) {
+                    Text("Later")
+                }
+            }
         )
     }
 

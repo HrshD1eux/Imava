@@ -549,6 +549,16 @@ object AppUpdateManager {
 
     fun installApk(context: Context, apkFile: File) {
         try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !context.packageManager.canRequestPackageInstalls()) {
+                val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+                android.widget.Toast.makeText(context, "Please enable 'Allow from this source' to install the update", android.widget.Toast.LENGTH_LONG).show()
+                return
+            }
+
             val apkUri: Uri = FileProvider.getUriForFile(
                 context,
                 "${context.packageName}.fileprovider",
@@ -562,6 +572,7 @@ object AppUpdateManager {
             context.startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
+            android.widget.Toast.makeText(context, "Could not launch installer: ${e.localizedMessage}", android.widget.Toast.LENGTH_LONG).show()
         }
     }
 
