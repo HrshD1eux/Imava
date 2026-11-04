@@ -111,12 +111,16 @@ class MediaRepositoryImpl @Inject constructor(
 
         val hiddenOrTrashedMeta = metadataDao.getHiddenOrTrashedMetadata()
         val trashedPaths = hiddenOrTrashedMeta.filter { it.isTrashed && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
+        val trashedIds = hiddenOrTrashedMeta.filter { it.isTrashed }.map { it.mediaId }.toSet()
         val hiddenPaths = hiddenOrTrashedMeta.filter { it.isHidden && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
+        val hiddenIds = hiddenOrTrashedMeta.filter { it.isHidden }.map { it.mediaId }.toSet()
 
         return relevant.map { item ->
             applyMetadata(item, metaMap[item.id])
         }.filter { item ->
             !item.isHidden && !item.isTrashed &&
+            item.id !in trashedIds &&
+            item.id !in hiddenIds &&
             item.path !in trashedPaths &&
             item.path !in hiddenPaths &&
             !item.path.contains("/imava_trash/") &&
@@ -160,6 +164,12 @@ class MediaRepositoryImpl @Inject constructor(
         val resultList = mutableListOf<MediaItem>()
         var reachedEnd = false
 
+        val hiddenOrTrashedMeta = metadataDao.getHiddenOrTrashedMetadata()
+        val trashedPaths = hiddenOrTrashedMeta.filter { it.isTrashed && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
+        val trashedIds = hiddenOrTrashedMeta.filter { it.isTrashed }.map { it.mediaId }.toSet()
+        val hiddenPaths = hiddenOrTrashedMeta.filter { it.isHidden && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
+        val hiddenIds = hiddenOrTrashedMeta.filter { it.isHidden }.map { it.mediaId }.toSet()
+
         if (limit == Int.MAX_VALUE) {
             // Option A: Single unpaged pass for complete library query (O(N) instead of O(N^2) quadratic offset scans)
             val rawMedia = mediaStoreDataSource.fetchMedia(
@@ -173,6 +183,8 @@ class MediaRepositoryImpl @Inject constructor(
             val allMeta = try { metadataDao.getAllMetadata().associateBy { it.mediaId } } catch (_: Exception) { emptyMap() }
             val filtered = rawMedia.map { applyMetadata(it, allMeta[it.id]) }.filter { item ->
                 !item.isHidden && !item.isTrashed &&
+                item.id !in trashedIds && item.id !in hiddenIds &&
+                item.path !in trashedPaths && item.path !in hiddenPaths &&
                 !item.path.contains("/imava_trash/") &&
                 !item.path.contains("/.trashed") &&
                 !item.path.contains("/.trash") &&
@@ -200,6 +212,8 @@ class MediaRepositoryImpl @Inject constructor(
                 val metaMap = getMetadataForMediaIdsChunked(ids).associateBy { it.mediaId }
                 val filtered = rawMedia.map { applyMetadata(it, metaMap[it.id]) }.filter { item ->
                     !item.isHidden && !item.isTrashed &&
+                    item.id !in trashedIds && item.id !in hiddenIds &&
+                    item.path !in trashedPaths && item.path !in hiddenPaths &&
                     !item.path.contains("/imava_trash/") &&
                     !item.path.contains("/.trashed") &&
                     !item.path.contains("/.trash") &&
@@ -246,15 +260,20 @@ class MediaRepositoryImpl @Inject constructor(
         mediaType: MediaTypeFilter
     ): Int = withContext(Dispatchers.IO) {
         val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, bucketIds, mediaType)
+        val hiddenOrTrashedCount = try {
+            val meta = metadataDao.getHiddenOrTrashedMetadata()
+            meta.count { it.isHidden || it.isTrashed }
+        } catch (_: Exception) { 0 }
+        val adjustedBase = (baseCount - hiddenOrTrashedCount).coerceAtLeast(0)
         try {
             val relevant = getCleanedThirdPartyMedia(bucketId, mediaType)
-            if (baseCount == 0) {
+            if (adjustedBase == 0) {
                 relevant.size
             } else {
-                baseCount + relevant.size
+                adjustedBase + relevant.size
             }
         } catch (_: Exception) {
-            baseCount
+            adjustedBase
         }
     }
 
@@ -890,14 +909,64 @@ class MediaRepositoryImpl @Inject constructor(
                 }
             }
             val remainingMissing = missingIds - vaultItems.map { it.id }.toSet()
-            val thirdPartyItems = if (remainingMissing.isNotEmpty()) {
+            val trashDir = java.io.File(context.filesDir, "imava_trash")
+            val trashedEntities = metadataList.filter { it.mediaId in remainingMissing && it.isTrashed }
+            val trashedItems = trashedEntities.mapNotNull { entity ->
+                val origName = if (entity.originalPath.isNotBlank()) java.io.File(entity.originalPath).name else null
+                val candidateFile = if (origName != null) {
+                    java.io.File(trashDir, "${entity.mediaId}_$origName")
+                } else {
+                    trashDir.listFiles { _, name -> name.startsWith("${entity.mediaId}_") }?.firstOrNull()
+                }
+                if (candidateFile != null && candidateFile.exists()) {
+                    val isVideo = (entity.mimeType.startsWith("video/") == true) ||
+                            candidateFile.name.endsWith(".mp4", ignoreCase = true) ||
+                            candidateFile.name.endsWith(".mkv", ignoreCase = true) ||
+                            candidateFile.name.endsWith(".mov", ignoreCase = true)
+                    val uri = android.net.Uri.fromFile(candidateFile)
+                    if (isVideo) {
+                        MediaItem.Video(
+                            id = entity.mediaId,
+                            uri = uri,
+                            path = entity.originalPath.ifBlank { candidateFile.absolutePath },
+                            mimeType = entity.mimeType.ifBlank { "video/mp4" },
+                            dateTaken = if (entity.dateTaken > 0L) entity.dateTaken else candidateFile.lastModified(),
+                            size = candidateFile.length(),
+                            width = entity.width,
+                            height = entity.height,
+                            durationMs = entity.durationMs,
+                            bucketId = entity.bucketId,
+                            bucketName = entity.bucketName.ifBlank { "Trash" },
+                            isTrashed = true,
+                            trashTime = if (entity.trashTime > 0L) entity.trashTime else System.currentTimeMillis()
+                        )
+                    } else {
+                        MediaItem.Photo(
+                            id = entity.mediaId,
+                            uri = uri,
+                            path = entity.originalPath.ifBlank { candidateFile.absolutePath },
+                            mimeType = entity.mimeType.ifBlank { "image/jpeg" },
+                            dateTaken = if (entity.dateTaken > 0L) entity.dateTaken else candidateFile.lastModified(),
+                            size = candidateFile.length(),
+                            width = entity.width,
+                            height = entity.height,
+                            bucketId = entity.bucketId,
+                            bucketName = entity.bucketName.ifBlank { "Trash" },
+                            isTrashed = true,
+                            trashTime = if (entity.trashTime > 0L) entity.trashTime else System.currentTimeMillis()
+                        )
+                    }
+                } else null
+            }
+            val remainingAfterTrash = remainingMissing - trashedItems.map { it.id }.toSet()
+            val thirdPartyItems = if (remainingAfterTrash.isNotEmpty()) {
                 try {
-                    fetchThirdPartyAppMedia().filter { it.id in remainingMissing }
+                    fetchThirdPartyAppMedia().filter { it.id in remainingAfterTrash }
                 } catch (_: Exception) {
                     emptyList()
                 }
             } else emptyList()
-            mappedStoreItems + vaultItems + thirdPartyItems
+            mappedStoreItems + vaultItems + trashedItems + thirdPartyItems
         } else {
             mappedStoreItems
         }

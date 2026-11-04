@@ -181,7 +181,7 @@ class MediaStoreDataSource @Inject constructor(
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
-        val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
+        val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
         val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql"
 
@@ -246,7 +246,7 @@ class MediaStoreDataSource @Inject constructor(
         val projection = projectionList.toTypedArray()
 
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
-        val notTrashedSql = if (!includeTrashed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
+        val notTrashedSql = if (!includeTrashed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = if (!includeTrashed) " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')" else ""
         val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql"
 
@@ -366,7 +366,7 @@ class MediaStoreDataSource @Inject constructor(
         val ids = mutableListOf<Long>()
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
-        val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
+        val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
         val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notTrashPathSql"
 
@@ -813,7 +813,7 @@ class MediaStoreDataSource @Inject constructor(
         }
         val projection = projectionList.toTypedArray()
 
-        val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
+        val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
         val selection = "$THIRD_PARTY_SELECTION$notTrashedSql$notTrashPathSql"
         val selectionArgs = THIRD_PARTY_PATH_PATTERNS

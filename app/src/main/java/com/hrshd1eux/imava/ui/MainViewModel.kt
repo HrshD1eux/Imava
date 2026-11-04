@@ -754,7 +754,16 @@ class MainViewModel @Inject constructor(
             }
             "Trash" -> if (com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(application)) emptyList() else trash
             "Hidden Vault" -> if (isDecoyVault) emptyList() else vault
-            "Videos" -> raw.filterIsInstance<MediaItem.Video>().let { videos ->
+            "Videos" -> {
+                val trashedIds = trash.map { it.id }.toSet()
+                val trashedPaths = trash.map { it.path }.toSet()
+                val hiddenIds = vault.map { it.id }.toSet()
+                val hiddenPaths = vault.map { it.path }.toSet()
+                val videos = raw.filterIsInstance<MediaItem.Video>().filter { item ->
+                    !item.isTrashed && !item.isHidden &&
+                    item.id !in trashedIds && item.id !in hiddenIds &&
+                    item.path !in trashedPaths && item.path !in hiddenPaths
+                }
                 if (currentBucketId != null) {
                     if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, currentBucketId!!, currentBucketName)) emptyList()
                     else if (currentBucketIds.isNotEmpty()) videos.filter { it.bucketId in currentBucketIds }
@@ -764,13 +773,24 @@ class MainViewModel @Inject constructor(
                     !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, item.bucketId, item.bucketName)
                 }
             }
-            else -> if (currentBucketId != null) {
-                if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, currentBucketId!!, currentBucketName)) emptyList()
-                else if (currentBucketIds.isNotEmpty()) raw.filter { it.bucketId in currentBucketIds }
-                else raw
-            } else raw.filter {
-                !excluded.contains(it.bucketId.toString()) &&
-                !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
+            else -> {
+                val trashedIds = trash.map { it.id }.toSet()
+                val trashedPaths = trash.map { it.path }.toSet()
+                val hiddenIds = vault.map { it.id }.toSet()
+                val hiddenPaths = vault.map { it.path }.toSet()
+                val base = raw.filter { item ->
+                    !item.isTrashed && !item.isHidden &&
+                    item.id !in trashedIds && item.id !in hiddenIds &&
+                    item.path !in trashedPaths && item.path !in hiddenPaths
+                }
+                if (currentBucketId != null) {
+                    if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, currentBucketId!!, currentBucketName)) emptyList()
+                    else if (currentBucketIds.isNotEmpty()) base.filter { it.bucketId in currentBucketIds }
+                    else base
+                } else base.filter {
+                    !excluded.contains(it.bucketId.toString()) &&
+                    !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
+                }
             }
         }
         if (category == "Trash") {
@@ -1211,8 +1231,8 @@ class MainViewModel @Inject constructor(
             ).flow.map { pagingData ->
                 if (bucketId != null) {
                     if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, bucketId, currentBucketName)) PagingData.empty()
-                    else pagingData
-                } else pagingData.filter { !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
+                    else pagingData.filter { !it.isTrashed && !it.isHidden }
+                } else pagingData.filter { !it.isTrashed && !it.isHidden && !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
             }
             else -> {
                 val mediaType = if (filter == MediaFilterType.PHOTOS) com.hrshd1eux.imava.data.media.MediaTypeFilter.IMAGES else com.hrshd1eux.imava.data.media.MediaTypeFilter.ALL
@@ -1222,13 +1242,14 @@ class MainViewModel @Inject constructor(
                 ).flow.map { pagingData ->
                     if (bucketId != null) {
                         if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, bucketId, currentBucketName)) PagingData.empty()
-                        else pagingData
-                    } else pagingData.filter { !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
+                        else pagingData.filter { !it.isTrashed && !it.isHidden }
+                    } else pagingData.filter { !it.isTrashed && !it.isHidden && !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
                 }
             }
         }
         itemsFlow.map { pagingData ->
-            val baseFiltered = if (filter == MediaFilterType.ALL || filter == MediaFilterType.PHOTOS || filter == MediaFilterType.SCREENSHOTS || filter == MediaFilterType.FAVORITES || filter == MediaFilterType.GIFS || filter == MediaFilterType.RAW) pagingData else pagingData.filter { matchesFilter(it, filter) }
+            val nonTrashFiltered = if (category != "Trash") pagingData.filter { !it.isTrashed && !it.isHidden } else pagingData
+            val baseFiltered = if (filter == MediaFilterType.ALL || filter == MediaFilterType.PHOTOS || filter == MediaFilterType.SCREENSHOTS || filter == MediaFilterType.FAVORITES || filter == MediaFilterType.GIFS || filter == MediaFilterType.RAW) nonTrashFiltered else nonTrashFiltered.filter { matchesFilter(it, filter) }
             val filteredData = if (customTag.isNullOrBlank()) baseFiltered else baseFiltered.filter { it.tags.any { t -> t.equals(customTag, ignoreCase = true) } }
             val mapped: PagingData<TimelineItem> = filteredData.map { TimelineItem.Media(it) }
             if (mode == TimelineSortMode.DATE_GROUPED) {
@@ -2067,43 +2088,80 @@ class MainViewModel @Inject constructor(
             if (trashedItems.isNotEmpty()) {
                 val trashDir = java.io.File(context.filesDir, "imava_trash")
                 val secureShred = com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)
-                trashedItems.forEach { item ->
-                    repository.deleteMetadataPermanently(item.id)
-                    val trashedFile = java.io.File(trashDir, "${item.id}_${java.io.File(item.path).name}")
-                    if (trashedFile.exists()) {
-                        try {
-                            if (secureShred) {
-                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
-                            } else {
-                                trashedFile.delete()
-                            }
-                        } catch (_: Exception) {}
-                    }
-                    val srcFile = java.io.File(item.path)
-                    if (srcFile.exists()) {
-                        try {
-                            if (secureShred) {
-                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(srcFile)
-                            } else {
-                                srcFile.delete()
-                            }
-                        } catch (_: Exception) {}
-                    }
-                    try {
-                        context.contentResolver.delete(item.uri, null, null)
-                        android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
-                    } catch (_: Exception) {}
-                }
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
-                    pendingBatchActionItems = trashedItems
-                    val pendingIntent = android.provider.MediaStore.createDeleteRequest(
-                        context.contentResolver,
-                        trashedItems.map { it.uri }
-                    )
-                    val activity = context.findActivity()
-                    activity?.startIntentSenderForResult(pendingIntent.intentSender, 1003, null, 0, 0, 0)
+                    val mediaStoreItems = trashedItems.filter { it.id > 0 && it.uri.scheme == android.content.ContentResolver.SCHEME_CONTENT }
+                    if (mediaStoreItems.isNotEmpty()) {
+                        val activity = context.findActivity()
+                        if (activity != null) {
+                            pendingBatchActionItems = trashedItems
+                            try {
+                                val uris = mediaStoreItems.map { getMediaProviderUri(it) }
+                                val pendingIntent = android.provider.MediaStore.createDeleteRequest(
+                                    context.contentResolver,
+                                    uris
+                                )
+                                activity.startIntentSenderForResult(pendingIntent.intentSender, 1003, null, 0, 0, 0)
+                                return@launch
+                            } catch (_: Exception) {
+                                // Fall through to direct physical deletion
+                            }
+                        }
+                    }
                 }
-                refreshAll()
+                try {
+                    trashedItems.forEach { item ->
+                        val trashedCandidates = trashDir.listFiles { _, name -> name.startsWith("${item.id}_") }
+                        trashedCandidates?.forEach { tf ->
+                            try {
+                                if (secureShred) com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(tf)
+                                else tf.delete()
+                            } catch (_: Exception) {}
+                        }
+                        val srcFile = java.io.File(item.path)
+                        if (srcFile.exists()) {
+                            try {
+                                if (secureShred) com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(srcFile)
+                                else srcFile.delete()
+                            } catch (_: Exception) {}
+                        }
+                        try {
+                            context.contentResolver.delete(item.uri, null, null)
+                        } catch (r: android.app.RecoverableSecurityException) {
+                            throw r
+                        } catch (_: Exception) {}
+                        try {
+                            val mediaUri = getMediaProviderUri(item)
+                            context.contentResolver.delete(mediaUri, null, null)
+                        } catch (r: android.app.RecoverableSecurityException) {
+                            throw r
+                        } catch (_: Exception) {}
+                        try {
+                            android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
+                        } catch (_: Exception) {}
+                        repository.deleteMetadataPermanently(item.id)
+                        repository.evictSecondaryDiskItem(item.id, item.path)
+                    }
+                    refreshAll()
+                } catch (e: Exception) {
+                    val recoverable = e as? android.app.RecoverableSecurityException
+                        ?: e.cause as? android.app.RecoverableSecurityException
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
+                        val activity = context.findActivity()
+                        if (activity != null) {
+                            pendingBatchActionItems = trashedItems
+                            activity.startIntentSenderForResult(
+                                recoverable.userAction.actionIntent.intentSender,
+                                1003,
+                                null,
+                                0,
+                                0,
+                                0
+                            )
+                        }
+                    } else {
+                        e.printStackTrace()
+                    }
+                }
             }
         }
     }
@@ -2269,15 +2327,20 @@ class MainViewModel @Inject constructor(
                 }
                 try {
                     context.contentResolver.delete(item.uri, null, null)
+                } catch (r: android.app.RecoverableSecurityException) {
+                    throw r
                 } catch (_: Exception) {}
                 try {
                     val mediaUri = getMediaProviderUri(item)
                     context.contentResolver.delete(mediaUri, null, null)
+                } catch (r: android.app.RecoverableSecurityException) {
+                    throw r
                 } catch (_: Exception) {}
                 try {
                     android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
                 } catch (_: Exception) {}
                 repository.deleteMetadataPermanently(item.id)
+                repository.evictSecondaryDiskItem(item.id, item.path)
                 advanceActiveMediaItem(item, targetNextItem)
                 _lastDeletedMediaId.value = item.id
                 pendingActionItem = null
@@ -2416,6 +2479,7 @@ class MainViewModel @Inject constructor(
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
                     } catch (_: Exception) {}
                     repository.toggleTrashed(item)
+                    repository.evictSecondaryDiskItem(item.id, item.path)
                 }
                 refreshAll()
             } catch (e: Exception) {
@@ -2444,12 +2508,11 @@ class MainViewModel @Inject constructor(
     fun deleteMediaItems(context: Context, items: List<MediaItem>) {
         if (items.isEmpty()) return
         viewModelScope.launch {
+            val (brokenOrphanItems, validItems) = items.partition { item ->
+                val srcFile = java.io.File(item.path)
+                !srcFile.exists() || (srcFile.isFile && srcFile.length() == 0L)
+            }
             try {
-                val (brokenOrphanItems, validItems) = items.partition { item ->
-                    val srcFile = java.io.File(item.path)
-                    !srcFile.exists() || (srcFile.isFile && srcFile.length() == 0L)
-                }
-
                 if (brokenOrphanItems.isNotEmpty()) {
                     brokenOrphanItems.forEach { orphan ->
                         repository.toggleTrashed(orphan)
@@ -2522,10 +2585,28 @@ class MainViewModel @Inject constructor(
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
                     } catch (_: Exception) {}
                     repository.toggleTrashed(item)
+                    repository.evictSecondaryDiskItem(item.id, item.path)
                 }
                 refreshAll()
             } catch (e: Exception) {
-                e.printStackTrace()
+                val recoverable = e as? android.app.RecoverableSecurityException
+                    ?: e.cause as? android.app.RecoverableSecurityException
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
+                    val activity = context.findActivity()
+                    if (activity != null) {
+                        pendingBatchActionItems = validItems
+                        activity.startIntentSenderForResult(
+                            recoverable.userAction.actionIntent.intentSender,
+                            1005,
+                            null,
+                            0,
+                            0,
+                            0
+                        )
+                    }
+                } else {
+                    e.printStackTrace()
+                }
             }
         }
     }
@@ -2577,6 +2658,7 @@ class MainViewModel @Inject constructor(
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
                     } catch (_: Exception) {}
                     repository.toggleTrashed(item)
+                    repository.evictSecondaryDiskItem(item.id, item.path)
                 }
                 selectionState.clear()
                 refreshAll()
@@ -2602,19 +2684,22 @@ class MainViewModel @Inject constructor(
                 repository.getMediaByIds(selectedIds)
             }
             if (selectedItems.isEmpty()) {
-                selectedIds.forEach { id -> repository.deleteMetadataPermanently(id) }
+                selectedIds.forEach { id ->
+                    repository.deleteMetadataPermanently(id)
+                    repository.evictSecondaryDiskItem(id, "")
+                }
                 selectionState.clear()
                 refreshAll()
                 return@launch
             }
-            try {
-                val trashDir = java.io.File(context.filesDir, "imava_trash")
-                val (brokenOrphans, validItems) = selectedItems.partition { item ->
-                    val file = java.io.File(item.path)
-                    val trashedFile = java.io.File(trashDir, "${item.id}_${file.name}")
-                    !file.exists() && !trashedFile.exists()
-                }
+            val trashDir = java.io.File(context.filesDir, "imava_trash")
+            val (brokenOrphans, validItems) = selectedItems.partition { item ->
+                val file = java.io.File(item.path)
+                val trashedFile = java.io.File(trashDir, "${item.id}_${file.name}")
+                !file.exists() && !trashedFile.exists() && trashDir.listFiles { _, name -> name.startsWith("${item.id}_") }.isNullOrEmpty()
+            }
 
+            try {
                 if (brokenOrphans.isNotEmpty()) {
                     brokenOrphans.forEach { orphan ->
                         repository.deleteMetadataPermanently(orphan.id)
@@ -2630,9 +2715,9 @@ class MainViewModel @Inject constructor(
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                     val activity = context.findActivity()
-                    val mediaStoreItems = selectedItems.filter { it.id > 0 }
+                    val mediaStoreItems = validItems.filter { it.id > 0 && it.uri.scheme == android.content.ContentResolver.SCHEME_CONTENT }
                     if (activity != null && mediaStoreItems.isNotEmpty()) {
-                        pendingBatchActionItems = selectedItems
+                        pendingBatchActionItems = validItems
                         try {
                             val uris = mediaStoreItems.map { getMediaProviderUri(it) }
                             val pendingIntent = android.provider.MediaStore.createDeleteRequest(
@@ -2674,13 +2759,13 @@ class MainViewModel @Inject constructor(
                             }
                         } catch (_: Exception) {}
                     }
-                    val trashedFile = java.io.File(trashDir, "${item.id}_${file.name}")
-                    if (trashedFile.exists()) {
+                    val trashedCandidates = trashDir.listFiles { _, name -> name.startsWith("${item.id}_") }
+                    trashedCandidates?.forEach { tf ->
                         try {
                             if (secureShred) {
-                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
+                                com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(tf)
                             } else {
-                                trashedFile.delete()
+                                tf.delete()
                             }
                         } catch (_: Exception) {}
                     }
@@ -2699,11 +2784,29 @@ class MainViewModel @Inject constructor(
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
                     } catch (_: Exception) {}
                     repository.deleteMetadataPermanently(item.id)
+                    repository.evictSecondaryDiskItem(item.id, item.path)
                 }
                 selectionState.clear()
                 refreshAll()
             } catch (e: Exception) {
-                e.printStackTrace()
+                val recoverable = e as? android.app.RecoverableSecurityException
+                    ?: e.cause as? android.app.RecoverableSecurityException
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
+                    val activity = context.findActivity()
+                    if (activity != null) {
+                        pendingBatchActionItems = validItems
+                        activity.startIntentSenderForResult(
+                            recoverable.userAction.actionIntent.intentSender,
+                            1001,
+                            null,
+                            0,
+                            0,
+                            0
+                        )
+                    }
+                } else {
+                    e.printStackTrace()
+                }
             }
         }
     }
@@ -2714,83 +2817,100 @@ class MainViewModel @Inject constructor(
 
         if (resultCode == android.app.Activity.RESULT_OK) {
             when (requestCode) {
-                1001 -> {
+                1001, 1003 -> {
                     viewModelScope.launch {
-                        if (context != null && com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)) {
-                            val trashDir = java.io.File(context.filesDir, "imava_trash")
-                            batchItems?.forEach { batchItem ->
-                                val trashedFile = java.io.File(trashDir, "${batchItem.id}_${java.io.File(batchItem.path).name}")
-                                if (trashedFile.exists()) {
-                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
-                                }
-                                val src = java.io.File(batchItem.path)
-                                if (src.exists()) {
-                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(src)
-                                }
-                            }
-                            if (item != null) {
-                                val trashedFile = java.io.File(trashDir, "${item.id}_${java.io.File(item.path).name}")
-                                if (trashedFile.exists()) {
-                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
-                                }
-                                val src = java.io.File(item.path)
-                                if (src.exists()) {
-                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(src)
+                        val trashDir = context?.let { java.io.File(it.filesDir, "imava_trash") }
+                        val secureShred = context?.let { com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(it) } == true
+                        val targets = if (batchItems != null) batchItems else if (item != null) listOf(item) else emptyList()
+
+                        targets.forEach { target ->
+                            // 1. Delete/shred from imava_trash
+                            if (trashDir != null && trashDir.exists()) {
+                                trashDir.listFiles { _, name -> name.startsWith("${target.id}_") }?.forEach { tf ->
+                                    try {
+                                        if (secureShred) com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(tf)
+                                        else tf.delete()
+                                    } catch (_: Exception) {}
                                 }
                             }
+                            // 2. Delete/shred original file on disk if exists
+                            val src = java.io.File(target.path)
+                            if (src.exists()) {
+                                try {
+                                    if (secureShred) com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(src)
+                                    else src.delete()
+                                } catch (_: Exception) {}
+                            }
+                            // 3. Delete from ContentResolver / MediaStore
+                            if (context != null) {
+                                try { context.contentResolver.delete(target.uri, null, null) } catch (_: Exception) {}
+                                try { context.contentResolver.delete(getMediaProviderUri(target), null, null) } catch (_: Exception) {}
+                                try { android.media.MediaScannerConnection.scanFile(context, arrayOf(target.path), null, null) } catch (_: Exception) {}
+                            }
+                            // 4. Room DB and secondary disk eviction
+                            repository.deleteMetadataPermanently(target.id)
+                            repository.evictSecondaryDiskItem(target.id, target.path)
                         }
+
                         if (batchItems != null) {
-                            batchItems.forEach { batchItem ->
-                                repository.deleteMetadataPermanently(batchItem.id)
-                            }
                             selectionState.clear()
                             pendingBatchActionItems = null
-                            refreshAll()
-                        } else if (item != null) {
-                            repository.deleteMetadataPermanently(item.id)
+                        }
+                        if (item != null) {
                             advanceActiveMediaItem(item, pendingNextItem)
                             _lastDeletedMediaId.value = item.id
                             pendingActionItem = null
                             pendingNextItem = null
-                            refreshAll()
                         }
+                        refreshAll()
                     }
                 }
                 1002 -> {
                     if (item != null) {
                         viewModelScope.launch {
+                            val trashDir = context?.let { java.io.File(it.filesDir, "imava_trash").apply { mkdirs() } }
+                            if (!item.isTrashed) {
+                                val srcFile = java.io.File(item.path)
+                                if (srcFile.exists() && trashDir != null) {
+                                    val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
+                                    try {
+                                        if (!srcFile.renameTo(destFile)) {
+                                            srcFile.copyTo(destFile, overwrite = true)
+                                            srcFile.delete()
+                                        }
+                                    } catch (_: Exception) {}
+                                }
+                                if (context != null) {
+                                    try { context.contentResolver.delete(item.uri, null, null) } catch (_: Exception) {}
+                                    try { context.contentResolver.delete(getMediaProviderUri(item), null, null) } catch (_: Exception) {}
+                                    try { android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null) } catch (_: Exception) {}
+                                }
+                            } else {
+                                if (trashDir != null && trashDir.exists()) {
+                                    val trashedCandidates = trashDir.listFiles { _, name -> name.startsWith("${item.id}_") }
+                                    val origFile = java.io.File(item.path)
+                                    trashedCandidates?.forEach { tf ->
+                                        if (tf.exists()) {
+                                            try {
+                                                origFile.parentFile?.mkdirs()
+                                                if (!tf.renameTo(origFile)) {
+                                                    tf.copyTo(origFile, overwrite = true)
+                                                    tf.delete()
+                                                }
+                                            } catch (_: Exception) {}
+                                        }
+                                    }
+                                }
+                                if (context != null) {
+                                    try { android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null) } catch (_: Exception) {}
+                                }
+                            }
                             repository.toggleTrashed(item)
+                            repository.evictSecondaryDiskItem(item.id, item.path)
                             advanceActiveMediaItem(item, pendingNextItem)
                             _lastDeletedMediaId.value = item.id
                             pendingActionItem = null
                             pendingNextItem = null
-                            refreshAll()
-                        }
-                    }
-                }
-                1003 -> {
-                    viewModelScope.launch {
-                        if (context != null && com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)) {
-                            val trashDir = java.io.File(context.filesDir, "imava_trash")
-                            batchItems?.forEach { batchItem ->
-                                val trashedFile = java.io.File(trashDir, "${batchItem.id}_${java.io.File(batchItem.path).name}")
-                                if (trashedFile.exists()) {
-                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(trashedFile)
-                                }
-                                val src = java.io.File(batchItem.path)
-                                if (src.exists()) {
-                                    com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(src)
-                                }
-                            }
-                        }
-                        if (batchItems != null) {
-                            batchItems.forEach { batchItem ->
-                                repository.deleteMetadataPermanently(batchItem.id)
-                            }
-                            selectionState.clear()
-                            pendingBatchActionItems = null
-                            refreshAll()
-                        } else {
                             refreshAll()
                         }
                     }
@@ -2804,8 +2924,46 @@ class MainViewModel @Inject constructor(
                         viewModelScope.launch {
                             val count = batchItems.size
                             val isCurrentlyTrashed = batchItems.firstOrNull()?.isTrashed == true
+                            val trashDir = context?.let { java.io.File(it.filesDir, "imava_trash").apply { mkdirs() } }
                             batchItems.forEach { batchItem ->
+                                if (!isCurrentlyTrashed) {
+                                    val srcFile = java.io.File(batchItem.path)
+                                    if (srcFile.exists() && trashDir != null) {
+                                        val destFile = java.io.File(trashDir, "${batchItem.id}_${srcFile.name}")
+                                        try {
+                                            if (!srcFile.renameTo(destFile)) {
+                                                srcFile.copyTo(destFile, overwrite = true)
+                                                srcFile.delete()
+                                            }
+                                        } catch (_: Exception) {}
+                                    }
+                                    if (context != null) {
+                                        try { context.contentResolver.delete(batchItem.uri, null, null) } catch (_: Exception) {}
+                                        try { context.contentResolver.delete(getMediaProviderUri(batchItem), null, null) } catch (_: Exception) {}
+                                        try { android.media.MediaScannerConnection.scanFile(context, arrayOf(batchItem.path), null, null) } catch (_: Exception) {}
+                                    }
+                                } else {
+                                    if (trashDir != null && trashDir.exists()) {
+                                        val trashedCandidates = trashDir.listFiles { _, name -> name.startsWith("${batchItem.id}_") }
+                                        val origFile = java.io.File(batchItem.path)
+                                        trashedCandidates?.forEach { tf ->
+                                            if (tf.exists()) {
+                                                try {
+                                                    origFile.parentFile?.mkdirs()
+                                                    if (!tf.renameTo(origFile)) {
+                                                        tf.copyTo(origFile, overwrite = true)
+                                                        tf.delete()
+                                                    }
+                                                } catch (_: Exception) {}
+                                            }
+                                        }
+                                    }
+                                    if (context != null) {
+                                        try { android.media.MediaScannerConnection.scanFile(context, arrayOf(batchItem.path), null, null) } catch (_: Exception) {}
+                                    }
+                                }
                                 repository.toggleTrashed(batchItem)
+                                repository.evictSecondaryDiskItem(batchItem.id, batchItem.path)
                             }
                             selectionState.clear()
                             pendingBatchActionItems = null

@@ -33,7 +33,7 @@ interface MetadataDao {
     @Delete
     suspend fun delete(metadata: MediaMetadataEntity)
     
-    @Query("SELECT mediaId FROM media_metadata WHERE isHidden = 0")
+    @Query("SELECT mediaId FROM media_metadata WHERE isHidden = 0 AND isTrashed = 0")
     suspend fun getTrackedNonHiddenIds(): List<Long>
 
     @Query("DELETE FROM media_metadata WHERE mediaId IN (:ids)")

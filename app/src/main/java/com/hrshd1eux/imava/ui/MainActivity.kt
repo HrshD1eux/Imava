@@ -952,9 +952,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                     ) {
                         val categoryName by viewModel.currentCategoryNameFlow.collectAsState()
-                        val trashedList by viewModel.trashed.collectAsState()
                         val selectedIds = selectionState.selectedIds
-                        val isViewingTrash = categoryName == "Trash" || (selectedIds.isNotEmpty() && trashedList.any { selectedIds.contains(it.id) })
+                        val isViewingTrash = categoryName == "Trash"
 
                         val isViewingVault = categoryName == "Hidden Vault"
 
