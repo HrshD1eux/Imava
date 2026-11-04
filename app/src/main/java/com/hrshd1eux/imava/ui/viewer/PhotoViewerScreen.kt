@@ -9,12 +9,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.draggable
@@ -29,6 +31,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,6 +81,11 @@ import com.hrshd1eux.imava.core.util.FormatUtils
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Crop
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.MovieFilter
 import androidx.compose.material.icons.filled.TextFields
@@ -1862,142 +1870,479 @@ fun PhotoViewerScreen(
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
             val activity = context.findActivity()
             var isSettingWallpaper by remember { mutableStateOf(false) }
+            var previewMode by remember { mutableIntStateOf(0) } // 0 = Lock Screen, 1 = Home Screen, 2 = Clean
+            var lockHorizontalAxis by remember { mutableStateOf(false) }
+            var zoomScale by remember { mutableFloatStateOf(1f) }
+            var panOffset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
 
-            AlertDialog(
+            val currentTimeStr = remember {
+                java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+            }
+            val currentDateStr = remember {
+                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("EEEE, MMMM d"))
+            }
+            val currentShortDateStr = remember {
+                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("EEE, MMM d"))
+            }
+
+            androidx.compose.ui.window.Dialog(
                 onDismissRequest = { if (!isSettingWallpaper) showWallpaperDialog = false },
-                icon = {
-                    Icon(
-                        Icons.Default.Wallpaper,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(32.dp)
-                    )
-                },
-                title = { Text("Set Wallpaper 🎨", fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold) },
-                text = {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                properties = androidx.compose.ui.window.DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    decorFitsSystemWindows = false
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black)
+                ) {
+                    val displayMetrics = context.resources.displayMetrics
+                    val screenW = displayMetrics.widthPixels.toFloat()
+                    val screenH = displayMetrics.heightPixels.toFloat()
+
+                    // Full-screen interactive wallpaper viewport with bounded & lockable pan/zoom
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(lockHorizontalAxis) {
+                                detectTransformGestures { _, pan, zoom, _ ->
+                                    zoomScale = (zoomScale * zoom).coerceIn(1f, 4.5f)
+                                    val maxPanX = (screenW * (zoomScale - 1f)) / 2f
+                                    val maxPanY = (screenH * (zoomScale - 1f)) / 2f
+                                    val newX = if (lockHorizontalAxis) 0f else (panOffset.x + pan.x).coerceIn(-maxPanX, maxPanX)
+                                    val newY = (panOffset.y + pan.y).coerceIn(-maxPanY, maxPanY)
+                                    panOffset = androidx.compose.ui.geometry.Offset(newX, newY)
+                                }
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        if (isSettingWallpaper) {
-                            Box(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        } else {
-                            FilledTonalButton(
-                                onClick = {
-                                    isSettingWallpaper = true
-                                    scope.launch {
-                                        val success = com.hrshd1eux.imava.core.util.WallpaperUtil.setWallpaperDirect(
-                                            context,
-                                            item.uri,
-                                            com.hrshd1eux.imava.core.util.WallpaperUtil.WALLPAPER_HOME
+                        coil.compose.AsyncImage(
+                            model = item.uri,
+                            contentDescription = null,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer {
+                                    scaleX = zoomScale
+                                    scaleY = zoomScale
+                                    translationX = panOffset.x
+                                    translationY = panOffset.y
+                                }
+                        )
+
+                        // Real-time Authentic Screen Overlays
+                        when (previewMode) {
+                            0 -> {
+                                // 🔒 AUTHENTIC LOCK SCREEN OVERLAY
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    // Centered Clock and Date (positioned below Top Bar)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.TopCenter)
+                                            .statusBarsPadding()
+                                            .padding(top = 80.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Lock,
+                                            contentDescription = null,
+                                            tint = Color.White.copy(alpha = 0.9f),
+                                            modifier = Modifier.size(24.dp)
                                         )
-                                        isSettingWallpaper = false
-                                        showWallpaperDialog = false
-                                        if (success) {
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                            android.widget.Toast.makeText(context, "Home screen wallpaper applied! 🏠", android.widget.Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            currentTimeStr,
+                                            style = MaterialTheme.typography.displayLarge.copy(fontSize = 72.sp),
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            currentDateStr,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = Color.White.copy(alpha = 0.9f)
+                                        )
+                                    }
+
+                                    // Bottom Lock Screen Shortcuts (Torch & Camera) + Swipe Pill
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.BottomCenter)
+                                            .navigationBarsPadding()
+                                            .padding(bottom = 210.dp, start = 24.dp, end = 24.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomStart)
+                                                .size(48.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.Black.copy(alpha = 0.45f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("🔦", fontSize = 20.sp)
+                                        }
+
+                                        // Unlock pill indicator
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomCenter)
+                                                .width(72.dp)
+                                                .height(4.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(Color.White.copy(alpha = 0.85f))
+                                        )
+
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomEnd)
+                                                .size(48.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.Black.copy(alpha = 0.45f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("📷", fontSize = 20.sp)
                                         }
                                     }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(Icons.Default.Home, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Home Screen 🏠")
                                 }
                             }
-
-                            FilledTonalButton(
-                                onClick = {
-                                    isSettingWallpaper = true
-                                    scope.launch {
-                                        val success = com.hrshd1eux.imava.core.util.WallpaperUtil.setWallpaperDirect(
-                                            context,
-                                            item.uri,
-                                            com.hrshd1eux.imava.core.util.WallpaperUtil.WALLPAPER_LOCK
+                            1 -> {
+                                // 🏠 AUTHENTIC HOME SCREEN OVERLAY
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    // Top At-a-glance widget (positioned below Top Bar)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.TopStart)
+                                            .statusBarsPadding()
+                                            .padding(top = 80.dp, start = 24.dp)
+                                    ) {
+                                        Text(
+                                            text = "$currentShortDateStr • 24°C ☀️",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = Color.White
                                         )
-                                        isSettingWallpaper = false
-                                        showWallpaperDialog = false
-                                        if (success) {
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                            android.widget.Toast.makeText(context, "Lock screen wallpaper applied! 🔒", android.widget.Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+
+                                    // 4x3 App Grid Preview
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.TopCenter)
+                                            .statusBarsPadding()
+                                            .padding(top = 124.dp, start = 20.dp, end = 20.dp),
+                                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                                    ) {
+                                        val mockApps = listOf(
+                                            listOf("📞" to "Phone", "💬" to "Messages", "🌐" to "Chrome", "📷" to "Camera"),
+                                            listOf("🖼️" to "Photos", "⚙️" to "Settings", "🎵" to "Music", "📁" to "Files"),
+                                            listOf("⏰" to "Clock", "🗺️" to "Maps", "📝" to "Notes", "🛍️" to "Store")
+                                        )
+                                        mockApps.forEach { rowApps ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceAround
+                                            ) {
+                                                rowApps.forEach { (emoji, label) ->
+                                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(46.dp)
+                                                                .clip(RoundedCornerShape(14.dp))
+                                                                .background(Color.White.copy(alpha = 0.28f)),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Text(emoji, fontSize = 22.sp)
+                                                        }
+                                                        Spacer(modifier = Modifier.height(4.dp))
+                                                        Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White, fontSize = 10.sp)
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(Icons.Default.Lock, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Lock Screen 🔒")
-                                }
-                            }
 
-                            Button(
-                                onClick = {
-                                    isSettingWallpaper = true
-                                    scope.launch {
-                                        val success = com.hrshd1eux.imava.core.util.WallpaperUtil.setWallpaperDirect(
-                                            context,
-                                            item.uri,
-                                            com.hrshd1eux.imava.core.util.WallpaperUtil.WALLPAPER_BOTH
-                                        )
-                                        isSettingWallpaper = false
-                                        showWallpaperDialog = false
-                                        if (success) {
-                                            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                            android.widget.Toast.makeText(context, "Home & Lock wallpaper applied! 📱", android.widget.Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                    // Bottom Dock & Search Bar (above bottom controls)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.BottomCenter)
+                                            .navigationBarsPadding()
+                                            .padding(bottom = 210.dp, start = 16.dp, end = 16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        // Persistent Google Search Pill
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(42.dp)
+                                                .clip(RoundedCornerShape(21.dp))
+                                                .background(Color.White.copy(alpha = 0.35f))
+                                                .padding(horizontal = 16.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text("G", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 18.sp)
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text("Search...", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)
+                                            }
+                                            Text("🎤  📷", fontSize = 14.sp)
+                                        }
+
+                                        // 4-App Dock
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .background(Color.Black.copy(alpha = 0.35f))
+                                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                                            horizontalArrangement = Arrangement.SpaceAround
+                                        ) {
+                                            listOf("📞", "💬", "🌐", "📷").forEach { iconEmoji ->
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(44.dp)
+                                                        .clip(CircleShape)
+                                                        .background(Color.White.copy(alpha = 0.85f)),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(iconEmoji, fontSize = 20.sp)
+                                                }
+                                            }
                                         }
                                     }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(Icons.Default.PhoneAndroid, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Both (Home & Lock Screen) 📱")
                                 }
                             }
-
-                            OutlinedButton(
-                                onClick = {
-                                    showWallpaperDialog = false
-                                    if (activity != null) {
-                                        com.hrshd1eux.imava.core.util.WallpaperUtil.launchPixelOrSystemWallpaperPicker(activity, item.uri)
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(Icons.Default.Crop, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Pixel / System Wallpaper Picker ⚙️")
-                                }
+                            else -> {
+                                // Clean view: no overlays
                             }
                         }
                     }
-                },
-                confirmButton = {},
-                dismissButton = {
-                    if (!isSettingWallpaper) {
-                        TextButton(onClick = { showWallpaperDialog = false }) {
-                            Text("Cancel")
+
+                    // Top Bar with Controls and System Wallpaper Shortcut
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .statusBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = { if (!isSettingWallpaper) showWallpaperDialog = false },
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.5f))
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                        }
+
+                        IconButton(
+                            onClick = {
+                                showWallpaperDialog = false
+                                activity?.let {
+                                    com.hrshd1eux.imava.core.util.WallpaperUtil.launchPixelOrSystemWallpaperPicker(it, item.uri)
+                                }
+                            },
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.5f))
+                        ) {
+                            Icon(Icons.Default.Tune, contentDescription = "System Wallpaper Settings", tint = Color.White)
+                        }
+                    }
+
+                    // Bottom Floating Studio Controls (Compact, Responsive & Guaranteed 100% Above Navigation Bar)
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
+                            .padding(start = 14.dp, end = 14.dp, bottom = 36.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xFF16161A).copy(alpha = 0.94f),
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.14f)),
+                        tonalElevation = 8.dp
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Axis Lock & Gestures Hint Row with Preview Mode Cycle Chip
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                FilterChip(
+                                    selected = lockHorizontalAxis,
+                                    onClick = {
+                                        lockHorizontalAxis = !lockHorizontalAxis
+                                        if (lockHorizontalAxis) {
+                                            panOffset = androidx.compose.ui.geometry.Offset(0f, panOffset.y)
+                                        }
+                                    },
+                                    label = {
+                                        Text(
+                                            if (lockHorizontalAxis) "Horizontal Locked 🔒" else "Free Pan 🖐️",
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = Color.White,
+                                        containerColor = Color.White.copy(alpha = 0.12f),
+                                        labelColor = Color.White
+                                    ),
+                                    modifier = Modifier.height(30.dp)
+                                )
+
+                                FilterChip(
+                                    selected = true,
+                                    onClick = {
+                                        previewMode = (previewMode + 1) % 3
+                                    },
+                                    label = {
+                                        Text(
+                                            when (previewMode) {
+                                                0 -> "Preview: Lock 🔒"
+                                                1 -> "Preview: Home 🏠"
+                                                else -> "Preview: Clean 🖼️"
+                                            },
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = Color.White.copy(alpha = 0.16f),
+                                        selectedLabelColor = Color.White
+                                    ),
+                                    modifier = Modifier.height(30.dp)
+                                )
+                            }
+
+                            if (isSettingWallpaper) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(44.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            isSettingWallpaper = true
+                                            scope.launch {
+                                                val success = com.hrshd1eux.imava.core.util.WallpaperUtil.setWallpaperCropped(
+                                                    context = context,
+                                                    uri = item.uri,
+                                                    zoomScale = zoomScale,
+                                                    panOffsetX = (panOffset.x / screenW).coerceIn(-1f, 1f),
+                                                    panOffsetY = (panOffset.y / screenH).coerceIn(-1f, 1f),
+                                                    viewportWidth = screenW,
+                                                    viewportHeight = screenH,
+                                                    which = com.hrshd1eux.imava.core.util.WallpaperUtil.WALLPAPER_HOME
+                                                )
+                                                isSettingWallpaper = false
+                                                showWallpaperDialog = false
+                                                if (success) {
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                                    android.widget.Toast.makeText(context, "Home wallpaper applied! 🏠", android.widget.Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f).height(40.dp),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ) {
+                                        Text("Home 🏠", style = MaterialTheme.typography.labelMedium, maxLines = 1)
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            isSettingWallpaper = true
+                                            scope.launch {
+                                                val success = com.hrshd1eux.imava.core.util.WallpaperUtil.setWallpaperCropped(
+                                                    context = context,
+                                                    uri = item.uri,
+                                                    zoomScale = zoomScale,
+                                                    panOffsetX = (panOffset.x / screenW).coerceIn(-1f, 1f),
+                                                    panOffsetY = (panOffset.y / screenH).coerceIn(-1f, 1f),
+                                                    viewportWidth = screenW,
+                                                    viewportHeight = screenH,
+                                                    which = com.hrshd1eux.imava.core.util.WallpaperUtil.WALLPAPER_LOCK
+                                                )
+                                                isSettingWallpaper = false
+                                                showWallpaperDialog = false
+                                                if (success) {
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                                    android.widget.Toast.makeText(context, "Lock wallpaper applied! 🔒", android.widget.Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f).height(40.dp),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ) {
+                                        Text("Lock 🔒", style = MaterialTheme.typography.labelMedium, maxLines = 1)
+                                    }
+
+                                    FilledTonalButton(
+                                        onClick = {
+                                            isSettingWallpaper = true
+                                            scope.launch {
+                                                val success = com.hrshd1eux.imava.core.util.WallpaperUtil.setWallpaperCropped(
+                                                    context = context,
+                                                    uri = item.uri,
+                                                    zoomScale = zoomScale,
+                                                    panOffsetX = (panOffset.x / screenW).coerceIn(-1f, 1f),
+                                                    panOffsetY = (panOffset.y / screenH).coerceIn(-1f, 1f),
+                                                    viewportWidth = screenW,
+                                                    viewportHeight = screenH,
+                                                    which = com.hrshd1eux.imava.core.util.WallpaperUtil.WALLPAPER_BOTH
+                                                )
+                                                isSettingWallpaper = false
+                                                showWallpaperDialog = false
+                                                if (success) {
+                                                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                                                    android.widget.Toast.makeText(context, "Both wallpapers applied! 📱", android.widget.Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f).height(40.dp),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ) {
+                                        Text("Both 📱", style = MaterialTheme.typography.labelMedium, maxLines = 1)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            )
+            }
         }
 
 

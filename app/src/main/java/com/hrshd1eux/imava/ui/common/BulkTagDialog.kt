@@ -67,9 +67,8 @@ fun BulkTagDialog(
     fun addTag(raw: String) {
         val clean = raw.trim().removePrefix("#")
         if (clean.isNotBlank()) {
-            if (tagsToRemove.contains(clean)) {
-                tagsToRemove.remove(clean)
-            } else if (!initialCurrentTags.contains(clean) && !tagsToAdd.contains(clean)) {
+            tagsToRemove.remove(clean)
+            if (!tagsToAdd.contains(clean)) {
                 tagsToAdd.add(clean)
             }
             tagInput = ""
@@ -235,6 +234,13 @@ fun BulkTagDialog(
         confirmButton = {
             Button(
                 onClick = {
+                    val clean = tagInput.trim().removePrefix("#")
+                    if (clean.isNotBlank()) {
+                        tagsToRemove.remove(clean)
+                        if (!tagsToAdd.contains(clean)) {
+                            tagsToAdd.add(clean)
+                        }
+                    }
                     onConfirm(tagsToAdd.toSet(), tagsToRemove.toSet())
                 }
             ) {

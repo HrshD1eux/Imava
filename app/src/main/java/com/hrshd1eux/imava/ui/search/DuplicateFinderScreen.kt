@@ -1,7 +1,9 @@
 package com.hrshd1eux.imava.ui.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,26 +14,36 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CleaningServices
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Compare
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -39,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,8 +61,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.hrshd1eux.imava.core.util.DuplicateFinder
@@ -73,6 +89,18 @@ fun DuplicateFinderScreen(
     val selectedToDelete = remember { mutableStateListOf<Long>() }
 
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var previewMediaItem by remember { mutableStateOf<MediaItem?>(null) }
+    var comparePair by remember { mutableStateOf<Pair<MediaItem, MediaItem>?>(null) }
+
+    if (comparePair != null) {
+        val (first, second) = comparePair!!
+        com.hrshd1eux.imava.ui.compare.PhotoCompareScreen(
+            item1 = first,
+            item2 = second,
+            onBack = { comparePair = null }
+        )
+        return
+    }
 
     LaunchedEffect(Unit) {
         isScanning = true
@@ -190,21 +218,72 @@ fun DuplicateFinderScreen(
                                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), MaterialTheme.shapes.medium)
                                 .padding(12.dp)
                         ) {
-                            Text(
-                                text = "Found ${group.items.size} Similar Photos",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "${group.items.size} Similar Photos",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "${com.hrshd1eux.imava.core.util.FormatUtils.formatFileSize(group.bestItem.size)} · ${group.bestItem.width}×${group.bestItem.height}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            DuplicateFinder.ignoreGroup(context, group)
+                                            groups = groups.filter { it.id != group.id }
+                                            group.items.forEach { selectedToDelete.remove(it.id) }
+                                            android.widget.Toast.makeText(context, "Group marked as not duplicate (ignored next time)", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Not Same", style = MaterialTheme.typography.labelMedium)
+                                    }
+
+                                    if (group.items.size >= 2) {
+                                        FilledTonalButton(
+                                            onClick = { comparePair = Pair(group.items[0], group.items[1]) },
+                                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                            shape = RoundedCornerShape(12.dp)
+                                        ) {
+                                            Icon(Icons.Default.Compare, contentDescription = null, modifier = Modifier.size(16.dp))
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text("Compare Loupe ⚖️", style = MaterialTheme.typography.labelMedium)
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 items(group.items) { item ->
                                     val isSelected = selectedToDelete.contains(item.id)
                                     val isBest = item.id == group.bestItem.id
 
                                     Box(
                                         modifier = Modifier
-                                            .size(110.dp)
+                                            .size(115.dp)
                                             .clip(MaterialTheme.shapes.small)
+                                            .border(
+                                                width = if (isSelected) 2.dp else 1.dp,
+                                                color = if (isSelected) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                                shape = MaterialTheme.shapes.small
+                                            )
                                             .clickable {
                                                 com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                                 if (isSelected) {
@@ -240,8 +319,24 @@ fun DuplicateFinderScreen(
                                             modifier = Modifier
                                                 .align(Alignment.TopEnd)
                                                 .padding(4.dp)
-                                                .size(20.dp)
+                                                .size(22.dp)
                                         )
+
+                                        IconButton(
+                                            onClick = { previewMediaItem = item },
+                                            modifier = Modifier
+                                                .align(Alignment.BottomEnd)
+                                                .padding(4.dp)
+                                                .size(28.dp)
+                                                .background(Color.Black.copy(alpha = 0.65f), CircleShape)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Visibility,
+                                                contentDescription = "Preview",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -281,6 +376,123 @@ fun DuplicateFinderScreen(
                     }
                 }
             )
+        if (previewMediaItem != null) {
+            val pItem = previewMediaItem!!
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { previewMediaItem = null },
+                properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black)
+                ) {
+                    var pScale by remember { mutableFloatStateOf(1f) }
+                    var pOffset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTransformGestures { _, pan, zoom, _ ->
+                                    pScale = (pScale * zoom).coerceIn(1f, 5f)
+                                    pOffset += pan
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = pItem.uri,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer {
+                                    scaleX = pScale
+                                    scaleY = pScale
+                                    translationX = pOffset.x
+                                    translationY = pOffset.y
+                                }
+                        )
+                    }
+
+                    // Top Bar
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .statusBarsPadding()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = { previewMediaItem = null },
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.5f))
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                        }
+
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text = "${pItem.width} × ${pItem.height}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = com.hrshd1eux.imava.core.util.FormatUtils.formatFileSize(pItem.size),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+
+                    // Bottom Action Bar
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xDD1E1E2E)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val isMarkedForDelete = selectedToDelete.contains(pItem.id)
+                            Button(
+                                onClick = {
+                                    if (isMarkedForDelete) {
+                                        selectedToDelete.remove(pItem.id)
+                                    } else {
+                                        selectedToDelete.add(pItem.id)
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isMarkedForDelete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    if (isMarkedForDelete) Icons.Default.CheckCircle else Icons.Default.Delete,
+                                    contentDescription = null
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(if (isMarkedForDelete) "Keep This Photo (Unmark Delete)" else "Mark to Delete")
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
+}
 }

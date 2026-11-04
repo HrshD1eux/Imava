@@ -7,7 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -35,7 +35,8 @@ import java.util.Locale
  */
 @Composable
 fun TimelineFloatingDateBadge(
-    gridState: LazyStaggeredGridState,
+    gridState: LazyGridState? = null,
+    staggeredGridState: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState? = null,
     lazyPagingItems: LazyPagingItems<TimelineItem>,
     visibleItems: List<MediaItem>,
     modifier: Modifier = Modifier
@@ -47,10 +48,10 @@ fun TimelineFloatingDateBadge(
     val zoneId = remember { ZoneId.systemDefault() }
     val monthCache = remember { HashMap<Long, String>() }
 
-    // Derive accurate date label without reading gridState.layoutInfo (which triggers on every pixel)
+    // Derive accurate date label without reading layoutInfo on every pixel
     val currentDateLabel by remember(totalCount) {
         derivedStateOf {
-            val firstIndex = gridState.firstVisibleItemIndex
+            val firstIndex = staggeredGridState?.firstVisibleItemIndex ?: gridState?.firstVisibleItemIndex ?: 0
             if (firstIndex in 0 until totalCount) {
                 val item = lazyPagingItems.peek(firstIndex)
                 when (item) {
@@ -77,7 +78,7 @@ fun TimelineFloatingDateBadge(
         }
     }
 
-    val isVisible = gridState.isScrollInProgress && !currentDateLabel.isNullOrBlank()
+    val isVisible = (staggeredGridState?.isScrollInProgress == true || gridState?.isScrollInProgress == true) && !currentDateLabel.isNullOrBlank()
 
     AnimatedVisibility(
         visible = isVisible,

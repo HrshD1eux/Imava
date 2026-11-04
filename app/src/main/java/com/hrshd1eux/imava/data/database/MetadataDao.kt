@@ -18,6 +18,9 @@ interface MetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(metadata: MediaMetadataEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateBatch(metadataList: List<MediaMetadataEntity>)
+
     @Query("UPDATE media_metadata SET isFavorite = :isFavorite WHERE mediaId = :mediaId")
     suspend fun updateFavorite(mediaId: Long, isFavorite: Boolean)
 

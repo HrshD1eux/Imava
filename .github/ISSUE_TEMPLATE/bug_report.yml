@@ -1,0 +1,143 @@
+name: "🐛 Bug Report"
+description: "Report a reproducible bug, glitch, crash, or unexpected behavior in Imava."
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this issue!
+        Please fill out this form accurately so we can diagnose and resolve the problem quickly.
+
+  - type: input
+    id: device_model
+    attributes:
+      label: "Device Brand & Model"
+      description: "Exact device model where the issue occurred."
+      placeholder: "e.g., Google Pixel 8, Samsung Galaxy S23 Ultra, Xiaomi Redmi Note 12, OnePlus 11"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: android_version
+    attributes:
+      label: "Android Version"
+      description: "Select your device's Android OS version."
+      options:
+        - "Android 15 (Vanilla Ice Cream / API 35)"
+        - "Android 14 (Upside Down Cake / API 34)"
+        - "Android 13 (Tiramisu / API 33)"
+        - "Android 12 / 12L (Snow Cone / API 31-32)"
+        - "Android 11 (Red Velvet Cake / API 30)"
+        - "Android 10 (Queen Cake / API 29)"
+        - "Android 9 Pie (API 28)"
+        - "Android 8.x Oreo (API 26-27)"
+        - "Other / Custom"
+    validations:
+      required: true
+
+  - type: input
+    id: os_skin
+    attributes:
+      label: "ROM / OS Skin / Custom Distribution"
+      description: "Manufacturer skin or custom ROM running on the device."
+      placeholder: "e.g., Stock Google Pixel, OneUI 6.1, HyperOS / MIUI 14, OxygenOS 14, LineageOS 21, GrapheneOS, CalyxOS"
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: "Imava App Version / Build"
+      description: "Check in Imava -> Settings -> About."
+      placeholder: "e.g., v1.1.57 (Build 57)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_source
+    attributes:
+      label: "Installation Source"
+      description: "Where did you download or install Imava from?"
+      options:
+        - "GitHub Releases (.apk)"
+        - "F-Droid"
+        - "IzzyOnDroid"
+        - "Self-built from source (Android Studio / Gradle)"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: storage_type
+    attributes:
+      label: "Affected Storage Location / Media Type"
+      description: "Where are the affected media files stored?"
+      options:
+        - "Internal Storage (DCIM/Camera, Pictures, Screenshots)"
+        - "External Physical SD Card"
+        - "Private Encrypted Vault"
+        - "USB OTG / External Drive"
+        - "General App UI / Navigation (Not storage-specific)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description"
+      description: "A clear and concise description of what the bug is."
+      placeholder: "Explain what happened..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Detailed step-by-step instructions to reproduce the behavior."
+      value: |
+        1. Open Imava
+        2. Go to '...'
+        3. Tap on '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_vs_actual
+    attributes:
+      label: "Expected vs. Actual Behavior"
+      description: "What did you expect to happen, and what actually occurred?"
+      placeholder: |
+        Expected: The photo should instantly rotate 90 degrees and update the thumbnail.
+        Actual: The photo takes 3 seconds and the thumbnail does not refresh until app restart.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logcat_stacktrace
+    attributes:
+      label: "Crash Log / Logcat Output (if applicable)"
+      description: "Paste relevant logcat logs, stacktraces, or error messages here. Run `adb logcat *:E` or capture from a logcat reader."
+      render: shell
+      placeholder: "Paste error logs here..."
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots / Screen Recording"
+      description: "Drag and drop screenshots or screen recordings showing the issue (blur or redact any sensitive personal photos)."
+      placeholder: "Drag & drop images or videos here..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Pre-submission Checklist"
+      options:
+        - label: "I have verified that this issue is not already reported in existing open or closed issues."
+          required: true
+        - label: "I have tested this behavior on the latest available version of Imava."
+          required: true
+        - label: "I understand that Imava is 100% offline and does not collect crash telemetry, so detailed device information is essential for resolving bugs."
+          required: true

@@ -786,8 +786,7 @@ fun AlbumsScreen(
                                             .clip(RoundedCornerShape(10.dp))
                                             .clickable {
                                                 activeOptionsBucket = null
-                                                viewModel.selectBucket(bucket.id, bucket.name)
-                                                viewModel.shareSelectedMedia(context, stripMetadata = true)
+                                                viewModel.shareAlbum(context, bucket.id, bucket.name)
                                             }
                                             .padding(horizontal = 12.dp, vertical = 10.dp),
                                         verticalAlignment = Alignment.CenterVertically

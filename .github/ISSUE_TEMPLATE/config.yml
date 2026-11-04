@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "💬 Questions, Discussions & Ideas"
+    url: "https://github.com/HrshD1eux/Imava/discussions"
+    about: "Ask questions, share workflows, or connect with other Imava users."
+  - name: "🔒 Security Vulnerability Reporting"
+    url: "https://github.com/HrshD1eux/Imava/security/advisories/new"
+    about: "Report sensitive security or cryptographic vulnerabilities privately."

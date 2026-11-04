@@ -56,6 +56,10 @@ class MediaRepositoryImplTest {
             dbMap[metadata.mediaId] = metadata
         }
 
+        override suspend fun insertOrUpdateBatch(metadataList: List<MediaMetadataEntity>) {
+            metadataList.forEach { dbMap[it.mediaId] = it }
+        }
+
         override suspend fun updateFavorite(mediaId: Long, isFavorite: Boolean) {}
         override suspend fun updateHidden(mediaId: Long, isHidden: Boolean) {}
         override suspend fun updateTrashed(mediaId: Long, isTrashed: Boolean, trashTime: Long) {}

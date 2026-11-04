@@ -63,6 +63,8 @@ android {
             )
         }
         debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-DEBUG"
             manifestPlaceholders["appName"] = "Imava Gallery (Debug)"
         }
     }

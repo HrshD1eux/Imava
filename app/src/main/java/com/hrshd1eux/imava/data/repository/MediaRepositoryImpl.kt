@@ -83,9 +83,13 @@ class MediaRepositoryImpl @Inject constructor(
                 val initialBatch = loadMediaPaged(limit = 200, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
                 emit(initialBatch)
 
-                val fullList = loadMediaPaged(limit = Int.MAX_VALUE, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
-                if (fullList.size != initialBatch.size || fullList != initialBatch) {
-                    emit(fullList)
+                // Progressive expansion: if library has more items, load next batch without choking CPU/disk
+                val total = mediaStoreDataSource.getTotalMediaCount(bucketId, null, mediaType)
+                if (total > 200) {
+                    val fullList = loadMediaPaged(limit = 5000, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
+                    if (fullList.size != initialBatch.size || fullList != initialBatch) {
+                        emit(fullList)
+                    }
                 }
             }
         }.flowOn(Dispatchers.IO)
@@ -167,7 +171,15 @@ class MediaRepositoryImpl @Inject constructor(
                 mediaType = mediaType
             )
             val allMeta = try { metadataDao.getAllMetadata().associateBy { it.mediaId } } catch (_: Exception) { emptyMap() }
-            val filtered = rawMedia.map { applyMetadata(it, allMeta[it.id]) }.filter { !it.isHidden && !it.isTrashed }
+            val filtered = rawMedia.map { applyMetadata(it, allMeta[it.id]) }.filter { item ->
+                !item.isHidden && !item.isTrashed &&
+                !item.path.contains("/imava_trash/") &&
+                !item.path.contains("/.trashed") &&
+                !item.path.contains("/.trash") &&
+                !item.path.contains("/.recycle") &&
+                !item.path.substringAfterLast('/').startsWith(".trashed", ignoreCase = true) &&
+                !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true)
+            }
             resultList.addAll(filtered)
         } else {
             while (resultList.size < limit && !reachedEnd) {
@@ -186,7 +198,15 @@ class MediaRepositoryImpl @Inject constructor(
                 }
                 val ids = rawMedia.map { it.id }
                 val metaMap = getMetadataForMediaIdsChunked(ids).associateBy { it.mediaId }
-                val filtered = rawMedia.map { applyMetadata(it, metaMap[it.id]) }.filter { !it.isHidden && !it.isTrashed }
+                val filtered = rawMedia.map { applyMetadata(it, metaMap[it.id]) }.filter { item ->
+                    !item.isHidden && !item.isTrashed &&
+                    !item.path.contains("/imava_trash/") &&
+                    !item.path.contains("/.trashed") &&
+                    !item.path.contains("/.trash") &&
+                    !item.path.contains("/.recycle") &&
+                    !item.path.substringAfterLast('/').startsWith(".trashed", ignoreCase = true) &&
+                    !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true)
+                }
                 resultList.addAll(filtered)
                 currentOffset += rawMedia.size
                 if (rawMedia.size < fetchBatch) {
@@ -936,6 +956,27 @@ class MediaRepositoryImpl @Inject constructor(
         val currentMeta = metadataDao.getMetadataForMedia(mediaId) ?: MediaMetadataEntity(mediaId = mediaId)
         val tagStr = tags.joinToString(",")
         metadataDao.insertOrUpdate(currentMeta.copy(tags = tagStr))
+    }
+
+    override suspend fun bulkUpdateMediaTags(
+        itemIds: Set<Long>,
+        tagsToAdd: Set<String>,
+        tagsToRemove: Set<String>
+    ) = withContext(Dispatchers.IO) {
+        if (itemIds.isEmpty()) return@withContext
+        val metaList = getMetadataForMediaIdsChunked(itemIds.toList()).associateBy { it.mediaId }
+        val updated = itemIds.map { id ->
+            val existing = metaList[id] ?: MediaMetadataEntity(mediaId = id)
+            val currentTags = if (existing.tags.isNotBlank()) {
+                existing.tags.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableSet()
+            } else {
+                mutableSetOf()
+            }
+            currentTags.addAll(tagsToAdd)
+            currentTags.removeAll(tagsToRemove)
+            existing.copy(tags = currentTags.sorted().joinToString(","))
+        }
+        metadataDao.insertOrUpdateBatch(updated)
     }
 
     override suspend fun scanSecondaryMediaDirectories(): com.hrshd1eux.imava.data.media.DeepScanResult = mediaStoreDataSource.scanSecondaryMediaDirectories()

@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.RotateRight
 import androidx.compose.material.icons.automirrored.filled.Undo
@@ -856,49 +857,75 @@ fun PhotoEditorScreen(
                                         selected = activeMarkupTool == PhotoMarkupUtils.MarkupTool.PIXELATE_MOSAIC,
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.PIXELATE_MOSAIC
-                                            activeMarkupWidth = 32f
                                         },
                                         label = { Text("⬛ Redact/Mosaic") }
-                                    )
+                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeMarkupTool == PhotoMarkupUtils.MarkupTool.PEN,
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.PEN
-                                            activeMarkupWidth = 14f
                                         },
                                         label = { Text("✏️ Pen") }
-                                    )
+                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeMarkupTool == PhotoMarkupUtils.MarkupTool.ARROW,
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.ARROW
-                                            activeMarkupWidth = 12f
                                         },
                                         label = { Text("↗️ Arrow") }
-                                    )
+                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeMarkupTool == PhotoMarkupUtils.MarkupTool.RECTANGLE,
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.RECTANGLE
-                                            activeMarkupWidth = 8f
                                         },
                                         label = { Text("⬜ Box") }
-                                    )
+                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeMarkupTool == PhotoMarkupUtils.MarkupTool.CIRCLE,
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.CIRCLE
-                                            activeMarkupWidth = 8f
                                         },
                                         label = { Text("⭕ Oval") }
+                                     )
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Width: ${activeMarkupWidth.toInt()}px",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.White
+                                )
+                                Slider(
+                                    value = activeMarkupWidth,
+                                    onValueChange = { activeMarkupWidth = it },
+                                    valueRange = 4f..64f,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Box(
+                                    modifier = Modifier.size(24.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size((activeMarkupWidth / 3f).coerceIn(4f, 22f).dp)
+                                            .clip(CircleShape)
+                                            .background(Color(activeMarkupColor))
                                     )
                                 }
                             }
@@ -1032,10 +1059,6 @@ fun CropGridOverlay(
     modifier: Modifier = Modifier,
     onCropChange: (left: Float, top: Float, right: Float, bottom: Float) -> Unit
 ) {
-    val currentLeft by rememberUpdatedState(left)
-    val currentTop by rememberUpdatedState(top)
-    val currentRight by rememberUpdatedState(right)
-    val currentBottom by rememberUpdatedState(bottom)
     val currentOnCropChange by rememberUpdatedState(onCropChange)
 
     var activeHandle by remember { mutableStateOf(CropHandle.NONE) }
@@ -1155,14 +1178,14 @@ fun CropGridOverlay(
     ) {
         val width = size.width
         val height = size.height
-        val curLeftPx = left * width
-        val curTopPx = top * height
-        val curRightPx = (1f - right) * width
-        val curBottomPx = (1f - bottom) * height
+        val curLeftPx = dragLeft * width
+        val curTopPx = dragTop * height
+        val curRightPx = (1f - dragRight) * width
+        val curBottomPx = (1f - dragBottom) * height
         val cropWidth = (curRightPx - curLeftPx).coerceAtLeast(1f)
         val cropHeight = (curBottomPx - curTopPx).coerceAtLeast(1f)
 
-        val dimColor = Color.Black.copy(alpha = 0.55f)
+        val dimColor = Color.Black.copy(alpha = 0.65f)
 
         drawRect(dimColor, topLeft = Offset(0f, 0f), size = Size(width, curTopPx))
         drawRect(dimColor, topLeft = Offset(0f, curBottomPx), size = Size(width, height - curBottomPx))

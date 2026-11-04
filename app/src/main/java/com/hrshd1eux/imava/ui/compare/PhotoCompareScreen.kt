@@ -271,15 +271,32 @@ fun PhotoCompareScreen(
                     color = Color.White.copy(alpha = 0.8f)
                 )
 
-                Button(
-                    onClick = { resetZoom() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White.copy(alpha = 0.2f),
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("1:1 Reset Zoom")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = {
+                            com.hrshd1eux.imava.core.util.DuplicateFinder.ignorePair(context, item1.id, item2.id)
+                            android.widget.Toast.makeText(context, "Pair marked as not duplicates (will be ignored)", android.widget.Toast.LENGTH_SHORT).show()
+                            onBack()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f),
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Not Same ✕")
+                    }
+
+                    Button(
+                        onClick = { resetZoom() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White.copy(alpha = 0.2f),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("1:1 Reset Zoom")
+                    }
                 }
             }
         }

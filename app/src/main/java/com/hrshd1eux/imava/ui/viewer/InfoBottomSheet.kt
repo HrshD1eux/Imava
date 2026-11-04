@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.AlertDialog
@@ -90,7 +92,20 @@ data class ExifDetails(
     val location: String?,
     val hasGps: Boolean,
     val latitude: Double = 0.0,
-    val longitude: Double = 0.0
+    val longitude: Double = 0.0,
+    val altitude: String? = null,
+    val aperture: String? = null,
+    val shutterSpeed: String? = null,
+    val iso: String? = null,
+    val focalLength: String? = null,
+    val flash: String? = null,
+    val whiteBalance: String? = null,
+    val lensModel: String? = null,
+    val software: String? = null,
+    val exposureBias: String? = null,
+    val meteringMode: String? = null,
+    val colorSpace: String? = null,
+    val digitalZoom: String? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -311,6 +326,42 @@ fun InfoBottomSheet(
                     subtitle = info.cameraModel ?: "No EXIF camera info"
                 )
 
+                val shotDetails = listOfNotNull(
+                    info.aperture?.let { "f/$it" },
+                    info.shutterSpeed,
+                    info.focalLength?.let { "${it}mm" },
+                    info.iso?.let { "ISO $it" },
+                    info.exposureBias
+                ).joinToString("  ·  ")
+
+                if (shotDetails.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    InfoRow(
+                        icon = Icons.Default.Tune,
+                        title = "Shot Details",
+                        subtitle = shotDetails
+                    )
+                }
+
+                val extraExif = listOfNotNull(
+                    info.flash,
+                    info.whiteBalance?.let { "WB: $it" },
+                    info.meteringMode?.let { "Metering: $it" },
+                    info.colorSpace,
+                    info.digitalZoom,
+                    info.lensModel?.let { "Lens: $it" },
+                    info.software?.let { "Software: $it" }
+                ).joinToString("  ·  ")
+
+                if (extraExif.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    InfoRow(
+                        icon = Icons.Default.CameraAlt,
+                        title = "Hardware & Processing",
+                        subtitle = extraExif
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // File metadata details
@@ -431,9 +482,9 @@ fun InfoBottomSheet(
                         icon = Icons.Default.LocationOn,
                         title = "Location",
                         subtitle = when {
-                            !displayedPlaceName.isNullOrBlank() && info.hasGps -> "${displayedPlaceName}\nGPS: ${info.location}"
+                            !displayedPlaceName.isNullOrBlank() && info.hasGps -> "${displayedPlaceName}\nGPS: ${info.location}${if (!info.altitude.isNullOrBlank()) "  ·  Alt: ${info.altitude}" else ""}"
                             !displayedPlaceName.isNullOrBlank() -> displayedPlaceName!!
-                            info.hasGps -> "GPS coordinates: ${info.location}"
+                            info.hasGps -> "GPS: ${info.location}${if (!info.altitude.isNullOrBlank()) "  ·  Alt: ${info.altitude}" else ""}"
                             else -> "Location added"
                         }
                     )
@@ -834,7 +885,16 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
 
     if (exif == null) {
         try {
-            context.contentResolver.openInputStream(item.uri)?.use { stream ->
+            val contentUri = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && item.uri.scheme == "content") {
+                try {
+                    android.provider.MediaStore.setRequireOriginal(item.uri)
+                } catch (_: Exception) {
+                    item.uri
+                }
+            } else {
+                item.uri
+            }
+            context.contentResolver.openInputStream(contentUri)?.use { stream ->
                 exif = ExifInterface(stream)
             }
         } catch (_: Exception) {}
@@ -875,6 +935,56 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
         val rawDate = nonNullExif.getAttribute(ExifInterface.TAG_DATETIME) ?: nonNullExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
         val formattedDate = formatDateTaken(rawDate, item.dateTaken)
 
+        val fNumber = nonNullExif.getAttribute(ExifInterface.TAG_F_NUMBER)
+        val expTime = nonNullExif.getAttribute(ExifInterface.TAG_EXPOSURE_TIME)?.toDoubleOrNull()?.let { sec ->
+            if (sec < 1.0 && sec > 0.0) {
+                val denom = Math.round(1.0 / sec)
+                "1/${denom}s"
+            } else {
+                String.format(Locale.getDefault(), "%.1fs", sec)
+            }
+        }
+        val iso = nonNullExif.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY)
+            ?: nonNullExif.getAttribute(ExifInterface.TAG_ISO_SPEED_RATINGS)
+        val focalLen = nonNullExif.getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH, 0.0).let { if (it > 0) String.format(Locale.getDefault(), "%.1f", it) else null }
+        val flashVal = nonNullExif.getAttributeInt(ExifInterface.TAG_FLASH, -1).let {
+            if (it == -1) null else if ((it and 1) != 0) "Flash fired" else "Flash off"
+        }
+        val wbVal = nonNullExif.getAttributeInt(ExifInterface.TAG_WHITE_BALANCE, -1).let {
+            when (it) {
+                ExifInterface.WHITE_BALANCE_AUTO.toInt() -> "Auto"
+                ExifInterface.WHITE_BALANCE_MANUAL.toInt() -> "Manual"
+                else -> null
+            }
+        }
+        val lensModel = nonNullExif.getAttribute(ExifInterface.TAG_LENS_MODEL)
+        val software = nonNullExif.getAttribute(ExifInterface.TAG_SOFTWARE)
+        val altitudeVal = nonNullExif.getAltitude(0.0).let { if (it > 0.0) String.format(Locale.getDefault(), "%.1f m", it) else null }
+        val expBias = nonNullExif.getAttribute(ExifInterface.TAG_EXPOSURE_BIAS_VALUE)?.toDoubleOrNull()?.let {
+            if (it != 0.0) String.format(Locale.getDefault(), "%+.1f EV", it) else null
+        }
+        val meterVal = nonNullExif.getAttributeInt(ExifInterface.TAG_METERING_MODE, -1).let {
+            when (it) {
+                1 -> "Average"
+                2 -> "Center-weighted"
+                3 -> "Spot"
+                4 -> "Multi-spot"
+                5 -> "Pattern/Matrix"
+                6 -> "Partial"
+                else -> null
+            }
+        }
+        val colorSpaceVal = nonNullExif.getAttributeInt(ExifInterface.TAG_COLOR_SPACE, -1).let {
+            when (it) {
+                1 -> "sRGB"
+                65535 -> "Adobe RGB"
+                else -> null
+            }
+        }
+        val digitalZoomVal = nonNullExif.getAttributeDouble(ExifInterface.TAG_DIGITAL_ZOOM_RATIO, 0.0).let {
+            if (it > 1.0) String.format(Locale.getDefault(), "%.1fx Zoom", it) else null
+        }
+
         ExifDetails(
             fileName = fileName,
             filePath = filePath,
@@ -886,7 +996,20 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
             location = if (hasGps && latLong != null) String.format(Locale.getDefault(), "%.4f, %.4f", latLong[0], latLong[1]) else null,
             hasGps = hasGps,
             latitude = if (hasGps && latLong != null) latLong[0] else 0.0,
-            longitude = if (hasGps && latLong != null) latLong[1] else 0.0
+            longitude = if (hasGps && latLong != null) latLong[1] else 0.0,
+            altitude = altitudeVal,
+            aperture = fNumber,
+            shutterSpeed = expTime,
+            iso = iso,
+            focalLength = focalLen,
+            flash = flashVal,
+            whiteBalance = wbVal,
+            lensModel = lensModel,
+            software = software,
+            exposureBias = expBias,
+            meteringMode = meterVal,
+            colorSpace = colorSpaceVal,
+            digitalZoom = digitalZoomVal
         )
     } catch (e: Exception) {
         ExifDetails(

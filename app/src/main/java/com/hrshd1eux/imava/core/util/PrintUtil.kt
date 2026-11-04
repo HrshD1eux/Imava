@@ -5,36 +5,74 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
 import androidx.print.PrintHelper
 import com.hrshd1eux.imava.data.model.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 object PrintUtil {
 
     suspend fun printPhoto(context: Context, item: MediaItem) = withContext(Dispatchers.IO) {
-        val uri = item.uri
-        val bitmap = decodeRotatedBitmap(context, uri) ?: return@withContext
+        val printUri: Uri? = try {
+            if (item.uri.scheme == "content") {
+                item.uri
+            } else if (item.path.isNotBlank()) {
+                val file = File(item.path)
+                if (file.exists()) {
+                    FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.fileprovider",
+                        file
+                    )
+                } else null
+            } else null
+        } catch (_: Exception) {
+            null
+        }
 
         withContext(Dispatchers.Main) {
-            val printHelper = PrintHelper(context).apply {
-                scaleMode = PrintHelper.SCALE_MODE_FIT
-                colorMode = PrintHelper.COLOR_MODE_COLOR
+            try {
+                val printHelper = PrintHelper(context).apply {
+                    scaleMode = PrintHelper.SCALE_MODE_FIT
+                    colorMode = PrintHelper.COLOR_MODE_COLOR
+                }
+                val fileName = item.path.substringAfterLast('/').ifEmpty { "Photo" }
+                val jobName = "Imava_Print_$fileName"
+
+                if (printUri != null) {
+                    printHelper.printBitmap(jobName, printUri)
+                } else {
+                    val bitmap = decodeDownsampledBitmap(context, item.uri)
+                    if (bitmap != null) {
+                        printHelper.printBitmap(jobName, bitmap)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            val fileName = item.path.substringAfterLast('/').ifEmpty { "Photo" }
-            val jobName = "Imava_Print_$fileName"
-            printHelper.printBitmap(jobName, bitmap)
         }
     }
 
-    private fun decodeRotatedBitmap(context: Context, uri: Uri): Bitmap? {
+    private fun decodeDownsampledBitmap(context: Context, uri: Uri): Bitmap? {
         return try {
-            val options = BitmapFactory.Options().apply {
-                inPreferredConfig = Bitmap.Config.ARGB_8888
+            val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream, null, boundsOptions)
+            }
+            val maxDim = maxOf(boundsOptions.outWidth, boundsOptions.outHeight)
+            var sampleSize = 1
+            while (maxDim / sampleSize > 2048) {
+                sampleSize *= 2
+            }
+            val decodeOptions = BitmapFactory.Options().apply {
+                inSampleSize = sampleSize
+                inPreferredConfig = Bitmap.Config.RGB_565
             }
             val rawBitmap = context.contentResolver.openInputStream(uri)?.use { stream ->
-                BitmapFactory.decodeStream(stream, null, options)
+                BitmapFactory.decodeStream(stream, null, decodeOptions)
             } ?: return null
 
             var rotationDegrees = 0

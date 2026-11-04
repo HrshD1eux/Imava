@@ -500,6 +500,10 @@ class MainViewModel @Inject constructor(
         set(value) {
             _currentCategoryName.value = value
             savedStateHandle["current_category_name"] = value
+            if (value == "Trash") {
+                _selectedFilter.value = MediaFilterType.ALL
+                _selectedCustomTag.value = null
+            }
         }
 
     private val _mediaItems = MutableStateFlow<List<MediaItem>>(emptyList())
@@ -1158,7 +1162,23 @@ class MainViewModel @Inject constructor(
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion,
         combine(_selectedFilter, _selectedCustomTag, refreshTrigger) { f, tag, r -> Triple(f, tag, r) }
     ) { (bucketId, category), (mode, order), excluded, _, (filter, customTag, _) ->
-        val itemsFlow: Flow<PagingData<MediaItem>> = if (!customTag.isNullOrBlank()) {
+        val itemsFlow: Flow<PagingData<MediaItem>> = if (category == "Trash") {
+            trashed.map { list ->
+                if (com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(application)) {
+                    PagingData.empty()
+                } else {
+                    val sorted = list.sortedWith(
+                        compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenByDescending { it.id }
+                    )
+                    PagingData.from(sorted)
+                }
+            }
+        } else if (category == "Hidden Vault") {
+            hidden.map { list ->
+                val sorted = if (order == SortOrder.OLDEST_FIRST) list.sortedBy { it.dateTaken } else list.sortedByDescending { it.dateTaken }
+                PagingData.from(sorted)
+            }
+        } else if (!customTag.isNullOrBlank()) {
             visibleMediaItems.map { allItems ->
                 val tagFiltered = allItems.filter { item ->
                     val matchesBucket = if (bucketId != null) item.bucketId == bucketId else true
@@ -1183,22 +1203,6 @@ class MainViewModel @Inject constructor(
                     else list.filter { it.bucketId == bucketId }
                 } else list.filter { !excluded.contains(it.bucketId.toString()) && !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName) }
                 val sorted = if (order == SortOrder.OLDEST_FIRST) filtered.sortedBy { it.dateTaken } else filtered.sortedByDescending { it.dateTaken }
-                PagingData.from(sorted)
-            }
-            "Trash" -> trashed.map { list ->
-                if (com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(application)) {
-                    PagingData.empty()
-                } else {
-                    val sorted = if (order == SortOrder.OLDEST_FIRST) {
-                        list.sortedWith(compareBy<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenBy { it.id })
-                    } else {
-                        list.sortedWith(compareByDescending<MediaItem> { if (it.trashTime > 0L) it.trashTime else it.dateTaken }.thenByDescending { it.id })
-                    }
-                    PagingData.from(sorted)
-                }
-            }
-            "Hidden Vault" -> hidden.map { list ->
-                val sorted = if (order == SortOrder.OLDEST_FIRST) list.sortedBy { it.dateTaken } else list.sortedByDescending { it.dateTaken }
                 PagingData.from(sorted)
             }
             "Videos" -> Pager(
@@ -1333,6 +1337,8 @@ class MainViewModel @Inject constructor(
 
     var pendingRenameItem: MediaItem? = null
     var pendingRenameName: String? = null
+    var pendingRotateItem: MediaItem? = null
+    var pendingRotateClockwise: Boolean = true
 
     fun renameMedia(context: Context, item: MediaItem, newName: String) {
         viewModelScope.launch {
@@ -1404,12 +1410,18 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val success = repository.updateMediaDateTaken(context, item, newDateMs)
             if (success) {
-                val currentActive = activeMediaItem
-                if (currentActive?.id == item.id) {
-                    activeMediaItem = when (currentActive) {
-                        is MediaItem.Photo -> currentActive.copy(dateTaken = newDateMs)
-                        is MediaItem.Video -> currentActive.copy(dateTaken = newDateMs)
-                    }
+                val updatedItem = when (item) {
+                    is MediaItem.Photo -> item.copy(dateTaken = newDateMs)
+                    is MediaItem.Video -> item.copy(dateTaken = newDateMs)
+                }
+                val currentList = _mediaItems.value.map { if (it.id == item.id) updatedItem else it }
+                _mediaItems.value = if (sortOrder == SortOrder.OLDEST_FIRST) {
+                    currentList.sortedBy { it.dateTaken }
+                } else {
+                    currentList.sortedByDescending { it.dateTaken }
+                }
+                if (activeMediaItem?.id == item.id) {
+                    activeMediaItem = updatedItem
                 }
                 refreshAll()
             }
@@ -1530,7 +1542,7 @@ class MainViewModel @Inject constructor(
 
                 if (deleteMedia) {
                     if (itemsInAlbum.isNotEmpty()) {
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                             pendingBatchActionItems = itemsInAlbum
                             val validUris = itemsInAlbum.mapNotNull { it.uri.takeIf { u -> u.scheme == android.content.ContentResolver.SCHEME_CONTENT } }
                             if (validUris.isNotEmpty()) {
@@ -1616,13 +1628,7 @@ class MainViewModel @Inject constructor(
     ) {
         if (itemIds.isEmpty()) return
         viewModelScope.launch {
-            val items = visibleMediaItems.value.filter { itemIds.contains(it.id) }
-            items.forEach { item ->
-                val currentTags = item.tags.toMutableSet()
-                currentTags.addAll(tagsToAdd)
-                currentTags.removeAll(tagsToRemove)
-                repository.updateMediaTags(item.id, currentTags.toList().sorted())
-            }
+            repository.bulkUpdateMediaTags(itemIds, tagsToAdd, tagsToRemove)
             selectionState.clear()
             refreshAll()
         }
@@ -1645,7 +1651,8 @@ class MainViewModel @Inject constructor(
     ) {
         if (renames.isEmpty()) return
         viewModelScope.launch {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            val hasAllFilesAccess = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && android.os.Environment.isExternalStorageManager()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !hasAllFilesAccess) {
                 val activity = context.findActivity()
                 if (activity != null) {
                     try {
@@ -1718,7 +1725,7 @@ class MainViewModel @Inject constructor(
 
                 val activity = context.findActivity()
                 if (activity != null) {
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                         try {
                             val uris = moveResult.failedDeleteItems.map { it.uri }
                             val pendingIntent = android.provider.MediaStore.createDeleteRequest(
@@ -1895,7 +1902,7 @@ class MainViewModel @Inject constructor(
             } catch (e: Exception) {
                 val recoverable = e as? android.app.RecoverableSecurityException
                     ?: e.cause as? android.app.RecoverableSecurityException
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
@@ -1957,8 +1964,9 @@ class MainViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
+                val hasAllFilesAccess = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && android.os.Environment.isExternalStorageManager()
                 val isDirectDiskFile = item.uri.scheme != android.content.ContentResolver.SCHEME_CONTENT || item.id <= 0
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !isDirectDiskFile) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !isDirectDiskFile && !hasAllFilesAccess) {
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
@@ -1995,10 +2003,14 @@ class MainViewModel @Inject constructor(
                     }
                     try {
                         context.contentResolver.delete(item.uri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         val mediaUri = getMediaProviderUri(item)
                         context.contentResolver.delete(mediaUri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
@@ -2082,7 +2094,7 @@ class MainViewModel @Inject constructor(
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
                     } catch (_: Exception) {}
                 }
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                     pendingBatchActionItems = trashedItems
                     val pendingIntent = android.provider.MediaStore.createDeleteRequest(
                         context.contentResolver,
@@ -2128,6 +2140,27 @@ class MainViewModel @Inject constructor(
             context,
             if (stripMetadata) com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL else com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA
         )
+    }
+
+    fun shareAlbum(context: Context, bucketId: Long, bucketName: String? = null) {
+        viewModelScope.launch {
+            val albumMedia = repository.loadMediaPaged(
+                limit = 2000,
+                offset = 0,
+                bucketId = bucketId,
+                sortOrder = SortOrder.NEWEST_FIRST
+            )
+            if (albumMedia.isEmpty()) {
+                val label = if (!bucketName.isNullOrBlank()) "in '$bucketName'" else "in this album"
+                safeToast(context, "No photos to share $label")
+                return@launch
+            }
+            SharingUtils.shareMedia(
+                context = context,
+                items = albumMedia,
+                privacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL
+            )
+        }
     }
 
     fun hideSelectedMedia(context: Context) {
@@ -2183,8 +2216,9 @@ class MainViewModel @Inject constructor(
         try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
         viewModelScope.launch {
             try {
+                val hasAllFilesAccess = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && android.os.Environment.isExternalStorageManager()
                 val isDirectDiskFile = item.uri.scheme != android.content.ContentResolver.SCHEME_CONTENT || item.id <= 0
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !isDirectDiskFile) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !isDirectDiskFile && !hasAllFilesAccess) {
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
@@ -2329,7 +2363,7 @@ class MainViewModel @Inject constructor(
             }
 
             try {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingBatchActionItems = validItems
@@ -2369,10 +2403,14 @@ class MainViewModel @Inject constructor(
                     }
                     try {
                         context.contentResolver.delete(item.uri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         val mediaUri = getMediaProviderUri(item)
                         context.contentResolver.delete(mediaUri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
@@ -2434,7 +2472,7 @@ class MainViewModel @Inject constructor(
                     return@launch
                 }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingBatchActionItems = validItems
@@ -2471,10 +2509,14 @@ class MainViewModel @Inject constructor(
                     }
                     try {
                         context.contentResolver.delete(item.uri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         val mediaUri = getMediaProviderUri(item)
                         context.contentResolver.delete(mediaUri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
@@ -2495,7 +2537,7 @@ class MainViewModel @Inject constructor(
         if (trashedItems.isEmpty()) return
         viewModelScope.launch {
             try {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingBatchActionItems = trashedItems
@@ -2586,7 +2628,7 @@ class MainViewModel @Inject constructor(
                     selectionState.deselectAll(orphanIds)
                 }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
                     val activity = context.findActivity()
                     val mediaStoreItems = selectedItems.filter { it.id > 0 }
                     if (activity != null && mediaStoreItems.isNotEmpty()) {
@@ -2644,10 +2686,14 @@ class MainViewModel @Inject constructor(
                     }
                     try {
                         context.contentResolver.delete(item.uri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         val mediaUri = getMediaProviderUri(item)
                         context.contentResolver.delete(mediaUri, null, null)
+                    } catch (r: android.app.RecoverableSecurityException) {
+                        throw r
                     } catch (_: Exception) {}
                     try {
                         android.media.MediaScannerConnection.scanFile(context, arrayOf(item.path), null, null)
@@ -2856,6 +2902,14 @@ class MainViewModel @Inject constructor(
                         refreshAll()
                     }
                 }
+                1009 -> {
+                    val rotateTarget = pendingRotateItem
+                    val clockwise = pendingRotateClockwise
+                    if (rotateTarget != null && context != null) {
+                        rotateMediaLosslessly(context, rotateTarget, clockwise)
+                    }
+                    pendingRotateItem = null
+                }
             }
         } else {
             // Cancelled flow
@@ -2913,17 +2967,59 @@ class MainViewModel @Inject constructor(
 
     fun rotateMediaLosslessly(context: Context, item: MediaItem, clockwise: Boolean = true) {
         viewModelScope.launch {
-            val success = com.hrshd1eux.imava.core.util.LosslessRotationUtil.rotateLosslessly(context, item, clockwise)
-            if (success) {
-                com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                refreshAll()
-                // Update activeMediaItem if it matches
-                if (activeMediaItem?.id == item.id) {
-                    activeMediaItem = repository.getMediaByIds(setOf(item.id)).firstOrNull() ?: item
+            try {
+                val success = com.hrshd1eux.imava.core.util.LosslessRotationUtil.rotateLosslessly(context, item, clockwise)
+                if (success) {
+                    com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+                    refreshAll()
+                    // Update activeMediaItem if it matches
+                    if (activeMediaItem?.id == item.id) {
+                        activeMediaItem = repository.getMediaByIds(setOf(item.id)).firstOrNull() ?: item
+                    }
+                } else {
+                    try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
+                    safeToast(context, "Could not rotate photo")
                 }
-            } else {
-                try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
-                safeToast(context, "Could not rotate losslessly")
+            } catch (e: Exception) {
+                val recoverable = e as? android.app.RecoverableSecurityException
+                    ?: e.cause as? android.app.RecoverableSecurityException
+                val isSec = e is SecurityException || e.cause is SecurityException
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && (isSec || recoverable != null)) {
+                    val activity = context.findActivity()
+                    if (activity != null) {
+                        pendingRotateItem = item
+                        pendingRotateClockwise = clockwise
+                        val pendingIntent = android.provider.MediaStore.createWriteRequest(
+                            context.contentResolver,
+                            listOf(item.uri)
+                        )
+                        activity.startIntentSenderForResult(
+                            pendingIntent.intentSender,
+                            1009,
+                            null,
+                            0,
+                            0,
+                            0
+                        )
+                    }
+                } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && recoverable != null) {
+                    val activity = context.findActivity()
+                    if (activity != null) {
+                        pendingRotateItem = item
+                        pendingRotateClockwise = clockwise
+                        activity.startIntentSenderForResult(
+                            recoverable.userAction.actionIntent.intentSender,
+                            1009,
+                            null,
+                            0,
+                            0,
+                            0
+                        )
+                    }
+                } else {
+                    try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
+                    safeToast(context, "Could not rotate: ${e.localizedMessage}")
+                }
             }
         }
     }

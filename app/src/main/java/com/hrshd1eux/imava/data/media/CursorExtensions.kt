@@ -15,6 +15,7 @@ class MediaCursorIndices(cursor: Cursor) {
     val sizeCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE)
     val widthCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.WIDTH)
     val heightCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT)
+    val orientCol = cursor.getColumnIndex("orientation")
     val durCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DURATION)
     val bucketIdCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_ID)
     val bucketNameCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME)
@@ -62,8 +63,14 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
     }
 
     val size = if (indices.sizeCol != -1) getLong(indices.sizeCol) else 0L
-    val width = if (indices.widthCol != -1) getInt(indices.widthCol) else 0
-    val height = if (indices.heightCol != -1) getInt(indices.heightCol) else 0
+    val rawWidth = if (indices.widthCol != -1) getInt(indices.widthCol) else 0
+    val rawHeight = if (indices.heightCol != -1) getInt(indices.heightCol) else 0
+    val orientation = if (indices.orientCol != -1) getInt(indices.orientCol) else 0
+    val (width, height) = if (orientation == 90 || orientation == 270) {
+        rawHeight to rawWidth
+    } else {
+        rawWidth to rawHeight
+    }
 
     val parentPath = if (path.isNotBlank()) path.substringBeforeLast('/', "") else ""
     val bucketIdVal = if (indices.bucketIdCol != -1 && getLong(indices.bucketIdCol) != 0L) {
@@ -84,7 +91,13 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
 
     val mediaType = if (indices.mediaTypeCol != -1) getInt(indices.mediaTypeCol) else MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
 
-    val isTrashedSystem = if (indices.trashedCol != -1) getInt(indices.trashedCol) == 1 else false
+    val isTrashedPath = path.contains("/imava_trash/") ||
+        path.contains("/.trashed") ||
+        path.contains("/.trash") ||
+        path.contains("/.recycle") ||
+        path.substringAfterLast('/').startsWith(".trashed", ignoreCase = true) ||
+        path.substringAfterLast('/').startsWith(".trash", ignoreCase = true)
+    val isTrashedSystem = (if (indices.trashedCol != -1) getInt(indices.trashedCol) == 1 else false) || isTrashedPath
     val expiresSec = if (indices.expiresCol != -1) getLong(indices.expiresCol) else 0L
     val expiresMs = expiresSec * 1000L
     val computedTrashTime = if (expiresMs > 0L) {

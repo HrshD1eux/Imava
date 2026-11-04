@@ -745,7 +745,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     }
                 },
                 actions = {
-                    if (currentScreen == Screen.Photos) {
+                    if (currentScreen == Screen.Photos && viewModel.currentCategoryName != "Trash") {
                         DescriptiveIconButton(
                             onClick = { viewModel.toggleGridStyle() },
                             title = "Grid Layout",
@@ -1949,6 +1949,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             }
         )
     }
+
 
     if (showSelectionDeleteConfirmDialog) {
         val count = selectionState.selectedIds.size
