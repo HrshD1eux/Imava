@@ -177,6 +177,12 @@ class MainActivity : FragmentActivity() {
             Manifest.permission.ACCESS_MEDIA_LOCATION,
             Manifest.permission.POST_NOTIFICATIONS
         )
+    } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+        arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_MEDIA_LOCATION
+        )
     } else {
         arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -362,6 +368,14 @@ class MainActivity : FragmentActivity() {
         hasPermissionsState.value = isGranted
         if (isGranted) {
             viewModel.refreshAll()
+
+            // Request WRITE_EXTERNAL_STORAGE on Android 10 and lower if not yet granted
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                val hasWrite = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                if (!hasWrite) {
+                    requestPermissionLauncher.launch(requiredPermissions)
+                }
+            }
 
             // Request POST_NOTIFICATIONS on Android 13+ (API 33+) once if not yet granted
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

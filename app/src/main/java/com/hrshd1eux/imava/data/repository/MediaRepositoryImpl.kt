@@ -551,6 +551,7 @@ class MediaRepositoryImpl @Inject constructor(
     override fun getTrashedMediaFlow(): Flow<List<MediaItem>> {
         return metadataDao.getTrashedIdsFlow()
             .combine(mediaStoreDataSource.observeMediaStore()) { trashedIds, _ -> trashedIds }
+            .onStart { syncTrashMetadata() }
             .map { trashedIds ->
                 val storeTrashed = mediaStoreDataSource.fetchTrashedMedia()
                 val dbItems = if (trashedIds.isNotEmpty()) {
@@ -672,6 +673,40 @@ class MediaRepositoryImpl @Inject constructor(
                 )
             }
             .flowOn(Dispatchers.IO)
+    }
+
+    private suspend fun syncTrashMetadata() = withContext(Dispatchers.IO) {
+        val trashDir = java.io.File(context.filesDir, "imava_trash")
+        if (!trashDir.exists()) return@withContext
+        val files = trashDir.listFiles() ?: return@withContext
+        if (files.isEmpty()) return@withContext
+        files.forEach { file ->
+            val idPrefix = file.name.substringBefore("_").toLongOrNull()
+            if (idPrefix != null) {
+                val existing = metadataDao.getMetadataForMedia(idPrefix)
+                if (existing == null) {
+                    val isVideo = file.name.endsWith(".mp4", ignoreCase = true) ||
+                            file.name.endsWith(".mkv", ignoreCase = true) ||
+                            file.name.endsWith(".mov", ignoreCase = true)
+                    val entity = MediaMetadataEntity(
+                        mediaId = idPrefix,
+                        isTrashed = true,
+                        trashTime = file.lastModified(),
+                        originalPath = "",
+                        mimeType = if (isVideo) "video/mp4" else "image/jpeg",
+                        bucketName = "Trash"
+                    )
+                    metadataDao.insertOrUpdate(entity)
+                } else if (!existing.isTrashed) {
+                    metadataDao.insertOrUpdate(
+                        existing.copy(
+                            isTrashed = true,
+                            trashTime = if (existing.trashTime > 0) existing.trashTime else file.lastModified()
+                        )
+                    )
+                }
+            }
+        }
     }
 
     private suspend fun syncVaultMetadata() = withContext(Dispatchers.IO) {
@@ -818,6 +853,12 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteMetadataPermanently(mediaId: Long) {
+        val trashDir = java.io.File(context.filesDir, "imava_trash")
+        if (trashDir.exists()) {
+            trashDir.listFiles { _, name -> name.startsWith("${mediaId}_") }?.forEach { tf ->
+                try { tf.delete() } catch (_: Exception) {}
+            }
+        }
         val meta = metadataDao.getMetadataForMedia(mediaId)
         if (meta != null) {
             if (meta.vaultPath.isNotEmpty()) {
