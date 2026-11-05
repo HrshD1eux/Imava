@@ -22,6 +22,7 @@ class MediaCursorIndices(cursor: Cursor) {
     val mediaTypeCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE)
     val trashedCol = cursor.getColumnIndex("is_trashed")
     val expiresCol = cursor.getColumnIndex("date_expires")
+    val pendingCol = cursor.getColumnIndex("is_pending")
 }
 
 fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {

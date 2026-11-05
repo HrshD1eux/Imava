@@ -368,11 +368,12 @@ class MainViewModel @Inject constructor(
 
     var isExternalViewIntent by mutableStateOf(false)
 
+    @OptIn(coil.annotation.ExperimentalCoilApi::class)
     fun openExternalMedia(context: Context, uri: Uri, mimeType: String?) {
         isExternalViewIntent = true
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // 1. Try resolving via ContentUris if it's a MediaStore URI
+                // 1. Try resolving via ContentUris if it's an existing finalized MediaStore item
                 val parsedId = try {
                     android.content.ContentUris.parseId(uri)
                 } catch (_: Exception) {
@@ -380,7 +381,10 @@ class MainViewModel @Inject constructor(
                 }
                 if (parsedId != null) {
                     val matching = repository.getMediaByIds(setOf(parsedId)).firstOrNull()
-                    if (matching != null) {
+                    if (matching != null &&
+                        !matching.path.contains("/.pending-") &&
+                        !matching.path.substringAfterLast('/').startsWith(".pending", ignoreCase = true)
+                    ) {
                         withContext(Dispatchers.Main) {
                             activeMediaItem = matching
                         }
@@ -392,15 +396,17 @@ class MainViewModel @Inject constructor(
                 var resolvedName = uri.lastPathSegment ?: "Media_${System.currentTimeMillis()}"
                 var resolvedSize = 0L
                 var resolvedPath = ""
-                val resolvedMime = mimeType
-                    ?: context.contentResolver.getType(uri)
-                    ?: if (resolvedName.endsWith(".mp4", ignoreCase = true) || resolvedName.endsWith(".mkv", ignoreCase = true) || resolvedName.endsWith(".mov", ignoreCase = true)) "video/mp4" else "image/jpeg"
+                var isPendingItem = false
 
                 try {
                     context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
                         val nameCol = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
                         val sizeCol = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
                         val dataCol = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DATA)
+                        val pendingCol = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                            cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.IS_PENDING)
+                        } else -1
+
                         if (cursor.moveToFirst()) {
                             if (nameCol != -1) {
                                 resolvedName = cursor.getString(nameCol) ?: resolvedName
@@ -411,6 +417,9 @@ class MainViewModel @Inject constructor(
                             if (dataCol != -1) {
                                 resolvedPath = cursor.getString(dataCol) ?: ""
                             }
+                            if (pendingCol != -1) {
+                                isPendingItem = (cursor.getInt(pendingCol) == 1)
+                            }
                         }
                     }
                 } catch (_: Exception) {}
@@ -419,15 +428,23 @@ class MainViewModel @Inject constructor(
                     resolvedPath = uri.path ?: ""
                 }
 
+                if (resolvedName.startsWith(".pending", ignoreCase = true) || resolvedPath.contains("/.pending-")) {
+                    isPendingItem = true
+                }
+
+                val resolvedMime = mimeType
+                    ?: context.contentResolver.getType(uri)
+                    ?: if (resolvedName.endsWith(".mp4", ignoreCase = true) || resolvedName.endsWith(".mkv", ignoreCase = true) || resolvedName.endsWith(".mov", ignoreCase = true)) "video/mp4" else "image/jpeg"
+
                 val isVideo = resolvedMime.startsWith("video/", ignoreCase = true)
-                val id = kotlin.math.abs(uri.toString().hashCode().toLong()).coerceAtLeast(1L)
+                val id = parsedId ?: kotlin.math.abs(uri.toString().hashCode().toLong()).coerceAtLeast(1L)
                 val file = if (resolvedPath.isNotBlank()) java.io.File(resolvedPath) else null
                 val dateTaken = if (file != null && file.exists()) file.lastModified() else System.currentTimeMillis()
                 if (resolvedSize == 0L && file != null && file.exists()) {
                     resolvedSize = file.length()
                 }
 
-                val item = if (isVideo) {
+                val initialItem = if (isVideo) {
                     MediaItem.Video(
                         id = id,
                         uri = uri,
@@ -457,13 +474,116 @@ class MainViewModel @Inject constructor(
                 }
 
                 withContext(Dispatchers.Main) {
-                    activeMediaItem = item
+                    activeMediaItem = initialItem
+                }
+
+                // 3. If item is pending or 0 bytes (freshly captured photo from Camera app),
+                // actively poll until the camera app finishes writing, then finalize and reload Coil cache!
+                if (isPendingItem || resolvedSize == 0L) {
+                    var pollAttempts = 0
+                    while (pollAttempts < 35) { // Poll up to ~5.2 seconds
+                        kotlinx.coroutines.delay(150)
+                        pollAttempts++
+
+                        var stillPending = false
+                        var freshName = resolvedName
+                        var freshPath = resolvedPath
+                        var freshSize = 0L
+                        var freshWidth = 0
+                        var freshHeight = 0
+
+                        try {
+                            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                                if (cursor.moveToFirst()) {
+                                    val pCol = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                                        cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.IS_PENDING)
+                                    } else -1
+                                    if (pCol != -1) {
+                                        stillPending = (cursor.getInt(pCol) == 1)
+                                    }
+                                    val nCol = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                                    if (nCol != -1) freshName = cursor.getString(nCol) ?: freshName
+                                    val dCol = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DATA)
+                                    if (dCol != -1) freshPath = cursor.getString(dCol) ?: freshPath
+                                    val sCol = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                                    if (sCol != -1) freshSize = cursor.getLong(sCol)
+                                    val wCol = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.WIDTH)
+                                    if (wCol != -1) freshWidth = cursor.getInt(wCol)
+                                    val hCol = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.HEIGHT)
+                                    if (hCol != -1) freshHeight = cursor.getInt(hCol)
+                                }
+                            }
+                        } catch (_: Exception) {}
+
+                        val checkFile = if (freshPath.isNotBlank()) java.io.File(freshPath) else null
+                        if (freshSize == 0L && checkFile != null && checkFile.exists()) {
+                            freshSize = checkFile.length()
+                        }
+
+                        val isReadable = try {
+                            context.contentResolver.openInputStream(uri)?.use { stream ->
+                                stream.available() > 0 || freshSize > 0L
+                            } ?: false
+                        } catch (_: Exception) { false }
+
+                        if (!stillPending &&
+                            !freshName.startsWith(".pending", ignoreCase = true) &&
+                            !freshPath.contains("/.pending-") &&
+                            (freshSize > 0L || isReadable)
+                        ) {
+                            // Camera finalized writing! Evict Coil memory and disk caches so real photo renders
+                            try {
+                                val imageLoader = coil.Coil.imageLoader(context)
+                                imageLoader.memoryCache?.remove(coil.memory.MemoryCache.Key(uri.toString()))
+                                imageLoader.diskCache?.remove(uri.toString())
+                            } catch (_: Exception) {}
+
+                            if (freshPath.isNotBlank()) {
+                                android.media.MediaScannerConnection.scanFile(context, arrayOf(freshPath), null, null)
+                            }
+
+                            val finalizedItem = if (isVideo) {
+                                MediaItem.Video(
+                                    id = id,
+                                    uri = uri,
+                                    path = freshPath.ifBlank { uri.toString() },
+                                    mimeType = resolvedMime,
+                                    dateTaken = if (checkFile != null && checkFile.exists()) checkFile.lastModified() else System.currentTimeMillis(),
+                                    size = freshSize,
+                                    width = freshWidth,
+                                    height = freshHeight,
+                                    durationMs = 0L,
+                                    bucketId = checkFile?.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L,
+                                    bucketName = checkFile?.parentFile?.name ?: ""
+                                )
+                            } else {
+                                MediaItem.Photo(
+                                    id = id,
+                                    uri = uri,
+                                    path = freshPath.ifBlank { uri.toString() },
+                                    mimeType = resolvedMime,
+                                    dateTaken = if (checkFile != null && checkFile.exists()) checkFile.lastModified() else System.currentTimeMillis(),
+                                    size = freshSize,
+                                    width = freshWidth,
+                                    height = freshHeight,
+                                    bucketId = checkFile?.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L,
+                                    bucketName = checkFile?.parentFile?.name ?: ""
+                                )
+                            }
+
+                            withContext(Dispatchers.Main) {
+                                activeMediaItem = finalizedItem
+                            }
+                            refreshAll()
+                            break
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        }
+    }
     
     private var _currentBucketIdState = mutableStateOf(savedStateHandle.get<Long>("current_bucket_id"))
     var currentBucketId: Long?

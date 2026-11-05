@@ -183,7 +183,9 @@ class MediaStoreDataSource @Inject constructor(
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
         val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
-        val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql"
+        val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
+        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
+        val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
 
         val effectiveBucketIds = if (!bucketIds.isNullOrEmpty()) bucketIds else if (bucketId != null) listOf(bucketId) else null
         val selection = if (!effectiveBucketIds.isNullOrEmpty()) {
@@ -200,6 +202,7 @@ class MediaStoreDataSource @Inject constructor(
                     putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
                     putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, selectionArgs)
                     putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_EXCLUDE)
+                    putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_EXCLUDE)
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
                 }
                 contentResolver.query(collection, projection, queryArgs, null)
@@ -248,7 +251,9 @@ class MediaStoreDataSource @Inject constructor(
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
         val notTrashedSql = if (!includeTrashed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = if (!includeTrashed) " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')" else ""
-        val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql"
+        val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
+        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
+        val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
 
         val effectiveBucketIds = if (!bucketIds.isNullOrEmpty()) bucketIds else if (bucketId != null) listOf(bucketId) else null
         val selection = if (!effectiveBucketIds.isNullOrEmpty()) {
@@ -281,6 +286,7 @@ class MediaStoreDataSource @Inject constructor(
                         MediaStore.QUERY_ARG_MATCH_TRASHED,
                         if (includeTrashed) MediaStore.MATCH_INCLUDE else MediaStore.MATCH_EXCLUDE
                     )
+                    putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_EXCLUDE)
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
                 }
                 contentResolver.query(collection, projection, queryArgs, null)
@@ -298,6 +304,47 @@ class MediaStoreDataSource @Inject constructor(
             while (it.moveToNext()) {
                 mediaList.add(it.extractMediaItem(indices))
             }
+        }
+
+        // Check for any freshly captured camera media whose DATE_TAKEN is not yet populated
+        if (offset == 0 && !isAscending) {
+            try {
+                val recentCutoffSecs = (System.currentTimeMillis() / 1000L) - 86400L // last 24 hours
+                val recentUnindexedCondition = "$selection AND (${MediaStore.Files.FileColumns.DATE_TAKEN} IS NULL OR ${MediaStore.Files.FileColumns.DATE_TAKEN} <= 0) AND ${MediaStore.Files.FileColumns.DATE_ADDED} >= $recentCutoffSecs"
+                val recentCursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val qArgs = Bundle().apply {
+                        putString(ContentResolver.QUERY_ARG_SQL_SELECTION, recentUnindexedCondition)
+                        putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, selectionArgs)
+                        putStringArray(ContentResolver.QUERY_ARG_SORT_COLUMNS, arrayOf(MediaStore.Files.FileColumns.DATE_ADDED))
+                        putInt(ContentResolver.QUERY_ARG_SORT_DIRECTION, ContentResolver.QUERY_SORT_DIRECTION_DESCENDING)
+                        putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_EXCLUDE)
+                        putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_EXCLUDE)
+                        putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
+                        putInt(ContentResolver.QUERY_ARG_LIMIT, 50)
+                    }
+                    contentResolver.query(collection, projection, qArgs, null)
+                } else {
+                    val sOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC LIMIT 50"
+                    contentResolver.query(collection, projection, recentUnindexedCondition, selectionArgs, sOrder)
+                }
+                recentCursor?.use { rCur ->
+                    val rIndices = MediaCursorIndices(rCur)
+                    val existingIds = mediaList.mapTo(HashSet()) { it.id }
+                    val pathsToScan = mutableListOf<String>()
+                    while (rCur.moveToNext()) {
+                        val item = rCur.extractMediaItem(rIndices)
+                        if (item.id !in existingIds) {
+                            mediaList.add(0, item)
+                            if (item.path.isNotBlank() && File(item.path).exists()) {
+                                pathsToScan.add(item.path)
+                            }
+                        }
+                    }
+                    if (pathsToScan.isNotEmpty()) {
+                        MediaScannerConnection.scanFile(context, pathsToScan.toTypedArray(), null, null)
+                    }
+                }
+            } catch (_: Exception) {}
         }
         mediaList
     }
@@ -368,7 +415,9 @@ class MediaStoreDataSource @Inject constructor(
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
         val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
-        val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notTrashPathSql"
+        val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
+        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
+        val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
 
         val cursor = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -383,6 +432,7 @@ class MediaStoreDataSource @Inject constructor(
                         ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
                     )
                     putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_EXCLUDE)
+                    putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_EXCLUDE)
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
                 }
                 contentResolver.query(collection, projection, queryArgs, null)
@@ -432,9 +482,11 @@ class MediaStoreDataSource @Inject constructor(
         val projection = projectionList.toTypedArray()
 
         // Chunk IDs to stay well within SQLite variable limits
+        val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
+        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
         ids.chunked(500).forEach { chunk ->
             val placeholders = chunk.joinToString(",") { "?" }
-            val selection = "${MediaStore.Files.FileColumns._ID} IN ($placeholders) AND ${getMediaTypeCondition(MediaTypeFilter.ALL)}"
+            val selection = "${MediaStore.Files.FileColumns._ID} IN ($placeholders) AND ${getMediaTypeCondition(MediaTypeFilter.ALL)}$notPendingSql$notPendingPathSql"
             val selectionArgs = chunk.map { it.toString() }.toTypedArray()
 
             val cursor = try {
@@ -451,6 +503,7 @@ class MediaStoreDataSource @Inject constructor(
                             ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
                         )
                         putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_INCLUDE)
+                        putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_EXCLUDE)
                         putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
                     }
                     contentResolver.query(collection, projection, queryArgs, null)
@@ -620,7 +673,9 @@ class MediaStoreDataSource @Inject constructor(
 
         val cleanQuery = "%${query.trim()}%"
         val mediaTypeCondition = getMediaTypeCondition(MediaTypeFilter.ALL)
-        val selection = "$mediaTypeCondition AND (${MediaStore.Files.FileColumns.DATA} LIKE ? OR ${MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME} LIKE ? OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?)"
+        val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
+        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
+        val selection = "$mediaTypeCondition$notPendingSql$notPendingPathSql AND (${MediaStore.Files.FileColumns.DATA} LIKE ? OR ${MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME} LIKE ? OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?)"
         val selectionArgs = arrayOf(cleanQuery, cleanQuery, cleanQuery)
 
         val cursor = try {
@@ -637,6 +692,7 @@ class MediaStoreDataSource @Inject constructor(
                         ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
                     )
                     putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_DEFAULT)
+                    putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_EXCLUDE)
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
                 }
                 contentResolver.query(collection, projection, queryArgs, null)

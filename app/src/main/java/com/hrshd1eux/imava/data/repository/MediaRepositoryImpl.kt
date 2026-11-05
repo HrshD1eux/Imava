@@ -127,7 +127,9 @@ class MediaRepositoryImpl @Inject constructor(
             !item.path.contains("/.trashed") &&
             !item.path.contains("/.Trash") &&
             !item.path.substringAfterLast('/').startsWith(".trashed", ignoreCase = true) &&
-            !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true)
+            !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true) &&
+            !item.path.contains("/.pending-") &&
+            !item.path.substringAfterLast('/').startsWith(".pending", ignoreCase = true)
         }
     }
 
@@ -190,7 +192,9 @@ class MediaRepositoryImpl @Inject constructor(
                 !item.path.contains("/.trash") &&
                 !item.path.contains("/.recycle") &&
                 !item.path.substringAfterLast('/').startsWith(".trashed", ignoreCase = true) &&
-                !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true)
+                !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true) &&
+                !item.path.contains("/.pending-") &&
+                !item.path.substringAfterLast('/').startsWith(".pending", ignoreCase = true)
             }
             resultList.addAll(filtered)
         } else {
@@ -219,7 +223,9 @@ class MediaRepositoryImpl @Inject constructor(
                     !item.path.contains("/.trash") &&
                     !item.path.contains("/.recycle") &&
                     !item.path.substringAfterLast('/').startsWith(".trashed", ignoreCase = true) &&
-                    !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true)
+                    !item.path.substringAfterLast('/').startsWith(".trash", ignoreCase = true) &&
+                    !item.path.contains("/.pending-") &&
+                    !item.path.substringAfterLast('/').startsWith(".pending", ignoreCase = true)
                 }
                 resultList.addAll(filtered)
                 currentOffset += rawMedia.size
@@ -230,7 +236,11 @@ class MediaRepositoryImpl @Inject constructor(
         }
 
         if (thirdPartyMedia.isEmpty()) {
-            return@withContext resultList
+            return@withContext if (isAscending) {
+                resultList.sortedBy { it.dateTaken }
+            } else {
+                resultList.sortedByDescending { it.dateTaken }
+            }
         }
 
         if (limit == Int.MAX_VALUE) {

@@ -478,32 +478,55 @@ fun PhotoViewerScreen(
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
+                        val isPendingCapture = item.path.contains("/.pending-") ||
+                            item.path.substringAfterLast('/').startsWith(".pending", ignoreCase = true) ||
+                            (item.size == 0L && item.uri.scheme == "content" && !item.isVideo)
 
-                        val pageZoomState = rememberZoomState()
-
-                        LaunchedEffect(pagerState.settledPage) {
-                            if (page != pagerState.settledPage) {
-                                pageZoomState.reset()
-                            }
-                        }
-
-                        LaunchedEffect(pageZoomState.scale) {
-                            if (page == pagerState.currentPage) {
-                                isCurrentPageZoomed = pageZoomState.scale > 1.05f
-                            }
-                        }
-
-                        AsyncImage(
-                            model = imageRequest,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .zoomable(
-                                    state = pageZoomState,
-                                    onTap = toggleChromeOrStopSlideshow
+                        if (isPendingCapture) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    strokeWidth = 3.dp,
+                                    modifier = Modifier.size(44.dp)
                                 )
-                        )
+                                Spacer(modifier = Modifier.height(14.dp))
+                                Text(
+                                    text = "Saving photo...",
+                                    color = Color.White.copy(alpha = 0.85f),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        } else {
+                            val pageZoomState = rememberZoomState()
+
+                            LaunchedEffect(pagerState.settledPage) {
+                                if (page != pagerState.settledPage) {
+                                    pageZoomState.reset()
+                                }
+                            }
+
+                            LaunchedEffect(pageZoomState.scale) {
+                                if (page == pagerState.currentPage) {
+                                    isCurrentPageZoomed = pageZoomState.scale > 1.05f
+                                }
+                            }
+
+                            AsyncImage(
+                                model = imageRequest,
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .zoomable(
+                                        state = pageZoomState,
+                                        onTap = toggleChromeOrStopSlideshow
+                                    )
+                            )
+                        }
                     }
                 }
             }
@@ -516,7 +539,13 @@ fun PhotoViewerScreen(
             exit = fadeOut() + slideOutVertically { -it },
             modifier = Modifier.align(Alignment.TopCenter)
         ) {
-            val fileName = currentItem.path.substringAfterLast('/')
+            val rawFileName = currentItem.path.substringAfterLast('/')
+            val fileName = if (rawFileName.startsWith(".pending", ignoreCase = true)) {
+                val cleanPart = rawFileName.removePrefix(".").substringAfter("-")
+                if (cleanPart.isNotBlank()) cleanPart else "Processing photo..."
+            } else {
+                rawFileName
+            }
 
             Row(
                 modifier = Modifier
