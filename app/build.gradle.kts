@@ -130,7 +130,6 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.svg)
     implementation(libs.coil.video)
-    implementation(libs.tiff)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)

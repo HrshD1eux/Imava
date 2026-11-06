@@ -47,11 +47,9 @@ class ImavaApplication : Application(), ImageLoaderFactory {
                 add(VideoFrameDecoder.Factory())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     add(ImageDecoderDecoder.Factory())
-                } else {
-                    add(GifDecoder.Factory())
                 }
+                add(GifDecoder.Factory())
                 add(SvgDecoder.Factory())
-                add(com.hrshd1eux.imava.core.util.TiffDecoder.Factory(this@ImavaApplication))
                 add(com.hrshd1eux.imava.core.util.RawPreviewDecoder.Factory(this@ImavaApplication))
             }
             .memoryCache {

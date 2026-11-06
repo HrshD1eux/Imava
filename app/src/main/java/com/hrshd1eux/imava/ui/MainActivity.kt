@@ -406,7 +406,7 @@ class MainActivity : FragmentActivity() {
     private fun handleIncomingIntent(intent: Intent?) {
         if (intent == null) return
         if (intent.action == Intent.ACTION_VIEW && intent.data != null) {
-            viewModel.openExternalMedia(this, intent.data!!, intent.type)
+            viewModel.openExternalMedia(intent.data!!, intent.type)
         }
     }
 }

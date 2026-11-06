@@ -58,7 +58,6 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 coil-gif = { group = "io.coil-kt", name = "coil-gif", version.ref = "coil" }
 coil-video = { group = "io.coil-kt", name = "coil-video", version.ref = "coil" }
 coil-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil" }
-tiff = { group = "mil.nga", name = "tiff", version = "3.0.0" }
 
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }

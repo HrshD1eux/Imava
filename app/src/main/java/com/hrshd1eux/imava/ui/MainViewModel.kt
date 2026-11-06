@@ -389,8 +389,9 @@ class MainViewModel @Inject constructor(
     var isExternalViewIntent by mutableStateOf(false)
 
     @OptIn(coil.annotation.ExperimentalCoilApi::class)
-    fun openExternalMedia(context: Context, uri: Uri, mimeType: String?) {
+    fun openExternalMedia(uri: Uri, mimeType: String?) {
         isExternalViewIntent = true
+        val appContext = application.applicationContext
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // 1. Try resolving via ContentUris if it's an existing finalized MediaStore item
@@ -419,7 +420,7 @@ class MainViewModel @Inject constructor(
                 var isPendingItem = false
 
                 try {
-                    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    appContext.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
                         val nameCol = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
                         val sizeCol = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
                         val dataCol = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DATA)
@@ -453,7 +454,7 @@ class MainViewModel @Inject constructor(
                 }
 
                 val resolvedMime = mimeType
-                    ?: context.contentResolver.getType(uri)
+                    ?: appContext.contentResolver.getType(uri)
                     ?: if (resolvedName.endsWith(".mp4", ignoreCase = true) || resolvedName.endsWith(".mkv", ignoreCase = true) || resolvedName.endsWith(".mov", ignoreCase = true)) "video/mp4" else "image/jpeg"
 
                 val isVideo = resolvedMime.startsWith("video/", ignoreCase = true)
@@ -513,7 +514,7 @@ class MainViewModel @Inject constructor(
                         var freshHeight = 0
 
                         try {
-                            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                            appContext.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
                                 if (cursor.moveToFirst()) {
                                     val pCol = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                                         cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.IS_PENDING)
@@ -541,7 +542,7 @@ class MainViewModel @Inject constructor(
                         }
 
                         val isReadable = try {
-                            context.contentResolver.openInputStream(uri)?.use { stream ->
+                            appContext.contentResolver.openInputStream(uri)?.use { stream ->
                                 stream.available() > 0 || freshSize > 0L
                             } ?: false
                         } catch (_: Exception) { false }
@@ -553,13 +554,13 @@ class MainViewModel @Inject constructor(
                         ) {
                             // Camera finalized writing! Evict Coil memory and disk caches so real photo renders
                             try {
-                                val imageLoader = coil.Coil.imageLoader(context)
+                                val imageLoader = coil.Coil.imageLoader(appContext)
                                 imageLoader.memoryCache?.remove(coil.memory.MemoryCache.Key(uri.toString()))
                                 imageLoader.diskCache?.remove(uri.toString())
                             } catch (_: Exception) {}
 
                             if (freshPath.isNotBlank()) {
-                                android.media.MediaScannerConnection.scanFile(context, arrayOf(freshPath), null, null)
+                                android.media.MediaScannerConnection.scanFile(appContext, arrayOf(freshPath), null, null)
                             }
 
                             val finalizedItem = if (isVideo) {
@@ -603,6 +604,10 @@ class MainViewModel @Inject constructor(
                 e.printStackTrace()
             }
         }
+    }
+
+    fun openExternalMedia(context: Context, uri: Uri, mimeType: String?) {
+        openExternalMedia(uri, mimeType)
     }
     
     private var _currentBucketIdState = mutableStateOf(savedStateHandle.get<Long>("current_bucket_id"))

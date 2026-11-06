@@ -45,7 +45,6 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
             "bmp" -> "image/bmp"
             "svg" -> "image/svg+xml"
             "avif" -> "image/avif"
-            "tif", "tiff" -> "image/tiff"
             "arw", "srf", "sr2" -> "image/x-sony-arw"
             "cr2" -> "image/x-canon-cr2"
             "cr3" -> "image/x-canon-cr3"

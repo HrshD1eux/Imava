@@ -5,9 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
-import android.os.Build
-import android.util.Size
 import androidx.exifinterface.media.ExifInterface
 import coil.ImageLoader
 import coil.decode.DecodeResult
@@ -16,14 +13,11 @@ import coil.fetch.SourceResult
 import coil.request.Options
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 /**
  * High-performance, zero-bloat Camera RAW preview decoder.
- * Extracts pre-rendered camera-graded JPEG previews embedded within
- * Sony (.arw), Canon (.cr2, .cr3), Nikon (.nef), Fujifilm (.raf),
- * Olympus (.orf), Panasonic (.rw2), Pentax (.pef), and Samsung (.srw) RAW containers.
+ * Extracts embedded camera JPEG previews from RAW containers (Sony, Canon, Nikon, Fuji, etc.)
+ * using low-memory seekable EXIF extraction without loading massive RAW files into RAM.
  */
 class RawPreviewDecoder(
     private val context: Context,
@@ -61,82 +55,75 @@ class RawPreviewDecoder(
     override suspend fun decode(): DecodeResult? = withContext(Dispatchers.IO) {
         val file = sourceResult.source.fileOrNull()?.toFile()
 
-        // 1. First attempt: Use Android OS native hardware thumbnail provider (Android 10+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && file != null) {
-            try {
-                val fileUri = Uri.fromFile(file)
-                val targetSize = Size(4096, 4096)
-                val bmp = context.contentResolver.loadThumbnail(fileUri, targetSize, null)
-                if (bmp != null) {
-                    return@withContext DecodeResult(
-                        drawable = BitmapDrawable(context.resources, bmp),
-                        isSampled = false
-                    )
-                }
-            } catch (_: Exception) {}
-        }
-
-        // 2. Second attempt: Extract embedded preview JPEG directly via ExifInterface
         try {
-            val bytes = sourceResult.source.source().use { bufferedSource ->
-                val baos = ByteArrayOutputStream()
-                val buffer = ByteArray(8192)
-                val input = bufferedSource.inputStream()
-                var read: Int
-                while (input.read(buffer).also { read = it } != -1) {
-                    baos.write(buffer, 0, read)
+            // 1. Create ExifInterface without buffering the entire RAW file into RAM
+            val exif = if (file != null && file.exists()) {
+                ExifInterface(file.absolutePath)
+            } else {
+                sourceResult.source.source().inputStream().use { stream ->
+                    ExifInterface(stream)
                 }
-                baos.toByteArray()
             }
-            if (bytes.size > 128) {
-                val exif = ExifInterface(ByteArrayInputStream(bytes))
-                if (exif.hasThumbnail()) {
-                    val thumbBytes = exif.thumbnailBytes
-                    if (thumbBytes != null && thumbBytes.isNotEmpty()) {
-                        val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                        BitmapFactory.decodeByteArray(thumbBytes, 0, thumbBytes.size, boundsOptions)
 
-                        if (boundsOptions.outWidth > 0 && boundsOptions.outHeight > 0) {
-                            val maxDim = maxOf(boundsOptions.outWidth, boundsOptions.outHeight)
-                            var sample = 1
-                            while (maxDim / sample > 4096) {
-                                sample *= 2
-                            }
-                            val decodeOpts = BitmapFactory.Options().apply {
-                                inSampleSize = sample
-                                inPreferredConfig = Bitmap.Config.ARGB_8888
-                            }
-                            val rawBmp = BitmapFactory.decodeByteArray(thumbBytes, 0, thumbBytes.size, decodeOpts)
-                            if (rawBmp != null) {
-                                val orientation = exif.getAttributeInt(
-                                    ExifInterface.TAG_ORIENTATION,
-                                    ExifInterface.ORIENTATION_NORMAL
-                                )
-                                val finalBmp = applyOrientation(rawBmp, orientation)
-                                return@withContext DecodeResult(
-                                    drawable = BitmapDrawable(context.resources, finalBmp),
-                                    isSampled = (sample > 1)
-                                )
-                            }
+            // 2. Extract the embedded camera-graded JPEG preview (typically 200KB - 2MB)
+            if (exif.hasThumbnail()) {
+                val thumbBytes = exif.thumbnailBytes
+                if (thumbBytes != null && thumbBytes.isNotEmpty()) {
+                    val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    BitmapFactory.decodeByteArray(thumbBytes, 0, thumbBytes.size, boundsOptions)
+
+                    if (boundsOptions.outWidth > 0 && boundsOptions.outHeight > 0) {
+                        val maxDim = maxOf(boundsOptions.outWidth, boundsOptions.outHeight)
+                        var sample = 1
+                        while (maxDim / sample > 4096) {
+                            sample *= 2
+                        }
+                        val decodeOpts = BitmapFactory.Options().apply {
+                            inSampleSize = sample
+                            inPreferredConfig = Bitmap.Config.ARGB_8888
+                        }
+                        val rawBmp = BitmapFactory.decodeByteArray(thumbBytes, 0, thumbBytes.size, decodeOpts)
+                        if (rawBmp != null) {
+                            val orientation = exif.getAttributeInt(
+                                ExifInterface.TAG_ORIENTATION,
+                                ExifInterface.ORIENTATION_NORMAL
+                            )
+                            val finalBmp = applyOrientation(rawBmp, orientation)
+                            return@withContext DecodeResult(
+                                drawable = BitmapDrawable(context.resources, finalBmp),
+                                isSampled = (sample > 1)
+                            )
                         }
                     }
                 }
+            }
 
-                // 3. Third attempt: Direct stream decode fallback (for DNG / TIFF-like streams)
-                val decodeOpts = BitmapFactory.Options().apply {
-                    inPreferredConfig = Bitmap.Config.ARGB_8888
-                }
-                val directBmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, decodeOpts)
-                if (directBmp != null) {
-                    val orientation = exif.getAttributeInt(
-                        ExifInterface.TAG_ORIENTATION,
-                        ExifInterface.ORIENTATION_NORMAL
-                    )
-                    val finalBmp = applyOrientation(directBmp, orientation)
-                    return@withContext DecodeResult(
-                        drawable = BitmapDrawable(context.resources, finalBmp),
-                        isSampled = false
-                    )
+            // 3. Fallback for DNG files: Android's BitmapFactory can decode DNG directly from file
+            if (file != null && file.exists()) {
+                val boundsOpts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                BitmapFactory.decodeFile(file.absolutePath, boundsOpts)
+                if (boundsOpts.outWidth > 0 && boundsOpts.outHeight > 0) {
+                    val maxDim = maxOf(boundsOpts.outWidth, boundsOpts.outHeight)
+                    var sample = 1
+                    while (maxDim / sample > 4096) {
+                        sample *= 2
+                    }
+                    val decodeOpts = BitmapFactory.Options().apply {
+                        inSampleSize = sample
+                        inPreferredConfig = Bitmap.Config.ARGB_8888
+                    }
+                    val bmp = BitmapFactory.decodeFile(file.absolutePath, decodeOpts)
+                    if (bmp != null) {
+                        val orientation = exif.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL
+                        )
+                        val finalBmp = applyOrientation(bmp, orientation)
+                        return@withContext DecodeResult(
+                            drawable = BitmapDrawable(context.resources, finalBmp),
+                            isSampled = (sample > 1)
+                        )
+                    }
                 }
             }
         } catch (_: Exception) {}
@@ -145,6 +132,9 @@ class RawPreviewDecoder(
     }
 
     private fun applyOrientation(bitmap: Bitmap, orientation: Int): Bitmap {
+        if (orientation == ExifInterface.ORIENTATION_NORMAL || orientation == ExifInterface.ORIENTATION_UNDEFINED) {
+            return bitmap
+        }
         val matrix = Matrix()
         when (orientation) {
             ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
