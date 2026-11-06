@@ -119,16 +119,36 @@ class MainViewModel @Inject constructor(
     suspend fun saveEditedPhoto(context: Context, originalItem: MediaItem.Photo, editedBitmap: Bitmap) = withContext(Dispatchers.IO) {
         try {
             val resolver = context.contentResolver
-            val filename = "Edited_${System.currentTimeMillis()}.jpg"
+            val isPng = originalItem.mimeType.equals("image/png", ignoreCase = true) ||
+                originalItem.path.endsWith(".png", ignoreCase = true)
+            val isWebp = originalItem.mimeType.equals("image/webp", ignoreCase = true) ||
+                originalItem.path.endsWith(".webp", ignoreCase = true)
+
+            val (ext, mimeType, compressFormat) = when {
+                isPng -> Triple("png", "image/png", Bitmap.CompressFormat.PNG)
+                isWebp -> {
+                    val format = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        Bitmap.CompressFormat.WEBP_LOSSY
+                    } else {
+                        @Suppress("DEPRECATION")
+                        Bitmap.CompressFormat.WEBP
+                    }
+                    Triple("webp", "image/webp", format)
+                }
+                else -> Triple("jpg", "image/jpeg", Bitmap.CompressFormat.JPEG)
+            }
+
+            val filename = "Edited_${System.currentTimeMillis()}.$ext"
             val contentValues = android.content.ContentValues().apply {
                 put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, filename)
-                put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                put(android.provider.MediaStore.MediaColumns.MIME_TYPE, mimeType)
                 put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/Edited")
             }
             val targetUri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
             if (targetUri != null) {
                 resolver.openOutputStream(targetUri)?.use { output ->
-                    editedBitmap.compress(Bitmap.CompressFormat.JPEG, 95, output)
+                    val quality = if (compressFormat == Bitmap.CompressFormat.PNG) 100 else 95
+                    editedBitmap.compress(compressFormat, quality, output)
                 }
 
                 com.hrshd1eux.imava.core.util.PhotoEditorUtils.copyExifAttributes(
