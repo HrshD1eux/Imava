@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">স্টোরেজ অনুমতি প্রয়োজন</string>
+    <string name="request_permissions_desc">আপনার ডিভাইসে ছবি ও ভিডিও নিরাপদে প্রদর্শন করার জন্য মিডিয়ার অনুমতি প্রয়োজন। কোনো ফাইল কোনো সার্ভারে আপলোড করা হয় না।</string>
+    <string name="grant_permission">অনুমতি দিন</string>
+    <string name="open_settings">সেটিংস খুলুন</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">ছবি</string>
+    <string name="nav_albums">অ্যালবাম</string>
+    <string name="nav_settings">সেটিংস</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">বাতিল</string>
+    <string name="action_delete">মুছুন</string>
+    <string name="action_create">তৈরি করুন</string>
+    <string name="action_save">সংরক্ষণ করুন</string>
+    <string name="action_done">সম্পন্ন</string>
+    <string name="action_edit">সম্পাদনা</string>
+    <string name="action_share">শেয়ার করুন</string>
+    <string name="action_rename">নাম পরিবর্তন</string>
+    <string name="action_restore">পুনরুদ্ধার করুন</string>
+    <string name="action_copy">কপি করুন</string>
+    <string name="action_move">স্থানান্তর করুন</string>
+    <string name="action_select">নির্বাচন করুন</string>
+    <string name="action_select_all">সব নির্বাচন করুন</string>
+    <string name="action_deselect_all">সব অনির্বাচিত করুন</string>
+    <string name="action_search">অনুসন্ধান</string>
+    <string name="action_confirm">নিশ্চিত করুন</string>
+    <string name="action_dismiss">খারিজ করুন</string>
+    <string name="action_unlock">আনলক করুন</string>
+    <string name="action_lock">লক করুন</string>
+    <string name="action_retry">পুনরায় চেষ্টা করুন</string>
+    <string name="action_pin">পিন করুন</string>
+    <string name="action_unpin">আনপিন করুন</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">প্রিয়</string>
+    <string name="category_trash">ট্র্যাশ</string>
+    <string name="category_vault">লুকানো ভল্ট</string>
+    <string name="category_videos">ভিডিও</string>
+    <string name="create_new_album">নতুন অ্যালবাম তৈরি করুন</string>
+    <string name="album_name">অ্যালবামের নাম</string>
+    <string name="no_albums_found">কোনো অ্যালবাম পাওয়া যায়নি</string>
+    <string name="pinned_albums">পিন করা অ্যালবাম</string>
+    <string name="all_albums">সমস্ত অ্যালবাম</string>
+    <string name="delete_album">অ্যালবাম মুছুন</string>
+    <string name="folder_locations">%1$d ফোল্ডার অবস্থান</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">ছবি প্রসেস হচ্ছে…</string>
+    <string name="saving_photo">ছবি সংরক্ষণ করা হচ্ছে…</string>
+    <string name="motion_photo">মোশন ফটো</string>
+    <string name="info">তথ্য</string>
+    <string name="details">বিবরণ</string>
+    <string name="delete_permanently">স্থায়ীভাবে মুছুন</string>
+    <string name="delete_forever">চিরতরে মুছুন</string>
+    <string name="move_to_trash">ট্র্যাশে সরান</string>
+    <string name="restore_from_trash">ট্র্যাশ থেকে পুনরুদ্ধার করুন</string>
+    <string name="empty_trash">ট্র্যাশ খালি করুন</string>
+    <string name="trash_empty">ট্র্যাশ খালি</string>
+    <string name="favorites_empty">এখনও কোনো প্রিয় ছবি নেই</string>
+    <string name="no_media_found">কোনো ছবি বা ভিডিও পাওয়া যায়নি</string>
+
+    <!-- Settings -->
+    <string name="settings_title">সেটিংস</string>
+    <string name="settings_language">ভাষা</string>
+    <string name="settings_language_desc">অ্যাপের ভাষা নির্বাচন করুন</string>
+    <string name="settings_system_default">সিস্টেম ডিফল্ট</string>
+    <string name="settings_privacy_security">গোপনীয়তা ও নিরাপত্তা</string>
+    <string name="settings_app_lock">অ্যাপ লক</string>
+    <string name="settings_privacy_shield">প্রাইভেসি শিল্ড</string>
+    <string name="settings_customization">থিম এবং অবয়ব</string>
+    <string name="settings_theme">থিম</string>
+    <string name="settings_storage_doctor">স্টোরেজ ডক্টর</string>
+    <string name="settings_about">সম্পর্কে ও সংস্করণ</string>
+    <string name="settings_wifi_drop">ওয়াই-ফাই ড্রপ</string>
+</resources>

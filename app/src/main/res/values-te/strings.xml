@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">స్టోరేజ్ అనుమతి అవసరం</string>
+    <string name="request_permissions_desc">మీ ఫోటోలు మరియు వీడియోలను సురక్షితంగా ప్రదర్శించడానికి మీడియా అనుమతి అవసరం. ఏ ఫైల్‌లూ సర్వర్‌కు అప్‌లోడ్ చేయబడవు.</string>
+    <string name="grant_permission">అనుమతించండి</string>
+    <string name="open_settings">సెట్టింగ్‌లను తెరవండి</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">ఫోటోలు</string>
+    <string name="nav_albums">ఆల్బమ్‌లు</string>
+    <string name="nav_settings">సెట్టింగ్‌లు</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">రద్దు చేయండి</string>
+    <string name="action_delete">తొలగించండి</string>
+    <string name="action_create">సృష్టించండి</string>
+    <string name="action_save">భద్రపరచండి</string>
+    <string name="action_done">పూర్తయింది</string>
+    <string name="action_edit">సవరించండి</string>
+    <string name="action_share">భాగస్వామ్యం చేయండి</string>
+    <string name="action_rename">పేరు మార్చండి</string>
+    <string name="action_restore">పునరుద్ధరించండి</string>
+    <string name="action_copy">కాపీ చేయండి</string>
+    <string name="action_move">తరలించండి</string>
+    <string name="action_select">ఎంచుకోండి</string>
+    <string name="action_select_all">అన్నీ ఎంచుకోండి</string>
+    <string name="action_deselect_all">ఎంపికను తీసివేయండి</string>
+    <string name="action_search">శోధించండి</string>
+    <string name="action_confirm">నిర్ధారించండి</string>
+    <string name="action_dismiss">తీసివేయండి</string>
+    <string name="action_unlock">అన్‌లాక్ చేయండి</string>
+    <string name="action_lock">లాక్ చేయండి</string>
+    <string name="action_retry">మళ్లీ ప్రయత్నించండి</string>
+    <string name="action_pin">పిన్ చేయండి</string>
+    <string name="action_unpin">అన్‌పిన్ చేయండి</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">ఇష్టమైనవి</string>
+    <string name="category_trash">ట్రాష్</string>
+    <string name="category_vault">రహస్య వాల్ట్</string>
+    <string name="category_videos">వీడియోలు</string>
+    <string name="create_new_album">కొత్త ఆల్బమ్‌ను సృష్టించండి</string>
+    <string name="album_name">ఆల్బమ్ పేరు</string>
+    <string name="no_albums_found">ఆల్బమ్‌లు కనుగొనబడలేదు</string>
+    <string name="pinned_albums">పిన్ చేసిన ఆల్బమ్‌లు</string>
+    <string name="all_albums">అన్ని ఆల్బమ్‌లు</string>
+    <string name="delete_album">ఆల్బమ్‌ను తొలగించండి</string>
+    <string name="folder_locations">%1$d ఫోల్డర్ స్థానాలు</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">ఫోటో ప్రాసెస్ అవుతోంది…</string>
+    <string name="saving_photo">ఫోటో భద్రపరచబడుతోంది…</string>
+    <string name="motion_photo">మోషన్ ఫోటో</string>
+    <string name="info">సమాచారం</string>
+    <string name="details">వివరాలు</string>
+    <string name="delete_permanently">శాశ్వతంగా తొలగించండి</string>
+    <string name="delete_forever">ఎప్పటికీ తొలగించండి</string>
+    <string name="move_to_trash">ట్రాష్‌కు తరలించండి</string>
+    <string name="restore_from_trash">ట్రాష్ నుండి పునరుద్ధరించండి</string>
+    <string name="empty_trash">ట్రాష్‌ను ఖాళీ చేయండి</string>
+    <string name="trash_empty">ట్రాష్ ఖాళీగా ఉంది</string>
+    <string name="favorites_empty">ఇంకా ఇష్టమైనవి లేవు</string>
+    <string name="no_media_found">ఫోటోలు లేదా వీడియోలు కనుగొనబడలేదు</string>
+
+    <!-- Settings -->
+    <string name="settings_title">సెట్టింగ్‌లు</string>
+    <string name="settings_language">భాష</string>
+    <string name="settings_language_desc">యాప్ ప్రదర్శన భాషను ఎంచుకోండి</string>
+    <string name="settings_system_default">సిస్టమ్ డిఫాల్ట్</string>
+    <string name="settings_privacy_security">గోప్యత మరియు భద్రత</string>
+    <string name="settings_app_lock">యాప్ లాక్</string>
+    <string name="settings_privacy_shield">ప్రైవసీ షీల్డ్</string>
+    <string name="settings_customization">రూపం మరియు థీమ్</string>
+    <string name="settings_theme">థీమ్</string>
+    <string name="settings_storage_doctor">స్టోరేజ్ డాక్టర్</string>
+    <string name="settings_about">గురించి మరియు వెర్షన్</string>
+    <string name="settings_wifi_drop">వై-ఫై డ్రాప్</string>
+</resources>

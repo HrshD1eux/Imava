@@ -2,6 +2,8 @@ package com.hrshd1eux.imava.ui.albums
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.ui.res.stringResource
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.findActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -324,7 +326,7 @@ fun AlbumsScreen(
             item {
                 AlbumRowItem(
                     icon = Icons.Default.Favorite,
-                    title = "Favorites",
+                    title = stringResource(R.string.category_favorites),
                     count = favorites.size,
                     onClick = {
                         viewModel.currentBucketId = null
@@ -339,7 +341,7 @@ fun AlbumsScreen(
             item {
                 AlbumRowItem(
                     icon = Icons.Default.PlayCircle,
-                    title = "Videos",
+                    title = stringResource(R.string.category_videos),
                     count = videosCount,
                     onClick = {
                         viewModel.currentBucketId = null
@@ -355,7 +357,7 @@ fun AlbumsScreen(
                 item {
                     AlbumRowItem(
                         icon = if (isVaultDisabled || !isPinConfigured) Icons.Default.LockOpen else Icons.Default.Lock,
-                        title = "Hidden Vault",
+                        title = stringResource(R.string.category_vault),
                         count = hidden.size,
                         onClick = {
                             if (isVaultDisabled || !isPinConfigured) {
@@ -395,7 +397,7 @@ fun AlbumsScreen(
                 val isTrashConfigured = com.hrshd1eux.imava.core.util.AppLockManager.isTrashLockActive(context)
                 AlbumRowItem(
                     icon = Icons.Default.Delete,
-                    title = if (isTrashLocked) "Trash 🔒" else "Trash",
+                    title = if (isTrashLocked) "${stringResource(R.string.category_trash)} 🔒" else stringResource(R.string.category_trash),
                     count = if (isTrashLocked) 0 else trashed.size,
                     subtitle = if (isTrashConfigured) {
                         if (isTrashLocked) "Biometric protected · Tap to unlock" else "Unlocked for this session"
@@ -625,7 +627,7 @@ fun AlbumsScreen(
                 if (allMedia.isNotEmpty()) {
                     item {
                         Text(
-                            text = "No albums found",
+                            text = stringResource(R.string.no_albums_found),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1146,12 +1148,12 @@ fun AlbumsScreen(
                     showCreateAlbumDialog = false 
                     newAlbumName = ""
                 },
-                title = { Text("Create New Album") },
+                title = { Text(stringResource(R.string.create_new_album)) },
                 text = {
                     OutlinedTextField(
                         value = newAlbumName,
                         onValueChange = { newAlbumName = it },
-                        label = { Text("Album Name") },
+                        label = { Text(stringResource(R.string.album_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -1166,7 +1168,7 @@ fun AlbumsScreen(
                             }
                         }
                     ) {
-                        Text("Create")
+                        Text(stringResource(R.string.action_create))
                     }
                 },
                 dismissButton = {
@@ -1176,7 +1178,7 @@ fun AlbumsScreen(
                             newAlbumName = ""
                         }
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )

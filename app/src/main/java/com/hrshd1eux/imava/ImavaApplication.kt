@@ -15,6 +15,10 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class ImavaApplication : Application(), ImageLoaderFactory {
 
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(com.hrshd1eux.imava.core.util.LocaleHelper.wrapContext(base))
+    }
+
     override fun onCreate() {
         super.onCreate()
         try {

@@ -5,4 +5,75 @@
     <string name="request_permissions_desc">To display your photos and videos local-first, the app needs permission to access device media. No files are uploaded to any server.</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="open_settings">Open Settings</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">Photos</string>
+    <string name="nav_albums">Albums</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_create">Create</string>
+    <string name="action_save">Save</string>
+    <string name="action_done">Done</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_share">Share</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_restore">Restore</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_move">Move</string>
+    <string name="action_select">Select</string>
+    <string name="action_select_all">Select All</string>
+    <string name="action_deselect_all">Deselect All</string>
+    <string name="action_search">Search</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_dismiss">Dismiss</string>
+    <string name="action_unlock">Unlock</string>
+    <string name="action_lock">Lock</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_pin">Pin</string>
+    <string name="action_unpin">Unpin</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">Favorites</string>
+    <string name="category_trash">Trash</string>
+    <string name="category_vault">Hidden Vault</string>
+    <string name="category_videos">Videos</string>
+    <string name="create_new_album">Create New Album</string>
+    <string name="album_name">Album Name</string>
+    <string name="no_albums_found">No albums found</string>
+    <string name="pinned_albums">Pinned Albums</string>
+    <string name="all_albums">All Albums</string>
+    <string name="delete_album">Delete Album</string>
+    <string name="folder_locations">%1$d folder locations</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">Processing photo…</string>
+    <string name="saving_photo">Saving photo…</string>
+    <string name="motion_photo">Motion Photo</string>
+    <string name="info">Info</string>
+    <string name="details">Details</string>
+    <string name="delete_permanently">Delete Permanently</string>
+    <string name="delete_forever">Delete Forever</string>
+    <string name="move_to_trash">Move to Trash</string>
+    <string name="restore_from_trash">Restore from Trash</string>
+    <string name="empty_trash">Empty Trash</string>
+    <string name="trash_empty">Trash is empty</string>
+    <string name="favorites_empty">No favorites yet</string>
+    <string name="no_media_found">No photos or videos found</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_desc">Choose app display language</string>
+    <string name="settings_system_default">System Default</string>
+    <string name="settings_privacy_security">Privacy &amp; Security</string>
+    <string name="settings_app_lock">App Lock</string>
+    <string name="settings_privacy_shield">Privacy Shield</string>
+    <string name="settings_customization">Appearance &amp; Theme</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_storage_doctor">Storage Doctor</string>
+    <string name="settings_about">About &amp; Version</string>
+    <string name="settings_wifi_drop">Wi-Fi Drop</string>
 </resources>

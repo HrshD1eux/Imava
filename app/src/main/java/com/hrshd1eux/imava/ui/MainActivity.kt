@@ -148,8 +148,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.ui.albums.AlbumsScreen
 import com.hrshd1eux.imava.ui.search.SearchScreen
 import com.hrshd1eux.imava.ui.theme.ImavaTheme
@@ -216,6 +218,10 @@ class MainActivity : FragmentActivity() {
             viewModel.loadMediaStream()
             viewModel.loadBuckets()
         }
+    }
+
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(com.hrshd1eux.imava.core.util.LocaleHelper.wrapContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -727,11 +733,22 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     ) {
                         Text(
                             text = if (viewModel.currentCategoryName != null && currentScreen == Screen.Photos) {
-                                viewModel.currentCategoryName!!
+                                when (viewModel.currentCategoryName) {
+                                    "Favorites" -> stringResource(R.string.category_favorites)
+                                    "Trash" -> stringResource(R.string.category_trash)
+                                    "Hidden Vault" -> stringResource(R.string.category_vault)
+                                    "Videos" -> stringResource(R.string.category_videos)
+                                    else -> viewModel.currentCategoryName!!
+                                }
                             } else if (viewModel.currentBucketName != null && currentScreen == Screen.Photos) {
                                 viewModel.currentBucketName!!
                             } else {
-                                currentScreen.name
+                                when (currentScreen) {
+                                    Screen.Photos -> stringResource(R.string.nav_photos)
+                                    Screen.Albums -> stringResource(R.string.nav_albums)
+                                    Screen.Settings -> stringResource(R.string.nav_settings)
+                                    else -> currentScreen.name
+                                }
                             },
                             style = MaterialTheme.typography.titleLarge
                         )
@@ -1479,8 +1496,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     viewModel.currentScreen = Screen.Photos
                                 }
                             },
-                            icon = { Icon(Icons.Default.Photo, contentDescription = "Photos") },
-                            label = { Text("Photos") }
+                            icon = { Icon(Icons.Default.Photo, contentDescription = stringResource(R.string.nav_photos)) },
+                            label = { Text(stringResource(R.string.nav_photos)) }
                         )
                         NavigationBarItem(
                             selected = currentScreen == Screen.Albums,
@@ -1489,8 +1506,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 viewModel.currentScreen = Screen.Albums
                                 viewModel.loadBuckets()
                             },
-                            icon = { Icon(Icons.Default.Album, contentDescription = "Albums") },
-                            label = { Text("Albums") }
+                            icon = { Icon(Icons.Default.Album, contentDescription = stringResource(R.string.nav_albums)) },
+                            label = { Text(stringResource(R.string.nav_albums)) }
                         )
                         NavigationBarItem(
                             selected = currentScreen == Screen.Settings,
@@ -1498,8 +1515,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 viewModel.setSearchQuery("")
                                 viewModel.currentScreen = Screen.Settings
                             },
-                            icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                            label = { Text("Settings") }
+                            icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.nav_settings)) },
+                            label = { Text(stringResource(R.string.nav_settings)) }
                         )
                     }
                 }
@@ -2263,20 +2280,20 @@ fun PermissionFallbackScreen(onRequestPermissions: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Privacy First Media Access",
+                text = stringResource(R.string.request_permissions_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "To list your items local-first, the app queries your device's media storage database directly. No internet telemetry is requested.",
+                text = stringResource(R.string.request_permissions_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(onClick = onRequestPermissions) {
-                Text("Allow Local Access")
+                Text(stringResource(R.string.grant_permission))
             }
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(
@@ -2287,7 +2304,7 @@ fun PermissionFallbackScreen(onRequestPermissions: () -> Unit) {
                     context.startActivity(intent)
                 }
             ) {
-                Text("App Settings")
+                Text(stringResource(R.string.open_settings))
             }
         }
     }

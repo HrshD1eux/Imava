@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">Требуется разрешение на доступ к памяти</string>
+    <string name="request_permissions_desc">Для локального отображения ваших фото и видео приложению требуется доступ к медиафайлам. Файлы не загружаются ни на какие серверы.</string>
+    <string name="grant_permission">Предоставить разрешение</string>
+    <string name="open_settings">Открыть настройки</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">Фото</string>
+    <string name="nav_albums">Альбомы</string>
+    <string name="nav_settings">Настройки</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">Отмена</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_create">Создать</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_done">Готово</string>
+    <string name="action_edit">Изменить</string>
+    <string name="action_share">Поделиться</string>
+    <string name="action_rename">Переименовать</string>
+    <string name="action_restore">Восстановить</string>
+    <string name="action_copy">Копировать</string>
+    <string name="action_move">Переместить</string>
+    <string name="action_select">Выбрать</string>
+    <string name="action_select_all">Выбрать все</string>
+    <string name="action_deselect_all">Снять выбор</string>
+    <string name="action_search">Поиск</string>
+    <string name="action_confirm">Подтвердить</string>
+    <string name="action_dismiss">Закрыть</string>
+    <string name="action_unlock">Разблокировать</string>
+    <string name="action_lock">Заблокировать</string>
+    <string name="action_retry">Повторить</string>
+    <string name="action_pin">Закрепить</string>
+    <string name="action_unpin">Открепить</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">Избранное</string>
+    <string name="category_trash">Корзина</string>
+    <string name="category_vault">Скрытое хранилище</string>
+    <string name="category_videos">Видео</string>
+    <string name="create_new_album">Создать новый альбом</string>
+    <string name="album_name">Название альбома</string>
+    <string name="no_albums_found">Альбомы не найдены</string>
+    <string name="pinned_albums">Закреплённые альбомы</string>
+    <string name="all_albums">Все альбомы</string>
+    <string name="delete_album">Удалить альбом</string>
+    <string name="folder_locations">Папок: %1$d</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">Обработка фото…</string>
+    <string name="saving_photo">Сохранение фото…</string>
+    <string name="motion_photo">Живое фото</string>
+    <string name="info">Сведения</string>
+    <string name="details">Подробности</string>
+    <string name="delete_permanently">Удалить навсегда</string>
+    <string name="delete_forever">Удалить безвозвратно</string>
+    <string name="move_to_trash">Переместить в корзину</string>
+    <string name="restore_from_trash">Восстановить из корзины</string>
+    <string name="empty_trash">Очистить корзину</string>
+    <string name="trash_empty">Корзина пуста</string>
+    <string name="favorites_empty">В избранном пока ничего нет</string>
+    <string name="no_media_found">Фотографии и видео не найдены</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_language">Язык</string>
+    <string name="settings_language_desc">Выбор языка приложения</string>
+    <string name="settings_system_default">Системный</string>
+    <string name="settings_privacy_security">Конфиденциальность и безопасность</string>
+    <string name="settings_app_lock">Блокировка приложения</string>
+    <string name="settings_privacy_shield">Защита конфиденциальности</string>
+    <string name="settings_customization">Внешний вид и тема</string>
+    <string name="settings_theme">Тема</string>
+    <string name="settings_storage_doctor">Анализ хранилища</string>
+    <string name="settings_about">О приложении и версия</string>
+    <string name="settings_wifi_drop">Wi-Fi Drop</string>
+</resources>

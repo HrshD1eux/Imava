@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">स्टोरेज अनुमति आवश्यक है</string>
+    <string name="request_permissions_desc">आपकी फ़ोटो और वीडियो को सीधे आपके डिवाइस पर दिखाने के लिए मीडिया अनुमति की आवश्यकता है। कोई भी फ़ाइल किसी सर्वर पर अपलोड नहीं की जाती है।</string>
+    <string name="grant_permission">अनुमति दें</string>
+    <string name="open_settings">सेटिंग्स खोलें</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">फ़ोटो</string>
+    <string name="nav_albums">एल्बम</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">रद्द करें</string>
+    <string name="action_delete">हटाएं</string>
+    <string name="action_create">बनाएं</string>
+    <string name="action_save">सहेजें</string>
+    <string name="action_done">पूर्ण</string>
+    <string name="action_edit">संपादित करें</string>
+    <string name="action_share">साझा करें</string>
+    <string name="action_rename">नाम बदलें</string>
+    <string name="action_restore">पुनर्स्थापित करें</string>
+    <string name="action_copy">कॉपी करें</string>
+    <string name="action_move">स्थानांतरित करें</string>
+    <string name="action_select">चुनें</string>
+    <string name="action_select_all">सभी चुनें</string>
+    <string name="action_deselect_all">सभी अचयनित करें</string>
+    <string name="action_search">खोजें</string>
+    <string name="action_confirm">पुष्टि करें</string>
+    <string name="action_dismiss">खारिज करें</string>
+    <string name="action_unlock">अनलॉक करें</string>
+    <string name="action_lock">लॉक करें</string>
+    <string name="action_retry">पुनः प्रयास करें</string>
+    <string name="action_pin">पिन करें</string>
+    <string name="action_unpin">अनपिन करें</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">पसंदीदा</string>
+    <string name="category_trash">ट्रैश</string>
+    <string name="category_vault">गुप्त वॉल्ट</string>
+    <string name="category_videos">वीडियो</string>
+    <string name="create_new_album">नया एल्बम बनाएं</string>
+    <string name="album_name">एल्बम का नाम</string>
+    <string name="no_albums_found">कोई एल्बम नहीं मिला</string>
+    <string name="pinned_albums">पिन किए गए एल्बम</string>
+    <string name="all_albums">सभी एल्बम</string>
+    <string name="delete_album">एल्बम हटाएं</string>
+    <string name="folder_locations">%1$d फ़ोल्डर स्थान</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">फ़ोटो प्रोसेस हो रही है…</string>
+    <string name="saving_photo">फ़ोटो सहेजी जा रही है…</string>
+    <string name="motion_photo">मोशन फ़ोटो</string>
+    <string name="info">जानकारी</string>
+    <string name="details">विवरण</string>
+    <string name="delete_permanently">स्थायी रूप से हटाएं</string>
+    <string name="delete_forever">हमेशा के लिए हटाएं</string>
+    <string name="move_to_trash">ट्रैश में डालें</string>
+    <string name="restore_from_trash">ट्रैश से वापस लाएं</string>
+    <string name="empty_trash">ट्रैश खाली करें</string>
+    <string name="trash_empty">ट्रैश खाली है</string>
+    <string name="favorites_empty">अभी तक कोई पसंदीदा नहीं</string>
+    <string name="no_media_found">कोई फ़ोटो या वीडियो नहीं मिला</string>
+
+    <!-- Settings -->
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_desc">ऐप की भाषा चुनें</string>
+    <string name="settings_system_default">सिस्टम डिफ़ॉल्ट</string>
+    <string name="settings_privacy_security">गोपनीयता और सुरक्षा</string>
+    <string name="settings_app_lock">ऐप लॉक</string>
+    <string name="settings_privacy_shield">प्राइवेसी शील्ड</string>
+    <string name="settings_customization">थीम और दिखावट</string>
+    <string name="settings_theme">थीम</string>
+    <string name="settings_storage_doctor">स्टोरेज डॉक्टर</string>
+    <string name="settings_about">के बारे में और वर्शन</string>
+    <string name="settings_wifi_drop">वाई-फ़ाई ड्रॉप</string>
+</resources>

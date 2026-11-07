@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">Speicherberechtigung erforderlich</string>
+    <string name="request_permissions_desc">Um Ihre Fotos und Videos lokal anzuzeigen, benötigt die App die Berechtigung zum Zugriff auf Medien. Es werden keine Dateien auf Server hochgeladen.</string>
+    <string name="grant_permission">Berechtigung erteilen</string>
+    <string name="open_settings">Einstellungen öffnen</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">Fotos</string>
+    <string name="nav_albums">Alben</string>
+    <string name="nav_settings">Einstellungen</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_create">Erstellen</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_done">Fertig</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_share">Teilen</string>
+    <string name="action_rename">Umbenennen</string>
+    <string name="action_restore">Wiederherstellen</string>
+    <string name="action_copy">Kopieren</string>
+    <string name="action_move">Verschieben</string>
+    <string name="action_select">Auswählen</string>
+    <string name="action_select_all">Alle auswählen</string>
+    <string name="action_deselect_all">Alle abwählen</string>
+    <string name="action_search">Suchen</string>
+    <string name="action_confirm">Bestätigen</string>
+    <string name="action_dismiss">Schließen</string>
+    <string name="action_unlock">Entsperren</string>
+    <string name="action_lock">Sperren</string>
+    <string name="action_retry">Wiederholen</string>
+    <string name="action_pin">Anheften</string>
+    <string name="action_unpin">Lösen</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">Favoriten</string>
+    <string name="category_trash">Papierkorb</string>
+    <string name="category_vault">Versteckter Tresor</string>
+    <string name="category_videos">Videos</string>
+    <string name="create_new_album">Neues Album erstellen</string>
+    <string name="album_name">Albumname</string>
+    <string name="no_albums_found">Keine Alben gefunden</string>
+    <string name="pinned_albums">Angeheftete Alben</string>
+    <string name="all_albums">Alle Alben</string>
+    <string name="delete_album">Album löschen</string>
+    <string name="folder_locations">%1$d Ordnerpfade</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">Foto wird verarbeitet…</string>
+    <string name="saving_photo">Foto wird gespeichert…</string>
+    <string name="motion_photo">Bewegtes Foto</string>
+    <string name="info">Info</string>
+    <string name="details">Details</string>
+    <string name="delete_permanently">Dauerhaft löschen</string>
+    <string name="delete_forever">Für immer löschen</string>
+    <string name="move_to_trash">In den Papierkorb verschieben</string>
+    <string name="restore_from_trash">Aus Papierkorb wiederherstellen</string>
+    <string name="empty_trash">Papierkorb leeren</string>
+    <string name="trash_empty">Papierkorb ist leer</string>
+    <string name="favorites_empty">Noch keine Favoriten</string>
+    <string name="no_media_found">Keine Fotos oder Videos gefunden</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_language_desc">App-Sprache auswählen</string>
+    <string name="settings_system_default">Systemstandard</string>
+    <string name="settings_privacy_security">Datenschutz &amp; Sicherheit</string>
+    <string name="settings_app_lock">App-Sperre</string>
+    <string name="settings_privacy_shield">Privatsphäre-Schild</string>
+    <string name="settings_customization">Erscheinungsbild &amp; Design</string>
+    <string name="settings_theme">Design</string>
+    <string name="settings_storage_doctor">Speicher-Doktor</string>
+    <string name="settings_about">Über &amp; Version</string>
+    <string name="settings_wifi_drop">Wi-Fi Drop</string>
+</resources>

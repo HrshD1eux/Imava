@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">Autorisation de stockage requise</string>
+    <string name="request_permissions_desc">Pour afficher vos photos et vidéos localement, l\'application a besoin d\'accéder aux fichiers multimédias. Aucun fichier n\'est envoyé sur des serveurs.</string>
+    <string name="grant_permission">Accorder l\'autorisation</string>
+    <string name="open_settings">Ouvrir les paramètres</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">Photos</string>
+    <string name="nav_albums">Albums</string>
+    <string name="nav_settings">Paramètres</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">Annuler</string>
+    <string name="action_delete">Supprimer</string>
+    <string name="action_create">Créer</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_done">Terminé</string>
+    <string name="action_edit">Modifier</string>
+    <string name="action_share">Partager</string>
+    <string name="action_rename">Renommer</string>
+    <string name="action_restore">Restaurer</string>
+    <string name="action_copy">Copier</string>
+    <string name="action_move">Déplacer</string>
+    <string name="action_select">Sélectionner</string>
+    <string name="action_select_all">Tout sélectionner</string>
+    <string name="action_deselect_all">Tout désélectionner</string>
+    <string name="action_search">Rechercher</string>
+    <string name="action_confirm">Confirmer</string>
+    <string name="action_dismiss">Fermer</string>
+    <string name="action_unlock">Déverrouiller</string>
+    <string name="action_lock">Verrouiller</string>
+    <string name="action_retry">Réessayer</string>
+    <string name="action_pin">Épingler</string>
+    <string name="action_unpin">Désépingler</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">Favoris</string>
+    <string name="category_trash">Corbeille</string>
+    <string name="category_vault">Coffre-fort masqué</string>
+    <string name="category_videos">Vidéos</string>
+    <string name="create_new_album">Créer un nouvel album</string>
+    <string name="album_name">Nom de l\'album</string>
+    <string name="no_albums_found">Aucun album trouvé</string>
+    <string name="pinned_albums">Albums épinglés</string>
+    <string name="all_albums">Tous les albums</string>
+    <string name="delete_album">Supprimer l\'album</string>
+    <string name="folder_locations">%1$d emplacements de dossiers</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">Traitement de la photo…</string>
+    <string name="saving_photo">Enregistrement de la photo…</string>
+    <string name="motion_photo">Photo animée</string>
+    <string name="info">Infos</string>
+    <string name="details">Détails</string>
+    <string name="delete_permanently">Supprimer définitivement</string>
+    <string name="delete_forever">Supprimer pour toujours</string>
+    <string name="move_to_trash">Mettre dans la corbeille</string>
+    <string name="restore_from_trash">Restaurer de la corbeille</string>
+    <string name="empty_trash">Vider la corbeille</string>
+    <string name="trash_empty">La corbeille est vide</string>
+    <string name="favorites_empty">Aucun favori pour l\'instant</string>
+    <string name="no_media_found">Aucune photo ni vidéo trouvée</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_language">Langue</string>
+    <string name="settings_language_desc">Choisir la langue de l\'application</string>
+    <string name="settings_system_default">Par défaut du système</string>
+    <string name="settings_privacy_security">Confidentialité et sécurité</string>
+    <string name="settings_app_lock">Verrouillage de l\'application</string>
+    <string name="settings_privacy_shield">Bouclier de confidentialité</string>
+    <string name="settings_customization">Apparence et thème</string>
+    <string name="settings_theme">Thème</string>
+    <string name="settings_storage_doctor">Docteur de stockage</string>
+    <string name="settings_about">À propos et version</string>
+    <string name="settings_wifi_drop">Wi-Fi Drop</string>
+</resources>

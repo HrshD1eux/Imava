@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
@@ -83,6 +84,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.size
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.heightIn
+import com.hrshd1eux.imava.R
+import com.hrshd1eux.imava.core.util.LocaleHelper
+import com.hrshd1eux.imava.core.util.findActivity
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Checkbox
@@ -108,7 +114,77 @@ fun SettingsScreen(
     ) {
 
         item {
-            SettingsCategoryHeader(title = "Appearance & Theme", icon = Icons.Default.Palette)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_language), icon = Icons.Default.Language)
+
+            var showLanguageDialog by remember { mutableStateOf(false) }
+            val currentTag = remember(context) { LocaleHelper.getSavedLanguageTag(context) }
+            val currentLang = remember(currentTag) {
+                LocaleHelper.SUPPORTED_LANGUAGES.firstOrNull { it.code.equals(currentTag, ignoreCase = true) }
+                    ?: LocaleHelper.SUPPORTED_LANGUAGES.first()
+            }
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showLanguageDialog = true }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.settings_language),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = if (currentLang.code.isBlank()) {
+                                stringResource(R.string.settings_system_default)
+                            } else if (currentLang.displayName == currentLang.nativeName) {
+                                currentLang.displayName
+                            } else {
+                                "${currentLang.displayName} (${currentLang.nativeName})"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.settings_language_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            if (showLanguageDialog) {
+                LanguageSelectionDialog(
+                    currentTag = currentTag,
+                    onDismiss = { showLanguageDialog = false },
+                    onSelectLanguage = { lang ->
+                        showLanguageDialog = false
+                        LocaleHelper.setLocale(context, lang.code)
+                        context.findActivity()?.recreate()
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
+            SettingsCategoryHeader(title = stringResource(R.string.settings_customization), icon = Icons.Default.Palette)
             
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -1131,4 +1207,80 @@ private fun ThemeOptionRow(
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = title, style = MaterialTheme.typography.bodyMedium)
     }
+}
+
+@Composable
+private fun LanguageSelectionDialog(
+    currentTag: String,
+    onDismiss: () -> Unit,
+    onSelectLanguage: (LocaleHelper.SupportedLanguage) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Language,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.settings_language),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        },
+        text = {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+            ) {
+                items(LocaleHelper.SUPPORTED_LANGUAGES) { lang ->
+                    val isSelected = if (lang.code.isBlank()) {
+                        currentTag.isBlank()
+                    } else {
+                        currentTag.equals(lang.code, ignoreCase = true) ||
+                        (lang.code.length == 2 && currentTag.startsWith(lang.code, ignoreCase = true))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelectLanguage(lang) }
+                            .padding(vertical = 10.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = isSelected,
+                            onClick = { onSelectLanguage(lang) }
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = lang.nativeName,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            )
+                            if (lang.nativeName != lang.displayName && lang.code.isNotBlank()) {
+                                Text(
+                                    text = lang.displayName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    )
 }

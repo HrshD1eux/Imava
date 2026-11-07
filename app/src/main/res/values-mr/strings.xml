@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">स्टोरेज परवानगी आवश्यक आहे</string>
+    <string name="request_permissions_desc">आपले फोटो आणि व्हिडिओ थेट डिव्हाइसवर दाखवण्यासाठी मीडिया परवानगी आवश्यक आहे. कोणतीही फाइल सर्व्हरवर अपलोड केली जात नाही.</string>
+    <string name="grant_permission">परवानगी द्या</string>
+    <string name="open_settings">सेटिंग्ज उघडा</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">फोटो</string>
+    <string name="nav_albums">अल्बम</string>
+    <string name="nav_settings">सेटिंग्ज</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">रद्द करा</string>
+    <string name="action_delete">हटवा</string>
+    <string name="action_create">तयार करा</string>
+    <string name="action_save">जतन करा</string>
+    <string name="action_done">पूर्ण</string>
+    <string name="action_edit">संपादित करा</string>
+    <string name="action_share">शेअर करा</string>
+    <string name="action_rename">नाव बदला</string>
+    <string name="action_restore">पुनर्संचयित करा</string>
+    <string name="action_copy">कॉपी करा</string>
+    <string name="action_move">हलवा</string>
+    <string name="action_select">निवडा</string>
+    <string name="action_select_all">सर्व निवडा</string>
+    <string name="action_deselect_all">सर्व निवड रद्द करा</string>
+    <string name="action_search">शोधा</string>
+    <string name="action_confirm">पुष्टी करा</string>
+    <string name="action_dismiss">बंद करा</string>
+    <string name="action_unlock">अनलॉक करा</string>
+    <string name="action_lock">लॉक करा</string>
+    <string name="action_retry">पुन्हा प्रयत्न करा</string>
+    <string name="action_pin">पिन करा</string>
+    <string name="action_unpin">अनपिन करा</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">आवडते</string>
+    <string name="category_trash">कचरा टोपली</string>
+    <string name="category_vault">गुप्त व्हॉल्ट</string>
+    <string name="category_videos">व्हिडिओ</string>
+    <string name="create_new_album">नवीन अल्बम तयार करा</string>
+    <string name="album_name">अल्बमचे नाव</string>
+    <string name="no_albums_found">कोणतेही अल्बम सापडले नाहीत</string>
+    <string name="pinned_albums">पिन केलेले अल्बम</string>
+    <string name="all_albums">सर्व अल्बम</string>
+    <string name="delete_album">अल्बम हटवा</string>
+    <string name="folder_locations">%1$d फोल्डर स्थाने</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">फोटो प्रक्रिया चालू आहे…</string>
+    <string name="saving_photo">फोटो सेव्ह होत आहे…</string>
+    <string name="motion_photo">मोशन फोटो</string>
+    <string name="info">माहिती</string>
+    <string name="details">तपशील</string>
+    <string name="delete_permanently">कायमस्वरूपी हटवा</string>
+    <string name="delete_forever">कायमचे हटवा</string>
+    <string name="move_to_trash">ट्रॅशमध्ये हलवा</string>
+    <string name="restore_from_trash">ट्रॅशमधून परत आणा</string>
+    <string name="empty_trash">ट्रॅश रिकामे करा</string>
+    <string name="trash_empty">ट्रॅश रिकामे आहे</string>
+    <string name="favorites_empty">अद्याप आवडते नाहीत</string>
+    <string name="no_media_found">कोणतेही फोटो किंवा व्हिडिओ सापडले नाहीत</string>
+
+    <!-- Settings -->
+    <string name="settings_title">सेटिंग्ज</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_desc">अ‍ॅपची भाषा निवडा</string>
+    <string name="settings_system_default">सिस्टम डीफॉल्ट</string>
+    <string name="settings_privacy_security">गोपनीयता आणि सुरक्षितता</string>
+    <string name="settings_app_lock">अ‍ॅप लॉक</string>
+    <string name="settings_privacy_shield">प्रायव्हसी शील्ड</string>
+    <string name="settings_customization">स्वरूप आणि थीम</string>
+    <string name="settings_theme">थीम</string>
+    <string name="settings_storage_doctor">स्टोरेज डॉक्टर</string>
+    <string name="settings_about">बद्दल आणि आवृत्ती</string>
+    <string name="settings_wifi_drop">वाय-फाय ड्रॉप</string>
+</resources>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Imava Gallery</string>
+    <string name="request_permissions_title">சேமிப்பக அனுமதி தேவை</string>
+    <string name="request_permissions_desc">உங்கள் புகைப்படங்கள் மற்றும் வீடியோக்களைக் காட்ட சாதன ஊடக அனுமதி தேவை. எந்தக் கோப்புகளும் எந்த சர்வரிலும் பதிவேற்றப்படாது.</string>
+    <string name="grant_permission">அனுமதி கொடு</string>
+    <string name="open_settings">அமைப்புகளைத் திற</string>
+
+    <!-- Navigation -->
+    <string name="nav_photos">புகைப்படங்கள்</string>
+    <string name="nav_albums">ஆல்பங்கள்</string>
+    <string name="nav_settings">அமைப்புகள்</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">ரத்துசெய்</string>
+    <string name="action_delete">நீக்கு</string>
+    <string name="action_create">உருவாக்கு</string>
+    <string name="action_save">சேமி</string>
+    <string name="action_done">முடிந்தது</string>
+    <string name="action_edit">திருத்து</string>
+    <string name="action_share">பகிர்</string>
+    <string name="action_rename">பெயர் மாற்று</string>
+    <string name="action_restore">மீட்டமை</string>
+    <string name="action_copy">நகலெடு</string>
+    <string name="action_move">நகர்த்து</string>
+    <string name="action_select">தேர்ந்தெடு</string>
+    <string name="action_select_all">அனைத்தையும் தேர்ந்தெடு</string>
+    <string name="action_deselect_all">அனைத்தையும் தேர்வுநீக்கு</string>
+    <string name="action_search">தேடு</string>
+    <string name="action_confirm">உறுதிப்படுத்து</string>
+    <string name="action_dismiss">நிராகரி</string>
+    <string name="action_unlock">திற</string>
+    <string name="action_lock">பூட்டு</string>
+    <string name="action_retry">மீண்டும் முயற்சி செய்</string>
+    <string name="action_pin">பின் செய்</string>
+    <string name="action_unpin">அன்பின் செய்</string>
+
+    <!-- Albums &amp; Categories -->
+    <string name="category_favorites">விருப்பமானவை</string>
+    <string name="category_trash">குப்பைத்தொட்டி</string>
+    <string name="category_vault">மறைக்கப்பட்ட பெட்டகம்</string>
+    <string name="category_videos">வீடியோக்கள்</string>
+    <string name="create_new_album">புதிய ஆல்பத்தை உருவாக்கு</string>
+    <string name="album_name">ஆல்பத்தின் பெயர்</string>
+    <string name="no_albums_found">ஆல்பங்கள் எதுவும் கிடைக்கவில்லை</string>
+    <string name="pinned_albums">பின் செய்யப்பட்ட ஆல்பங்கள்</string>
+    <string name="all_albums">அனைத்து ஆல்பங்கள்</string>
+    <string name="delete_album">ஆல்பத்தை நீக்கு</string>
+    <string name="folder_locations">%1$d கோப்புறை இடங்கள்</string>
+
+    <!-- Viewer &amp; Media -->
+    <string name="processing_photo">புகைப்படம் செயலாக்கப்படுகிறது…</string>
+    <string name="saving_photo">புகைப்படம் சேமிக்கப்படுகிறது…</string>
+    <string name="motion_photo">இயக்கப் புகைப்படம்</string>
+    <string name="info">தகவல்</string>
+    <string name="details">விவரங்கள்</string>
+    <string name="delete_permanently">நிரந்தரமாக நீக்கு</string>
+    <string name="delete_forever">முழுமையாக நீக்கு</string>
+    <string name="move_to_trash">குப்பைத்தொட்டிக்கு நகர்த்து</string>
+    <string name="restore_from_trash">குப்பைத்தொட்டியிலிருந்து மீட்டெடு</string>
+    <string name="empty_trash">குப்பைத்தொட்டியை காலி செய்</string>
+    <string name="trash_empty">குப்பைத்தொட்டி காலியாக உள்ளது</string>
+    <string name="favorites_empty">விருப்பங்கள் எதுவும் இல்லை</string>
+    <string name="no_media_found">புகைப்படங்கள் அல்லது வீடியோக்கள் எதுவும் இல்லை</string>
+
+    <!-- Settings -->
+    <string name="settings_title">அமைப்புகள்</string>
+    <string name="settings_language">மொழி</string>
+    <string name="settings_language_desc">பயன்பாட்டு மொழியைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="settings_system_default">கணினி இயல்புநிலை</string>
+    <string name="settings_privacy_security">தனியுரிமை மற்றும் பாதுகாப்பு</string>
+    <string name="settings_app_lock">ஆப் பூட்டு</string>
+    <string name="settings_privacy_shield">தனியுரிமைக் கேடயம்</string>
+    <string name="settings_customization">தோற்றம் மற்றும் தீம்</string>
+    <string name="settings_theme">தீம்</string>
+    <string name="settings_storage_doctor">சேமிப்பக மருத்துவர்</string>
+    <string name="settings_about">பற்றி மற்றும் பதிப்பு</string>
+    <string name="settings_wifi_drop">வைஃபை டிராப்</string>
+</resources>
