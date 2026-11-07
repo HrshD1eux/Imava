@@ -75,6 +75,22 @@ fun PermissionsTransparencyScreen(
     // Known detailed explanations for permissions
     val detailedKnownPermissions = remember {
         mapOf(
+            "android.permission.READ_EXTERNAL_STORAGE" to PermissionDetail(
+                friendlyName = "Legacy Storage Read Access",
+                technicalName = "android.permission.READ_EXTERNAL_STORAGE",
+                category = "Media Access",
+                userFriendlyReason = "Required on Android 12 and below (API <= 32) to query and display device photos and videos in the timeline.",
+                technicalExplanation = "Legacy external storage read permission for Android 12 and earlier before granular media permissions (API 33).",
+                introducedApi = "API 1 (Android 1)"
+            ),
+            "android.permission.WRITE_EXTERNAL_STORAGE" to PermissionDetail(
+                friendlyName = "Legacy Storage Write Access",
+                technicalName = "android.permission.WRITE_EXTERNAL_STORAGE",
+                category = "Media Access",
+                userFriendlyReason = "Required on Android 10 and below (API <= 29) to save edits, create albums, and export media.",
+                technicalExplanation = "Legacy external storage write permission deprecated in API 29 and superseded by MediaStore/SAF.",
+                introducedApi = "API 1 (Android 1)"
+            ),
             "android.permission.MANAGE_EXTERNAL_STORAGE" to PermissionDetail(
                 friendlyName = "Full Device Storage Access",
                 technicalName = "android.permission.MANAGE_EXTERNAL_STORAGE",
@@ -178,6 +194,22 @@ fun PermissionsTransparencyScreen(
                 userFriendlyReason = "Keeps long-running batch operations (like shredding ghost thumbnails or bulk photo compression) active without the system killing the process.",
                 technicalExplanation = "Required to run Android Foreground Services with a visible notification indicator.",
                 introducedApi = "API 28 (Android 9)"
+            ),
+            "android.permission.FOREGROUND_SERVICE_DATA_SYNC" to PermissionDetail(
+                friendlyName = "Foreground Data Sync",
+                technicalName = "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+                category = "System & Services",
+                userFriendlyReason = "Required on Android 14+ to keep Imava Drop Wi-Fi P2P file transfers and local WebDAV NAS synchronization running reliably while the app is minimized.",
+                technicalExplanation = "Specific foreground service type permission required on API 34+ for data transfer foreground services.",
+                introducedApi = "API 34 (Android 14)"
+            ),
+            "android.permission.POST_NOTIFICATIONS" to PermissionDetail(
+                friendlyName = "Post Notifications",
+                technicalName = "android.permission.POST_NOTIFICATIONS",
+                category = "System & Services",
+                userFriendlyReason = "Displays progress notifications for active background operations such as Imava Drop Wi-Fi transfers, trash auto-purge, and available app updates.",
+                technicalExplanation = "Runtime notification permission introduced in Android 13 (API 33) required to post notifications.",
+                introducedApi = "API 33 (Android 13)"
             ),
             "android.permission.WAKE_LOCK" to PermissionDetail(
                 friendlyName = "Prevent Sleep During Tasks",

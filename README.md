@@ -5,7 +5,15 @@
 <h1 align="center">Imava Gallery</h1>
 
 <p align="center">
-  A privacy-focused Android gallery app built with Jetpack Compose, Hilt, Room, Coil, and Media3.
+  <b>The private, offline-first, zero-cloud gallery for Android.</b><br>
+  Engineered with Jetpack Compose, Material 3, Room, Coil, and hardware-backed cryptography.
+</p>
+
+<p align="center">
+  <a href="#license"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0" /></a>
+  <img src="https://img.shields.io/badge/Platform-Android%207.0%2B%20(API%2024%2B)-brightgreen.svg" alt="Platform" />
+  <img src="https://img.shields.io/badge/Privacy-100%25%20Offline%20%7C%20Zero%20Tracking-success.svg" alt="Privacy" />
+  <img src="https://img.shields.io/badge/FOSS-Audit%20Verified-blue.svg" alt="FOSS" />
 </p>
 
 ---
@@ -57,233 +65,172 @@
 
 ---
 
-## Features
+## Killer & Unique Features
 
-### Timeline & Performance
-- Paging 3 grid with incremental pagination (page size 60)
-- Pinch-to-zoom between 1–6 columns with settings slider
-- Fast scrubber with equidistant date sampling
-- ContentObserver on Images, Video, and Files URIs
-- Batched Room queries (500 items/chunk)
-- Downsampled 280x280 thumbnails via Coil
+Imava is built specifically for users who refuse cloud telemetry, mandatory accounts, and corporate tracking. Below are the advanced features that set Imava apart from standard Android galleries:
 
-### "On This Day" Memories
-- Surfaces photos from the same date in previous years
-- Fullscreen story viewer with segmented progress bar, auto-advance, tap navigation, hold-to-pause
-- 24-hour dismissal persistence, scoped to Albums view
+### 1. Direct Wi-Fi P2P Drop ("AirDrop for Android Without Cloud")
+- **Instant 50–100+ MB/s Transfers**: Stream full, lossless original photos and 4K videos directly between your Android phone and any PC, Mac, iPhone, Linux, or secondary Android device over local Wi-Fi.
+- **Zero Client Software Needed**: Receivers don't install an app or create an account. They simply scan an on-device QR code or open `http://192.168.x.x:8765` in any standard web browser (Chrome, Safari, Firefox, Edge).
+- **On-the-Fly Dynamic ZIP Generator**: Download hundreds of selected photos as a single uncompressed ZIP stream with zero intermediate disk space used on your phone.
+- **Bidirectional Drag-and-Drop Web Upload**: Desktop computers can drag-and-drop photos and videos directly onto the browser page to transfer them straight into your phone's gallery (`Pictures/ImavaDrop`).
 
-### Photo Collage Maker
-- Grid templates for 2–9 photos
-- 1:1, 4:5, 9:16, 16:9 aspect ratios
-- Adjustable spacing and corner radius
-- 2048px JPEG export to `Pictures/Collages`
+### 2. Cryptographic DoD File Shredder & Biometric Trash Lock
+- **Anti-Recovery Physical Sector Overwrite**: Standard OS file deletion (`unlink`) only removes catalog pointers, leaving raw JPEG/MP4 blocks readable by data recovery tools (DiskDigger, Recuva, PhotoRec). Imava's shredder overwrites clusters with cryptographically secure random bytes in 64KB buffers (`"rws"` mode), zeroes magic headers, forces hardware write cache flush via `FileDescriptor.sync()`, scrambles directory entries, and truncates to 0 bytes before unlinking.
+- **Biometric Trash Lock**: Specifically guard your Trash folder behind fingerprint, face unlock, or device PIN. Deleted item counts are completely masked until unlocked, preventing nosy friends or family from snooping through deleted photos. Auto-relocks on backgrounding.
 
-### Privacy Redaction & Markup
-- Destructive pixelation brush for redacting sensitive content
-- Freehand pen, arrows, rectangles, ellipses
-- Color palette with undo/redo
+### 3. Hardware-Backed AES-256-GCM Vault & Decoy PIN
+- **AndroidKeyStore Hardware Isolation**: Media files inside the Hidden Vault are encrypted using AES-256-GCM with hardware-backed keys. Decrypted blocks live only in transient memory and are instantly purged upon locking.
+- **Decoy PIN for Plausible Deniability**: Configure a secondary decoy PIN. If coerced to unlock your phone under duress, entering the decoy PIN unlocks an empty, innocent vault interface while keeping your real vault completely hidden.
+- **Stealth Mode Access**: Hide the Hidden Vault tile entirely from the Albums screen. It can only be opened by typing your secret access code directly into the gallery search bar.
 
-### Video Frame Capture
-- Extract still frames from video playback via `MediaMetadataRetriever`
-- Saved to `Pictures/Video_Captures`
+### 4. Local EXIF Sanitizer & Automatic Background Scrubbing
+- **On-the-Fly Metadata Stripping**: Strip embedded GPS coordinates, camera serial numbers, and device fingerprints before sharing photos to messaging apps or social networks.
+- **Album-Wide In-Place Scrubbing**: Sanitize entire albums with a single tap while intelligently preserving `DateTimeOriginal` and orientation tags so gallery chronology and photo rotation remain intact.
+- **Background Auto-Scrub Daemon**: Automatically sanitize newly captured photos in designated folders (e.g. Camera, Downloads) with a camera write-lock debounce.
 
-### Vault Backup & Restore
-- Export vault as encrypted `.imava` container (AES-256-GCM, PBKDF2 250k iterations)
-- Restore via SAF for device migration
+### 5. Private WebDAV / Home NAS Zero-Cloud Auto-Sync
+- **100% Self-Hosted & Local**: Automatically back up your library to home NAS appliances (Synology, Nextcloud, TrueNAS, QNAP, ownCloud) or custom WebDAV endpoints over your local network.
+- **Zero Third-Party Cloud**: No external servers, no subscriptions, and zero telemetry. Media never touches commercial cloud providers.
+- **Automated WorkManager Scheduling**: Incremental sync ledger backed by SQLite ensures only new/modified photos are uploaded, with strict **Wi-Fi Only** and **Device Charging** constraints.
 
-### Storage Doctor
-- Flags large videos (>50 MB), old screenshots (>30 days), burst groups
-- "Keep Best" quick cleanup
+### 6. On-Device FOSS OCR & Text Search (Tesseract 5 C++)
+- **Google-Free OCR Engine**: Powered by open-source Tesseract 5 C++ via Tesseract4Android (Apache 2.0). Zero dependencies on Google Play Services, Firebase, or proprietary ML blobs.
+- **On-Demand Engine Loading**: The fast English recognition model (`eng.traineddata`) is loaded on-demand only when used—keeping the base APK ultra-lean.
+- **Searchable Gallery Indexing**: Extracted text from receipts, documents, street signs, and serial numbers is indexed into your local SQLite Room database, making physical text searchable directly from the gallery search bar.
+- **Actionable Smart Chips**: 1-tap detection and interaction for phone numbers (call/copy), URLs (browser/copy), and email addresses.
 
-### Slideshow Player
-- Ken Burns pan-and-zoom with crossfade transitions
-- 3s / 5s / 8s pacing, shuffle, tap-to-pause
+### 7. Instant Deep Media & Hidden Vault Carve (<100ms)
+- **Direct SQLite Filesystem Carving**: Direct multi-pattern `MediaStore.Files` database query with `QUERY_ARG_MATCH_NOMEDIA` unearths hidden photos in under 100ms without filesystem crawl lag.
+- **App & Cloned Space Registry**: Instantly discovers sent folders, dual/cloned app spaces, and hidden media lurking inside `.nomedia`, `.hidden`, `.secret`, `.vault`, `.calculator`, and `.thumbnails` directories.
 
-### Photo Comparison
-- Side-by-side split viewer (vertical or horizontal)
-- Synchronized or independent zoom/pan
+### 8. Motion Photo Studio & Octree GIF Studio
+- **Micro-Video Frame Scrubber**: Play embedded motion photo video clips with interactive precision frame scrubbers.
+- **Best-Shot Extraction**: Extract full-sensor, uncompressed still images from motion photos at full resolution.
+- **Pure-Kotlin GIF89a Export**: Export motion photos to looping GIFs using a built-in, zero-dependency Octree color quantizer.
 
-### Photo & Video Viewer
-- **120Hz Fluid Gesture Swiping**: Butter-smooth horizontal pagination with pre-cached adjacent pages, zero-crossfade instant paints, and smooth 220ms animated double-tap zoom
-- **Manual Video Playback**: Videos start paused at frame 0 with centered play button, bottom transport bar, and auto-pause on scroll
-- **Conflict-Free Gestures**: Vertical drags control volume/brightness while horizontal swipes slide unimpeded across photos and videos
-- Swipe-down-to-dismiss with scaling and alpha fade
-- Sub-sampling tile decoder for large images
-- Custom tags (`#Receipt`, `#Travel`) stored in Room, searchable
-- Print via AndroidX PrintHelper
-- Set as wallpaper, set as album cover
-- EXIF metadata viewer with "Open in Maps"
+### 9. Interactive Geo Map & Spatial Descriptions
+- **Zero-Binary Map Explorer**: Lightweight Leaflet + OpenStreetMap engine (<150 KB, 0 native `.so` binaries) with dynamic cluster markers for all geotagged photos.
+- **Free-Form Spatial Search**: Add descriptive place tags (e.g., *"delhi rohtak madina village printing press"*) without needing numeric coordinates, with instant gallery search indexing.
 
-### Albums & Privacy Lock
-- List, 2/3/4 column grid layouts with custom per-album sort orders
-- **Biometric Trash Lock**: Require fingerprint, face, or device PIN specifically before opening or viewing the Trash folder. Nosy friends or family members who borrow your phone can no longer snoop through deleted personal photos. Hides deleted item counts until authenticated and auto-relocks when backgrounded.
-- **Biometric Album Lock**: Lock individual albums with fingerprint/face/PIN
-- **Total Timeline Isolation**: Locked album photos are completely excluded from main timeline, videos, and search feeds
-- **System-Wide `.nomedia` Protection**: Automatically creates `.nomedia` inside locked album folders to hide contents from all other apps and system MediaStore
-- Pin, hide, and exclude folders with storage usage overview
+### 10. Native 11+ Multi-Language Engine & Android 13+ Per-App Locale
+- **Complete Native Translations**: 100% offline translations across 11 languages: **Spanish, Portuguese (Brazil), German, Russian, French, Hindi, Bengali, Marathi, Telugu, Tamil, and Gujarati**.
+- **Android 13+ Per-App Locale Architecture**: Fully integrated with Android's system-level `LocaleManager` (`android:localeConfig`) as well as an in-app selector with native script typography.
 
-### Direct Wi-Fi P2P Drop ("AirDrop for Android Without Cloud")
-- **Offline & Zero Cloud**: High-speed peer-to-peer transfer between your Android device and any other device (Windows PC, Mac, iPhone, Linux, or secondary Android) on the same local Wi-Fi router or hotspot.
-- **No App or Account Required on Receiver**: Receivers simply scan an on-device QR code or type `http://192.168.x.x:8765` into any web browser (Chrome, Safari, Firefox, Edge).
-- **50–100+ MB/s Full-Speed Transfer**: Delivers full, uncompressed lossless original photos and 4K videos at native local Wi-Fi bandwidth without third-party cloud servers or compression.
-- **Download All as ZIP**: Streams dynamic ZIP archives on-the-fly directly to receiving browsers with zero intermediate disk space used on the phone.
-- **Bidirectional Web Upload**: Receiver devices (e.g. desktop PCs or laptops) can drag-and-drop photos and videos straight onto the browser page to send them directly into the phone's gallery (`Pictures/ImavaDrop`).
-- **High-Performance Wi-Fi Lock**: Prevents Android system power-saving from throttling transfer speeds during multi-gigabyte transfers.
+### 11. Privacy Shield & Biometric App Lock
+- **Recent Apps Masking**: Applies `FLAG_SECURE` to prevent Android's recent task switcher from snapshotting personal photos or vault contents.
+- **Biometric App Guard**: Secure entire gallery launch behind fingerprint, face unlock, or PIN with rate-limited lockout protection.
 
-### Motion Photos & Looping GIF Studio
-- Embedded micro-video playback with interactive frame scrubber
-- **Best-Shot Extraction**: Extract full-sensor, uncompressed stills from motion photos
-- **Looping GIF Export**: Convert motion photos to shareable GIFs using a zero-bloat Kotlin GIF89a encoder with Octree quantization
-- **Standalone MP4 Export**: Save motion photo video clips to Movies
+---
 
-### Lossless Video Tools
-- **1-Second Audio Stripper**: Instantly remove audio tracks losslessly via hardware `MediaMuxer` and `MediaExtractor` without re-encoding (supports 4K/60fps)
-- Lossless video trimmer and frame grabber
-- 0.25x–3.0x playback speed, swipe gestures, and audio/subtitle track selector
+## Permission Transparency Matrix
 
-### Interactive Geo Map Explorer
-- Zero-overhead in-app Leaflet + OpenStreetMap map viewer (<150 KB, 0 native `.so` binaries)
-- Interactive marker clustering for all geotagged photos
-- **Dual Querying**: Search by landmark, city, village, or GPS coordinates (`37.77, -122.41`) with smooth flight animations
-- Tap any marker to view or open the photo directly
+Imava believes in absolute transparency. Every single permission declared in the manifest has an audited, privacy-guaranteed purpose:
 
-### Custom Location Descriptions & EXIF Editor
-- **Free-Form Place Descriptions**: Attach custom place names (e.g. *"delhi rohtak madina village raju printing press meham"*) without requiring numeric coordinates
-- **GPS Coordinates Editor**: Add, edit, or scrub latitude/longitude directly in the photo details sheet
-- **Gallery Search Indexing**: Find photos instantly by searching any word from custom location descriptions
-- Asynchronous reverse geocoding with 1-tap "Open in Maps"
-
-### On-Device OCR & Selective Text Copy (FOSS & Google-Free)
-- **Tesseract 5 C++ Engine**: Open-source on-device optical character recognition powered by Tesseract4Android (Apache 2.0). Zero dependencies on Google Play Services, Firebase, or proprietary closed-source blobs.
-- **On-Demand Model Loading**: The ~4.1 MB fast English model (`eng.traineddata`) is loaded on-demand only when you first use the feature—keeping the base APK ultra-lean with zero data tax for non-users.
-- **Selective Highlighting & Copy**: Full text selection handles with double-tap word selection or 1-tap "Copy All".
-- **Actionable Smart Chips**: Instant 1-tap detection and actions for phone numbers (dial/copy), URLs (open/copy), and emails (compose/copy).
-- **Searchable Gallery Indexing**: Extracted text is automatically indexed in your local SQLite Room database, enabling instant search for text visible in photos (receipts, signs, serial numbers) right from the gallery search bar.
-
-### Lossless Move/Copy & Timestamp Preservation
-- Moving or copying photos between albums preserves exact original capture timestamps
-- Copies original EXIF datetime tags, preserves filesystem `lastModified` down to the millisecond, and synchronizes MediaStore `DATE_TAKEN`
-- Migrates favorites, custom tags, and custom locations seamlessly
-
-### Automated Documentation Sync
-- Automated synchronization of screenshots from `screenshots/` to `docs/screenshots/`, GitHub Pages website, and `README.md`
-- Integrated Git pre-commit hook and Gradle `:syncScreenshots` task
-
-### Batch Rename
-- Numbered sequence (`Trip_001.jpg`, `Trip_002.jpg`)
-- Date-stamped prefix
-- Find & replace
-
-### Photo Editor
-- Brightness, contrast, saturation, warmth sliders
-- Filter presets (B&W, Warm, Cool, Sepia, Vivid)
-- Freeform crop with aspect presets, 90° rotation, flip
-- Target-size compressor
-
-### Encrypted Vault
-- AES-256-GCM via AndroidKeyStore (12-byte IV, 128-bit tag)
-- Transient decryption cache, wiped on lock
-- Lossless restore with MediaScanner re-indexing
-- PBKDF2 PIN hashing (100k iterations)
-- Decoy PIN for plausible deniability
-- Rate-limited lockout
-- FLAG_SECURE on vault media
-- PIN, pattern lock, or biometric auth
-- Stealth mode via search trigger
-
-### Duplicate Finder
-- Groups by file size, dimensions, duration
-- Burst clustering
-- Perceptual hashing (dHash + aHash) on 32x32 micro-thumbnails
-- Progress reporting
-
-### Advanced Metadata Search & Filter
-- Real camera attributes & hardware metadata filtering directly from the Room database (zero network overhead, instant SQLite speed)
-- Filter by file size thresholds (`> 100 MB`, `> 500 MB`, `> 1 GB`) for rapid storage management
-- Filter by exact resolutions: 4K UHD (`>= 3840x2160`), 1080p Full HD, Panorama (`aspect ratio >= 2:1`), and Portrait
-- Filter by camera/phone make and model (e.g., Pixel 8 Pro vs Sony A7IV)
-- Date range presets (This Week, This Month, Last 3 Months, Custom Date Range)
-- Multi-dimensional compound filtering seamlessly combined with custom tags and favorites
-
-### Direct WebDAV / Local NAS Backup (Zero Cloud)
-- **Zero Cloud Reliance**: Optional private backup directly to home NAS appliances (Synology, Nextcloud, TrueNAS, QNAP, ownCloud) or custom WebDAV endpoints over local Wi-Fi.
-- **Total Local Privacy**: Zero third-party cloud servers, zero external telemetry, zero subscription lock-in. Your media never leaves your local network.
-- **Streaming Native HTTP PUT**: High-performance RFC 4918 WebDAV streaming engine powered by OkHttp, uploading multi-gigabyte 4K video files without memory spikes.
-- **Incremental Sync Ledger**: Local Room database sync tracking ensures only newly created or modified media files are transferred, avoiding duplicate uploads.
-- **Automated WorkManager Scheduling**: 24-hour periodic background backups with strict **Wi-Fi Only** and **Device Charging** constraints to safeguard cellular data and battery life.
-- **Homelab Ready**: Full support for custom ports, basic authentication, configurable destination paths, and optional self-signed SSL/TLS certificates.
-- **Live Connection Diagnostics**: One-tap in-app server reachability and credential validator.
-
-### Trash & Cryptographic File Shredder
-- **30-day auto-purge**: Configurable trash retention via WorkManager
-- **Cryptographic File Shredding (Anti-Recovery)**: Standard OS file deletion (`unlink`) only removes the catalog entry, leaving raw JPEG/MP4 blocks physically intact on flash memory where data recovery tools (DiskDigger, Recuva, PhotoRec) can easily carve them back.
-- **Multi-Pass CSPRNG Overwrite**: Streams cryptographically secure pseudo-random bytes in 64KB synchronous buffers (`"rws"`) across all allocated clusters.
-- **Magic Header Zeroing**: Overwrites initial 8KB with zeroes (`0x00`) to destroy file format magic bytes (`FF D8 FF`, `\x89PNG`, `ftyp`), defeating raw sector carvers.
-- **Hardware Write Cache Flush**: Invokes `FileDescriptor.sync()` and `FileChannel.force(true)` to ensure blocks are physically committed to flash storage.
-- **Dentry & Metadata Scrambling**: Truncates file length to 0 bytes and renames the file to a randomized UUID before deletion to prevent directory slack analysis.
-- **Toggleable in Settings**: Configurable under *Settings > Privacy & Folders > Cryptographic File Shredder*.
-
-### Advanced Instant Deep Media Scan
-- **Instant SQLite Carve (<100ms)**: Direct multi-pattern `MediaStore.Files` database query with `QUERY_ARG_MATCH_NOMEDIA` to discover hidden photos without disk crawl lag.
-- **Comprehensive App & Vault Registry**: Automatically discovers media from messaging apps, dual/cloned app spaces, sent folders, documents, and private third-party directories.
-- **Hidden & Vault Directories**: Unearths hidden media in `.nomedia`, `.hidden`, `.secret`, `.vault`, `.calculator`, and `.thumbnails` folders with clean, auto-generated album titles.
-
-### Album & Folder EXIF Metadata Stripping
-- **In-Place Album Scrubbing**: Strip GPS, device serials, and camera fingerprints across entire albums with one tap.
-- **Chronology & Orientation Protection**: Safely preserves `DateTimeOriginal` and `TAG_ORIENTATION` by default so gallery chronological timeline order and portrait photo orientation are never broken.
-- **Background Auto-Scrub**: Configure folders (e.g. Camera, Downloads) to automatically sanitize new photos in the background with a 3.5s camera write-lock debounce.
-
-### Privacy & Export
-- EXIF metadata stripper for sharing
-- Multi-photo PDF export (A4, auto-orientation)
+| Permission | Android API | Category | Purpose & Privacy Guarantee |
+|:---|:---:|:---|:---|
+| `READ_MEDIA_IMAGES` | API 33+ | Media Access | Loads photos into the gallery timeline and albums. Strictly local queries; zero upload. |
+| `READ_MEDIA_VIDEO` | API 33+ | Media Access | Queries and streams video files in the hardware-accelerated video player. |
+| `READ_MEDIA_VISUAL_USER_SELECTED` | API 34+ | Media Access | Seamlessly supports Android 14's partial photo picker grants. |
+| `READ_EXTERNAL_STORAGE` | API 1–32 | Media Access | Legacy storage read for querying photos on Android 12 and below. |
+| `WRITE_EXTERNAL_STORAGE` | API 1–29 | Media Access | Legacy storage write for saving edits and albums on Android 10 and below. |
+| `MANAGE_EXTERNAL_STORAGE` | API 30+ | Storage & Files | Required for non-destructive album management, renaming, moving, and `.nomedia` scanning across all directories. |
+| `ACCESS_MEDIA_LOCATION` | API 29+ | Privacy & Location | Reads embedded GPS metadata to display geotags and map markers. Never shared externally. |
+| `USE_BIOMETRIC` / `USE_FINGERPRINT` | API 23+ | Security & Vault | Authenticates fingerprint/face unlock for Private Vault, Biometric Trash Lock, and App Lock. |
+| `INTERNET` | API 1+ | Network & Sync | Used exclusively for local LAN WebDAV NAS backup, Imava Drop Wi-Fi P2P streaming, and checking GitHub Releases. **Zero tracking or analytics**. |
+| `ACCESS_NETWORK_STATE` | API 1+ | Network & Sync | Checks Wi-Fi connection state to enforce "Wi-Fi Only" constraints for NAS backups. |
+| `ACCESS_WIFI_STATE` | API 1+ | Network & Sync | Resolves device local IPv4 address for direct peer-to-peer Imava Drop connections. |
+| `CHANGE_WIFI_MULTICAST_STATE` | API 4+ | Network & Sync | Acquires high-performance Wi-Fi lock during large transfers to prevent system throttling. |
+| `REQUEST_INSTALL_PACKAGES` | API 26+ | Updates | Allows user-approved in-place APK updates downloaded directly from official GitHub Releases. |
+| `FOREGROUND_SERVICE` | API 28+ | System & Services | Ensures background tasks (file shredding, bulk compression, Imava Drop) aren't killed prematurely. |
+| `FOREGROUND_SERVICE_DATA_SYNC` | API 34+ | System & Services | Specific foreground service type for data transfer operations on Android 14+. |
+| `POST_NOTIFICATIONS` | API 33+ | System & Services | Displays progress notifications during active Imava Drop transfers, trash purge, and update downloads. |
+| `VIBRATE` | API 1+ | UI | Tactile haptic clicks when selecting photos, unlocking the vault, or dragging items. |
+| `SET_WALLPAPER` / `_HINTS` | API 1+ | Customization | Applies selected photos as home or lock screen wallpaper. |
 
 ---
 
 ## Tech Stack
 
-| Component | Library | Version |
-|---|---|---|
-| Language | Kotlin | 1.9.22 |
-| Annotation Processing | KSP | 1.9.22-1.0.17 |
-| UI | Jetpack Compose | 2024.02.00 BOM |
-| Architecture | ViewModel + StateFlow | Jetpack |
-| DI | Dagger Hilt | 2.51.1 |
-| Database | Room | 2.6.1 (KSP) |
-| Image Loading | Coil | 2.6.0 |
-| Video | Media3 ExoPlayer | 1.3.1 |
-| Background Work | WorkManager | 2.9.0 |
-| Pagination | Paging 3 | 3.2.1 |
-| Biometrics | AndroidX Biometric | 1.1.0 |
-| EXIF | AndroidX ExifInterface | 1.3.7 |
-| Network & WebDAV | OkHttp & Okio | 4.12.0 |
-| OCR | Tesseract 5 & Leptonica | 4.9.0 |
-| Crypto | AndroidKeyStore AES-256-GCM | API 29+ |
+Imava is crafted with a pure, audited open-source foundation:
+
+| Layer | Technology | License |
+|:---|:---|:---:|
+| **Language** | Kotlin 1.9.22 | Apache 2.0 |
+| **UI Toolkit** | Jetpack Compose (Material 3) | Apache 2.0 |
+| **Architecture** | ViewModel + StateFlow + Kotlin Coroutines | Apache 2.0 |
+| **Dependency Injection** | Dagger Hilt 2.51.1 | Apache 2.0 |
+| **Database** | SQLite via Room 2.6.1 (KSP) | Apache 2.0 |
+| **Image Loading** | Coil 2.6.0 (Custom MediaStore Fetcher & Sub-sampling) | Apache 2.0 |
+| **Media Player** | AndroidX Media3 ExoPlayer 1.3.1 | Apache 2.0 |
+| **Background Work** | AndroidX WorkManager 2.9.0 | Apache 2.0 |
+| **Authentication** | AndroidX Biometric 1.1.0 | Apache 2.0 |
+| **Cryptography** | AndroidKeyStore AES-256-GCM + PBKDF2 | Hardware-Backed |
+| **Networking & NAS** | OkHttp 4.12.0 + Okio | Apache 2.0 |
+| **On-Device OCR** | Tesseract 5 & Leptonica (Tesseract4Android) | Apache 2.0 |
+| **Map Rendering** | Leaflet + OpenStreetMap (<150 KB, 0 native binaries) | BSD-2-Clause |
 
 ---
 
-## Building
+## Contribution Guidelines
+
+Contributions from the open-source community are welcome! To maintain Imava's standards, all contributions must adhere to the following rules:
+
+### Core Principles
+1. **100% Offline & Zero Telemetry**: Never introduce analytics SDKs, ads, proprietary tracking blobs, or network calls to commercial servers.
+2. **Zero-Bloat Architecture**: Avoid adding heavy libraries. If an algorithm (like GIF encoding, hashing, or math) can be implemented cleanly in Kotlin, do not pull in massive third-party dependencies.
+3. **Privacy First**: Sensitive data, vault contents, and deleted trash items must remain strictly protected and encrypted.
+
+### Development Workflow
+1. **Fork & Branch**:
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
+2. **Mandatory Updates on Changes**:
+   - **New Permissions**: Update `AndroidManifest.xml` comments, `PermissionsTransparencyScreen.kt`, and this `README.md`.
+   - **New Dependencies**: Document in `AboutLegalScreen.kt`, `OpenSourceLicensesScreen.kt`, and this `README.md`.
+   - **New Features**: Add UI exposure with tactile haptic feedback, and ensure all user-facing strings are localized across all 11+ language resource files (`app/src/main/res/values-*/strings.xml`).
+3. **Verify Tests & Build**:
+   ```bash
+   ./gradlew compileDebugKotlin
+   ./gradlew testDebugUnitTest
+   ./gradlew assembleDebug
+   ```
+   All tests must pass with zero compilation errors and zero broken benchmarks.
+4. **Submit a Pull Request**: Provide a clear description of the feature or fix, referencing any relevant issues.
+
+---
+
+## Building from Source
 
 ```bash
+# Clone the repository
+git clone https://github.com/HrshD1eux/Imava.git
+cd Imava
+
+# Run debug unit test suite
 ./gradlew testDebugUnitTest
+
+# Build debug APK
+./gradlew assembleDebug
+
+# Build optimized release APK (requires keystore.properties)
 ./gradlew assembleRelease
 ```
-
-CI runs on push to `main` via GitHub Actions (`.github/workflows/`).
 
 ---
 
 ## License
 
-Copyright (c) 2026 HrshD1eux
+Copyright (c) 2026 Harsh Pahal (HrshD1eux).
 
-Licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**. See [LICENSE](LICENSE) for the full license text.
+Licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**. See [LICENSE](LICENSE) for the full text.
 
 ---
 
-## Author & Contact
+## Author & Community
 
-- **Author**: Harsh Pahal ([@HrshD1eux](https://github.com/HrshD1eux))
-- **Portfolio**: [hrshd1eux.vercel.app](https://hrshd1eux.vercel.app/)
+- **Lead Developer**: Harsh Pahal ([@HrshD1eux](https://github.com/HrshD1eux))
 - **Email**: `HrshD1eux@proton.me`
-- **Issue Tracker**: https://github.com/HrshD1eux/Imava/issues
-- **Source Code**: https://github.com/HrshD1eux/Imava
+- **Issue Tracker**: [GitHub Issues](https://github.com/HrshD1eux/Imava/issues)
+- **Source Code**: [github.com/HrshD1eux/Imava](https://github.com/HrshD1eux/Imava)
