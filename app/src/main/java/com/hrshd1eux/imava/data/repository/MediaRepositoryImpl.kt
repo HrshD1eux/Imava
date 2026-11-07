@@ -306,7 +306,16 @@ class MediaRepositoryImpl @Inject constructor(
         val processedBuckets = rawBuckets.map { bucket ->
             val subtractCount = hiddenOrTrashedCounts[bucket.id] ?: 0
             val newCount = (bucket.count - subtractCount).coerceAtLeast(0)
-            BucketInfo(bucket.id, bucket.name, newCount, bucket.path, coverUri = bucket.coverUri)
+            BucketInfo(
+                id = bucket.id,
+                name = bucket.name,
+                count = newCount,
+                path = bucket.path,
+                mergedBucketIds = bucket.mergedBucketIds,
+                paths = bucket.paths,
+                coverUri = bucket.coverUri,
+                latestDateTaken = bucket.latestDateTaken
+            )
         }.toMutableList()
 
         val existingNames = processedBuckets.map { it.name }.toSet()

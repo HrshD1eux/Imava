@@ -453,6 +453,10 @@ class MainViewModel @Inject constructor(
                     isPendingItem = true
                 }
 
+                val initialPath = resolvedPath.ifBlank {
+                    if (resolvedName.isNotBlank() && !resolvedName.all { it.isDigit() }) resolvedName else uri.toString()
+                }
+
                 val resolvedMime = mimeType
                     ?: appContext.contentResolver.getType(uri)
                     ?: if (resolvedName.endsWith(".mp4", ignoreCase = true) || resolvedName.endsWith(".mkv", ignoreCase = true) || resolvedName.endsWith(".mov", ignoreCase = true)) "video/mp4" else "image/jpeg"
@@ -469,7 +473,7 @@ class MainViewModel @Inject constructor(
                     MediaItem.Video(
                         id = id,
                         uri = uri,
-                        path = resolvedPath.ifBlank { uri.toString() },
+                        path = initialPath,
                         mimeType = resolvedMime,
                         dateTaken = dateTaken,
                         size = resolvedSize,
@@ -477,20 +481,22 @@ class MainViewModel @Inject constructor(
                         height = 0,
                         durationMs = 0L,
                         bucketId = file?.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L,
-                        bucketName = file?.parentFile?.name ?: ""
+                        bucketName = file?.parentFile?.name ?: "",
+                        isPending = isPendingItem
                     )
                 } else {
                     MediaItem.Photo(
                         id = id,
                         uri = uri,
-                        path = resolvedPath.ifBlank { uri.toString() },
+                        path = initialPath,
                         mimeType = resolvedMime,
                         dateTaken = dateTaken,
                         size = resolvedSize,
                         width = 0,
                         height = 0,
                         bucketId = file?.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L,
-                        bucketName = file?.parentFile?.name ?: ""
+                        bucketName = file?.parentFile?.name ?: "",
+                        isPending = isPendingItem
                     )
                 }
 
@@ -594,6 +600,12 @@ class MainViewModel @Inject constructor(
 
                             withContext(Dispatchers.Main) {
                                 activeMediaItem = finalizedItem
+                                val current = _mediaItems.value
+                                if (current.none { it.id == finalizedItem.id }) {
+                                    _mediaItems.value = if (sortOrder == SortOrder.OLDEST_FIRST) current + finalizedItem else listOf(finalizedItem) + current
+                                } else {
+                                    _mediaItems.value = current.map { if (it.id == finalizedItem.id) finalizedItem else it }
+                                }
                             }
                             refreshAll()
                             break
@@ -768,10 +780,13 @@ class MainViewModel @Inject constructor(
                 val totalCount = group.sumOf { it.count }
                 val mergedIds = group.flatMap { it.mergedBucketIds }.distinct()
                 val mergedPaths = group.flatMap { it.paths }.distinct()
+                val bestCoverBucket = group.maxByOrNull { it.latestDateTaken } ?: primary
                 primary.copy(
                     count = totalCount,
                     mergedBucketIds = mergedIds,
-                    paths = mergedPaths
+                    paths = mergedPaths,
+                    coverUri = bestCoverBucket.coverUri,
+                    latestDateTaken = bestCoverBucket.latestDateTaken
                 )
             }
         } else {

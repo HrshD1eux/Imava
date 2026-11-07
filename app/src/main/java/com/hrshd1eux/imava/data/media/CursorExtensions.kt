@@ -65,14 +65,12 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
     val modSecs = if (indices.modifiedCol != -1) getLong(indices.modifiedCol) else 0L
     val modMs = if (modSecs > 0) modSecs * 1000L else 0L
 
-    val dateTaken = if (rawDateTaken > 100000000000L) {
-        rawDateTaken
-    } else if (modMs > 0) {
-        modMs
-    } else if (addedMs > 0) {
-        addedMs
-    } else {
-        System.currentTimeMillis()
+    val dateTaken = when {
+        rawDateTaken > 100000000000L -> rawDateTaken
+        rawDateTaken > 100000000L -> rawDateTaken * 1000L
+        modMs > 0 -> modMs
+        addedMs > 0 -> addedMs
+        else -> System.currentTimeMillis()
     }
 
     val size = if (indices.sizeCol != -1) getLong(indices.sizeCol) else 0L
@@ -142,6 +140,8 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
             ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
     }
 
+    val isPendingSystem = if (indices.pendingCol != -1) getInt(indices.pendingCol) == 1 else false
+
     return if (isVideo) {
         val duration = if (indices.durCol != -1) getLong(indices.durCol) else 0L
         MediaItem.Video(
@@ -157,7 +157,8 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
             bucketId = bucketIdVal,
             bucketName = bucketName,
             isTrashed = isTrashedSystem,
-            trashTime = computedTrashTime
+            trashTime = computedTrashTime,
+            isPending = isPendingSystem
         )
     } else {
         MediaItem.Photo(
@@ -172,7 +173,8 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
             bucketId = bucketIdVal,
             bucketName = bucketName,
             isTrashed = isTrashedSystem,
-            trashTime = computedTrashTime
+            trashTime = computedTrashTime,
+            isPending = isPendingSystem
         )
     }
 }

@@ -20,6 +20,7 @@ sealed interface MediaItem {
     val bucketId: Long
     val bucketName: String
     val tags: List<String>
+    val isPending: Boolean get() = false
 
     @Immutable
     data class Photo(
@@ -37,7 +38,8 @@ sealed interface MediaItem {
         override val bucketId: Long = 0L,
         override val bucketName: String = "",
         override val trashTime: Long = 0L,
-        override val tags: List<String> = emptyList()
+        override val tags: List<String> = emptyList(),
+        override val isPending: Boolean = false
     ) : MediaItem
 
     @Immutable
@@ -57,7 +59,8 @@ sealed interface MediaItem {
         override val bucketId: Long = 0L,
         override val bucketName: String = "",
         override val trashTime: Long = 0L,
-        override val tags: List<String> = emptyList()
+        override val tags: List<String> = emptyList(),
+        override val isPending: Boolean = false
     ) : MediaItem
 }
 

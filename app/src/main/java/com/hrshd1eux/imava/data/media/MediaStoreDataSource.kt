@@ -306,11 +306,13 @@ class MediaStoreDataSource @Inject constructor(
             }
         }
 
-        // Check for any freshly captured camera media whose DATE_TAKEN is not yet populated
+        // Check for freshly captured media (last 15 mins) or media whose DATE_TAKEN is not yet populated
         if (offset == 0 && !isAscending) {
             try {
-                val recentCutoffSecs = (System.currentTimeMillis() / 1000L) - 86400L // last 24 hours
-                val recentUnindexedCondition = "$selection AND (${MediaStore.Files.FileColumns.DATE_TAKEN} IS NULL OR ${MediaStore.Files.FileColumns.DATE_TAKEN} <= 0) AND ${MediaStore.Files.FileColumns.DATE_ADDED} >= $recentCutoffSecs"
+                val nowSecs = System.currentTimeMillis() / 1000L
+                val freshCutoffSecs = nowSecs - 900L // last 15 mins
+                val recentCutoffSecs = nowSecs - 86400L // last 24 hours
+                val recentUnindexedCondition = "$selection AND (${MediaStore.Files.FileColumns.DATE_ADDED} >= $freshCutoffSecs OR ((${MediaStore.Files.FileColumns.DATE_TAKEN} IS NULL OR ${MediaStore.Files.FileColumns.DATE_TAKEN} <= 0) AND ${MediaStore.Files.FileColumns.DATE_ADDED} >= $recentCutoffSecs))"
                 val recentCursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     val qArgs = Bundle().apply {
                         putString(ContentResolver.QUERY_ARG_SQL_SELECTION, recentUnindexedCondition)
@@ -327,6 +329,7 @@ class MediaStoreDataSource @Inject constructor(
                     val sOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC LIMIT 50"
                     contentResolver.query(collection, projection, recentUnindexedCondition, selectionArgs, sOrder)
                 }
+                var addedAny = false
                 recentCursor?.use { rCur ->
                     val rIndices = MediaCursorIndices(rCur)
                     val existingIds = mediaList.mapTo(HashSet()) { it.id }
@@ -335,6 +338,8 @@ class MediaStoreDataSource @Inject constructor(
                         val item = rCur.extractMediaItem(rIndices)
                         if (item.id !in existingIds) {
                             mediaList.add(0, item)
+                            existingIds.add(item.id)
+                            addedAny = true
                             if (item.path.isNotBlank() && File(item.path).exists()) {
                                 pathsToScan.add(item.path)
                             }
@@ -343,6 +348,14 @@ class MediaStoreDataSource @Inject constructor(
                     if (pathsToScan.isNotEmpty()) {
                         MediaScannerConnection.scanFile(context, pathsToScan.toTypedArray(), null, null)
                     }
+                }
+                if (addedAny && mediaList.size > 1) {
+                    val topSliceSize = minOf(mediaList.size, 50)
+                    val topSorted = mediaList.take(topSliceSize).sortedByDescending { it.dateTaken }
+                    val rest = mediaList.drop(topSliceSize)
+                    mediaList.clear()
+                    mediaList.addAll(topSorted)
+                    mediaList.addAll(rest)
                 }
             } catch (_: Exception) {}
         }
@@ -532,14 +545,22 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.BUCKET_ID,
             MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
             MediaStore.Files.FileColumns.DATA,
-            MediaStore.Files.FileColumns.MEDIA_TYPE
+            MediaStore.Files.FileColumns.MEDIA_TYPE,
+            MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.DATE_MODIFIED,
+            "date_taken"
         )
-        val selection = getMediaTypeCondition(MediaTypeFilter.ALL)
+        val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
+        val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
+        val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
+        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
+        val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
 
         val bucketCounts = mutableMapOf<Long, Int>()
         val bucketNames = mutableMapOf<Long, String>()
         val bucketPaths = mutableMapOf<Long, String>()
         val bucketCoverUris = mutableMapOf<Long, Uri>()
+        val bucketLatestTimestamp = mutableMapOf<Long, Long>()
 
         val cursor = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -547,21 +568,32 @@ class MediaStoreDataSource @Inject constructor(
                     putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
                     putStringArray(
                         ContentResolver.QUERY_ARG_SORT_COLUMNS,
-                        arrayOf(MediaStore.Files.FileColumns.DATE_MODIFIED, MediaStore.Files.FileColumns.DATE_ADDED)
+                        arrayOf(
+                            "date_taken",
+                            MediaStore.Files.FileColumns.DATE_ADDED,
+                            MediaStore.Files.FileColumns.DATE_MODIFIED
+                        )
                     )
                     putInt(
                         ContentResolver.QUERY_ARG_SORT_DIRECTION,
                         ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
                     )
+                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_EXCLUDE)
+                    putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_EXCLUDE)
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_INCLUDE)
                 }
                 contentResolver.query(collection, projection, queryArgs, null)
             } else {
-                val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC, ${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+                val sortOrder = "CASE WHEN date_taken IS NOT NULL AND date_taken > 0 THEN date_taken ELSE date_added * 1000 END DESC, ${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
                 contentResolver.query(collection, projection, selection, null, sortOrder)
             }
         } catch (_: Exception) {
-            null
+            try {
+                val fallbackSort = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+                contentResolver.query(collection, projection, selection, null, fallbackSort)
+            } catch (_: Exception) {
+                null
+            }
         }
 
         cursor?.use {
@@ -570,6 +602,9 @@ class MediaStoreDataSource @Inject constructor(
             val nameCol = it.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME)
             val pathCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
             val mediaTypeCol = it.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE)
+            val dateTakenCol = it.getColumnIndex("date_taken")
+            val dateAddedCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)
+            val dateModCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED)
 
             while (it.moveToNext()) {
                 val bIdRaw = if (bucketIdCol != -1) it.getLong(bucketIdCol) else 0L
@@ -587,17 +622,31 @@ class MediaStoreDataSource @Inject constructor(
                 val count = (bucketCounts[bucketId] ?: 0) + 1
                 bucketCounts[bucketId] = count
 
-                if (count == 1) {
-                    val parent = if (!filePath.isNullOrBlank()) filePath.substringBeforeLast('/', "") else ""
+                val parent = if (!filePath.isNullOrBlank()) filePath.substringBeforeLast('/', "") else ""
+                if (!bucketNames.containsKey(bucketId) || bucketNames[bucketId].isNullOrBlank() || bucketNames[bucketId] == "Unknown") {
                     var bucketName = if (nameCol != -1) it.getString(nameCol) else null
                     if (bucketName.isNullOrBlank() || bucketName == "Unknown") {
                         bucketName = if (parent.isNotEmpty()) parent.substringAfterLast('/') else "Unknown"
                     }
                     bucketNames[bucketId] = bucketName
-                    if (parent.isNotEmpty()) {
-                        bucketPaths[bucketId] = parent
-                    }
+                }
+                if (parent.isNotEmpty() && !bucketPaths.containsKey(bucketId)) {
+                    bucketPaths[bucketId] = parent
+                }
 
+                val rawDateTaken = if (dateTakenCol != -1) it.getLong(dateTakenCol) else 0L
+                val rawAdded = if (dateAddedCol != -1) it.getLong(dateAddedCol) else 0L
+                val rawMod = if (dateModCol != -1) it.getLong(dateModCol) else 0L
+                val effectiveTimestamp = when {
+                    rawDateTaken > 100000000000L -> rawDateTaken
+                    rawAdded > 0L -> rawAdded * 1000L
+                    rawMod > 0L -> rawMod * 1000L
+                    else -> 0L
+                }
+
+                val prevLatest = bucketLatestTimestamp[bucketId] ?: -1L
+                if (effectiveTimestamp > prevLatest || !bucketCoverUris.containsKey(bucketId)) {
+                    bucketLatestTimestamp[bucketId] = effectiveTimestamp
                     val mediaId = if (idCol != -1) it.getLong(idCol) else 0L
                     if (mediaId > 0L) {
                         val mType = if (mediaTypeCol != -1) it.getInt(mediaTypeCol) else MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
@@ -630,7 +679,12 @@ class MediaStoreDataSource @Inject constructor(
                                 bucketPaths[bId] = p.substringBeforeLast('/', "")
                             }
                         }
-                        if (!bucketCoverUris.containsKey(bId)) {
+                        val newestItem = items.maxByOrNull { it.dateTaken }
+                        val prevTime = bucketLatestTimestamp[bId] ?: 0L
+                        if (newestItem != null && newestItem.dateTaken > prevTime) {
+                            bucketCoverUris[bId] = newestItem.uri
+                            bucketLatestTimestamp[bId] = newestItem.dateTaken
+                        } else if (!bucketCoverUris.containsKey(bId)) {
                             items.firstOrNull()?.uri?.let { bucketCoverUris[bId] = it }
                         }
                     }
@@ -640,7 +694,16 @@ class MediaStoreDataSource @Inject constructor(
 
         val buckets = mutableListOf<BucketInfo>()
         bucketCounts.forEach { (id, count) ->
-            buckets.add(BucketInfo(id, bucketNames[id] ?: "Unknown", count, bucketPaths[id], coverUri = bucketCoverUris[id]))
+            buckets.add(
+                BucketInfo(
+                    id = id,
+                    name = bucketNames[id] ?: "Unknown",
+                    count = count,
+                    path = bucketPaths[id],
+                    coverUri = bucketCoverUris[id],
+                    latestDateTaken = bucketLatestTimestamp[id] ?: 0L
+                )
+            )
         }
         buckets.sortedByDescending { it.count }
     }
@@ -1211,5 +1274,6 @@ data class BucketInfo(
     val path: String? = null,
     val mergedBucketIds: List<Long> = listOf(id),
     val paths: List<String> = if (path != null) listOf(path) else emptyList(),
-    val coverUri: android.net.Uri? = null
+    val coverUri: android.net.Uri? = null,
+    val latestDateTaken: Long = 0L
 )

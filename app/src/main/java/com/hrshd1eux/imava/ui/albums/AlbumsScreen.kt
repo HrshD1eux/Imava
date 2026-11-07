@@ -118,6 +118,17 @@ fun AlbumsScreen(
     val vaultConfigVersion by viewModel.vaultConfigVersion.collectAsState()
     val isVaultUnlocked by viewModel.isVaultUnlocked.collectAsState()
 
+    // Real-time lookup of newest media item URI by bucket ID directly from live timeline
+    val latestMediaByBucketId = remember(allMedia) {
+        val map = mutableMapOf<Long, Uri>()
+        for (item in allMedia) {
+            if (!map.containsKey(item.bucketId)) {
+                map[item.bucketId] = item.uri
+            }
+        }
+        map
+    }
+
     var showSortMenu by remember { mutableStateOf(false) }
     var showLayoutMenu by remember { mutableStateOf(false) }
 
@@ -556,9 +567,11 @@ fun AlbumsScreen(
                 }
 
                 if (numCols == 1) {
-                    items(pinnedBuckets) { bucket ->
+                    items(pinnedBuckets, key = { it.id }) { bucket ->
                         val customMediaId = customAlbumCovers[bucket.id]
+                        val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
                         val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
+                            ?: liveCoverUri
                             ?: bucket.coverUri
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
@@ -572,7 +585,7 @@ fun AlbumsScreen(
                     }
                 } else {
                     val chunkedPinned = pinnedBuckets.chunked(numCols)
-                    items(chunkedPinned) { rowBuckets ->
+                    items(chunkedPinned, key = { row -> row.map { it.id }.joinToString("-") }) { rowBuckets ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -581,7 +594,9 @@ fun AlbumsScreen(
                         ) {
                             rowBuckets.forEach { bucket ->
                                 val customMediaId = customAlbumCovers[bucket.id]
+                                val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
                                 val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
+                                    ?: liveCoverUri
                                     ?: bucket.coverUri
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(
@@ -618,9 +633,11 @@ fun AlbumsScreen(
                 }
             } else {
                 if (numCols == 1) {
-                    items(unpinnedBuckets) { bucket ->
+                    items(unpinnedBuckets, key = { it.id }) { bucket ->
                         val customMediaId = customAlbumCovers[bucket.id]
+                        val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
                         val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
+                            ?: liveCoverUri
                             ?: bucket.coverUri
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
@@ -634,7 +651,7 @@ fun AlbumsScreen(
                     }
                 } else {
                     val chunkedUnpinned = unpinnedBuckets.chunked(numCols)
-                    items(chunkedUnpinned) { rowBuckets ->
+                    items(chunkedUnpinned, key = { row -> row.map { it.id }.joinToString("-") }) { rowBuckets ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -643,7 +660,9 @@ fun AlbumsScreen(
                         ) {
                             rowBuckets.forEach { bucket ->
                                 val customMediaId = customAlbumCovers[bucket.id]
+                                val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
                                 val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
+                                    ?: liveCoverUri
                                     ?: bucket.coverUri
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(

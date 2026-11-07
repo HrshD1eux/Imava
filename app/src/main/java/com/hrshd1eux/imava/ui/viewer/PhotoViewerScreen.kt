@@ -203,15 +203,16 @@ fun PhotoViewerScreen(
         }
     }
 
-    val mediaItems = remember(visibleMediaItems, deletedMediaIds) {
+    val mediaItems = remember(visibleMediaItems, deletedMediaIds, activeItem) {
         val baseList = if (visibleMediaItems.isNotEmpty()) {
-            if (visibleMediaItems.none { it.id == initialActiveItem.id } && initialActiveItem.id !in deletedMediaIds) {
-                listOf(initialActiveItem) + visibleMediaItems
+            val listWithUpdatedActive = visibleMediaItems.map { if (it.id == activeItem.id) activeItem else it }
+            if (listWithUpdatedActive.none { it.id == activeItem.id } && activeItem.id !in deletedMediaIds) {
+                listOf(activeItem) + listWithUpdatedActive
             } else {
-                visibleMediaItems
+                listWithUpdatedActive
             }
         } else {
-            if (initialActiveItem.id !in deletedMediaIds) listOf(initialActiveItem) else emptyList()
+            if (activeItem.id !in deletedMediaIds) listOf(activeItem) else emptyList()
         }
         baseList.filter { it.id !in deletedMediaIds }
     }
@@ -406,7 +407,7 @@ fun PhotoViewerScreen(
 
         HorizontalPager(
             state = pagerState,
-            key = { page -> mediaItems.getOrNull(page)?.id ?: page },
+            key = { page -> mediaItems.getOrNull(page)?.let { "${it.id}_${it.isPending}_${it.size}_${it.path}" } ?: page.toString() },
             userScrollEnabled = !isCurrentPageZoomed && !isSlideshowActive && !isGuestModeLocked,
             beyondBoundsPageCount = 1,
             pageSpacing = 16.dp,
@@ -421,7 +422,7 @@ fun PhotoViewerScreen(
         ) { page ->
             val item = mediaItems.getOrNull(page)
             if (item != null) {
-                val imageRequest = remember(item.uri, item.width, item.height) {
+                val imageRequest = remember(item.uri, item.width, item.height, item.isPending, item.size) {
                     val maxTextureDim = 4096
                     val builder = coil.request.ImageRequest.Builder(context)
                         .data(item.uri)
@@ -478,9 +479,12 @@ fun PhotoViewerScreen(
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
-                        val isPendingCapture = item.path.contains("/.pending-") ||
+                        val isPendingCapture = item.isPending ||
+                            item.path.contains("/.pending-") ||
                             item.path.substringAfterLast('/').startsWith(".pending", ignoreCase = true) ||
-                            (item.size == 0L && item.uri.scheme == "content" && !item.isVideo)
+                            item.path.contains(".pending") ||
+                            (item.size == 0L && !item.isVideo) ||
+                            (item.width == 0 && item.height == 0 && item.size == 0L && !item.isVideo)
 
                         if (isPendingCapture) {
                             Column(
@@ -540,11 +544,19 @@ fun PhotoViewerScreen(
             modifier = Modifier.align(Alignment.TopCenter)
         ) {
             val rawFileName = currentItem.path.substringAfterLast('/')
-            val fileName = if (rawFileName.startsWith(".pending", ignoreCase = true)) {
-                val cleanPart = rawFileName.removePrefix(".").substringAfter("-")
-                if (cleanPart.isNotBlank()) cleanPart else "Processing photo..."
-            } else {
-                rawFileName
+            val fileName = when {
+                currentItem.isPending || rawFileName.contains(".pending", ignoreCase = true) -> {
+                    val candidate = rawFileName.removePrefix(".").substringAfter("pending-", "").substringAfter("-", "")
+                    if (candidate.isNotBlank() && !candidate.startsWith("pending", ignoreCase = true) && !candidate.all { it.isDigit() }) {
+                        candidate
+                    } else {
+                        "Processing photo..."
+                    }
+                }
+                rawFileName.all { it.isDigit() } || rawFileName.startsWith("media:", ignoreCase = true) -> {
+                    "Photo"
+                }
+                else -> rawFileName
             }
 
             Row(
