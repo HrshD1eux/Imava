@@ -548,7 +548,7 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.MEDIA_TYPE,
             MediaStore.Files.FileColumns.DATE_ADDED,
             MediaStore.Files.FileColumns.DATE_MODIFIED,
-            "date_taken"
+            MediaStore.Files.FileColumns.DATE_TAKEN
         )
         val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
         val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
@@ -569,9 +569,8 @@ class MediaStoreDataSource @Inject constructor(
                     putStringArray(
                         ContentResolver.QUERY_ARG_SORT_COLUMNS,
                         arrayOf(
-                            "date_taken",
-                            MediaStore.Files.FileColumns.DATE_ADDED,
-                            MediaStore.Files.FileColumns.DATE_MODIFIED
+                            MediaStore.Files.FileColumns.DATE_TAKEN,
+                            MediaStore.Files.FileColumns.DATE_ADDED
                         )
                     )
                     putInt(
@@ -584,13 +583,22 @@ class MediaStoreDataSource @Inject constructor(
                 }
                 contentResolver.query(collection, projection, queryArgs, null)
             } else {
-                val sortOrder = "CASE WHEN date_taken IS NOT NULL AND date_taken > 0 THEN date_taken ELSE date_added * 1000 END DESC, ${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+                val sortOrder = "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC, ${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
                 contentResolver.query(collection, projection, selection, null, sortOrder)
             }
         } catch (_: Exception) {
             try {
+                val fallbackProjection = arrayOf(
+                    MediaStore.Files.FileColumns._ID,
+                    MediaStore.Files.FileColumns.BUCKET_ID,
+                    MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
+                    MediaStore.Files.FileColumns.DATA,
+                    MediaStore.Files.FileColumns.MEDIA_TYPE,
+                    MediaStore.Files.FileColumns.DATE_ADDED
+                )
+                val baseSelection = getMediaTypeCondition(MediaTypeFilter.ALL)
                 val fallbackSort = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
-                contentResolver.query(collection, projection, selection, null, fallbackSort)
+                contentResolver.query(collection, fallbackProjection, baseSelection, null, fallbackSort)
             } catch (_: Exception) {
                 null
             }
@@ -602,7 +610,7 @@ class MediaStoreDataSource @Inject constructor(
             val nameCol = it.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME)
             val pathCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
             val mediaTypeCol = it.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE)
-            val dateTakenCol = it.getColumnIndex("date_taken")
+            val dateTakenCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATE_TAKEN)
             val dateAddedCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)
             val dateModCol = it.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED)
 

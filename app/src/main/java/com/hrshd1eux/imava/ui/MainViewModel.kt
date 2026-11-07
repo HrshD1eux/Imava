@@ -771,9 +771,38 @@ class MainViewModel @Inject constructor(
     }
 
     val visibleBuckets: StateFlow<List<BucketInfo>> = combine(
-        _buckets, _excludedBucketIds, _albumSortOrder, _mergeSameNamedAlbums
-    ) { list: List<BucketInfo>, excluded: Set<String>, sortOrder: AlbumSortOrder, mergeEnabled: Boolean ->
-        val filtered = list.filter { !excluded.contains(it.id.toString()) }
+        _buckets, _excludedBucketIds, _albumSortOrder, _mergeSameNamedAlbums, mediaItems
+    ) { list: List<BucketInfo>, excluded: Set<String>, sortOrder: AlbumSortOrder, mergeEnabled: Boolean, rawMedia: List<MediaItem> ->
+        val rawList = if (list.isNotEmpty()) {
+            list
+        } else if (rawMedia.isNotEmpty()) {
+            // Self-healing fallback: derive albums directly from in-memory media items if MediaStore query fails or is delayed
+            rawMedia.groupBy { it.bucketId }.mapNotNull { (bId, items) ->
+                if (bId == 0L || items.isEmpty()) null
+                else {
+                    val first = items.first()
+                    val bName = first.bucketName.ifBlank {
+                        val parent = first.path.substringBeforeLast('/', "")
+                        if (parent.isNotBlank()) parent.substringAfterLast('/') else "Unknown"
+                    }
+                    val newest = items.maxByOrNull { it.dateTaken } ?: first
+                    BucketInfo(
+                        id = bId,
+                        name = bName,
+                        count = items.size,
+                        path = first.path.substringBeforeLast('/', ""),
+                        mergedBucketIds = listOf(bId),
+                        paths = items.map { it.path.substringBeforeLast('/', "") }.filter { it.isNotBlank() }.distinct(),
+                        coverUri = newest.uri,
+                        latestDateTaken = newest.dateTaken
+                    )
+                }
+            }
+        } else {
+            emptyList()
+        }
+
+        val filtered = rawList.filter { !excluded.contains(it.id.toString()) }
         val processed = if (mergeEnabled) {
             filtered.groupBy { it.name.trim().lowercase(java.util.Locale.ROOT) }.map { (_, group) ->
                 val primary = group.first()
@@ -795,7 +824,7 @@ class MainViewModel @Inject constructor(
         when (sortOrder) {
             AlbumSortOrder.NAME_ASC -> processed.sortedBy { it.name.lowercase() }
             AlbumSortOrder.COUNT_DESC -> processed.sortedByDescending { it.count }
-            AlbumSortOrder.RECENT -> processed
+            AlbumSortOrder.RECENT -> processed.sortedByDescending { it.latestDateTaken }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
