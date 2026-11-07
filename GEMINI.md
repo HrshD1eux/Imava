@@ -6,7 +6,6 @@ These rules are strictly enforced across all modifications in this repository:
 Whenever any Android permission is added, modified, or removed:
 - **`app/src/main/AndroidManifest.xml`**: Document the exact rationale in XML comments.
 - **`PermissionsTransparencyScreen.kt`**: Add the permission to `detailedKnownPermissions` with user-friendly description, technical explanation, and introduced API level.
-- **`README.md`**: Update the Permission Transparency Matrix table.
 
 ## 2. Third-Party Library & Dependency Rule
 Whenever any third-party library or dependency is introduced or updated:

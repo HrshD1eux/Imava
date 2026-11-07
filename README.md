@@ -123,33 +123,6 @@ Imava is built specifically for users who refuse cloud telemetry, mandatory acco
 
 ---
 
-## Permission Transparency Matrix
-
-Imava believes in absolute transparency. Every single permission declared in the manifest has an audited, privacy-guaranteed purpose:
-
-| Permission | Android API | Category | Purpose & Privacy Guarantee |
-|:---|:---:|:---|:---|
-| `READ_MEDIA_IMAGES` | API 33+ | Media Access | Loads photos into the gallery timeline and albums. Strictly local queries; zero upload. |
-| `READ_MEDIA_VIDEO` | API 33+ | Media Access | Queries and streams video files in the hardware-accelerated video player. |
-| `READ_MEDIA_VISUAL_USER_SELECTED` | API 34+ | Media Access | Seamlessly supports Android 14's partial photo picker grants. |
-| `READ_EXTERNAL_STORAGE` | API 1–32 | Media Access | Legacy storage read for querying photos on Android 12 and below. |
-| `WRITE_EXTERNAL_STORAGE` | API 1–29 | Media Access | Legacy storage write for saving edits and albums on Android 10 and below. |
-| `MANAGE_EXTERNAL_STORAGE` | API 30+ | Storage & Files | Required for non-destructive album management, renaming, moving, and `.nomedia` scanning across all directories. |
-| `ACCESS_MEDIA_LOCATION` | API 29+ | Privacy & Location | Reads embedded GPS metadata to display geotags and map markers. Never shared externally. |
-| `USE_BIOMETRIC` / `USE_FINGERPRINT` | API 23+ | Security & Vault | Authenticates fingerprint/face unlock for Private Vault, Biometric Trash Lock, and App Lock. |
-| `INTERNET` | API 1+ | Network & Sync | Used exclusively for local LAN WebDAV NAS backup, Imava Drop Wi-Fi P2P streaming, and checking GitHub Releases. **Zero tracking or analytics**. |
-| `ACCESS_NETWORK_STATE` | API 1+ | Network & Sync | Checks Wi-Fi connection state to enforce "Wi-Fi Only" constraints for NAS backups. |
-| `ACCESS_WIFI_STATE` | API 1+ | Network & Sync | Resolves device local IPv4 address for direct peer-to-peer Imava Drop connections. |
-| `CHANGE_WIFI_MULTICAST_STATE` | API 4+ | Network & Sync | Acquires high-performance Wi-Fi lock during large transfers to prevent system throttling. |
-| `REQUEST_INSTALL_PACKAGES` | API 26+ | Updates | Allows user-approved in-place APK updates downloaded directly from official GitHub Releases. |
-| `FOREGROUND_SERVICE` | API 28+ | System & Services | Ensures background tasks (file shredding, bulk compression, Imava Drop) aren't killed prematurely. |
-| `FOREGROUND_SERVICE_DATA_SYNC` | API 34+ | System & Services | Specific foreground service type for data transfer operations on Android 14+. |
-| `POST_NOTIFICATIONS` | API 33+ | System & Services | Displays progress notifications during active Imava Drop transfers, trash purge, and update downloads. |
-| `VIBRATE` | API 1+ | UI | Tactile haptic clicks when selecting photos, unlocking the vault, or dragging items. |
-| `SET_WALLPAPER` / `_HINTS` | API 1+ | Customization | Applies selected photos as home or lock screen wallpaper. |
-
----
-
 ## Tech Stack
 
 Imava is crafted with a pure, audited open-source foundation:
@@ -187,7 +160,7 @@ Contributions from the open-source community are welcome! To maintain Imava's st
    git checkout -b feat/your-feature-name
    ```
 2. **Mandatory Updates on Changes**:
-   - **New Permissions**: Update `AndroidManifest.xml` comments, `PermissionsTransparencyScreen.kt`, and this `README.md`.
+   - **New Permissions**: Update `AndroidManifest.xml` comments and the in-app `PermissionsTransparencyScreen.kt`.
    - **New Dependencies**: Document in `AboutLegalScreen.kt`, `OpenSourceLicensesScreen.kt`, and this `README.md`.
    - **New Features**: Add UI exposure with tactile haptic feedback, and ensure all user-facing strings are localized across all 11+ language resource files (`app/src/main/res/values-*/strings.xml`).
 3. **Verify Tests & Build**:
