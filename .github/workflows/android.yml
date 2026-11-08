@@ -33,10 +33,19 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Provision Gradle Wrapper
+        run: |
+          for i in 1 2 3 4 5; do
+            echo "Attempt $i to provision Gradle..."
+            ./gradlew --version && break || sleep 5
+          done
 
       - name: Extract & Compute Release Version
         id: extract_version
