@@ -44,8 +44,10 @@ jobs:
         run: |
           for i in 1 2 3 4 5; do
             echo "Attempt $i to provision Gradle..."
-            ./gradlew --version && break || sleep 5
+            ./gradlew --version && exit 0 || sleep 5
           done
+          echo "Failed to provision Gradle after 5 attempts"
+          exit 1
 
       - name: Extract & Compute Release Version
         id: extract_version
