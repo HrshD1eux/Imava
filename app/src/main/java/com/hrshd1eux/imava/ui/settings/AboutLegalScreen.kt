@@ -64,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -118,7 +119,7 @@ fun AboutLegalScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "About & Legal",
+                        text = stringResource(R.string.settings_about_legal),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -127,7 +128,7 @@ fun AboutLegalScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to Settings"
+                            contentDescription = stringResource(R.string.about_back_to_settings)
                         )
                     }
                 },
@@ -177,7 +178,7 @@ fun AboutLegalScreen(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Version $versionName (Build $versionCode)",
+                        text = stringResource(R.string.about_version_format, versionName, versionCode),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -189,7 +190,7 @@ fun AboutLegalScreen(
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     ) {
                         Text(
-                            text = "GNU General Public License v3.0",
+                            text = stringResource(R.string.about_license_badge),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
@@ -211,7 +212,7 @@ fun AboutLegalScreen(
                                             showUpToDateDialog = true
                                         }
                                     } catch (_: Exception) {
-                                        android.widget.Toast.makeText(context, "Could not check for updates", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.about_update_check_failed), android.widget.Toast.LENGTH_SHORT).show()
                                     } finally {
                                         isCheckingUpdates = false
                                     }
@@ -228,11 +229,11 @@ fun AboutLegalScreen(
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Checking for Updates...")
+                            Text(stringResource(R.string.about_checking_updates))
                         } else {
                             Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Check for Updates")
+                            Text(stringResource(R.string.about_check_for_updates))
                         }
                     }
 
@@ -252,7 +253,7 @@ fun AboutLegalScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "Downloading v${state.version} (${state.progress}%)",
+                                            text = stringResource(R.string.about_downloading_progress, state.version, state.progress),
                                             style = MaterialTheme.typography.titleSmall,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.primary
@@ -273,11 +274,11 @@ fun AboutLegalScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         TextButton(onClick = { AppUpdateManager.pauseDownload(context) }) {
-                                            Text("Pause")
+                                            Text(stringResource(R.string.update_pause))
                                         }
                                         Spacer(modifier = Modifier.width(6.dp))
                                         TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
-                                            Text("Cancel")
+                                            Text(stringResource(R.string.action_cancel))
                                         }
                                     }
                                 }
@@ -293,7 +294,7 @@ fun AboutLegalScreen(
                                 Column(modifier = Modifier.padding(14.dp)) {
                                     val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
                                     Text(
-                                        text = "Download Paused at ${state.progress}% ($downloadedStr)",
+                                        text = stringResource(R.string.about_download_paused_progress, state.progress, downloadedStr),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.secondary
@@ -306,11 +307,11 @@ fun AboutLegalScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                                            Text("Resume")
+                                            Text(stringResource(R.string.update_resume))
                                         }
                                         Spacer(modifier = Modifier.width(6.dp))
                                         TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
-                                            Text("Cancel")
+                                            Text(stringResource(R.string.action_cancel))
                                         }
                                     }
                                 }
@@ -325,7 +326,7 @@ fun AboutLegalScreen(
                             ) {
                                 Column(modifier = Modifier.padding(14.dp)) {
                                     Text(
-                                        text = "Update Ready: Imava Gallery v${state.version}",
+                                        text = stringResource(R.string.about_update_ready, state.version),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.tertiary
@@ -333,7 +334,7 @@ fun AboutLegalScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         Button(onClick = { AppUpdateManager.installApk(context, state.apkFile) }) {
-                                            Text("Install Now")
+                                            Text(stringResource(R.string.update_install_now))
                                         }
                                     }
                                 }
@@ -348,7 +349,7 @@ fun AboutLegalScreen(
                             ) {
                                 Column(modifier = Modifier.padding(14.dp)) {
                                     Text(
-                                        text = "Download Failed: ${state.error}",
+                                        text = stringResource(R.string.about_download_failed, state.error),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.error
@@ -356,11 +357,11 @@ fun AboutLegalScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                                            Text("Retry / Resume")
+                                            Text(stringResource(R.string.about_retry_resume))
                                         }
                                         Spacer(modifier = Modifier.width(6.dp))
                                         TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
-                                            Text("Dismiss")
+                                            Text(stringResource(R.string.about_dismiss))
                                         }
                                     }
                                 }
@@ -379,7 +380,7 @@ fun AboutLegalScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Lead Developer & Maintainer",
+                        text = stringResource(R.string.about_lead_dev),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
@@ -424,14 +425,14 @@ fun AboutLegalScreen(
                                     }
                                     context.startActivity(intent)
                                 } catch (_: Exception) {
-                                    android.widget.Toast.makeText(context, "No email client found", android.widget.Toast.LENGTH_SHORT).show()
+                                    android.widget.Toast.makeText(context, context.getString(R.string.about_no_email_client), android.widget.Toast.LENGTH_SHORT).show()
                                 }
                             },
                             shape = RoundedCornerShape(10.dp)
                         ) {
                             Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Email")
+                            Text(stringResource(R.string.about_email))
                         }
                     }
 
@@ -458,8 +459,8 @@ fun AboutLegalScreen(
                         Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Developer Portfolio", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "Personal profile, showcase & projects", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(text = stringResource(R.string.about_portfolio_title), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = stringResource(R.string.about_portfolio_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
@@ -483,7 +484,7 @@ fun AboutLegalScreen(
                         Icon(Icons.Default.Code, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Source Code (GitHub)", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = stringResource(R.string.about_source_title), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                             Text(text = "github.com/hrshd1eux/imava", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
@@ -508,8 +509,8 @@ fun AboutLegalScreen(
                         Icon(Icons.Default.BugReport, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Report Issues & Requests", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "Submit bug reports & feature requests", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(text = stringResource(R.string.about_issues_title), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = stringResource(R.string.about_issues_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
@@ -524,7 +525,7 @@ fun AboutLegalScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Legal & Security Transparency",
+                        text = stringResource(R.string.about_sec_transparency),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
@@ -543,8 +544,8 @@ fun AboutLegalScreen(
                         Icon(Icons.Default.Shield, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Permission Transparency", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "Scope, live device status & API requirements", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(text = stringResource(R.string.about_perm_transparency), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = stringResource(R.string.about_perm_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
@@ -563,8 +564,8 @@ fun AboutLegalScreen(
                         Icon(Icons.Default.Gavel, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "Open Source Licenses", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                            Text(text = "Embedded offline licenses for libraries & GPL-3.0", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(text = stringResource(R.string.about_licenses_title), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                            Text(text = stringResource(R.string.about_licenses_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
@@ -587,13 +588,13 @@ fun AboutLegalScreen(
             AlertDialog(
                 onDismissRequest = { showUpToDateDialog = false },
                 icon = { Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                title = { Text("App Up-to-Date (v${updateInfo.currentVersion})") },
+                title = { Text(stringResource(R.string.about_app_uptodate_title, updateInfo.currentVersion)) },
                 text = {
-                    Text("You are using the latest version of Imava Gallery!")
+                    Text(stringResource(R.string.about_app_uptodate_desc))
                 },
                 confirmButton = {
                     Button(onClick = { showUpToDateDialog = false }) {
-                        Text("OK")
+                        Text(stringResource(R.string.action_ok))
                     }
                 }
             )

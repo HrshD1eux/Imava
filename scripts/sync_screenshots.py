@@ -71,6 +71,8 @@ TITLE_ALIASES = {
     'about_legal': 'About & FOSS Transparency',
     '08_album_privacy': 'Album Privacy & Security',
     'album_privacy': 'Album Privacy & Security',
+    '09_languages': 'Language Localization',
+    'languages': 'Language Localization',
     'setting': 'Settings',
     'settings': 'Settings',
 }

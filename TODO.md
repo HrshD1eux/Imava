@@ -99,3 +99,15 @@ android {
 - [ ] `MANAGE_EXTERNAL_STORAGE` policy declaration submitted (required on Google Play for All Files Access)
 - [ ] Keystore and release signing keys configured in `keystore.properties`
 - [ ] Tested release build via `./gradlew assembleRelease`
+
+---
+
+## 🚀 Core Architectural Roadmap (Approved)
+
+| Feature | Decision / Priority | Architecture & Rationale | Status |
+| :--- | :--- | :--- | :--- |
+| **Tablet & Foldable Support** | **YES (Top Priority)** | Right now, Imava on a tablet or unfolded foldable just stretches the vertical phone grid. Implementing a responsive Navigation Rail, dual-pane layout (Album list on left, Grid on right; Viewer on left, EXIF info on right) elevates Imava from a "hobby phone app" to a commercial-grade Android client. | ⏳ Planned |
+| **Blurry Photo Detector in Storage Doctor** | **YES (High Priority)** | A natural, highly requested utility for `StorageDoctorScreen`. Can be implemented with pure, lightning-fast math (Laplacian edge variance on downsampled bitmaps) with zero machine-learning bloat and zero external dependencies. | ⏳ Planned |
+| **Smart Albums 2.0 (Rule-Based)** | **YES (Rule-Based Only)** | Do NOT add heavy AI/ML vision models (like MobileNet or ML Kit)—they bloat the APK by 25MB+, drain battery, and label photos with stupid generic tags ("sky", "food"). Instead, build deterministic rule-based smart albums ("Videos > 1 GB", "Burst Shots", "Photos from 2024", "Tagged with #work"). That is pure Room SQLite queries, fast, and 100% accurate. | ⏳ Planned |
+| **Fix Documentation & Security Claims** | **YES (Immediate)** | Align `VaultCrypto.kt` and `docs/index.html` PBKDF2 numbers (100k rounds for Vault PIN, 250k rounds for container backup passphrase), and temper the File Shredder docstrings to explain that it prevents file-system reconstruction while acknowledging NAND wear-leveling realities. | ✅ Completed |
+

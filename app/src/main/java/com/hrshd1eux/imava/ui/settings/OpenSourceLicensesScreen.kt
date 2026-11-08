@@ -56,9 +56,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 
 data class OpenSourceLibraryFull(
     val id: String,
@@ -295,12 +297,12 @@ fun OpenSourceLicensesScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Open Source Licenses",
+                            text = stringResource(R.string.about_licenses_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "${libraries.size} Open-Source Components • Tap to view license",
+                            text = stringResource(R.string.licenses_components_count, libraries.size),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -310,7 +312,7 @@ fun OpenSourceLicensesScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
@@ -378,7 +380,7 @@ fun OpenSourceLicensesScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = "By ${lib.author}",
+                            text = stringResource(R.string.licenses_by_author, lib.author),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -399,7 +401,7 @@ fun OpenSourceLicensesScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (isExpanded) "Hide Full License Text" else "View Embedded License Text",
+                                text = if (isExpanded) stringResource(R.string.licenses_hide_full) else stringResource(R.string.licenses_view_embedded),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold
@@ -447,14 +449,14 @@ fun OpenSourceLicensesScreen(
                                         onClick = {
                                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                             clipboard.setPrimaryClip(ClipData.newPlainText("${lib.name} License", lib.fullLicenseText))
-                                            Toast.makeText(context, "License text copied to clipboard", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, context.getString(R.string.licenses_copied_toast), Toast.LENGTH_SHORT).show()
                                         },
                                         shape = RoundedCornerShape(10.dp),
                                         modifier = Modifier.weight(1f)
                                     ) {
                                         Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Copy License")
+                                        Text(stringResource(R.string.licenses_copy_license))
                                     }
 
                                     Button(
@@ -471,7 +473,7 @@ fun OpenSourceLicensesScreen(
                                     ) {
                                         Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Website")
+                                        Text(stringResource(R.string.licenses_website))
                                     }
                                 }
                             }

@@ -50,10 +50,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.hrshd1eux.imava.R
 
 data class PermissionDetail(
     val friendlyName: String,
@@ -298,12 +300,12 @@ fun PermissionsTransparencyScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Permission Transparency",
+                            text = stringResource(R.string.about_perm_transparency),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "${dynamicPermissions.size} Permissions Declared",
+                            text = stringResource(R.string.perm_declared_count, dynamicPermissions.size),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -313,7 +315,7 @@ fun PermissionsTransparencyScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
@@ -360,7 +362,7 @@ fun PermissionsTransparencyScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Simple (User Friendly)",
+                                text = stringResource(R.string.perm_mode_simple),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = if (!isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
@@ -387,7 +389,7 @@ fun PermissionsTransparencyScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Technical (Developer)",
+                                text = stringResource(R.string.perm_mode_technical),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = if (isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
@@ -457,7 +459,7 @@ fun PermissionsTransparencyScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = if (isGranted) "Granted" else "Not Granted",
+                                            text = if (isGranted) stringResource(R.string.perm_status_granted) else stringResource(R.string.perm_status_not_granted),
                                             style = MaterialTheme.typography.labelSmall,
                                             fontWeight = FontWeight.Bold,
                                             color = if (isGranted) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.error
@@ -502,7 +504,7 @@ fun PermissionsTransparencyScreen(
                                 Spacer(modifier = Modifier.height(6.dp))
 
                                 Text(
-                                    text = "Target Scope: ${perm.introducedApi}",
+                                    text = stringResource(R.string.perm_target_scope, perm.introducedApi),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.outline
                                 )

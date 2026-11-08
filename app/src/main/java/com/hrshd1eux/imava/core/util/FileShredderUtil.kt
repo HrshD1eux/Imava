@@ -23,6 +23,11 @@ import java.util.UUID
  * pseudo-random data, zeroes out file format magic headers (JPEG, PNG, MP4, EXIF),
  * forces hardware write cache flushes (`FileDescriptor.sync()`), truncates the file
  * size to 0 bytes, scrambles the filename in the directory entry (dentry), and then deletes it.
+ * 
+ * Note on Flash Storage (UFS / eMMC): Modern solid-state flash controllers use wear-leveling
+ * and copy-on-write mapping. While this in-place overwrite guarantees data destruction at the
+ * filesystem and OS recovery layer, low-level physical NAND remap residue cannot be completely
+ * eradicated from userspace without full hardware-based File-Based Encryption (FBE).
  */
 object FileShredderUtil {
 

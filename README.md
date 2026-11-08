@@ -59,6 +59,12 @@
         <img src="screenshots/08_album_privacy.png" width="100%" alt="Album Privacy & Security" />
       </td>
     </tr>
+    <tr>
+      <td align="center" width="25%">
+        <b>Language Localization</b><br><br>
+        <img src="screenshots/09_languages.png" width="100%" alt="Language Localization" />
+      </td>
+    </tr>
   </table>
 </div>
 <!-- SCREENSHOTS_END -->

@@ -118,7 +118,7 @@
         "name": "How does Imava's hardware-backed AES-256-GCM vault encryption work?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When you move photos or videos into Imava's Hidden Vault, they are encrypted at rest using AES-256-GCM authenticated encryption. Encryption keys are derived via PBKDF2 with 250,000 iterations and protected inside the device's hardware security module (AndroidKeyStore TEE or StrongBox). Unencrypted source files are securely unlinked and purged."
+          "text": "When you move photos or videos into Imava's Hidden Vault, they are encrypted at rest using AES-256-GCM authenticated encryption. Encryption keys are derived via PBKDF2 with 100,000 iterations for PINs (and 250,000 rounds for .imava backups) and protected inside the device's hardware security module (AndroidKeyStore TEE or StrongBox). Unencrypted source files are securely unlinked and purged."
         }
       },
       {
@@ -1410,6 +1410,10 @@
           <img src="screenshots/08_album_privacy.png" alt="Album Privacy & Security" loading="lazy">
           <div class="phone-caption">Album Privacy & Security</div>
         </div>
+        <div class="phone-card">
+          <img src="screenshots/09_languages.png" alt="Language Localization" loading="lazy">
+          <div class="phone-caption">Language Localization</div>
+        </div>
       </div>
       <!-- SCREENSHOTS_END -->
     </div>
@@ -1428,7 +1432,7 @@
         <div class="feature-card">
           <div class="feature-icon">🔐</div>
           <h3 class="feature-title">Hardware AES-256-GCM Vault</h3>
-          <p class="feature-text">AndroidKeyStore TEE/StrongBox hardware cryptography with 250,000 PBKDF2 rounds, dynamic FLAG_SECURE screenshot blocking, and encrypted .imava container export.</p>
+          <p class="feature-text">AndroidKeyStore TEE/StrongBox hardware cryptography with 100,000–250,000 PBKDF2 rounds, dynamic FLAG_SECURE screenshot blocking, and encrypted .imava container export.</p>
         </div>
 
         <div class="feature-card">
@@ -1624,7 +1628,7 @@
             </li>
             <li>
               <span class="spec-label">Key Derivation:</span>
-              <span class="spec-val">PBKDF2 with 250,000 Rounds</span>
+              <span class="spec-val">PBKDF2 (100,000–250,000 Rounds)</span>
             </li>
             <li>
               <span class="spec-label">Hardware Security:</span>
@@ -1712,7 +1716,7 @@
             <span class="faq-icon-arrow">▾</span>
           </summary>
           <div class="faq-body">
-            Media moved to Imava's vault is encrypted at rest using AES-256-GCM authenticated encryption. Encryption keys are securely derived via PBKDF2 with 250,000 iterations and protected inside your phone's hardware security module (AndroidKeyStore TEE or StrongBox). Unencrypted original files are securely wiped from public storage.
+            Media moved to Imava's vault is encrypted at rest using AES-256-GCM authenticated encryption. Encryption keys are securely derived via PBKDF2 with 100,000–250,000 iterations and protected inside your phone's hardware security module (AndroidKeyStore TEE or StrongBox). Unencrypted original files are securely wiped from public storage.
           </div>
         </details>
 

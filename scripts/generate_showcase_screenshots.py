@@ -100,6 +100,16 @@ SCREENSHOT_SPECS = [
         "accent_text": (88, 28, 135),      # Purple 800
         "pill_bg": (250, 245, 255),        # Purple 50
         "pill_border": (216, 180, 254)     # Purple 300
+    },
+    {
+        "filename": "09_languages.png",
+        "badge": "13+ LANGUAGES • FULL LOCALIZATION",
+        "title": "Your Gallery. In Your Tongue.",
+        "subtitle": "Native translation across English, Hindi, Spanish, German, French & more.",
+        "glow_color": (13, 148, 136),     # Teal
+        "accent_text": (17, 94, 89),       # Teal 800
+        "pill_bg": (240, 253, 250),        # Teal 50
+        "pill_border": (153, 246, 228)     # Teal 200
     }
 ]
 

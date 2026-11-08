@@ -426,7 +426,7 @@
           </p>
           <ul>
             <li>Keys are generated and stored within your device's <strong>Hardware Security Module (HSM)</strong>, <strong>Trusted Execution Environment (TEE)</strong>, or <strong>StrongBox Keymaster</strong>.</li>
-            <li>Master Passwords are never stored in plaintext. They are derived using 250,000 PBKDF2 rounds with SHA-256 and salted randomly.</li>
+            <li>Master Passwords are never stored in plaintext. They are derived using 100,000–250,000 PBKDF2 rounds with SHA-256 and salted randomly.</li>
             <li><strong>Zero-Knowledge:</strong> We have zero technical ability to recover, reset, or bypass your password or PIN. If you lose your master password without a backup, your encrypted vault cannot be decrypted by anyone, including the developer.</li>
             <li><strong>Decoy PIN:</strong> Entering an alternate Decoy PIN opens an isolated, fake empty vault container for plausible deniability under coercion.</li>
           </ul>
