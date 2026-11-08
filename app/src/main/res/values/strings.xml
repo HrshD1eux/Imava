@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">Verify biometric or PIN to access deleted items</string>
     <string name="unlock_vault_title">Unlock Hidden Vault</string>
     <string name="unlock_vault_desc">Use fingerprint or face unlock to access your hidden photos</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">Update Available</string>
+    <string name="update_installed">Installed</string>
+    <string name="update_latest">Latest</string>
+    <string name="update_whats_new">What\'s New in v%1$s</string>
+    <string name="update_default_notes">Performance improvements and bug fixes.</string>
+    <string name="update_background">Background</string>
+    <string name="update_now">Update Now</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading_title">Downloading Update (v%1$s)</string>
+    <string name="update_downloading_hint">Download runs seamlessly in the background. You can safely close this dialog.</string>
+    <string name="update_run_background">Run in Background</string>
+    <string name="update_pause">Pause</string>
+    <string name="update_paused_title">Download Paused (v%1$s)</string>
+    <string name="update_paused_hint">Paused at %1$d%% (%2$s / %3$s). You can resume anytime without losing progress.</string>
+    <string name="update_resume">Resume</string>
+    <string name="update_ready_title">Update Ready to Install</string>
+    <string name="update_ready_desc">Imava Gallery v%1$s has finished downloading. Tap Install to apply the update.</string>
+    <string name="update_install_now">Install Now</string>
+    <string name="update_interrupted_title">Download Interrupted</string>
+    <string name="update_failed_desc">Network connection dropped (%1$s). %2$s has been saved. Tap Resume to continue or download directly via browser.</string>
+    <string name="update_download_browser">Download via Browser</string>
 </resources>

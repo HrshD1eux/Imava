@@ -423,13 +423,19 @@ fun AlbumsScreen(
                 val isTrashConfigured = com.hrshd1eux.imava.core.util.AppLockManager.isTrashLockActive(context)
                 val unlockTrashTitle = stringResource(R.string.unlock_trash_title)
                 val unlockTrashSubtitle = stringResource(R.string.unlock_trash_desc)
+                val trashSubtitle = if (isTrashConfigured && isTrashLocked) {
+                    stringResource(R.string.trash_locked_subtitle)
+                } else if (storageStats.trashBytes > 0) {
+                    storageStats.formattedTrash
+                } else if (isTrashConfigured) {
+                    stringResource(R.string.trash_unlocked_subtitle)
+                } else null
+
                 AlbumRowItem(
                     icon = Icons.Default.Delete,
                     title = if (isTrashLocked) "${stringResource(R.string.category_trash)} 🔒" else stringResource(R.string.category_trash),
                     count = if (isTrashLocked) 0 else trashed.size,
-                    subtitle = if (isTrashConfigured) {
-                        if (isTrashLocked) stringResource(R.string.trash_locked_subtitle) else stringResource(R.string.trash_unlocked_subtitle)
-                    } else null,
+                    subtitle = trashSubtitle,
                     actionLabel = if (isTrashLocked) stringResource(R.string.label_locked) else null,
                     onClick = {
                         if (isTrashLocked) {

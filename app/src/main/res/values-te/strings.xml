@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">తొలగించిన అంశాలను యాక్సెస్ చేయడానికి బయోమెట్రిక్ లేదా పిన్ ధృవీకరించండి</string>
     <string name="unlock_vault_title">దాచిన వాల్ట్‌ను అన్‌లాక్ చేయండి</string>
     <string name="unlock_vault_desc">మీ దాచిన ఫోటోలను యాక్సెస్ చేయడానికి వేలిముద్ర లేదా ముఖ గుర్తింపును ఉపయోగించండి</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">అప్‌డేట్ అందుబాటులో ఉంది</string>
+    <string name="update_installed">ఇన్‌స్టాల్ చేయబడింది</string>
+    <string name="update_latest">తాజాది</string>
+    <string name="update_whats_new">v%1$s లో కొత్తది ఏమిటి</string>
+    <string name="update_default_notes">పనితీరు మెరుగుదలలు మరియు బగ్ పరిష్కారాలు.</string>
+    <string name="update_background">బ్యాక్‌గ్రౌండ్</string>
+    <string name="update_now">ఇప్పుడే అప్‌డేట్ చేయండి</string>
+    <string name="update_later">తర్వాత</string>
+    <string name="update_downloading_title">అప్‌డేట్ డౌన్‌లోడ్ అవుతోంది (v%1$s)</string>
+    <string name="update_downloading_hint">డౌన్‌లోడ్ బ్యాక్‌గ్రౌండ్‌లో నిరంతరాయంగా నడుస్తుంది. మీరు ఈ డైలాగ్‌ను మూసివేయవచ్చు.</string>
+    <string name="update_run_background">బ్యాక్‌గ్రౌండ్‌లో రన్ చేయండి</string>
+    <string name="update_pause">పాజ్</string>
+    <string name="update_paused_title">డౌన్‌లోడ్ పాజ్ చేయబడింది (v%1$s)</string>
+    <string name="update_paused_hint">%1$d%% వద్ద పాజ్ చేయబడింది (%2$s / %3$s). మీరు ఎప్పుడైనా పునఃప్రారంభించవచ్చు.</string>
+    <string name="update_resume">పునఃప్రారంభించండి</string>
+    <string name="update_ready_title">అప్‌డేట్ ఇన్‌స్టాల్ చేయడానికి సిద్ధంగా ఉంది</string>
+    <string name="update_ready_desc">Imava Gallery v%1$s డౌన్‌లోడ్ పూర్తయింది. అప్‌డేట్ వర్తింపజేయడానికి ఇన్‌స్టాల్‌పై నొక్కండి.</string>
+    <string name="update_install_now">ఇప్పుడే ఇన్‌స్టాల్ చేయండి</string>
+    <string name="update_interrupted_title">డౌన్‌లోడ్ అంతరాయం కలిగింది</string>
+    <string name="update_failed_desc">నెట్‌వర్క్ కనెక్షన్ తెగిపోయింది (%1$s). %2$s భద్రపరచబడింది. కొనసాగించడానికి నొక్కండి లేదా బ్రౌజర్ ద్వారా నేరుగా డౌన్‌లోడ్ చేయండి.</string>
+    <string name="update_download_browser">బ్రౌజర్ ద్వారా డౌన్‌లోడ్ చేయండి</string>
 </resources>

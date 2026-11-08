@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">Confirmez votre biométrie ou code pour accéder aux éléments supprimés</string>
     <string name="unlock_vault_title">Déverrouiller le coffre-fort masqué</string>
     <string name="unlock_vault_desc">Utilisez votre empreinte ou visage pour accéder à vos photos masquées</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">Mise à jour disponible</string>
+    <string name="update_installed">Installée</string>
+    <string name="update_latest">Dernière</string>
+    <string name="update_whats_new">Nouveautés de la v%1$s</string>
+    <string name="update_default_notes">Améliorations des performances et corrections de bugs.</string>
+    <string name="update_background">Arrière-plan</string>
+    <string name="update_now">Mettre à jour</string>
+    <string name="update_later">Plus tard</string>
+    <string name="update_downloading_title">Téléchargement de la mise à jour (v%1$s)</string>
+    <string name="update_downloading_hint">Le téléchargement se poursuit en arrière-plan. Vous pouvez fermer ce dialogue.</string>
+    <string name="update_run_background">Exécuter en arrière-plan</string>
+    <string name="update_pause">Pause</string>
+    <string name="update_paused_title">Téléchargement en pause (v%1$s)</string>
+    <string name="update_paused_hint">Suspendu à %1$d%% (%2$s / %3$s). Vous pouvez reprendre à tout moment.</string>
+    <string name="update_resume">Reprendre</string>
+    <string name="update_ready_title">Mise à jour prête à installer</string>
+    <string name="update_ready_desc">Imava Gallery v%1$s a été téléchargé. Appuyez sur Installer pour appliquer la mise à jour.</string>
+    <string name="update_install_now">Installer maintenant</string>
+    <string name="update_interrupted_title">Téléchargement interrompu</string>
+    <string name="update_failed_desc">Connexion réseau interrompue (%1$s). %2$s ont été enregistrés. Appuyez sur Reprendre ou téléchargez directement via le navigateur.</string>
+    <string name="update_download_browser">Télécharger via navigateur</string>
 </resources>

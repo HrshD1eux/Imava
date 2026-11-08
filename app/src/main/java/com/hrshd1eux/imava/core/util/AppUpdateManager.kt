@@ -29,6 +29,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
 
 data class UpdateInfo(
@@ -193,6 +194,9 @@ object AppUpdateManager {
             val completedFile = File(updatesDir, "update_${version}.apk")
             val partFile = File(updatesDir, "update_${version}.apk.part")
 
+            // Automatically clean up any stale APKs or partial downloads from older versions
+            cleanUpOldUpdates(context, version)
+
             // Check if already completed and valid
             if (completedFile.exists() && completedFile.length() > 0) {
                 val pkg = context.packageManager.getPackageArchiveInfo(completedFile.absolutePath, 0)
@@ -215,8 +219,8 @@ object AppUpdateManager {
                 for (hop in 0 until 5) {
                     val probeConn = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
                         instanceFollowRedirects = false
-                        connectTimeout = 10000
-                        readTimeout = 10000
+                        connectTimeout = 15000
+                        readTimeout = 15000
                         setRequestProperty("User-Agent", "Imava-App")
                     }
                     val code = probeConn.responseCode
@@ -233,132 +237,157 @@ object AppUpdateManager {
                 }
             } catch (_: Exception) {}
 
-            try {
-                val connection = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
-                    connectTimeout = 15000
-                    readTimeout = 30000
-                    setRequestProperty("User-Agent", "Imava-App")
-                    if (existingBytes > 0L) {
-                        setRequestProperty("Range", "bytes=$existingBytes-")
-                    }
-                }
-
-                val responseCode = connection.responseCode
-                val isPartial = (responseCode == 206)
-
-                if (responseCode == 416) {
-                    // Range not satisfiable: partial file may be stale or corrupt. Reset.
-                    partFile.delete()
-                    existingBytes = 0L
-                    startOrResumeDownload(context, updateInfo)
-                    return@launch
-                }
-
-                if (responseCode != 200 && responseCode != 206) {
-                    throw IOException("HTTP Server returned response code $responseCode")
-                }
-
-                val streamLength = connection.contentLengthLong.takeIf { it > 0 } ?: connection.contentLength.toLong()
-                val totalBytes = if (isPartial && streamLength > 0) {
-                    existingBytes + streamLength
-                } else if (streamLength > 0) {
-                    streamLength
-                } else {
-                    0L
-                }
-
-                val append = isPartial && existingBytes > 0L
-                if (!append && partFile.exists()) {
-                    partFile.delete()
-                    existingBytes = 0L
-                }
-
-                var downloadedBytes = if (append) existingBytes else 0L
-                var lastProgressReported = -1
-                var lastNotificationTime = 0L
-
-                val initialPercent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
-                _downloadState.value = AppUpdateDownloadState.Downloading(
-                    progress = initialPercent,
-                    downloadedBytes = downloadedBytes,
-                    totalBytes = totalBytes,
-                    version = version
-                )
-                showProgressNotification(context, initialPercent, downloadedBytes, totalBytes, version)
-
-                connection.inputStream.use { input ->
-                    FileOutputStream(partFile, append).use { output ->
-                        val buffer = ByteArray(16384)
-                        var read: Int
-
-                        while (input.read(buffer).also { read = it } != -1) {
-                            if (isPauseRequested) {
-                                output.flush()
-                                val currentPct = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
-                                _downloadState.value = AppUpdateDownloadState.Paused(
-                                    progress = currentPct,
-                                    downloadedBytes = downloadedBytes,
-                                    totalBytes = totalBytes,
-                                    version = version
-                                )
-                                showPausedNotification(context, currentPct, downloadedBytes, totalBytes, version)
-                                return@launch
-                            }
-
-                            if (!isActive) {
-                                output.flush()
-                                return@launch
-                            }
-
-                            output.write(buffer, 0, read)
-                            downloadedBytes += read
-
-                            val percent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
-                            val now = System.currentTimeMillis()
-
-                            if (percent != lastProgressReported || (now - lastNotificationTime) >= 700L) {
-                                lastProgressReported = percent
-                                lastNotificationTime = now
-                                _downloadState.value = AppUpdateDownloadState.Downloading(
-                                    progress = percent,
-                                    downloadedBytes = downloadedBytes,
-                                    totalBytes = totalBytes,
-                                    version = version
-                                )
-                                showProgressNotification(context, percent, downloadedBytes, totalBytes, version)
-                            }
+            var attempts = 0
+            while (attempts < 3 && isActive) {
+                attempts++
+                try {
+                    val connection = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
+                        connectTimeout = 20000
+                        readTimeout = 45000
+                        setRequestProperty("User-Agent", "Imava-App")
+                        if (existingBytes > 0L) {
+                            setRequestProperty("Range", "bytes=$existingBytes-")
                         }
-                        output.flush()
                     }
-                }
 
-                if (partFile.exists() && partFile.length() > 0) {
-                    if (completedFile.exists()) completedFile.delete()
-                    partFile.renameTo(completedFile)
+                    val responseCode = connection.responseCode
+                    val isPartial = (responseCode == 206)
 
-                    _downloadState.value = AppUpdateDownloadState.Completed(completedFile, version)
-                    showCompletedNotification(context, completedFile, version)
-                } else {
-                    throw IOException("Downloaded package is empty")
-                }
-            } catch (e: Exception) {
-                if (isPauseRequested) {
-                    val total = partFile.length()
-                    _downloadState.value = AppUpdateDownloadState.Paused(
-                        progress = 0,
-                        downloadedBytes = total,
-                        totalBytes = total,
+                    if (responseCode == 416) {
+                        // Range not satisfiable: partial file may be stale or corrupt. Reset.
+                        partFile.delete()
+                        existingBytes = 0L
+                        startOrResumeDownload(context, updateInfo)
+                        return@launch
+                    }
+
+                    if (responseCode in 500..504 && attempts < 3) {
+                        connection.disconnect()
+                        kotlinx.coroutines.delay(2000L * attempts)
+                        continue
+                    }
+
+                    if (responseCode != 200 && responseCode != 206) {
+                        val errorDetail = when (responseCode) {
+                            504 -> "Gateway Timeout (504)"
+                            502, 503 -> "Server Unavailable ($responseCode)"
+                            else -> "HTTP Server returned response code $responseCode"
+                        }
+                        throw IOException(errorDetail)
+                    }
+
+                    val streamLength = connection.contentLengthLong.takeIf { it > 0 } ?: connection.contentLength.toLong()
+                    val totalBytes = if (isPartial && streamLength > 0) {
+                        existingBytes + streamLength
+                    } else if (streamLength > 0) {
+                        streamLength
+                    } else {
+                        0L
+                    }
+
+                    val append = isPartial && existingBytes > 0L
+                    if (!append && partFile.exists()) {
+                        partFile.delete()
+                        existingBytes = 0L
+                    }
+
+                    var downloadedBytes = if (append) existingBytes else 0L
+                    var lastProgressReported = -1
+                    var lastNotificationTime = 0L
+
+                    val initialPercent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
+                    _downloadState.value = AppUpdateDownloadState.Downloading(
+                        progress = initialPercent,
+                        downloadedBytes = downloadedBytes,
+                        totalBytes = totalBytes,
                         version = version
                     )
-                } else {
-                    e.printStackTrace()
-                    _downloadState.value = AppUpdateDownloadState.Failed(
-                        error = e.localizedMessage ?: "Download failed",
-                        downloadedBytes = partFile.length(),
-                        totalBytes = 0L,
-                        version = version
-                    )
-                    cancelNotification(context)
+                    showProgressNotification(context, initialPercent, downloadedBytes, totalBytes, version)
+
+                    connection.inputStream.use { input ->
+                        FileOutputStream(partFile, append).use { output ->
+                            val buffer = ByteArray(32768)
+                            var read: Int
+
+                            while (input.read(buffer).also { read = it } != -1) {
+                                if (isPauseRequested) {
+                                    output.flush()
+                                    val currentPct = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
+                                    _downloadState.value = AppUpdateDownloadState.Paused(
+                                        progress = currentPct,
+                                        downloadedBytes = downloadedBytes,
+                                        totalBytes = totalBytes,
+                                        version = version
+                                    )
+                                    showPausedNotification(context, currentPct, downloadedBytes, totalBytes, version)
+                                    return@launch
+                                }
+
+                                if (!isActive) {
+                                    output.flush()
+                                    return@launch
+                                }
+
+                                output.write(buffer, 0, read)
+                                downloadedBytes += read
+
+                                val percent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100) else 0
+                                val now = System.currentTimeMillis()
+
+                                if (percent != lastProgressReported || (now - lastNotificationTime) >= 700L) {
+                                    lastProgressReported = percent
+                                    lastNotificationTime = now
+                                    _downloadState.value = AppUpdateDownloadState.Downloading(
+                                        progress = percent,
+                                        downloadedBytes = downloadedBytes,
+                                        totalBytes = totalBytes,
+                                        version = version
+                                    )
+                                    showProgressNotification(context, percent, downloadedBytes, totalBytes, version)
+                                }
+                            }
+                            output.flush()
+                        }
+                    }
+
+                    if (partFile.exists() && partFile.length() > 0) {
+                        if (completedFile.exists()) completedFile.delete()
+                        partFile.renameTo(completedFile)
+
+                        _downloadState.value = AppUpdateDownloadState.Completed(completedFile, version)
+                        showCompletedNotification(context, completedFile, version)
+                        return@launch
+                    } else {
+                        throw IOException("Downloaded package is empty")
+                    }
+                } catch (e: Exception) {
+                    if (isPauseRequested) {
+                        val total = partFile.length()
+                        _downloadState.value = AppUpdateDownloadState.Paused(
+                            progress = 0,
+                            downloadedBytes = total,
+                            totalBytes = total,
+                            version = version
+                        )
+                        return@launch
+                    } else if (attempts < 3 && (e is IOException || e is SocketTimeoutException)) {
+                        existingBytes = if (partFile.exists()) partFile.length() else 0L
+                        kotlinx.coroutines.delay(2000L * attempts)
+                        continue
+                    } else {
+                        if (partFile.exists() && partFile.length() == 0L) {
+                            partFile.delete()
+                        }
+                        e.printStackTrace()
+                        _downloadState.value = AppUpdateDownloadState.Failed(
+                            error = e.localizedMessage ?: "Download failed",
+                            downloadedBytes = if (partFile.exists()) partFile.length() else 0L,
+                            totalBytes = 0L,
+                            version = version
+                        )
+                        cancelNotification(context)
+                        return@launch
+                    }
                 }
             }
         }
@@ -404,6 +433,27 @@ object AppUpdateManager {
 
     fun resetDownloadState() {
         _downloadState.value = AppUpdateDownloadState.Idle
+    }
+
+    /**
+     * Cleans up orphaned update APKs and stale .part files from cacheDir/updates.
+     * Keeps only the currently targeted version if specified.
+     */
+    fun cleanUpOldUpdates(context: Context, currentTargetVersion: String? = null) {
+        try {
+            val updatesDir = File(context.cacheDir, "updates")
+            if (updatesDir.exists() && updatesDir.isDirectory) {
+                updatesDir.listFiles()?.forEach { file ->
+                    val isCurrent = currentTargetVersion != null && (
+                        file.name == "update_${currentTargetVersion}.apk" ||
+                        file.name == "update_${currentTargetVersion}.apk.part"
+                    )
+                    if (!isCurrent) {
+                        file.delete()
+                    }
+                }
+            }
+        } catch (_: Exception) {}
     }
 
     private fun createNotificationChannel(context: Context) {

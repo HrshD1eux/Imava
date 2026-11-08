@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">કાઢી નાખેલી વસ્તુઓ જોવા માટે બાયોમેટ્રિક અથવા પિન ચકાસો</string>
     <string name="unlock_vault_title">છુપાયેલું વૉલ્ટ અનલૉક કરો</string>
     <string name="unlock_vault_desc">તમારા છુપાયેલા ફોટા જોવા માટે ફિંગરપ્રિન્ટ અથવા ચહેરો વાપરો</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">અપડેટ ઉપલબ્ધ છે</string>
+    <string name="update_installed">ઇન્સ્ટોલ કરેલ</string>
+    <string name="update_latest">નવીનતમ</string>
+    <string name="update_whats_new">v%1$s માં નવું શું છે</string>
+    <string name="update_default_notes">પ્રદર્શન સુધારણા અને બગ ફિક્સ.</string>
+    <string name="update_background">બેકગ્રાઉન્ડ</string>
+    <string name="update_now">હમણાં અપડેટ કરો</string>
+    <string name="update_later">પછીથી</string>
+    <string name="update_downloading_title">અપડેટ ડાઉનલોડ થઈ રહ્યું છે (v%1$s)</string>
+    <string name="update_downloading_hint">ડાઉનલોડ બેકગ્રાઉન્ડમાં ચાલુ રહેશે. તમે આ સંવાદ બંધ કરી શકો છો.</string>
+    <string name="update_run_background">બેકગ્રાઉન્ડમાં ચલાવો</string>
+    <string name="update_pause">રોકો</string>
+    <string name="update_paused_title">ડાઉનલોડ થોભાવેલ છે (v%1$s)</string>
+    <string name="update_paused_hint">%1$d%% પર થોભાવેલ (%2$s / %3$s). તમે ગમે ત્યારે ફરી શરૂ કરી શકો છો.</string>
+    <string name="update_resume">ફરી શરૂ કરો</string>
+    <string name="update_ready_title">અપડેટ ઇન્સ્ટોલ કરવા માટે તૈયાર</string>
+    <string name="update_ready_desc">Imava Gallery v%1$s ડાઉનલોડ થઈ ગયું છે. અપડેટ લાગુ કરવા ઇન્સ્ટોલ પર ટૅપ કરો.</string>
+    <string name="update_install_now">હમણાં ઇન્સ્ટોલ કરો</string>
+    <string name="update_interrupted_title">ડાઉનલોડમાં ખલેલ પહોંચી</string>
+    <string name="update_failed_desc">નેટવર્ક કનેક્શન તૂટી ગયું (%1$s). %2$s સાચવવામાં આવ્યા છે. ફરી શરૂ કરવા ટૅપ કરો અથવા બ્રાઉઝર દ્વારા સીધું ડાઉનલોડ કરો.</string>
+    <string name="update_download_browser">બ્રાઉઝર દ્વારા ડાઉનલોડ કરો</string>
 </resources>

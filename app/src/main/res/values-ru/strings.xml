@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">Подтвердите биометрию или PIN для доступа к удаленным файлам</string>
     <string name="unlock_vault_title">Разблокировать скрытый сейф</string>
     <string name="unlock_vault_desc">Используйте отпечаток пальца или лицо для доступа к скрытым фото</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">Доступно обновление</string>
+    <string name="update_installed">Установлено</string>
+    <string name="update_latest">Новейшая</string>
+    <string name="update_whats_new">Что нового в v%1$s</string>
+    <string name="update_default_notes">Улучшения производительности и исправления ошибок.</string>
+    <string name="update_background">Фоновый режим</string>
+    <string name="update_now">Обновить сейчас</string>
+    <string name="update_later">Позже</string>
+    <string name="update_downloading_title">Загрузка обновления (v%1$s)</string>
+    <string name="update_downloading_hint">Загрузка выполняется в фоновом режиме. Вы можете закрыть этот диалог.</string>
+    <string name="update_run_background">Работать в фоне</string>
+    <string name="update_pause">Пауза</string>
+    <string name="update_paused_title">Загрузка приостановлена (v%1$s)</string>
+    <string name="update_paused_hint">Приостановлено на %1$d%% (%2$s / %3$s). Вы можете возобновить в любое время.</string>
+    <string name="update_resume">Возобновить</string>
+    <string name="update_ready_title">Обновление готово к установке</string>
+    <string name="update_ready_desc">Imava Gallery v%1$s успешно загружена. Нажмите «Установить», чтобы применить обновление.</string>
+    <string name="update_install_now">Установить сейчас</string>
+    <string name="update_interrupted_title">Загрузка прервана</string>
+    <string name="update_failed_desc">Сетевое соединение разорвано (%1$s). Сохранено: %2$s. Нажмите «Возобновить» или скачайте напрямую через браузер.</string>
+    <string name="update_download_browser">Скачать через браузер</string>
 </resources>

@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">Confirme sua biometria ou PIN para acessar a lixeira</string>
     <string name="unlock_vault_title">Desbloquear cofre oculto</string>
     <string name="unlock_vault_desc">Use impressão digital ou facial para acessar fotos protegidas</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">Atualização disponível</string>
+    <string name="update_installed">Instalada</string>
+    <string name="update_latest">Mais recente</string>
+    <string name="update_whats_new">Novidades na v%1$s</string>
+    <string name="update_default_notes">Melhorias de desempenho e correções de erros.</string>
+    <string name="update_background">Segundo plano</string>
+    <string name="update_now">Atualizar agora</string>
+    <string name="update_later">Mais tarde</string>
+    <string name="update_downloading_title">Baixando atualização (v%1$s)</string>
+    <string name="update_downloading_hint">O download ocorre em segundo plano. Você pode fechar este diálogo com segurança.</string>
+    <string name="update_run_background">Executar em segundo plano</string>
+    <string name="update_pause">Pausar</string>
+    <string name="update_paused_title">Download pausado (v%1$s)</string>
+    <string name="update_paused_hint">Pausado em %1$d%% (%2$s / %3$s). Você pode retomar a qualquer momento.</string>
+    <string name="update_resume">Retomar</string>
+    <string name="update_ready_title">Atualização pronta para instalar</string>
+    <string name="update_ready_desc">O Imava Gallery v%1$s foi baixado. Toque em Instalar para aplicar a atualização.</string>
+    <string name="update_install_now">Instalar agora</string>
+    <string name="update_interrupted_title">Download interrompido</string>
+    <string name="update_failed_desc">Conexão interrompida (%1$s). %2$s foram salvos. Toque em Retomar ou baixe diretamente pelo navegador.</string>
+    <string name="update_download_browser">Baixar pelo navegador</string>
 </resources>

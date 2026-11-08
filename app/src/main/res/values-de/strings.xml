@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">Biometrie oder PIN bestätigen, um auf gelöschte Elemente zuzugreifen</string>
     <string name="unlock_vault_title">Versteckten Tresor entsperren</string>
     <string name="unlock_vault_desc">Fingerabdruck oder Gesichtsscan nutzen, um auf versteckte Fotos zuzugreifen</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">Update verfügbar</string>
+    <string name="update_installed">Installiert</string>
+    <string name="update_latest">Neueste</string>
+    <string name="update_whats_new">Neuigkeiten in v%1$s</string>
+    <string name="update_default_notes">Leistungsverbesserungen und Fehlerbehebungen.</string>
+    <string name="update_background">Hintergrund</string>
+    <string name="update_now">Jetzt aktualisieren</string>
+    <string name="update_later">Später</string>
+    <string name="update_downloading_title">Update wird heruntergeladen (v%1$s)</string>
+    <string name="update_downloading_hint">Der Download läuft im Hintergrund. Sie können diesen Dialog schließen.</string>
+    <string name="update_run_background">Im Hintergrund ausführen</string>
+    <string name="update_pause">Pausieren</string>
+    <string name="update_paused_title">Download pausiert (v%1$s)</string>
+    <string name="update_paused_hint">Pausiert bei %1$d%% (%2$s / %3$s). Sie können jederzeit fortsetzen.</string>
+    <string name="update_resume">Fortsetzen</string>
+    <string name="update_ready_title">Update bereit zur Installation</string>
+    <string name="update_ready_desc">Imava Gallery v%1$s wurde heruntergeladen. Tippen Sie auf Installieren, um das Update anzuwenden.</string>
+    <string name="update_install_now">Jetzt installieren</string>
+    <string name="update_interrupted_title">Download unterbrochen</string>
+    <string name="update_failed_desc">Netzwerkverbindung getrennt (%1$s). %2$s wurden gespeichert. Tippen Sie auf Fortsetzen oder laden Sie direkt über den Browser herunter.</string>
+    <string name="update_download_browser">Über Browser herunterladen</string>
 </resources>

@@ -1550,6 +1550,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.purgeExpiredTrashMedia()
+                com.hrshd1eux.imava.core.util.AppUpdateManager.cleanUpOldUpdates(application)
+                com.hrshd1eux.imava.core.util.VaultCacheManager.clearCache(application)
                 kotlinx.coroutines.delay(2000) // defer scan for cold boot performance
                 if (isAutoDeepScanEnabled) {
                     triggerAutoDeepScan()

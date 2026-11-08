@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">মুছে ফেলা উপাদান দেখতে বায়োমেট্রিক বা পিন যাচাই করুন</string>
     <string name="unlock_vault_title">লুকানো ভল্ট আনলক করুন</string>
     <string name="unlock_vault_desc">লুকানো ছবিগুলি দেখতে আঙুলের ছাপ বা মুখ দিয়ে আনলক করুন</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">আপডেট উপলব্ধ</string>
+    <string name="update_installed">ইনস্টল করা</string>
+    <string name="update_latest">সর্বশেষ</string>
+    <string name="update_whats_new">v%1$s তে নতুন কি</string>
+    <string name="update_default_notes">কর্মক্ষমতা উন্নতি এবং ত্রুটি সংশোধন।</string>
+    <string name="update_background">ব্যাকগ্রাউন্ড</string>
+    <string name="update_now">এখনই আপডেট করুন</string>
+    <string name="update_later">পরে</string>
+    <string name="update_downloading_title">আপডেট ডাউনলোড হচ্ছে (v%1$s)</string>
+    <string name="update_downloading_hint">ডাউনলোড ব্যাকগ্রাউন্ডে নির্বিঘ্নে চলবে। আপনি এই ডায়ালগ বন্ধ করতে পারেন।</string>
+    <string name="update_run_background">ব্যাকগ্রাউন্ডে চালান</string>
+    <string name="update_pause">বিরতি</string>
+    <string name="update_paused_title">ডাউনলোড থামানো হয়েছে (v%1$s)</string>
+    <string name="update_paused_hint">%1$d%% এ থামানো হয়েছে (%2$s / %3$s)। আপনি যেকোনো সময় পুনরায় শুরু করতে পারেন।</string>
+    <string name="update_resume">পুনরায় শুরু</string>
+    <string name="update_ready_title">আপডেট ইনস্টল করার জন্য প্রস্তুত</string>
+    <string name="update_ready_desc">Imava Gallery v%1$s ডাউনলোড সম্পন্ন হয়েছে। আপডেট প্রয়োগ করতে ইনস্টলে ট্যাপ করুন।</string>
+    <string name="update_install_now">এখনই ইনস্টল করুন</string>
+    <string name="update_interrupted_title">ডাউনলোড বিঘ্নিত হয়েছে</string>
+    <string name="update_failed_desc">নেটওয়ার্ক সংযোগ বিচ্ছিন্ন (%1$s)। %2$s সংরক্ষিত হয়েছে। পুনরায় শুরু করতে ট্যাপ করুন বা সরাসরি ব্রাউজার থেকে ডাউনলোড করুন।</string>
+    <string name="update_download_browser">ব্রাউজার দিয়ে ডাউনলোড করুন</string>
 </resources>

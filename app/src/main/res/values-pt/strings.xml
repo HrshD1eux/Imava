@@ -245,4 +245,27 @@
     <string name="unlock_trash_desc">Confirme a biometria ou PIN para aceder aos itens eliminados</string>
     <string name="unlock_vault_title">Desbloquear cofre oculto</string>
     <string name="unlock_vault_desc">Utilize impressão digital ou reconhecimento facial para aceder às suas fotos ocultas</string>
+
+    <!-- App Update Strings -->
+    <string name="update_dialog_title">Atualização disponível</string>
+    <string name="update_installed">Instalada</string>
+    <string name="update_latest">Mais recente</string>
+    <string name="update_whats_new">Novidades na v%1$s</string>
+    <string name="update_default_notes">Melhorias de desempenho e correções de erros.</string>
+    <string name="update_background">Segundo plano</string>
+    <string name="update_now">Atualizar agora</string>
+    <string name="update_later">Mais tarde</string>
+    <string name="update_downloading_title">A transferir atualização (v%1$s)</string>
+    <string name="update_downloading_hint">A transferência decorre em segundo plano. Pode fechar esta caixa de diálogo.</string>
+    <string name="update_run_background">Executar em segundo plano</string>
+    <string name="update_pause">Pausa</string>
+    <string name="update_paused_title">Transferência em pausa (v%1$s)</string>
+    <string name="update_paused_hint">Pausa em %1$d%% (%2$s / %3$s). Pode retomar em qualquer altura.</string>
+    <string name="update_resume">Retomar</string>
+    <string name="update_ready_title">Atualização pronta a instalar</string>
+    <string name="update_ready_desc">O Imava Gallery v%1$s foi transferido. Toque em Instalar para aplicar.</string>
+    <string name="update_install_now">Instalar agora</string>
+    <string name="update_interrupted_title">Transferência interrompida</string>
+    <string name="update_failed_desc">Ligação de rede interrompida (%1$s). %2$s foram guardados. Toque em Retomar ou transfira diretamente através do navegador.</string>
+    <string name="update_download_browser">Transferir pelo navegador</string>
 </resources>

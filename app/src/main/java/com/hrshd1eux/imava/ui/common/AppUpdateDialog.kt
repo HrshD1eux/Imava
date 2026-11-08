@@ -1,6 +1,8 @@
 package com.hrshd1eux.imava.ui.common
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -23,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -32,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,9 +52,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.AppUpdateDownloadState
 import com.hrshd1eux.imava.core.util.AppUpdateManager
 import com.hrshd1eux.imava.core.util.FormatUtils
@@ -86,7 +92,7 @@ fun AppUpdateDialog(
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text("Downloading v${state.version}")
+                        Text(stringResource(R.string.update_downloading_title, state.version))
                     }
                 },
                 text = {
@@ -123,7 +129,7 @@ fun AppUpdateDialog(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Download runs seamlessly in the background. You can safely close this dialog.",
+                            text = stringResource(R.string.update_downloading_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -131,20 +137,20 @@ fun AppUpdateDialog(
                 },
                 confirmButton = {
                     Button(onClick = { dismissAndMarkSeen() }) {
-                        Text("Run in Background")
+                        Text(stringResource(R.string.update_run_background))
                     }
                 },
                 dismissButton = {
                     Row {
                         TextButton(onClick = { AppUpdateManager.pauseDownload(context) }) {
-                            Text("Pause")
+                            Text(stringResource(R.string.update_pause))
                         }
                         Spacer(modifier = Modifier.width(4.dp))
                         TextButton(onClick = {
                             AppUpdateManager.cancelDownload(context)
                             dismissAndMarkSeen()
                         }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.action_cancel))
                         }
                     }
                 }
@@ -155,7 +161,7 @@ fun AppUpdateDialog(
             AlertDialog(
                 onDismissRequest = { dismissAndMarkSeen() },
                 shape = RoundedCornerShape(22.dp),
-                title = { Text("Download Paused (v${state.version})") },
+                title = { Text(stringResource(R.string.update_paused_title, state.version)) },
                 text = {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         LinearProgressIndicator(
@@ -169,7 +175,7 @@ fun AppUpdateDialog(
                         val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
                         val totalStr = if (state.totalBytes > 0) FormatUtils.formatFileSize(state.totalBytes) else "..."
                         Text(
-                            text = "Paused at ${state.progress}% ($downloadedStr / $totalStr). You can resume anytime without losing progress.",
+                            text = stringResource(R.string.update_paused_hint, state.progress, downloadedStr, totalStr),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -177,20 +183,20 @@ fun AppUpdateDialog(
                 },
                 confirmButton = {
                     Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                        Text("Resume")
+                        Text(stringResource(R.string.update_resume))
                     }
                 },
                 dismissButton = {
                     Row {
                         TextButton(onClick = { dismissAndMarkSeen() }) {
-                            Text("Background")
+                            Text(stringResource(R.string.update_background))
                         }
                         Spacer(modifier = Modifier.width(4.dp))
                         TextButton(onClick = {
                             AppUpdateManager.cancelDownload(context)
                             dismissAndMarkSeen()
                         }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.action_cancel))
                         }
                     }
                 }
@@ -201,10 +207,10 @@ fun AppUpdateDialog(
             AlertDialog(
                 onDismissRequest = { dismissAndMarkSeen() },
                 shape = RoundedCornerShape(22.dp),
-                title = { Text("Update Ready to Install") },
+                title = { Text(stringResource(R.string.update_ready_title)) },
                 text = {
                     Text(
-                        text = "Imava Gallery v${state.version} has finished downloading. Tap Install to apply the update.",
+                        text = stringResource(R.string.update_ready_desc, state.version),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -213,12 +219,12 @@ fun AppUpdateDialog(
                         AppUpdateManager.installApk(context, state.apkFile)
                         dismissAndMarkSeen()
                     }) {
-                        Text("Install Now")
+                        Text(stringResource(R.string.update_install_now))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { dismissAndMarkSeen() }) {
-                        Text("Later")
+                        Text(stringResource(R.string.update_later))
                     }
                 }
             )
@@ -228,17 +234,38 @@ fun AppUpdateDialog(
             AlertDialog(
                 onDismissRequest = { dismissAndMarkSeen() },
                 shape = RoundedCornerShape(22.dp),
-                title = { Text("Download Interrupted") },
+                title = { Text(stringResource(R.string.update_interrupted_title)) },
                 text = {
                     val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
                     Text(
-                        text = "Network connection dropped (${state.error}). $downloadedStr has been saved. Tap Resume to continue from where you left off.",
+                        text = stringResource(R.string.update_failed_desc, state.error, downloadedStr),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
                 confirmButton = {
-                    Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                        Text("Resume Download")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val browserUrl = updateInfo.apkDownloadUrl ?: "https://github.com/HrshD1eux/imava/releases/latest"
+                        OutlinedButton(
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(browserUrl)).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                try {
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                                dismissAndMarkSeen()
+                            }
+                        ) {
+                            Text(stringResource(R.string.update_download_browser))
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
+                            Text(stringResource(R.string.update_resume))
+                        }
                     }
                 },
                 dismissButton = {
@@ -246,7 +273,7 @@ fun AppUpdateDialog(
                         AppUpdateManager.cancelDownload(context)
                         dismissAndMarkSeen()
                     }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -271,7 +298,7 @@ fun AppUpdateDialog(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Update Available",
+                    text = stringResource(R.string.update_dialog_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
@@ -282,7 +309,7 @@ fun AppUpdateDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Dismiss",
+                        contentDescription = stringResource(R.string.action_cancel),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -309,7 +336,7 @@ fun AppUpdateDialog(
                     ) {
                         Column {
                             Text(
-                                text = "Installed",
+                                text = stringResource(R.string.update_installed),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -326,7 +353,7 @@ fun AppUpdateDialog(
                         )
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = "Latest",
+                                text = stringResource(R.string.update_latest),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -358,7 +385,7 @@ fun AppUpdateDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "What's New in v${updateInfo.latestVersion}",
+                                text = stringResource(R.string.update_whats_new, updateInfo.latestVersion),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -380,7 +407,7 @@ fun AppUpdateDialog(
                                 AppUpdateManager.formatCleanReleaseNotes(updateInfo.releaseNotes)
                             }
                             Text(
-                                text = cleanNotes.ifBlank { "Performance improvements and bug fixes." },
+                                text = cleanNotes.ifBlank { stringResource(R.string.update_default_notes) },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
@@ -394,13 +421,32 @@ fun AppUpdateDialog(
         },
         confirmButton = {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val browserUrl = updateInfo.apkDownloadUrl ?: "https://github.com/HrshD1eux/imava/releases/latest"
+                IconButton(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(browserUrl)).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        try {
+                            context.startActivity(intent)
+                        } catch (_: Exception) {}
+                        dismissAndMarkSeen()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.OpenInBrowser,
+                        contentDescription = stringResource(R.string.update_download_browser),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
                 TextButton(
                     onClick = {
                         AppUpdateManager.startOrResumeDownload(context, updateInfo)
                         dismissAndMarkSeen()
                     }
                 ) {
-                    Text("Background")
+                    Text(stringResource(R.string.update_background))
                 }
                 Spacer(modifier = Modifier.width(6.dp))
                 Button(
@@ -408,13 +454,13 @@ fun AppUpdateDialog(
                         AppUpdateManager.startOrResumeDownload(context, updateInfo)
                     }
                 ) {
-                    Text("Update Now")
+                    Text(stringResource(R.string.update_now))
                 }
             }
         },
         dismissButton = {
             TextButton(onClick = { dismissAndMarkSeen() }) {
-                Text("Later")
+                Text(stringResource(R.string.update_later))
             }
         }
     )
