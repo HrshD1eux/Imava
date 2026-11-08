@@ -802,20 +802,49 @@ class MainViewModel @Inject constructor(
             emptyList()
         }
 
-        val filtered = rawList.filter { !excluded.contains(it.id.toString()) }
+        val reconciledList = if (rawMedia.isNotEmpty()) {
+            val createdAlbumNames = application.getSharedPreferences("user_albums", Context.MODE_PRIVATE)
+                .getStringSet("created_albums", emptySet()) ?: emptySet()
+            
+            rawList.mapNotNull { bucket ->
+                val matchingMedia = rawMedia.filter { it.bucketId == bucket.id || it.bucketId in bucket.mergedBucketIds }
+                if (matchingMedia.isNotEmpty()) {
+                    val newest = matchingMedia.maxByOrNull { it.dateTaken } ?: matchingMedia.first()
+                    bucket.copy(
+                        count = matchingMedia.size,
+                        coverUri = newest.uri,
+                        latestDateTaken = newest.dateTaken
+                    )
+                } else {
+                    // Check if this is an empty user-created album whose directory still exists on disk
+                    val isCreatedAlbum = createdAlbumNames.any { it.equals(bucket.name, ignoreCase = true) }
+                    val dirExists = !bucket.path.isNullOrBlank() && java.io.File(bucket.path).exists()
+                    if (isCreatedAlbum && dirExists) {
+                        bucket.copy(count = 0, coverUri = null, latestDateTaken = 0L)
+                    } else {
+                        // Ghost bucket whose media has been deleted or directory no longer exists -> filter out!
+                        null
+                    }
+                }
+            }
+        } else {
+            rawList
+        }
+
+        val filtered = reconciledList.filter { !excluded.contains(it.id.toString()) }
         val processed = if (mergeEnabled) {
             filtered.groupBy { it.name.trim().lowercase(java.util.Locale.ROOT) }.map { (_, group) ->
                 val primary = group.first()
                 val totalCount = group.sumOf { it.count }
                 val mergedIds = group.flatMap { it.mergedBucketIds }.distinct()
                 val mergedPaths = group.flatMap { it.paths }.distinct()
-                val bestCoverBucket = group.maxByOrNull { it.latestDateTaken } ?: primary
+                val bestCoverBucket = group.filter { it.count > 0 && it.coverUri != null }.maxByOrNull { it.latestDateTaken }
                 primary.copy(
                     count = totalCount,
                     mergedBucketIds = mergedIds,
                     paths = mergedPaths,
-                    coverUri = bestCoverBucket.coverUri,
-                    latestDateTaken = bestCoverBucket.latestDateTaken
+                    coverUri = if (totalCount > 0) bestCoverBucket?.coverUri else null,
+                    latestDateTaken = if (totalCount > 0) (bestCoverBucket?.latestDateTaken ?: 0L) else 0L
                 )
             }
         } else {
@@ -1726,33 +1755,47 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
+                // 1. Immediately remove from user_albums SharedPreferences case-insensitively
                 val userPrefs = context.getSharedPreferences("user_albums", Context.MODE_PRIVATE)
                 val currentSet = userPrefs.getStringSet("created_albums", emptySet()) ?: emptySet()
-                if (currentSet.contains(bucketName)) {
-                    val updatedSet = currentSet.toMutableSet().apply { remove(bucketName) }
-                    userPrefs.edit().putStringSet("created_albums", updatedSet).commit()
-                }
+                val updatedSet = currentSet.filter { !it.equals(bucketName, ignoreCase = true) }.toSet()
+                userPrefs.edit().putStringSet("created_albums", updatedSet).commit()
 
-                val itemsInAlbum = repository.loadMediaPaged(limit = 5000, offset = 0, bucketId = bucketId)
-
-                val albumFolder = if (!bucketPath.isNullOrBlank()) {
-                    java.io.File(bucketPath)
-                } else {
-                    java.io.File(
-                        android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES),
-                        bucketName
-                    )
-                }
-
+                // 2. Immediately evict from ViewModel state
                 if (currentBucketId == bucketId) {
                     currentBucketId = null
                     currentBucketName = null
                     currentCategoryName = null
                 }
+                _buckets.value = _buckets.value.filter { it.id != bucketId }
+
+                // 3. Find items in album and candidate directories on disk
+                val itemsInAlbum = repository.loadMediaPaged(limit = 5000, offset = 0, bucketId = bucketId)
+
+                val candidateDirs = mutableListOf<java.io.File>()
+                if (!bucketPath.isNullOrBlank()) {
+                    candidateDirs.add(java.io.File(bucketPath))
+                }
+                itemsInAlbum.forEach { item ->
+                    if (item.path.isNotBlank()) {
+                        val p = java.io.File(item.path).parentFile
+                        if (p != null && !candidateDirs.contains(p)) {
+                            candidateDirs.add(p)
+                        }
+                    }
+                }
+                val defaultAlbumDir = java.io.File(
+                    android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES),
+                    bucketName
+                )
+                if (!candidateDirs.contains(defaultAlbumDir)) {
+                    candidateDirs.add(defaultAlbumDir)
+                }
 
                 if (deleteMedia) {
                     if (itemsInAlbum.isNotEmpty()) {
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
+                        val hasAllFilesAccess = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && android.os.Environment.isExternalStorageManager()
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !hasAllFilesAccess) {
                             pendingBatchActionItems = itemsInAlbum
                             val validUris = itemsInAlbum.mapNotNull { it.uri.takeIf { u -> u.scheme == android.content.ContentResolver.SCHEME_CONTENT } }
                             if (validUris.isNotEmpty()) {
@@ -1769,32 +1812,82 @@ class MainViewModel @Inject constructor(
                                 }
                             }
                         } else {
+                            // Android <= 10 or All Files Access:
+                            val trashDir = java.io.File(context.filesDir, "imava_trash").apply { mkdirs() }
                             itemsInAlbum.forEach { item ->
-                                toggleTrashed(context, item)
+                                val srcFile = java.io.File(item.path)
+                                if (srcFile.exists()) {
+                                    try {
+                                        val destFile = java.io.File(trashDir, "${item.id}_${srcFile.name}")
+                                        if (!srcFile.renameTo(destFile)) {
+                                            srcFile.copyTo(destFile, overwrite = true)
+                                            srcFile.delete()
+                                        }
+                                    } catch (_: Exception) {
+                                        try { srcFile.delete() } catch (_: Exception) {}
+                                    }
+                                }
+                                try { context.contentResolver.delete(item.uri, null, null) } catch (_: Exception) {}
+                                try {
+                                    val mediaUri = getMediaProviderUri(item)
+                                    context.contentResolver.delete(mediaUri, null, null)
+                                } catch (_: Exception) {}
+                                repository.toggleTrashed(item)
+                                repository.evictSecondaryDiskItem(item.id, item.path)
                             }
                         }
-                    } else {
+                        val deletedIds = itemsInAlbum.map { it.id }.toSet()
+                        _mediaItems.value = _mediaItems.value.filter { it.id !in deletedIds }
+                    }
+
+                    // Delete candidate directories recursively on disk
+                    candidateDirs.forEach { dir ->
                         try {
-                            if (albumFolder.exists()) {
-                                albumFolder.delete()
+                            if (dir.exists()) {
+                                dir.deleteRecursively()
                             }
+                        } catch (_: Exception) {}
+                    }
+
+                    // Clean MediaStore database entries for this bucket_id
+                    val where = "${android.provider.MediaStore.Files.FileColumns.BUCKET_ID} = ?"
+                    val args = arrayOf(bucketId.toString())
+                    try { context.contentResolver.delete(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, where, args) } catch (_: Exception) {}
+                    try { context.contentResolver.delete(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, where, args) } catch (_: Exception) {}
+                    try { context.contentResolver.delete(android.provider.MediaStore.Files.getContentUri("external"), where, args) } catch (_: Exception) {}
+
+                    // Notify media scanner of deleted directory paths
+                    val pathsToScan = candidateDirs.map { it.absolutePath }.toTypedArray()
+                    if (pathsToScan.isNotEmpty()) {
+                        try {
+                            android.media.MediaScannerConnection.scanFile(context, pathsToScan, null, null)
                         } catch (_: Exception) {}
                     }
                 } else {
                     if (itemsInAlbum.isNotEmpty()) {
-                        val targetDir = if (albumFolder.parentFile != null && albumFolder.parentFile?.exists() == true && albumFolder.parentFile?.canWrite() == true) {
-                            albumFolder.parentFile!!
+                        val primaryDir = candidateDirs.firstOrNull() ?: defaultAlbumDir
+                        val targetDir = if (primaryDir.parentFile != null && primaryDir.parentFile?.exists() == true && primaryDir.parentFile?.canWrite() == true) {
+                            primaryDir.parentFile!!
                         } else {
                             android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES)
                         }
                         repository.moveOrCopyMedia(context, itemsInAlbum, targetDir, isCopy = false)
                     }
-                    try {
-                        if (albumFolder.exists()) {
-                            albumFolder.delete()
-                        }
-                    } catch (_: Exception) {}
+                    candidateDirs.forEach { dir ->
+                        try {
+                            if (dir.exists()) {
+                                dir.deleteRecursively()
+                            }
+                        } catch (_: Exception) {}
+                    }
+                    val pathsToScan = candidateDirs.map { it.absolutePath }.toTypedArray()
+                    if (pathsToScan.isNotEmpty()) {
+                        try {
+                            android.media.MediaScannerConnection.scanFile(context, pathsToScan, null, null)
+                        } catch (_: Exception) {}
+                    }
                 }
+                try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
                 refreshAll()
             } catch (e: Exception) {
                 e.printStackTrace()

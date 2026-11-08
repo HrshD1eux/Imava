@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">స్టోరేజ్ డాక్టర్</string>
     <string name="settings_about">గురించి మరియు వెర్షన్</string>
     <string name="settings_wifi_drop">వై-ఫై డ్రాప్</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">యాప్ థీమ్‌ను ఎంచుకోండి</string>
+    <string name="theme_system">సిస్టమ్ డిఫాల్ట్</string>
+    <string name="theme_dark">డార్క్ థీమ్</string>
+    <string name="theme_amoled">AMOLED డార్క్ (స్వచ్ఛమైన నలుపు)</string>
+    <string name="theme_light">లైట్ థీమ్</string>
+    <string name="settings_startup_screen">డిఫాల్ట్ ప్రారంభ స్క్రీన్</string>
+    <string name="startup_timeline">ఫోటోలు (ప్రధాన కాలక్రమం)</string>
+    <string name="startup_albums">ఆల్బమ్‌లు</string>
+    <string name="startup_last_active">చివరిగా యాక్టివ్ ట్యాబ్‌ను గుర్తుంచుకోండి</string>
+    <string name="settings_brightness_boost">వీక్షక కాంతి పెంపు ☀️</string>
+    <string name="settings_brightness_boost_desc">ఫోటోలు, వీడియోలను వీక్షించేటప్పుడు పూర్తి HDR వివరాల కోసం స్క్రీన్ ప్రకాశాన్ని స్వయంచాలకంగా పెంచండి</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">గ్రిడ్ మరియు ప్రదర్శన పరిమాణం</string>
+    <string name="settings_timeline_columns">కాలక్రమ నిలువు వరుసలు</string>
+    <string name="settings_grid_desc">గ్రిడ్‌లో ఫోటోల పరిమాణాన్ని మార్చండి. మీరు ఎప్పుడైనా జూమ్ చేయడానికి పించ్ చేయవచ్చు.</string>
+    <string name="column_single">1 నిలువు వరుస (చాలా పెద్దది)</string>
+    <string name="column_double">2 నిలువు వరుసలు (పెద్దది)</string>
+    <string name="column_triple">3 నిలువు వరుసలు (సాధారణం)</string>
+    <string name="column_compact">4 నిలువు వరుసలు (సన్నని)</string>
+    <string name="column_dense">5 నిలువు వరుసలు (దగ్గరి)</string>
+    <string name="column_overview">6 నిలువు వరుసలు (స్థూల వీక్షణ)</string>
+    <string name="columns_count_format">%1$d నిలువు వరుసలు</string>
+    <string name="column_label_big">1 (పెద్దది)</string>
+    <string name="column_label_normal">3 (సాధారణం)</string>
+    <string name="column_label_dense">6 (దగ్గరి)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">స్పర్శ మరియు హాప్టిక్స్</string>
+    <string name="settings_haptics">హాప్టిక్ కంపనాలు</string>
+    <string name="settings_haptics_desc">ఫోటోల ఎంపిక, వాల్ట్ అన్‌లాక్, సవరణ మరియు తొలగింపు సమయంలో స్పర్శ ప్రతిస్పందన</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">బ్యాకప్ మరియు లోకల్ NAS (క్లౌడ్ రహిత)</string>
+    <string name="settings_nas_card_title">లోకల్ NAS / WebDAV సింక్</string>
+    <string name="settings_nas_card_desc">వై-ఫై ద్వారా Synology, Nextcloud, TrueNAS లేదా ఇంటి సర్వర్‌కు నేరుగా సురక్షిత బ్యాకప్</string>
+    <string name="settings_nas_configured">కాన్ఫిగర్ చేయబడింది • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">ఫోల్డర్లు మరియు మీడియా యాక్సెస్</string>
+    <string name="settings_excluded_folders">మినహాయించిన / దాచబడిన ఫోల్డర్లు</string>
+    <string name="settings_excluded_folders_none">ఏ ఫోల్డరూ దాచబడలేదు</string>
+    <string name="settings_excluded_folders_count">గ్యాలరీ నుండి %1$d ఫోల్డర్లు మినహాయించబడ్డాయి</string>
+    <string name="settings_auto_scrub_albums">ఆటో-స్క్రబ్ ఆల్బమ్‌లు</string>
+    <string name="settings_auto_scrub_none">ఆల్బమ్‌లేవీ కాన్ఫిగర్ కాలేదు</string>
+    <string name="settings_auto_scrub_count">%1$d ఆల్బమ్‌లు స్వయంచాలకంగా శుద్ధి చేయబడతాయి</string>
+    <string name="settings_merge_albums">ఒకే పేరు గల ఆల్బమ్‌లను విలీనం చేయండి</string>
+    <string name="settings_merge_albums_desc">సారూప్య పేర్లున్న ఫోల్డర్లను (ఉదా. అంతర్గత మరియు SD కార్డ్ డౌన్‌లోడ్‌లు) ఒకే ఆల్బమ్ కార్డుగా కలపండి</string>
+    <string name="settings_sd_card">బాహ్య SD కార్డ్ / USB OTG యాక్సెస్</string>
+    <string name="settings_sd_card_granted">బాహ్య నిల్వ అనుమతి మంజూరు చేయబడింది</string>
+    <string name="settings_sd_card_desc">ద్వితీయ నిల్వ కోసం SAF చెట్టు అనుమతి ఇవ్వండి</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">యాప్ లాక్ మరియు పరికర గోప్యత</string>
+    <string name="settings_app_lock_title">యాప్ లాక్ (బయోమెట్రిక్ / పిన్) 🔒</string>
+    <string name="settings_app_lock_desc">Imava తెరిచిన ప్రతిసారీ వేలిముద్ర, ముఖం లేదా పరికర పిన్ అవసరం</string>
+    <string name="settings_trash_lock">బయోమెట్రిక్ ట్రాష్ లాక్ 🗑️</string>
+    <string name="settings_trash_lock_desc">ట్రాష్ తెరిచి తొలగించిన ఫోటోలను చూడటానికి బయోమెట్రిక్ లేదా పిన్ తప్పనిసరి చేయండి</string>
+    <string name="settings_recents_shield">యాప్ స్విచ్చర్ ప్రైవసీ షీల్డ్ 🛡️</string>
+    <string name="settings_recents_shield_desc">ఇటీవలి యాప్‌ల స్క్రీన్‌లో గ్యాలరీ ప్రివ్యూలను దాచండి</string>
+    <string name="settings_guest_pinning">అతిథి మోడ్ (స్క్రీన్ పిన్నింగ్) 📌</string>
+    <string name="settings_guest_pinning_desc">మీ ఫోన్‌ను ఇతరులకు ఇచ్చినప్పుడు, ఫోటో వీక్షకంలో పిన్ 📌 గుర్తును తాకి స్క్రీన్‌ను లాక్ చేయండి. అతిథులు ప్రామాణీకరణ లేకుండా ఇతర ఫోటోలను చూడలేరు.</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">నిల్వ క్లీనర్లు మరియు నిర్వహణ</string>
+    <string name="settings_file_shredder">క్రిప్టోగ్రాఫిక్ ఫైల్ ష్రెడ్డర్ 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">ఫోరెన్సిక్ పునరుద్ధరణను అడ్డుకోవడానికి తొలగించిన ఫైళ్లను యాదృచ్ఛిక డేటాతో భౌతికంగా తిరిగి రాయండి</string>
+    <string name="settings_ghost_thumb_purger">ఘోస్ట్ థంబ్‌నెయిల్ పర్జర్ 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails మరియు కాష్‌లో మిగిలిన అసురక్షిత థంబ్‌నెయిల్‌లను పూర్తిగా నాశనం చేయండి</string>
+    <string name="action_shred_now">ఇప్పుడే తొలగించు</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">డీప్ మీడియా స్కాన్ మరియు నిల్వ</string>
+    <string name="settings_deep_discovery">డీప్ మీడియా అన్వేషణ</string>
+    <string name="settings_deep_discovery_desc">పంపిన మీడియా, ప్రైవేట్ ఫోల్డర్లు, GIFలు మరియు దాచిన .nomedia ఫైళ్లను స్కాన్ చేయండి.</string>
+    <string name="settings_auto_deep_scan">ఆటోమేటిక్ డీప్ స్కాన్</string>
+    <string name="settings_auto_deep_scan_on">ప్రారంభంలో మరియు మీడియా మార్పులపై ఆటో-స్కాన్ క్రియాశీలం</string>
+    <string name="settings_auto_deep_scan_off">ఆటో-స్కాన్ నిలిపివేయబడింది</string>
+    <string name="action_scan_now">ఇప్పుడే స్కాన్ చేయండి</string>
+    <string name="scanning_device">పరికరంలో స్కాన్ జరుగుతోంది…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">గురించి మరియు చట్టపరమైన సమాచారం</string>
+    <string name="settings_about_legal_desc">డెవలపర్, నవీకరణలు, లైసెన్సులు మరియు అనుమతులు</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">స్టోరేజ్ డాక్టర్ 🩺</string>
+    <string name="doctor_analyze">మొత్తం: %1$s · విశ్లేషణ ➔</string>
+    <string name="doctor_photos_count">ఫోటోలు (%1$d)</string>
+    <string name="doctor_videos_count">వీడియోలు (%1$d)</string>
+    <string name="doctor_vault_count">వాల్ట్ (%1$d)</string>
+    <string name="doctor_trash_count">ట్రాష్ (%1$d)</string>
+    <string name="doctor_cleanable_space">ఖాళీ చేయగల స్థలం</string>
+    <string name="doctor_summary_format">అనవసరమైన వీడియోలు మరియు స్క్రీన్‌షాట్‌లను తొలగించి నిల్వను ఖాళీ చేయండి.</string>
+    <string name="doctor_large_videos">పెద్ద వీడియోలు (%1$d)</string>
+    <string name="doctor_screenshots">స్క్రీన్‌షాట్లు (%1$d)</string>
+    <string name="doctor_burst_shots">బరస్ట్ షాట్లు (%1$d)</string>
+    <string name="doctor_no_large_videos">పెద్ద వీడియోలు ఏవీ కనుగొనబడలేదు (&gt;50 MB) 🎉</string>
+    <string name="doctor_no_screenshots">పాత స్క్రీన్‌షాట్లు ఏవీ కనుగొనబడలేదు (&gt;30 రోజులు) 🎉</string>
+    <string name="doctor_no_burst">బరస్ట్ లేదా నకిలీ షాట్లు ఏవీ కనుగొనబడలేదు 🎉</string>
+    <string name="doctor_keep_best">ఉత్తమమైనది ఉంచు</string>
+    <string name="action_purge">తొలగించు</string>
+    <string name="doctor_ghost_purger_title">ఘోస్ట్ థంబ్‌నెయిల్ పర్జర్ 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">వృథా అయిన డిస్క్ కాష్ మరియు మిగిలిన థంబ్‌నెయిల్ ఫైళ్లను తొలగించండి</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">నకిలీలను కనుగొనండి 🧹</string>
+    <string name="duplicate_finder_desc">నకిలీ ఫోటోలను స్కాన్ చేసి శుభ్రం చేయండి</string>
+    <string name="duplicate_analyzing">నకిలీల కోసం గ్యాలరీని విశ్లేషిస్తోంది…</string>
+    <string name="duplicate_scanning_format">%1$d / %2$d అంశాలు స్కాన్ చేయబడుతున్నాయి…</string>
+    <string name="duplicate_none_found">నకిలీ ఫోటోలేవీ కనుగొనబడలేదు 🎉</string>
+    <string name="duplicate_delete_button">%1$d నకిలీలను తొలగించు</string>
+    <string name="duplicate_confirm_title">నకిలీల తొలగింపును నిర్ధారించండి</string>
+    <string name="duplicate_confirm_desc">ఎంచుకున్న %1$d నకిలీ ఫోటోలను ఖచ్చితంగా తొలగించాలనుకుంటున్నారా? అవి ట్రాష్‌కు తరలించబడతాయి.</string>
+    <string name="duplicate_not_same">సమానం కాదు</string>
+    <string name="duplicate_compare_loupe">పోలిక భూతద్దం 🔍</string>
+    <string name="duplicate_keep">ఉంచుకోండి</string>
+    <string name="duplicate_delete_duplicates">నకిలీలను తొలగించు</string>
+    <string name="duplicate_keep_this">ఈ ఫోటోను ఉంచుకోండి (తొలగింపు రద్దు)</string>
+    <string name="duplicate_mark_delete">తొలగించడానికి గుర్తు పెట్టండి</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">ఫోటోలు, వీడియోలు, ఆల్బమ్‌లు శోధించండి…</string>
+    <string name="albums_count_format">ఆల్బమ్‌లు (%1$d)</string>
+    <string name="pinned_albums_count_format">పిన్ చేసిన ఆల్బమ్‌లు (%1$d)</string>
+    <string name="all_albums_count_format">అన్ని ఆల్బమ్‌లు (%1$d)</string>
+    <string name="layout_list_view">జాబితా వీక్షణ</string>
+    <string name="layout_grid_2">పెద్ద గ్రిడ్ (2 నిలువు వరుసలు)</string>
+    <string name="layout_grid_3">మధ్యస్థ గ్రిడ్ (3 నిలువు వరుసలు)</string>
+    <string name="layout_grid_4">చిన్న గ్రిడ్ (4 నిలువు వరుసలు)</string>
+    <string name="sort_name_asc">పేరు ప్రకారం (అ నుండి క్ష)</string>
+    <string name="sort_count_desc">అంశాల సంఖ్య (ఎక్కువ)</string>
+    <string name="sort_recent">ఇటీవల నవీకరించబడినవి</string>
+    <string name="album_pin_top">పైకి పిన్ చేయండి</string>
+    <string name="album_unpin">అన్‌పిన్ చేయండి</string>
+    <string name="album_pin_desc">ఆల్బమ్‌ను గ్రిడ్ పైభాగంలో ఉంచండి</string>
+    <string name="album_exclude">గ్యాలరీ నుండి మినహాయించండి</string>
+    <string name="album_exclude_desc">మీడియా స్కాన్ల నుండి ఈ ఫోల్డర్‌ను దాచండి</string>
+    <string name="album_share">ఆల్బమ్‌ను భాగస్వామ్యం చేయండి</string>
+    <string name="album_share_desc">ఆల్బమ్‌లోని అన్ని ఫోటోలను ఎగుమతి చేసి షేర్ చేయండి</string>
+    <string name="album_lock_bio">బయోమెట్రిక్‌తో లాక్ చేయండి</string>
+    <string name="album_unlock">ఆల్బమ్ అన్‌లాక్ చేయండి</string>
+    <string name="album_lock_desc">వేలిముద్రతో ఆల్బమ్‌ను రక్షించండి</string>
+    <string name="album_unlock_desc">వేలిముద్ర అవసరం</string>
+    <string name="album_scrub_meta">ఆల్బమ్ మెటాడేటాను శుద్ధి చేయండి</string>
+    <string name="album_scrub_meta_desc">EXIF, GPS స్థానం మరియు కెమెరా డేటాను తొలగించండి</string>
+    <string name="album_auto_scrub">కొత్త ఫోటోల ఆటో శుద్ధి</string>
+    <string name="album_auto_scrub_on">క్రియాశీలం: వచ్చే ఫోటోల మెటాడేటాను స్వయంచాలకంగా తీసివేస్తుంది</string>
+    <string name="album_auto_scrub_off">నిలిపివేయబడింది: అసలు మెటాడేటాను భద్రపరుస్తుంది</string>
+    <string name="album_wifi_drop">వై-ఫై డ్రాప్ ద్వారా షేర్ చేయండి ⚡</string>
+    <string name="album_wifi_drop_desc">లోకల్ వై-ఫై ద్వారా PC / Mac / ఫోన్‌కు ఆల్బమ్‌ను బదిలీ చేయండి</string>
+    <string name="album_delete_desc">ఆల్బమ్ మరియు దానిలోని అన్ని అంశాలను శాశ్వతంగా తొలగించండి</string>
+    <string name="album_delete_only">ఆల్బమ్‌ను మాత్రమే తొలగించండి</string>
+    <string name="album_delete_only_desc">ఫోటోలు మరియు వీడియోలను సురక్షితంగా ఉంచండి (Picturesకు తరలించబడతాయి)</string>
+    <string name="album_delete_media">ఆల్బమ్ మరియు మీడియాను తొలగించండి</string>
+    <string name="album_delete_media_desc">అన్ని ఫోటోలు మరియు వీడియోలను ట్రాష్‌కు తరలించండి</string>
+    <string name="album_empty_trash_title">ట్రాష్‌ను ఖాళీ చేయాలా?</string>
+    <string name="album_empty_trash_desc">ట్రాష్‌లోని అన్ని అంశాలు శాశ్వతంగా తొలగించబడతాయి. ఈ చర్యను రద్దు చేయలేరు.</string>
+    <string name="album_delete_confirm_title">‘%1$s’ ఆల్బమ్‌ను తొలగించాలా?</string>
+    <string name="album_delete_choose_desc">ఈ ఆల్బమ్‌ను ఎలా తొలగించాలో ఎంచుకోండి:</string>
+    <string name="trash_locked_subtitle">బయోమెట్రిక్ రక్షిత · అన్‌లాక్ చేయడానికి తాకండి</string>
+    <string name="trash_unlocked_subtitle">ఈ సెషన్ కోసం అన్‌లాక్ చేయబడింది</string>
+    <string name="label_locked">లాక్ చేయబడింది</string>
+    <string name="unlock_trash_title">ట్రాష్ అన్‌లాక్ చేయండి</string>
+    <string name="unlock_trash_desc">తొలగించిన అంశాలను యాక్సెస్ చేయడానికి బయోమెట్రిక్ లేదా పిన్ ధృవీకరించండి</string>
+    <string name="unlock_vault_title">దాచిన వాల్ట్‌ను అన్‌లాక్ చేయండి</string>
+    <string name="unlock_vault_desc">మీ దాచిన ఫోటోలను యాక్సెస్ చేయడానికి వేలిముద్ర లేదా ముఖ గుర్తింపును ఉపయోగించండి</string>
 </resources>

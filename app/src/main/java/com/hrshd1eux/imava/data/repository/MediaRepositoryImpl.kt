@@ -313,21 +313,34 @@ class MediaRepositoryImpl @Inject constructor(
                 path = bucket.path,
                 mergedBucketIds = bucket.mergedBucketIds,
                 paths = bucket.paths,
-                coverUri = bucket.coverUri,
-                latestDateTaken = bucket.latestDateTaken
+                coverUri = if (newCount > 0) bucket.coverUri else null,
+                latestDateTaken = if (newCount > 0) bucket.latestDateTaken else 0L
             )
         }.toMutableList()
 
-        val existingNames = processedBuckets.map { it.name }.toSet()
+        val existingNames = processedBuckets.map { it.name.lowercase(java.util.Locale.ROOT) }.toSet()
+        val staleCreatedAlbums = mutableSetOf<String>()
         for (albumName in createdAlbums) {
-            if (!existingNames.contains(albumName)) {
+            val albumPath = java.io.File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES), albumName).absolutePath
+            val albumDir = java.io.File(albumPath)
+            if (!albumDir.exists()) {
+                staleCreatedAlbums.add(albumName)
+            } else if (!existingNames.contains(albumName.lowercase(java.util.Locale.ROOT))) {
                 val bucketId = albumName.hashCode().toLong()
-                val albumPath = java.io.File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES), albumName).absolutePath
-                processedBuckets.add(BucketInfo(bucketId, albumName, 0, albumPath))
+                processedBuckets.add(BucketInfo(bucketId, albumName, 0, albumPath, coverUri = null, latestDateTaken = 0L))
             }
         }
+        if (staleCreatedAlbums.isNotEmpty()) {
+            val updatedCreated = createdAlbums.filter { !staleCreatedAlbums.contains(it) }.toSet()
+            userPrefs.edit().putStringSet("created_albums", updatedCreated).apply()
+        }
 
-        processedBuckets.filter { it.count > 0 || createdAlbums.contains(it.name) }
+        // Purge empty albums whose folder does not exist on disk
+        processedBuckets.removeAll { bucket ->
+            bucket.count <= 0 && bucket.path != null && !java.io.File(bucket.path).exists()
+        }
+
+        processedBuckets.filter { it.count > 0 || createdAlbums.any { a -> a.equals(it.name, ignoreCase = true) } }
             .sortedWith(compareByDescending<BucketInfo> { it.count }.thenBy { it.name })
     }
 

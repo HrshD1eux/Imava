@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">சேமிப்பக மருத்துவர்</string>
     <string name="settings_about">பற்றி மற்றும் பதிப்பு</string>
     <string name="settings_wifi_drop">வைஃபை டிராப்</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">ஆப் தீமைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="theme_system">கணினி இயல்புநிலை</string>
+    <string name="theme_dark">டார்க் தீம்</string>
+    <string name="theme_amoled">AMOLED டார்க் (ஆழ்ந்த கருப்பு)</string>
+    <string name="theme_light">லைட் தீம்</string>
+    <string name="settings_startup_screen">இயல்புநிலை தொடக்கத் திரை</string>
+    <string name="startup_timeline">புகைப்படங்கள் (முக்கிய காலவரிசை)</string>
+    <string name="startup_albums">ஆல்பங்கள்</string>
+    <string name="startup_last_active">கடைசியாக செயல்பட்ட தாவலை நினைவில் கொள்ளவும்</string>
+    <string name="settings_brightness_boost">பார்வையாளர் பிரகாச ஊக்கம் ☀️</string>
+    <string name="settings_brightness_boost_desc">புகைப்படங்கள் மற்றும் வீடியோக்களைப் பார்க்கும்போது அதிகபட்ச HDR விவரத்திற்கு திரை பிரகாசத்தை தானாக அதிகரிக்கவும்</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">கட்டம் மற்றும் காட்சி அளவு</string>
+    <string name="settings_timeline_columns">காலவரிசை நெடுவரிசைகள்</string>
+    <string name="settings_grid_desc">காலவரிசை கட்டத்தில் புகைப்படங்களின் அளவை மாற்றவும். நீங்கள் எப்போது வேண்டுமானாலும் விரல்களால் பெரிதாக்கலாம்.</string>
+    <string name="column_single">1 நெடுவரிசை (மிகப் பெரியது)</string>
+    <string name="column_double">2 நெடுவரிசைகள் (பெரியது)</string>
+    <string name="column_triple">3 நெடுவரிசைகள் (இயல்பானது)</string>
+    <string name="column_compact">4 நெடுவரிசைகள் (நெருக்கமானது)</string>
+    <string name="column_dense">5 நெடுவரிசைகள் (அடர்த்தியானது)</string>
+    <string name="column_overview">6 நெடுவரிசைகள் (மேலோட்ட பார்வை)</string>
+    <string name="columns_count_format">%1$d நெடுவரிசைகள்</string>
+    <string name="column_label_big">1 (பெரியது)</string>
+    <string name="column_label_normal">3 (இயல்பானது)</string>
+    <string name="column_label_dense">6 (அடர்த்தியானது)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">தொடுதல் மற்றும் ஹாப்டிக்ஸ்</string>
+    <string name="settings_haptics">ஹாப்டிக் அதிர்வுகள்</string>
+    <string name="settings_haptics_desc">புகைப்படங்களைத் தேர்ந்தெடுக்கும்போது, பெட்டகத்தைத் திறக்கும்போது, திருத்தும்போது மற்றும் நீக்கும்போது தொடு உணர்வு</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">காப்புப்பிரதி மற்றும் உள்ளூர் NAS (கிளவுட் இல்லாதது)</string>
+    <string name="settings_nas_card_title">உள்ளூர் NAS / WebDAV ஒத்திசைவு</string>
+    <string name="settings_nas_card_desc">வைஃபை மூலம் Synology, Nextcloud, TrueNAS அல்லது வீட்டு சேவையகத்திற்கு பாதுகாப்பான காப்புப்பிரதி</string>
+    <string name="settings_nas_configured">கட்டமைக்கப்பட்டது • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">கோப்புறைகள் மற்றும் மீடியா அணுகல்</string>
+    <string name="settings_excluded_folders">விலக்கப்பட்ட / மறைக்கப்பட்ட கோப்புறைகள்</string>
+    <string name="settings_excluded_folders_none">எந்த கோப்புறையும் மறைக்கப்படவில்லை</string>
+    <string name="settings_excluded_folders_count">கேலரியிலிருந்து %1$d கோப்புறைகள் விலக்கப்பட்டுள்ளன</string>
+    <string name="settings_auto_scrub_albums">தானியங்கு ஸ்க்ரப் ஆல்பங்கள்</string>
+    <string name="settings_auto_scrub_none">எந்த ஆல்பமும் கட்டமைக்கப்படவில்லை</string>
+    <string name="settings_auto_scrub_count">%1$d ஆல்பங்கள் தானாகவே சுத்தம் செய்யப்படுகின்றன</string>
+    <string name="settings_merge_albums">ஒரே பெயரிலான ஆல்பங்களை இணைக்கவும்</string>
+    <string name="settings_merge_albums_desc">ஒத்த பெயர்களைக் கொண்ட கோப்புறைகளை (எ.கா. உள் மற்றும் SD கார்டு பதிவிறக்கங்கள்) ஒரு ஒருங்கிணைந்த ஆல்பம் அட்டையில் இணைக்கவும்</string>
+    <string name="settings_sd_card">வெளிப்புற SD கார்டு / USB OTG அணுகல்</string>
+    <string name="settings_sd_card_granted">வெளிப்புற சேமிப்பக அனுமதி வழங்கப்பட்டது</string>
+    <string name="settings_sd_card_desc">இரண்டாம் நிலை சேமிப்பகத்திற்கு SAF மர அனுமதியை வழங்கவும்</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">ஆப் பூட்டு மற்றும் சாதன தனியுரிமை</string>
+    <string name="settings_app_lock_title">ஆப் பூட்டு (பயோமெட்ரிக் / பின்) 🔒</string>
+    <string name="settings_app_lock_desc">Imava-வைத் திறக்கும் ஒவ்வொரு முறையும் கைரேகை, முகம் அல்லது பின் தேவைப்படும்</string>
+    <string name="settings_trash_lock">பயோமெட்ரிக் குப்பைத்தொட்டி பூட்டு 🗑️</string>
+    <string name="settings_trash_lock_desc">குப்பைத்தொட்டியைத் திறந்து நீக்கப்பட்ட புகைப்படங்களைப் பார்க்க கைரேகை அல்லது பின் தேவைப்படும்</string>
+    <string name="settings_recents_shield">சமீபத்திய பயன்பாடுகள் தனியுரிமைக் கேடயம் 🛡️</string>
+    <string name="settings_recents_shield_desc">சமீபத்திய ஆப்ஸ் மேலோட்டத்தில் கேலரி சிறுபடங்களை மறைக்கவும்</string>
+    <string name="settings_guest_pinning">விருந்தினர் பயன்முறை (திரை பின்னிங்) 📌</string>
+    <string name="settings_guest_pinning_desc">உங்கள் தொலைபேசியை யாரிடமாவது கொடுக்கும்போது, புகைப்படக் காட்சியில் பின் 📌 ஐகானைத் தட்டி திரையைப் பூட்டவும். விருந்தினர்கள் அங்கீகாரம் இல்லாமல் பிற புகைப்படங்களை நகர்த்த முடியாது.</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">சேமிப்பக சுத்திகரிப்பு மற்றும் பராமரிப்பு</string>
+    <string name="settings_file_shredder">கிரிப்டோகிராஃபிக் கோப்பு அழிப்பான் 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">தடயவியல் மீட்டெடுப்பைத் தடுக்க நீக்கப்பட்ட கோப்புகளை ரேண்டம் தரவு மற்றும் பூஜ்ஜியங்களால் மேலெழுதவும்</string>
+    <string name="settings_ghost_thumb_purger">மறைந்த சிறுபட அழிப்பான் 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails மற்றும் கேச் நினைவகத்தில் எஞ்சியிருக்கும் பாதுகாப்பற்ற சிறுபடக் கோப்புகளை அழிக்கவும்</string>
+    <string name="action_shred_now">இப்போதே அழி</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">ஆழமான மீடியா ஸ்கேன் மற்றும் சேமிப்பகம்</string>
+    <string name="settings_deep_discovery">ஆழமான மீடியா கண்டுபிடிப்பு</string>
+    <string name="settings_deep_discovery_desc">அனுப்பப்பட்ட மீடியா, தனிப்பட்ட கோப்புறைகள், GIFகள் மற்றும் மறைக்கப்பட்ட .nomedia கோப்புகளை ஸ்கேன் செய்யவும்.</string>
+    <string name="settings_auto_deep_scan">தானியங்கு ஆழமான ஸ்கேன்</string>
+    <string name="settings_auto_deep_scan_on">தொடக்கத்திலும் மீடியா மாற்றங்களிலும் தானியங்கு ஸ்கேன் செயல்படும்</string>
+    <string name="settings_auto_deep_scan_off">தானியங்கு ஸ்கேன் முடக்கப்பட்டது</string>
+    <string name="action_scan_now">இப்போதே ஸ்கேன் செய்</string>
+    <string name="scanning_device">சாதனம் ஸ்கேன் செய்யப்படுகிறது…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">பற்றி மற்றும் சட்டத் தகவல்</string>
+    <string name="settings_about_legal_desc">உருவாக்குநர், புதுப்பிப்புகள், உரிமங்கள் மற்றும் அனுமதிகள்</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">சேமிப்பக மருத்துவர் 🩺</string>
+    <string name="doctor_analyze">மொத்தம்: %1$s · பகுப்பாய்வு ➔</string>
+    <string name="doctor_photos_count">புகைப்படங்கள் (%1$d)</string>
+    <string name="doctor_videos_count">வீடியோக்கள் (%1$d)</string>
+    <string name="doctor_vault_count">பெட்டகம் (%1$d)</string>
+    <string name="doctor_trash_count">குப்பைத்தொட்டி (%1$d)</string>
+    <string name="doctor_cleanable_space">சுத்தம் செய்யக்கூடிய இடம்</string>
+    <string name="doctor_summary_format">தேவையற்ற வீடியோக்கள் மற்றும் ஸ்கிரீன்ஷாட்களை நீக்கி இடத்தை விடுவிக்கவும்.</string>
+    <string name="doctor_large_videos">பெரிய வீடியோக்கள் (%1$d)</string>
+    <string name="doctor_screenshots">ஸ்கிரீன்ஷாட்கள் (%1$d)</string>
+    <string name="doctor_burst_shots">தொடர் புகைப்படங்கள் (%1$d)</string>
+    <string name="doctor_no_large_videos">பெரிய வீடியோக்கள் எதுவும் காணப்படவில்லை (&gt;50 MB) 🎉</string>
+    <string name="doctor_no_screenshots">பழைய ஸ்கிரீன்ஷாட்கள் எதுவும் காணப்படவில்லை (&gt;30 நாட்கள்) 🎉</string>
+    <string name="doctor_no_burst">தொடர் அல்லது நகல் புகைப்படங்கள் எதுவும் காணப்படவில்லை 🎉</string>
+    <string name="doctor_keep_best">சிறந்ததை வைத்திரு</string>
+    <string name="action_purge">சுத்தம் செய்</string>
+    <string name="doctor_ghost_purger_title">மறைந்த சிறுபட அழிப்பான் 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">வீணான வட்டு தற்காலிக நினைவகம் மற்றும் சிறுபடக் கோப்புகளை அழிக்கவும்</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">நகல்களைக் கண்டறி 🧹</string>
+    <string name="duplicate_finder_desc">நகல் புகைப்படங்களை ஸ்கேன் செய்து சுத்தம் செய்யவும்</string>
+    <string name="duplicate_analyzing">நகல்களுக்காக கேலரி பகுப்பாய்வு செய்யப்படுகிறது…</string>
+    <string name="duplicate_scanning_format">%1$d / %2$d உருப்படிகள் ஸ்கேன் செய்யப்படுகின்றன…</string>
+    <string name="duplicate_none_found">நகல் புகைப்படங்கள் எதுவும் காணப்படவில்லை 🎉</string>
+    <string name="duplicate_delete_button">%1$d நகல்களை நீக்கு</string>
+    <string name="duplicate_confirm_title">நகல் நீக்கத்தை உறுதிப்படுத்தவும்</string>
+    <string name="duplicate_confirm_desc">தேர்ந்தெடுக்கப்பட்ட %1$d நகல் புகைப்படங்களை நிச்சயமாக நீக்க விரும்புகிறீர்களா? அவை குப்பைத்தொட்டிக்கு நகர்த்தப்படும்.</string>
+    <string name="duplicate_not_same">ஒரே மாதிரியானவை அல்ல</string>
+    <string name="duplicate_compare_loupe">ஒப்பீட்டு பூதக்கண்ணாடி 🔍</string>
+    <string name="duplicate_keep">வைத்திரு</string>
+    <string name="duplicate_delete_duplicates">நகல்களை நீக்கு</string>
+    <string name="duplicate_keep_this">இந்த புகைப்படத்தை வைத்திரு (நீக்கலை ரத்து செய்)</string>
+    <string name="duplicate_mark_delete">நீக்கக் குறிக்கவும்</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">புகைப்படங்கள், வீடியோக்கள், ஆல்பங்களைத் தேடுங்கள்…</string>
+    <string name="albums_count_format">ஆல்பங்கள் (%1$d)</string>
+    <string name="pinned_albums_count_format">பின் செய்யப்பட்ட ஆல்பங்கள் (%1$d)</string>
+    <string name="all_albums_count_format">அனைத்து ஆல்பங்கள் (%1$d)</string>
+    <string name="layout_list_view">பட்டியல் பார்வை</string>
+    <string name="layout_grid_2">பெரிய கட்டம் (2 நெடுவரிசைகள்)</string>
+    <string name="layout_grid_3">நடுத்தர கட்டம் (3 நெடுவரிசைகள்)</string>
+    <string name="layout_grid_4">சிறிய கட்டம் (4 நெடுவரிசைகள்)</string>
+    <string name="sort_name_asc">பெயர் (அ முதல் ஔ)</string>
+    <string name="sort_count_desc">உருப்படிகளின் எண்ணிக்கை (அதிகம்)</string>
+    <string name="sort_recent">சமீபத்தில் புதுப்பிக்கப்பட்டவை</string>
+    <string name="album_pin_top">மேலே பின் செய்</string>
+    <string name="album_unpin">அன்பின் செய்</string>
+    <string name="album_pin_desc">ஆல்பத்தைக் கட்டத்தின் மேலே வைத்திருக்கவும்</string>
+    <string name="album_exclude">கேலரியிலிருந்து விலக்கு</string>
+    <string name="album_exclude_desc">மீடியா ஸ்கேன்களிலிருந்து இந்தக் கோப்புறையை மறைக்கவும்</string>
+    <string name="album_share">ஆல்பத்தைப் பகிர்</string>
+    <string name="album_share_desc">ஆல்பத்தின் அனைத்து புகைப்படங்களையும் ஏற்றுமதி செய்து பகிரவும்</string>
+    <string name="album_lock_bio">பயோமெட்ரிக் மூலம் பூட்டு</string>
+    <string name="album_unlock">ஆல்பத்தைத் திற</string>
+    <string name="album_lock_desc">கைரேகை மூலம் ஆல்பத்தைப் பாதுகாக்கவும்</string>
+    <string name="album_unlock_desc">கைரேகை தேவை</string>
+    <string name="album_scrub_meta">ஆல்பம் மெட்டாடேட்டாவை நீக்கு</string>
+    <string name="album_scrub_meta_desc">EXIF, GPS இருப்பிடம் மற்றும் கேமரா தகவல்களை அகற்றவும்</string>
+    <string name="album_auto_scrub">புதிய புகைப்படங்களின் தானியங்கு மெட்டாடேட்டா நீக்கம்</string>
+    <string name="album_auto_scrub_on">செயல்படுகிறது: உள்வரும் புகைப்படங்களிலிருந்து தானாகவே நீக்குகிறது</string>
+    <string name="album_auto_scrub_off">முடக்கப்பட்டது: அசல் மெட்டாடேட்டாவைப் பாதுகாக்கிறது</string>
+    <string name="album_wifi_drop">வைஃபை டிராப் மூலம் பகிர் ⚡</string>
+    <string name="album_wifi_drop_desc">உள்ளூர் வைஃபை வழியாக PC / Mac / தொலைபேசிக்கு ஆல்பத்தை மாற்றவும்</string>
+    <string name="album_delete_desc">ஆல்பம் மற்றும் அதன் அனைத்து உள்ளடக்கங்களையும் நிரந்தரமாக நீக்கவும்</string>
+    <string name="album_delete_only">ஆல்பத்தை மட்டும் நீக்கு</string>
+    <string name="album_delete_only_desc">புகைப்படங்கள் மற்றும் வீடியோக்களைப் பாதுகாப்பாக வைக்கவும் (Picturesக்கு நகர்த்தப்படும்)</string>
+    <string name="album_delete_media">ஆல்பம் மற்றும் மீடியாவை நீக்கு</string>
+    <string name="album_delete_media_desc">அனைத்து புகைப்படங்கள் மற்றும் வீடியோக்களை குப்பைத்தொட்டிக்கு நகர்த்தவும்</string>
+    <string name="album_empty_trash_title">குப்பைத்தொட்டியை காலி செய்யவா?</string>
+    <string name="album_empty_trash_desc">குப்பைத்தொட்டியில் உள்ள அனைத்தும் நிரந்தரமாக நீக்கப்படும். இந்தச் செயலைத் திரும்பப் பெற முடியாது.</string>
+    <string name="album_delete_confirm_title">‘%1$s’ ஆல்பத்தை நீக்கவா?</string>
+    <string name="album_delete_choose_desc">இந்த ஆல்பத்தை எவ்வாறு நீக்க விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்க:</string>
+    <string name="trash_locked_subtitle">பயோமெட்ரிக் பாதுகாப்பானது · திறக்க தொடவும்</string>
+    <string name="trash_unlocked_subtitle">இந்த அமர்வுக்கு திறக்கப்பட்டது</string>
+    <string name="label_locked">பூட்டப்பட்டது</string>
+    <string name="unlock_trash_title">குப்பைத்தொட்டியைத் திறக்கவும்</string>
+    <string name="unlock_trash_desc">நீக்கப்பட்ட உருப்படிகளை அணுக கைரேகை அல்லது பின்னைச் சரிபார்க்கவும்</string>
+    <string name="unlock_vault_title">மறைக்கப்பட்ட பெட்டகத்தைத் திறக்கவும்</string>
+    <string name="unlock_vault_desc">உங்கள் மறைக்கப்பட்ட புகைப்படங்களை அணுக கைரேகை அல்லது முக அங்கீகாரத்தைப் பயன்படுத்தவும்</string>
 </resources>

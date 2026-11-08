@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">સ્ટોરેજ ડૉક્ટર</string>
     <string name="settings_about">વિશે અને સંસ્કરણ</string>
     <string name="settings_wifi_drop">વાઇ-ફાઇ ડ્રૉપ</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">એપ થીમ પસંદ કરો</string>
+    <string name="theme_system">સિસ્ટમ ડિફૉલ્ટ</string>
+    <string name="theme_dark">ડાર્ક થીમ</string>
+    <string name="theme_amoled">AMOLED ડાર્ક (ઘાટો કાળો)</string>
+    <string name="theme_light">લાઇટ થીમ</string>
+    <string name="settings_startup_screen">ડિફૉલ્ટ સ્ટાર્ટઅપ સ્ક્રીન</string>
+    <string name="startup_timeline">ફોટો (મુખ્ય સમયરેખા)</string>
+    <string name="startup_albums">આલ્બમ્સ</string>
+    <string name="startup_last_active">છેલ્લું સક્રિય ટૅબ યાદ રાખો</string>
+    <string name="settings_brightness_boost">વ્યૂઅર બ્રાઇટનેસ બૂસ્ટ ☀️</string>
+    <string name="settings_brightness_boost_desc">ફોટો અને વીડિયો જોતી વખતે મહત્તમ HDR વિગતો માટે સ્ક્રીન બ્રાઇટનેસ આપમેળે વધારો</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">ગ્રીડ અને ડિસ્પ્લે કદ</string>
+    <string name="settings_timeline_columns">સમયરેખા સ્તંભો</string>
+    <string name="settings_grid_desc">સમયરેખા ગ્રીડમાં ફોટાઓનું કદ સમાયોજિત કરો. તમે કોઈપણ સમયે પિંચ-ટુ-ઝૂમ પણ કરી શકો છો.</string>
+    <string name="column_single">1 સ્તંભ (ખૂબ મોટો)</string>
+    <string name="column_double">2 સ્તંભો (મોટો)</string>
+    <string name="column_triple">3 સ્તંભો (સામાન્ય)</string>
+    <string name="column_compact">4 સ્તંભો (કોમ્પેક્ટ)</string>
+    <string name="column_dense">5 સ્તંભો (ગીચ)</string>
+    <string name="column_overview">6 સ્તંભો (વિહંગાવલોકન)</string>
+    <string name="columns_count_format">%1$d સ્તંભો</string>
+    <string name="column_label_big">1 (મોટો)</string>
+    <string name="column_label_normal">3 (સામાન્ય)</string>
+    <string name="column_label_dense">6 (ગીચ)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">સ્પર્શ અને હેપ્ટિક્સ</string>
+    <string name="settings_haptics">હેપ્ટિક કંપન</string>
+    <string name="settings_haptics_desc">ફોટા પસંદ કરતી વખતે, વૉલ્ટ અનલૉક કરતી વખતે, ફેરફાર કરતી વખતે અને કાઢી નાખતી વખતે સ્પર્શ પ્રતિસાદ</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">બૅકઅપ અને સ્થાનિક NAS (ક્લાઉડ રહિત)</string>
+    <string name="settings_nas_card_title">સ્થાનિક NAS / WebDAV સિંક</string>
+    <string name="settings_nas_card_desc">વાઇ-ફાઇ પર Synology, Nextcloud, TrueNAS અથવા ઘરના સર્વર પર ક્લાઉડ વગર સુરક્ષિત બૅકઅપ</string>
+    <string name="settings_nas_configured">રૂપરેખાંકિત • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">ફોલ્ડર્સ અને મીડિયા ઍક્સેસ</string>
+    <string name="settings_excluded_folders">બાકાત / છુપાયેલા ફોલ્ડર્સ</string>
+    <string name="settings_excluded_folders_none">કોઈ ફોલ્ડર છુપાવેલું નથી</string>
+    <string name="settings_excluded_folders_count">ગેલેરીમાંથી %1$d ફોલ્ડર્સ બાકાત રાખ્યા</string>
+    <string name="settings_auto_scrub_albums">ઑટો-સ્ક્રબ આલ્બમ્સ</string>
+    <string name="settings_auto_scrub_none">કોઈ આલ્બમ રૂપરેખાંકિત નથી</string>
+    <string name="settings_auto_scrub_count">%1$d આલ્બમ્સ આપમેળે શુદ્ધ થાય છે</string>
+    <string name="settings_merge_albums">સમાન નામના આલ્બમ્સ મર્જ કરો</string>
+    <string name="settings_merge_albums_desc">સમાન નામ ધરાવતા ફોલ્ડર્સને (દા.ત. આંતરિક અને SD કાર્ડ ડાઉનલોડ) એક સંયુક્ત આલ્બમ કાર્ડમાં જોડો</string>
+    <string name="settings_sd_card">બાહ્ય SD કાર્ડ / USB OTG ઍક્સેસ</string>
+    <string name="settings_sd_card_granted">બાહ્ય સ્ટોરેજ માટે પરવાનગી મંજૂર થઈ</string>
+    <string name="settings_sd_card_desc">ગૌણ સ્ટોરેજ માટે SAF ટ્રી પરવાનગી આપો</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">એપ લૉક અને ડિવાઇસ ગોપનીયતા</string>
+    <string name="settings_app_lock_title">એપ લૉક (બાયોમેટ્રિક / પિન) 🔒</string>
+    <string name="settings_app_lock_desc">Imava ખોલતી વખતે દર વખતે ફિંગરપ્રિન્ટ, ચહેરો અથવા ડિવાઇસ પિન જરૂરી બનાવો</string>
+    <string name="settings_trash_lock">બાયોમેટ્રિક ટ્રૅશ લૉક 🗑️</string>
+    <string name="settings_trash_lock_desc">ટ્રૅશ ખોલવા અને કાઢી નાખેલા ફોટા જોવા માટે ફિંગરપ્રિન્ટ અથવા પિન જરૂરી બનાવો</string>
+    <string name="settings_recents_shield">તાજેતરની એપ્સ પ્રાઇવસી શીલ્ડ 🛡️</string>
+    <string name="settings_recents_shield_desc">તાજેતરની એપ્લિકેશન્સમાં ગેલેરી થંબનેલ્સ છુપાવો</string>
+    <string name="settings_guest_pinning">ગેસ્ટ મોડ (સ્ક્રીન પિનિંગ) 📌</string>
+    <string name="settings_guest_pinning_desc">ફોન કોઈને આપતી વખતે, ફોટો વ્યૂઅરમાં પિન 📌 આઇકન દબાવી સ્ક્રીન લૉક કરો. મહેમાનો પ્રમાણીકરણ વગર આગળના ફોટા જોઈ શકતા નથી.</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">સ્ટોરેજ ક્લીનર્સ અને જાળવણી</string>
+    <string name="settings_file_shredder">ક્રિપ્ટોગ્રાફિક ફાઇલ શ્રેડર 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">કાઢી નાખેલી ફાઇલોને રેન્ડમ ડેટા અને શૂન્ય વડે ઓવરરાઇટ કરો જેથી પુનઃપ્રાપ્તિ અશક્ય બને</string>
+    <string name="settings_ghost_thumb_purger">ઘોસ્ટ થંબનેલ ક્લીનર 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails અને કૅશમાં બચેલી અસુરક્ષિત પ્રીવ્યૂ ફાઇલોને નષ્ટ કરો</string>
+    <string name="action_shred_now">નષ્ટ કરો</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">ડીપ મીડિયા સ્કેન અને સ્ટોરેજ</string>
+    <string name="settings_deep_discovery">ઊંડાણપૂર્વક મીડિયા શોધ</string>
+    <string name="settings_deep_discovery_desc">મોકલેલા મીડિયા, ખાનગી ફોલ્ડર્સ, GIF અને છુપાયેલી .nomedia ફાઇલો સ્કેન કરો.</string>
+    <string name="settings_auto_deep_scan">સ્વચાલિત ડીપ સ્કેન</string>
+    <string name="settings_auto_deep_scan_on">સ્ટાર્ટઅપ અને મીડિયા ફેરફારો પર ઑટો-સ્કેન સક્રિય</string>
+    <string name="settings_auto_deep_scan_off">ઑટો-સ્કેન અક્ષમ</string>
+    <string name="action_scan_now">હમણાં સ્કેન કરો</string>
+    <string name="scanning_device">ડિવાઇસ સ્કેન થઈ રહ્યું છે…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">વિશે અને કાનૂની માહિતી</string>
+    <string name="settings_about_legal_desc">ડેવલપર, અપડેટ્સ, લાઇસન્સ અને પરવાનગીઓ</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">સ્ટોરેજ ડૉક્ટર 🩺</string>
+    <string name="doctor_analyze">કુલ: %1$s · વિશ્લેષણ ➔</string>
+    <string name="doctor_photos_count">ફોટા (%1$d)</string>
+    <string name="doctor_videos_count">વીડિયો (%1$d)</string>
+    <string name="doctor_vault_count">વૉલ્ટ (%1$d)</string>
+    <string name="doctor_trash_count">ટ્રૅશ (%1$d)</string>
+    <string name="doctor_cleanable_space">ખાલી કરી શકાય તેવી જગ્યા</string>
+    <string name="doctor_summary_format">બિનજરૂરી વીડિયો અને સ્ક્રીનશૉટ્સ કાઢી નાખીને સ્ટોરેજ ખાલી કરો.</string>
+    <string name="doctor_large_videos">મોટા વીડિયો (%1$d)</string>
+    <string name="doctor_screenshots">સ્ક્રીનશૉટ્સ (%1$d)</string>
+    <string name="doctor_burst_shots">બર્સ્ટ શૉટ્સ (%1$d)</string>
+    <string name="doctor_no_large_videos">કોઈ મોટા વીડિયો મળ્યા નથી (&gt;50 MB) 🎉</string>
+    <string name="doctor_no_screenshots">કોઈ જૂના સ્ક્રીનશૉટ્સ મળ્યા નથી (&gt;30 દિવસ) 🎉</string>
+    <string name="doctor_no_burst">કોઈ બર્સ્ટ કે ડુપ્લિકેટ શૉટ્સ મળ્યા નથી 🎉</string>
+    <string name="doctor_keep_best">શ્રેષ્ઠ રાખો</string>
+    <string name="action_purge">સાફ કરો</string>
+    <string name="doctor_ghost_purger_title">ઘોસ્ટ થંબનેલ ક્લીનર 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">વ્યર્થ ડિસ્ક કૅશ અને અવશેષ થંબનેલ ફાઇલો સાફ કરો</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">ડુપ્લિકેટ શોધો 🧹</string>
+    <string name="duplicate_finder_desc">ડુપ્લિકેટ ફોટા સ્કેન અને સાફ કરો</string>
+    <string name="duplicate_analyzing">ડુપ્લિકેટ માટે ગેલેરીનું વિશ્લેષણ થઈ રહ્યું છે…</string>
+    <string name="duplicate_scanning_format">%1$d / %2$d આઇટમ્સ સ્કેન થઈ રહી છે…</string>
+    <string name="duplicate_none_found">કોઈ ડુપ્લિકેટ ફોટા મળ્યા નથી 🎉</string>
+    <string name="duplicate_delete_button">%1$d ડુપ્લિકેટ કાઢી નાખો</string>
+    <string name="duplicate_confirm_title">ડુપ્લિકેટ કાઢી નાખવાની પુષ્ટિ કરો</string>
+    <string name="duplicate_confirm_desc">શું તમે ખરેખર પસંદ કરેલા %1$d ડુપ્લિકેટ ફોટા કાઢી નાખવા માંગો છો? તેઓ ટ્રૅશમાં મોકલવામાં આવશે.</string>
+    <string name="duplicate_not_same">સરખા નથી</string>
+    <string name="duplicate_compare_loupe">તુલના બૃહદ્દર્શક કાચ 🔍</string>
+    <string name="duplicate_keep">રાખો</string>
+    <string name="duplicate_delete_duplicates">ડુપ્લિકેટ કાઢી નાખો</string>
+    <string name="duplicate_keep_this">આ ફોટો રાખો (કાઢી નાખવાનું રદ કરો)</string>
+    <string name="duplicate_mark_delete">કાઢી નાખવા માટે ચિહ્નિત કરો</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">ફોટા, વીડિયો, આલ્બમ્સ શોધો…</string>
+    <string name="albums_count_format">આલ્બમ્સ (%1$d)</string>
+    <string name="pinned_albums_count_format">પિન કરેલા આલ્બમ્સ (%1$d)</string>
+    <string name="all_albums_count_format">બધા આલ્બમ્સ (%1$d)</string>
+    <string name="layout_list_view">સૂચિ દૃશ્ય</string>
+    <string name="layout_grid_2">મોટી ગ્રીડ (2 સ્તંભો)</string>
+    <string name="layout_grid_3">મધ્યમ ગ્રીડ (3 સ્તંભો)</string>
+    <string name="layout_grid_4">નાની ગ્રીડ (4 સ્તંભો)</string>
+    <string name="sort_name_asc">નામ (અ થી જ્ઞ)</string>
+    <string name="sort_count_desc">સંખ્યા (સૌથી વધુ)</string>
+    <string name="sort_recent">તાજેતરમાં અપડેટ થયેલ</string>
+    <string name="album_pin_top">ટોચ પર પિન કરો</string>
+    <string name="album_unpin">અનપિન કરો</string>
+    <string name="album_pin_desc">આલ્બમને ગ્રીડમાં સૌથી ઉપર રાખો</string>
+    <string name="album_exclude">ગેલેરીમાંથી બાકાત રાખો</string>
+    <string name="album_exclude_desc">આ ફોલ્ડરને મીડિયા સ્કેનથી છુપાવો</string>
+    <string name="album_share">આલ્બમ શેર કરો</string>
+    <string name="album_share_desc">આલ્બમના તમામ ફોટા નિકાસ અને શેર કરો</string>
+    <string name="album_lock_bio">બાયોમેટ્રિકથી લૉક કરો</string>
+    <string name="album_unlock">આલ્બમ અનલૉક કરો</string>
+    <string name="album_lock_desc">ફિંગરપ્રિન્ટથી આલ્બમ સુરક્ષિત કરો</string>
+    <string name="album_unlock_desc">ફિંગરપ્રિન્ટ જરૂરી છે</string>
+    <string name="album_scrub_meta">આલ્બમ મેટાડેટા સાફ કરો</string>
+    <string name="album_scrub_meta_desc">EXIF, GPS સ્થાન અને કેમેરા વિગતો દૂર કરો</string>
+    <string name="album_auto_scrub">નવા ફોટાઓનો આપમેળે મેટાડેટા દૂર કરો</string>
+    <string name="album_auto_scrub_on">સક્રિય: આવતા ફોટામાંથી આપમેળે વિગતો કાઢી નાખે છે</string>
+    <string name="album_auto_scrub_off">અક્ષમ: મૂળ મેટાડેટા જાળવી રાખે છે</string>
+    <string name="album_wifi_drop">વાઇ-ફાઇ ડ્રૉપ દ્વારા શેર કરો ⚡</string>
+    <string name="album_wifi_drop_desc">સ્થાનિક વાઇ-ફાઇ પર PC / Mac / ફોનમાં આલ્બમ સ્થાનાંતરિત કરો</string>
+    <string name="album_delete_desc">આલ્બમ અને તેની તમામ સામગ્રી કાયમ માટે કાઢી નાખો</string>
+    <string name="album_delete_only">માત્ર આલ્બમ કાઢી નાખો</string>
+    <string name="album_delete_only_desc">ફોટા અને વીડિયો સુરક્ષિત રાખો (Picturesમાં મોકલાશે)</string>
+    <string name="album_delete_media">આલ્બમ અને મીડિયા કાઢી નાખો</string>
+    <string name="album_delete_media_desc">બધા ફોટા અને વીડિયો ટ્રૅશમાં મોકલો</string>
+    <string name="album_empty_trash_title">ટ્રૅશ ખાલી કરવું છે?</string>
+    <string name="album_empty_trash_desc">ટ્રૅશની તમામ સામગ્રી કાયમ માટે કાઢી નાખવામાં આવશે. આ ક્રિયા પૂર્વવત્ કરી શકાતી નથી.</string>
+    <string name="album_delete_confirm_title">આલ્બમ ‘%1$s’ કાઢી નાખવું છે?</string>
+    <string name="album_delete_choose_desc">તમે આ આલ્બમ કેવી રીતે કાઢી નાખવા માંગો છો તે પસંદ કરો:</string>
+    <string name="trash_locked_subtitle">બાયોમેટ્રિક સુરક્ષિત · અનલૉક કરવા માટે ટેપ કરો</string>
+    <string name="trash_unlocked_subtitle">આ સત્ર માટે અનલૉક થયેલ છે</string>
+    <string name="label_locked">લૉક કરેલ</string>
+    <string name="unlock_trash_title">ટ્રૅશ અનલૉક કરો</string>
+    <string name="unlock_trash_desc">કાઢી નાખેલી વસ્તુઓ જોવા માટે બાયોમેટ્રિક અથવા પિન ચકાસો</string>
+    <string name="unlock_vault_title">છુપાયેલું વૉલ્ટ અનલૉક કરો</string>
+    <string name="unlock_vault_desc">તમારા છુપાયેલા ફોટા જોવા માટે ફિંગરપ્રિન્ટ અથવા ચહેરો વાપરો</string>
 </resources>

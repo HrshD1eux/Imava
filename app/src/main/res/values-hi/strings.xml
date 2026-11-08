@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">स्टोरेज डॉक्टर</string>
     <string name="settings_about">के बारे में और वर्शन</string>
     <string name="settings_wifi_drop">वाई-फ़ाई ड्रॉप</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">ऐप थीम चुनें</string>
+    <string name="theme_system">सिस्टम डिफ़ॉल्ट</string>
+    <string name="theme_dark">डार्क थीम</string>
+    <string name="theme_amoled">AMOLED डार्क (गहरा काला)</string>
+    <string name="theme_light">लाइट थीम</string>
+    <string name="settings_startup_screen">डिफ़ॉल्ट स्टार्ट-अप स्क्रीन</string>
+    <string name="startup_timeline">फ़ोटो (मुख्य टाइमलाइन)</string>
+    <string name="startup_albums">एल्बम</string>
+    <string name="startup_last_active">पिछली सक्रिय टैब याद रखें</string>
+    <string name="settings_brightness_boost">व्यूअर ब्राइटनेस बूस्ट ☀️</string>
+    <string name="settings_brightness_boost_desc">फ़ोटो और वीडियो देखते समय अधिकतम HDR विवरण के लिए स्क्रीन ब्राइटनेस अपने-आप बढ़ाएं</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">ग्रिड और प्रदर्शन आकार</string>
+    <string name="settings_timeline_columns">टाइमलाइन कॉलम</string>
+    <string name="settings_grid_desc">टाइमलाइन ग्रिड में फ़ोटो का डिफ़ॉल्ट आकार बदलें। आप किसी भी समय पिंच-टू-ज़ूम भी कर सकते हैं।</string>
+    <string name="column_single">1 कॉलम (अति बड़ा)</string>
+    <string name="column_double">2 कॉलम (बड़ा)</string>
+    <string name="column_triple">3 कॉलम (सामान्य)</string>
+    <string name="column_compact">4 कॉलम (कॉम्पैक्ट)</string>
+    <string name="column_dense">5 कॉलम (सघन)</string>
+    <string name="column_overview">6 कॉलम (अवलोकन)</string>
+    <string name="columns_count_format">%1$d कॉलम</string>
+    <string name="column_label_big">1 (बड़ा)</string>
+    <string name="column_label_normal">3 (सामान्य)</string>
+    <string name="column_label_dense">6 (सघन)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">स्पर्श और हैप्टिक्स</string>
+    <string name="settings_haptics">हैप्टिक कंपन</string>
+    <string name="settings_haptics_desc">फ़ोटो चुनने, वॉल्ट अनलॉक करने, संपादन और हटाने पर स्पर्श प्रतिक्रिया</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">बैकअप और लोकल NAS (शून्य क्लाउड)</string>
+    <string name="settings_nas_card_title">लोकल NAS / WebDAV सिंक</string>
+    <string name="settings_nas_card_desc">वाई-फ़ाई पर Synology, Nextcloud, TrueNAS या घरेलू सर्वर पर निजी बैकअप</string>
+    <string name="settings_nas_configured">कॉन्फ़िगर किया गया • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">फ़ोल्डर और मीडिया एक्सेस</string>
+    <string name="settings_excluded_folders">बाहर किए गए / छिपे हुए फ़ोल्डर</string>
+    <string name="settings_excluded_folders_none">कोई फ़ोल्डर छिपाया नहीं गया</string>
+    <string name="settings_excluded_folders_count">गैलरी से %1$d फ़ोल्डर बाहर किए गए</string>
+    <string name="settings_auto_scrub_albums">ऑटो-स्क्रब एल्बम</string>
+    <string name="settings_auto_scrub_none">कोई एल्बम कॉन्फ़िगर नहीं है</string>
+    <string name="settings_auto_scrub_count">%1$d एल्बम स्वचालित रूप से सैनिटाइज़ होते हैं</string>
+    <string name="settings_merge_albums">समान नाम वाले एल्बम मिलाएं</string>
+    <string name="settings_merge_albums_desc">समान नाम वाले फ़ोल्डरों (उदा. आंतरिक और एसडी कार्ड डाउनलोड) को एक संयुक्त एल्बम कार्ड में मिलाएं</string>
+    <string name="settings_sd_card">बाहरी एसडी कार्ड / USB OTG एक्सेस</string>
+    <string name="settings_sd_card_granted">बाहरी स्टोरेज की अनुमति स्वीकृत</string>
+    <string name="settings_sd_card_desc">द्वितीयक स्टोरेज के लिए SAF अनुमति प्रदान करें</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">ऐप लॉक और डिवाइस गोपनीयता</string>
+    <string name="settings_app_lock_title">ऐप लॉक (बायोमेट्रिक / पिन) 🔒</string>
+    <string name="settings_app_lock_desc">Imava खोलने पर हर बार फिंगरप्रिंट, चेहरा या पिन आवश्यक करें</string>
+    <string name="settings_trash_lock">बायोमेट्रिक ट्रैश लॉक 🗑️</string>
+    <string name="settings_trash_lock_desc">ट्रैश खोलने और हटाई गई फ़ोटो देखने के लिए बायोमेट्रिक या पिन आवश्यक करें</string>
+    <string name="settings_recents_shield">ऐप स्विचर प्राइवेसी शील्ड 🛡️</string>
+    <string name="settings_recents_shield_desc">हाल के ऐप्स के अवलोकन में गैलरी थंबनेल छिपाएं</string>
+    <string name="settings_guest_pinning">गेस्ट हैंड-ऑफ (स्क्रीन पिनिंग) 📌</string>
+    <string name="settings_guest_pinning_desc">फ़ोन किसी को देते समय, फ़ोटो व्यूअर में पिन 📌 आइकन दबाएं ताकि स्क्रीन उसी फ़ोटो पर लॉक रहे। मेहमान बिना अनुमति अगली फ़ोटो नहीं देख सकते।</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">स्टोरेज क्लीनर और रखरखाव</string>
+    <string name="settings_file_shredder">क्रिप्टोग्राफ़िक फ़ाइल श्रेडर 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">हटाई गई फ़ोटो को रैंडम डेटा और शून्य से ओवरराइट करें ताकि फ़ोरेंसिक रिकवरी असंभव हो</string>
+    <string name="settings_ghost_thumb_purger">घोस्ट थंबनेल क्लीनर 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails और कैश में बची बिना एन्क्रिप्टेड प्रिव्यू फ़ाइलों को नष्ट करें</string>
+    <string name="action_shred_now">नष्ट करें</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">डीप मीडिया स्कैन और स्टोरेज</string>
+    <string name="settings_deep_discovery">डीप मीडिया खोज</string>
+    <string name="settings_deep_discovery_desc">डिवाइस में भेजी गई मीडिया, निजी फ़ोल्डर, GIF और छिपी .nomedia फ़ाइलें स्कैन करें।</string>
+    <string name="settings_auto_deep_scan">स्वचालित डीप स्कैन</string>
+    <string name="settings_auto_deep_scan_on">स्टार्टअप और मीडिया बदलाव पर ऑटो-स्कैन सक्रिय</string>
+    <string name="settings_auto_deep_scan_off">ऑटो-स्कैन बंद</string>
+    <string name="action_scan_now">अभी स्कैन करें</string>
+    <string name="scanning_device">डिवाइस स्कैन हो रहा है…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">के बारे में और कानूनी जानकारी</string>
+    <string name="settings_about_legal_desc">डेवलपर, अपडेट, लाइसेंस और अनुमतियां</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">स्टोरेज डॉक्टर 🩺</string>
+    <string name="doctor_analyze">कुल: %1$s · विश्लेषण ➔</string>
+    <string name="doctor_photos_count">फ़ोटो (%1$d)</string>
+    <string name="doctor_videos_count">वीडियो (%1$d)</string>
+    <string name="doctor_vault_count">वॉल्ट (%1$d)</string>
+    <string name="doctor_trash_count">ट्रैश (%1$d)</string>
+    <string name="doctor_cleanable_space">खाली करने योग्य स्टोरेज</string>
+    <string name="doctor_summary_format">अनावश्यक वीडियो और स्क्रीनशॉट हटाकर स्टोरेज खाली करें।</string>
+    <string name="doctor_large_videos">बड़े वीडियो (%1$d)</string>
+    <string name="doctor_screenshots">स्क्रीनशॉट (%1$d)</string>
+    <string name="doctor_burst_shots">बर्स्ट शॉट्स (%1$d)</string>
+    <string name="doctor_no_large_videos">कोई बड़ा वीडियो नहीं मिला (&gt;50 MB) 🎉</string>
+    <string name="doctor_no_screenshots">कोई पुराना स्क्रीनशॉट नहीं मिला (&gt;30 दिन) 🎉</string>
+    <string name="doctor_no_burst">कोई बर्स्ट या डुप्लिकेट शॉट नहीं मिला 🎉</string>
+    <string name="doctor_keep_best">सर्वश्रेष्ठ रखें</string>
+    <string name="action_purge">हटाएं</string>
+    <string name="doctor_ghost_purger_title">घोस्ट थंबनेल क्लीनर 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">व्यर्थ डिस्क कैश और अवशिष्ट थंबनेल फ़ाइलें साफ़ करें</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">डुप्लिकेट ढूंढें 🧹</string>
+    <string name="duplicate_finder_desc">डुप्लिकेट फ़ोटो स्कैन और साफ़ करें</string>
+    <string name="duplicate_analyzing">डुप्लिकेट के लिए गैलरी का विश्लेषण हो रहा है…</string>
+    <string name="duplicate_scanning_format">%1$d / %2$d आइटम स्कैन हो रहे हैं…</string>
+    <string name="duplicate_none_found">कोई डुप्लिकेट फ़ोटो नहीं मिली 🎉</string>
+    <string name="duplicate_delete_button">%1$d डुप्लिकेट हटाएं</string>
+    <string name="duplicate_confirm_title">डुप्लिकेट हटाने की पुष्टि करें</string>
+    <string name="duplicate_confirm_desc">क्या आप वाकई चुनी गई %1$d डुप्लिकेट फ़ोटो हटाना चाहते हैं? वे ट्रैश में भेजी जाएंगी।</string>
+    <string name="duplicate_not_same">समान नहीं हैं</string>
+    <string name="duplicate_compare_loupe">तुलना लूप 🔍</string>
+    <string name="duplicate_keep">रखें</string>
+    <string name="duplicate_delete_duplicates">डुप्लिकेट हटाएं</string>
+    <string name="duplicate_keep_this">यह फ़ोटो रखें (हटाना रद्द करें)</string>
+    <string name="duplicate_mark_delete">हटाने के लिए चुनें</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">फ़ोटो, वीडियो, एल्बम खोजें…</string>
+    <string name="albums_count_format">एल्बम (%1$d)</string>
+    <string name="pinned_albums_count_format">पिन किए गए एल्बम (%1$d)</string>
+    <string name="all_albums_count_format">सभी एल्बम (%1$d)</string>
+    <string name="layout_list_view">सूची दृश्य</string>
+    <string name="layout_grid_2">बड़ा ग्रिड (2 कॉलम)</string>
+    <string name="layout_grid_3">मध्यम ग्रिड (3 कॉलम)</string>
+    <string name="layout_grid_4">छोटा ग्रिड (4 कॉलम)</string>
+    <string name="sort_name_asc">नाम (अ से ज्ञ)</string>
+    <string name="sort_count_desc">संख्या (अधिकतम पहले)</string>
+    <string name="sort_recent">हाल ही में अपडेट किया गया</string>
+    <string name="album_pin_top">शीर्ष पर पिन करें</string>
+    <string name="album_unpin">अनपिन करें</string>
+    <string name="album_pin_desc">एल्बम को ग्रिड में सबसे ऊपर रखें</string>
+    <string name="album_exclude">गैलरी से बाहर करें</string>
+    <string name="album_exclude_desc">इस फ़ोल्डर को मीडिया स्कैन से छिपाएं</string>
+    <string name="album_share">एल्बम शेयर करें</string>
+    <string name="album_share_desc">एल्बम की सभी फ़ोटो निर्यात और शेयर करें</string>
+    <string name="album_lock_bio">बायोमेट्रिक से लॉक करें</string>
+    <string name="album_unlock">एल्बम अनलॉक करें</string>
+    <string name="album_lock_desc">फ़िंगरप्रिंट से एल्बम सुरक्षित करें</string>
+    <string name="album_unlock_desc">फ़िंगरप्रिंट आवश्यक है</string>
+    <string name="album_scrub_meta">एल्बम मेटाडेटा हटाएं</string>
+    <string name="album_scrub_meta_desc">EXIF, GPS स्थान और कैमरा जानकारी हटाएं</string>
+    <string name="album_auto_scrub">नई फ़ोटो का स्वतः मेटाडेटा हटाएं</string>
+    <string name="album_auto_scrub_on">सक्रिय: आने वाली फ़ोटो से मेटाडेटा स्वतः हटाता है</string>
+    <string name="album_auto_scrub_off">निष्क्रिय: मूल मेटाडेटा सुरक्षित रखता है</string>
+    <string name="album_wifi_drop">वाई-फ़ाई ड्रॉप से शेयर करें ⚡</string>
+    <string name="album_wifi_drop_desc">स्थानीय वाई-फ़ाई पर PC / Mac / फ़ोन में एल्बम ट्रांसफर करें</string>
+    <string name="album_delete_desc">एल्बम और उसकी सभी सामग्री स्थायी रूप से हटाएं</string>
+    <string name="album_delete_only">केवल एल्बम हटाएं</string>
+    <string name="album_delete_only_desc">फ़ोटो और वीडियो सुरक्षित रखें (Pictures में भेजे जाएंगे)</string>
+    <string name="album_delete_media">एल्बम और मीडिया हटाएं</string>
+    <string name="album_delete_media_desc">सभी फ़ोटो और वीडियो ट्रैश में भेजें</string>
+    <string name="album_empty_trash_title">ट्रैश खाली करें?</string>
+    <string name="album_empty_trash_desc">ट्रैश की सभी सामग्री स्थायी रूप से हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।</string>
+    <string name="album_delete_confirm_title">एल्बम ‘%1$s’ हटाएं?</string>
+    <string name="album_delete_choose_desc">चुनें कि आप यह एल्बम कैसे हटाना चाहते हैं:</string>
+    <string name="trash_locked_subtitle">बायोमेट्रिक सुरक्षित · अनलॉक करने के लिए टैप करें</string>
+    <string name="trash_unlocked_subtitle">इस सत्र के लिए अनलॉक किया गया</string>
+    <string name="label_locked">लॉक किया गया</string>
+    <string name="unlock_trash_title">ट्रैश अनलॉक करें</string>
+    <string name="unlock_trash_desc">हटाए गए आइटम देखने के लिए बायोमेट्रिक या पिन सत्यापित करें</string>
+    <string name="unlock_vault_title">हिडन वॉल्ट अनलॉक करें</string>
+    <string name="unlock_vault_desc">छिपी हुई फ़ोटो देखने के लिए फ़िंगरप्रिंट या चेहरे से अनलॉक करें</string>
 </resources>

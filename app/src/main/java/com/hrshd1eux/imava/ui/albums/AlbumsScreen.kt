@@ -131,6 +131,30 @@ fun AlbumsScreen(
         map
     }
 
+    val resolveAlbumCount = remember(allMedia) {
+        { bucket: BucketInfo ->
+            if (allMedia.isNotEmpty()) {
+                allMedia.count { it.bucketId == bucket.id || (bucket.mergedBucketIds.isNotEmpty() && it.bucketId in bucket.mergedBucketIds) }
+            } else {
+                bucket.count
+            }
+        }
+    }
+
+    val resolveAlbumCoverUri = remember(allMedia, customAlbumCovers, latestMediaByBucketId) {
+        { bucket: BucketInfo ->
+            val liveCount = resolveAlbumCount(bucket)
+            if (liveCount <= 0) {
+                null
+            } else {
+                val customMediaId = customAlbumCovers[bucket.id]
+                val customUri = if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null
+                val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
+                customUri ?: liveCoverUri ?: (if (allMedia.isEmpty()) bucket.coverUri else null)
+            }
+        }
+    }
+
     var showSortMenu by remember { mutableStateOf(false) }
     var showLayoutMenu by remember { mutableStateOf(false) }
 
@@ -206,7 +230,7 @@ fun AlbumsScreen(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Search photos, videos, albums...",
+                        text = stringResource(R.string.search_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -250,14 +274,14 @@ fun AlbumsScreen(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "Storage Doctor 🩺",
+                                    text = stringResource(R.string.doctor_title),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }
                             Text(
-                                text = "Total: ${storageStats.formattedTotal} · Analyze ➔",
+                                text = stringResource(R.string.doctor_analyze, storageStats.formattedTotal),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -271,7 +295,7 @@ fun AlbumsScreen(
                         ) {
                             Column {
                                 Text(
-                                    text = "Photos (${storageStats.photosCount})",
+                                    text = stringResource(R.string.doctor_photos_count, storageStats.photosCount),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -283,7 +307,7 @@ fun AlbumsScreen(
                             }
                             Column {
                                 Text(
-                                    text = "Videos (${storageStats.videosCount})",
+                                    text = stringResource(R.string.doctor_videos_count, storageStats.videosCount),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -295,7 +319,7 @@ fun AlbumsScreen(
                             }
                             Column {
                                 Text(
-                                    text = "Vault (${storageStats.vaultCount})",
+                                    text = stringResource(R.string.doctor_vault_count, storageStats.vaultCount),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -307,7 +331,7 @@ fun AlbumsScreen(
                             }
                             Column {
                                 Text(
-                                    text = "Trash (${storageStats.trashCount})",
+                                    text = stringResource(R.string.doctor_trash_count, storageStats.trashCount),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -355,6 +379,8 @@ fun AlbumsScreen(
 
             if (!isStealthMode) {
                 item {
+                    val unlockVaultTitle = stringResource(R.string.unlock_vault_title)
+                    val unlockVaultSubtitle = stringResource(R.string.unlock_vault_desc)
                     AlbumRowItem(
                         icon = if (isVaultDisabled || !isPinConfigured) Icons.Default.LockOpen else Icons.Default.Lock,
                         title = stringResource(R.string.category_vault),
@@ -370,8 +396,8 @@ fun AlbumsScreen(
                             if (isBiometricEnabled && activity != null) {
                                 com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                     activity = activity,
-                                    title = "Unlock Hidden Vault",
-                                    subtitle = "Use fingerprint or face unlock to access your hidden photos",
+                                    title = unlockVaultTitle,
+                                    subtitle = unlockVaultSubtitle,
                                     onSuccess = {
                                         viewModel.unlockVault()
                                         viewModel.currentBucketId = null
@@ -395,22 +421,24 @@ fun AlbumsScreen(
             item {
                 val isTrashLocked = com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(context)
                 val isTrashConfigured = com.hrshd1eux.imava.core.util.AppLockManager.isTrashLockActive(context)
+                val unlockTrashTitle = stringResource(R.string.unlock_trash_title)
+                val unlockTrashSubtitle = stringResource(R.string.unlock_trash_desc)
                 AlbumRowItem(
                     icon = Icons.Default.Delete,
                     title = if (isTrashLocked) "${stringResource(R.string.category_trash)} 🔒" else stringResource(R.string.category_trash),
                     count = if (isTrashLocked) 0 else trashed.size,
                     subtitle = if (isTrashConfigured) {
-                        if (isTrashLocked) "Biometric protected · Tap to unlock" else "Unlocked for this session"
+                        if (isTrashLocked) stringResource(R.string.trash_locked_subtitle) else stringResource(R.string.trash_unlocked_subtitle)
                     } else null,
-                    actionLabel = if (isTrashLocked) "Locked" else null,
+                    actionLabel = if (isTrashLocked) stringResource(R.string.label_locked) else null,
                     onClick = {
                         if (isTrashLocked) {
                             val activity = context.findActivity()
                             if (activity != null) {
                                 com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                     activity = activity,
-                                    title = "Unlock Trash",
-                                    subtitle = "Verify biometric or PIN to access deleted items",
+                                    title = unlockTrashTitle,
+                                    subtitle = unlockTrashSubtitle,
                                     onSuccess = {
                                         com.hrshd1eux.imava.core.util.AppLockManager.markTrashUnlockedForSession()
                                         com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
@@ -440,9 +468,9 @@ fun AlbumsScreen(
             item {
                 AlbumRowItem(
                     icon = Icons.Default.CleaningServices,
-                    title = "Find Duplicates 🧹",
+                    title = stringResource(R.string.duplicate_finder_title),
                     count = 0,
-                    subtitle = "Scan & clean duplicate photos",
+                    subtitle = stringResource(R.string.duplicate_finder_desc),
                     onClick = {
                         viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.DuplicateFinder
                     }
@@ -465,7 +493,7 @@ fun AlbumsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Albums (${visibleBuckets.size})",
+                        text = stringResource(R.string.albums_count_format, visibleBuckets.size),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -486,28 +514,28 @@ fun AlbumsScreen(
                                 onDismissRequest = { showLayoutMenu = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("List View") },
+                                    text = { Text(stringResource(R.string.layout_list_view)) },
                                     onClick = {
                                         viewModel.setAlbumLayoutMode(MainViewModel.AlbumLayoutMode.LIST)
                                         showLayoutMenu = false
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Large Grid (2 Columns)") },
+                                    text = { Text(stringResource(R.string.layout_grid_2)) },
                                     onClick = {
                                         viewModel.setAlbumLayoutMode(MainViewModel.AlbumLayoutMode.GRID_2)
                                         showLayoutMenu = false
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Medium Grid (3 Columns)") },
+                                    text = { Text(stringResource(R.string.layout_grid_3)) },
                                     onClick = {
                                         viewModel.setAlbumLayoutMode(MainViewModel.AlbumLayoutMode.GRID_3)
                                         showLayoutMenu = false
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Small Grid (4 Columns)") },
+                                    text = { Text(stringResource(R.string.layout_grid_4)) },
                                     onClick = {
                                         viewModel.setAlbumLayoutMode(MainViewModel.AlbumLayoutMode.GRID_4)
                                         showLayoutMenu = false
@@ -530,21 +558,21 @@ fun AlbumsScreen(
                                 onDismissRequest = { showSortMenu = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(if (albumSortOrder == MainViewModel.AlbumSortOrder.NAME_ASC) "✓ Name (A to Z)" else "Name (A to Z)") },
+                                    text = { Text((if (albumSortOrder == MainViewModel.AlbumSortOrder.NAME_ASC) "✓ " else "") + stringResource(R.string.sort_name_asc)) },
                                     onClick = {
                                         viewModel.setAlbumSortOrder(MainViewModel.AlbumSortOrder.NAME_ASC)
                                         showSortMenu = false
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(if (albumSortOrder == MainViewModel.AlbumSortOrder.COUNT_DESC) "✓ Item Count (Largest)" else "Item Count (Largest)") },
+                                    text = { Text((if (albumSortOrder == MainViewModel.AlbumSortOrder.COUNT_DESC) "✓ " else "") + stringResource(R.string.sort_count_desc)) },
                                     onClick = {
                                         viewModel.setAlbumSortOrder(MainViewModel.AlbumSortOrder.COUNT_DESC)
                                         showSortMenu = false
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(if (albumSortOrder == MainViewModel.AlbumSortOrder.RECENT) "✓ Recently Updated" else "Recently Updated") },
+                                    text = { Text((if (albumSortOrder == MainViewModel.AlbumSortOrder.RECENT) "✓ " else "") + stringResource(R.string.sort_recent)) },
                                     onClick = {
                                         viewModel.setAlbumSortOrder(MainViewModel.AlbumSortOrder.RECENT)
                                         showSortMenu = false
@@ -570,16 +598,13 @@ fun AlbumsScreen(
 
                 if (numCols == 1) {
                     items(pinnedBuckets, key = { it.id }) { bucket ->
-                        val customMediaId = customAlbumCovers[bucket.id]
-                        val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
-                        val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                            ?: liveCoverUri
-                            ?: bucket.coverUri
+                        val liveCount = resolveAlbumCount(bucket)
+                        val coverUri = resolveAlbumCoverUri(bucket)
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
                             coverUri = coverUri,
                             title = "${bucket.name} 📌",
-                            count = bucket.count,
+                            count = liveCount,
                             subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
                             onClick = { openBucket(bucket) },
                             onLongClick = { activeOptionsBucket = bucket }
@@ -595,14 +620,11 @@ fun AlbumsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             rowBuckets.forEach { bucket ->
-                                val customMediaId = customAlbumCovers[bucket.id]
-                                val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
-                                val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                                    ?: liveCoverUri
-                                    ?: bucket.coverUri
+                                val liveCount = resolveAlbumCount(bucket)
+                                val coverUri = resolveAlbumCoverUri(bucket)
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(
-                                        bucket = bucket,
+                                        bucket = bucket.copy(count = liveCount),
                                         coverUri = coverUri,
                                         isPinned = true,
                                         onClick = { openBucket(bucket) },
@@ -636,16 +658,13 @@ fun AlbumsScreen(
             } else {
                 if (numCols == 1) {
                     items(unpinnedBuckets, key = { it.id }) { bucket ->
-                        val customMediaId = customAlbumCovers[bucket.id]
-                        val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
-                        val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                            ?: liveCoverUri
-                            ?: bucket.coverUri
+                        val liveCount = resolveAlbumCount(bucket)
+                        val coverUri = resolveAlbumCoverUri(bucket)
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
                             coverUri = coverUri,
                             title = bucket.name,
-                            count = bucket.count,
+                            count = liveCount,
                             subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
                             onClick = { openBucket(bucket) },
                             onLongClick = { activeOptionsBucket = bucket }
@@ -661,14 +680,11 @@ fun AlbumsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             rowBuckets.forEach { bucket ->
-                                val customMediaId = customAlbumCovers[bucket.id]
-                                val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
-                                val coverUri = (if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null)
-                                    ?: liveCoverUri
-                                    ?: bucket.coverUri
+                                val liveCount = resolveAlbumCount(bucket)
+                                val coverUri = resolveAlbumCoverUri(bucket)
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(
-                                        bucket = bucket,
+                                        bucket = bucket.copy(count = liveCount),
                                         coverUri = coverUri,
                                         isPinned = false,
                                         onClick = { openBucket(bucket) },
@@ -771,8 +787,8 @@ fun AlbumsScreen(
                                     Icon(Icons.Default.PushPin, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(if (isPinned) "Unpin Album" else "Pin to Top", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                        Text("Keep album at the top of the grid", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(if (isPinned) stringResource(R.string.album_unpin) else stringResource(R.string.album_pin_top), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(stringResource(R.string.album_pin_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
 
@@ -793,8 +809,8 @@ fun AlbumsScreen(
                                     Icon(Icons.Default.VisibilityOff, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Exclude from Gallery", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                        Text("Hide this folder from media scans", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(stringResource(R.string.album_exclude), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(stringResource(R.string.album_exclude_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
 
@@ -815,8 +831,8 @@ fun AlbumsScreen(
                                         Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text("Share Album", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                            Text("Export & share all album photos", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            Text(stringResource(R.string.album_share), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                            Text(stringResource(R.string.album_share_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                     }
                                 }
@@ -878,8 +894,8 @@ fun AlbumsScreen(
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(if (isAlbumLockedConfigured) "Unlock Album" else "Lock with Biometrics", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                        Text(if (isAlbumLockedConfigured) "Fingerprint required" else "Protect album with fingerprint", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(if (isAlbumLockedConfigured) stringResource(R.string.album_unlock) else stringResource(R.string.album_lock_bio), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(if (isAlbumLockedConfigured) stringResource(R.string.album_unlock_desc) else stringResource(R.string.album_lock_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
 
@@ -900,8 +916,8 @@ fun AlbumsScreen(
                                     Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Scrub Album Metadata", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                        Text("Strip EXIF, GPS location & camera info", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(stringResource(R.string.album_scrub_meta), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(stringResource(R.string.album_scrub_meta_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
 
@@ -927,8 +943,8 @@ fun AlbumsScreen(
                                     Icon(Icons.Default.Sync, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Auto-Scrub New Photos", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                        Text(if (isAutoScrub) "Enabled: auto-strips incoming photos" else "Disabled: preserves original metadata", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(stringResource(R.string.album_auto_scrub), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(if (isAutoScrub) stringResource(R.string.album_auto_scrub_on) else stringResource(R.string.album_auto_scrub_off), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
 
@@ -949,8 +965,8 @@ fun AlbumsScreen(
                                     Icon(Icons.Default.WifiTethering, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Share via Wi-Fi Drop ⚡", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                        Text("Transfer album to PC / Mac / phone over local Wi-Fi", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(stringResource(R.string.album_wifi_drop), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                        Text(stringResource(R.string.album_wifi_drop_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
                             }
@@ -976,8 +992,8 @@ fun AlbumsScreen(
                                     Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Delete Album", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error)
-                                        Text("Permanently delete album & all contents", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f))
+                                        Text(stringResource(R.string.delete_album), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error)
+                                        Text(stringResource(R.string.album_delete_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f))
                                     }
                                 }
                             }
@@ -985,7 +1001,7 @@ fun AlbumsScreen(
                     }
                 },
                 confirmButton = {
-                    TextButton(onClick = { activeOptionsBucket = null }) { Text("Done") }
+                    TextButton(onClick = { activeOptionsBucket = null }) { Text(stringResource(R.string.action_done)) }
                 }
             )
 
@@ -993,8 +1009,8 @@ fun AlbumsScreen(
                 AlertDialog(
                     onDismissRequest = { showEmptyTrashConfirm = false },
                     icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-                    title = { Text("Empty Trash?") },
-                    text = { Text("All items in Trash will be permanently deleted. This action cannot be undone.") },
+                    title = { Text(stringResource(R.string.album_empty_trash_title)) },
+                    text = { Text(stringResource(R.string.album_empty_trash_desc)) },
                     confirmButton = {
                         Button(
                             onClick = {
@@ -1003,11 +1019,11 @@ fun AlbumsScreen(
                             },
                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                         ) {
-                            Text("Empty Trash")
+                            Text(stringResource(R.string.empty_trash))
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showEmptyTrashConfirm = false }) { Text("Cancel") }
+                        TextButton(onClick = { showEmptyTrashConfirm = false }) { Text(stringResource(R.string.action_cancel)) }
                     }
                 )
             }
@@ -1016,7 +1032,7 @@ fun AlbumsScreen(
                 AlertDialog(
                     onDismissRequest = { showDeleteAlbumConfirm = false },
                     icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-                    title = { Text("Delete Album '${bucket.name}'?") },
+                    title = { Text(stringResource(R.string.album_delete_confirm_title, bucket.name)) },
                     text = {
                         Column {
                             if (bucket.paths.size > 1) {
@@ -1027,7 +1043,7 @@ fun AlbumsScreen(
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
                             }
-                            Text("Choose how you want to delete this album:")
+                            Text(stringResource(R.string.album_delete_choose_desc))
                             Spacer(modifier = Modifier.height(16.dp))
 
                             androidx.compose.material3.OutlinedButton(
@@ -1039,9 +1055,9 @@ fun AlbumsScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                                    Text("Delete Album Only", style = MaterialTheme.typography.titleSmall)
+                                    Text(stringResource(R.string.album_delete_only), style = MaterialTheme.typography.titleSmall)
                                     Text(
-                                        "Keep photos & videos safe (moved to Pictures)",
+                                        stringResource(R.string.album_delete_only_desc),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -1060,9 +1076,9 @@ fun AlbumsScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                                    Text("Delete Album & Media", style = MaterialTheme.typography.titleSmall)
+                                    Text(stringResource(R.string.album_delete_media), style = MaterialTheme.typography.titleSmall)
                                     Text(
-                                        "Move all photos & videos to Trash",
+                                        stringResource(R.string.album_delete_media_desc),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onError.copy(alpha = 0.9f)
                                     )
@@ -1072,7 +1088,7 @@ fun AlbumsScreen(
                     },
                     confirmButton = {},
                     dismissButton = {
-                        TextButton(onClick = { showDeleteAlbumConfirm = false }) { Text("Cancel") }
+                        TextButton(onClick = { showDeleteAlbumConfirm = false }) { Text(stringResource(R.string.action_cancel)) }
                     }
                 )
             }

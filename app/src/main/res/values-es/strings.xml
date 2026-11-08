@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">Doctor de almacenamiento</string>
     <string name="settings_about">Acerca de y versión</string>
     <string name="settings_wifi_drop">Wi-Fi Drop</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">Elegir tema de la aplicación</string>
+    <string name="theme_system">Predeterminado del sistema</string>
+    <string name="theme_dark">Tema oscuro</string>
+    <string name="theme_amoled">Oscuro AMOLED (Negro puro)</string>
+    <string name="theme_light">Tema claro</string>
+    <string name="settings_startup_screen">Pantalla de inicio predeterminada</string>
+    <string name="startup_timeline">Fotos (Línea de tiempo principal)</string>
+    <string name="startup_albums">Álbumes</string>
+    <string name="startup_last_active">Recordar última pestaña activa</string>
+    <string name="settings_brightness_boost">Aumento de brillo del visor ☀️</string>
+    <string name="settings_brightness_boost_desc">Aumentar automáticamente el brillo de la pantalla al ver fotos y videos para el máximo detalle HDR</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">Cuadrícula y tamaño de pantalla</string>
+    <string name="settings_timeline_columns">Columnas de línea de tiempo</string>
+    <string name="settings_grid_desc">Ajusta el tamaño predeterminado de las fotos en la cuadrícula. También puedes pellizcar para hacer zoom en cualquier momento.</string>
+    <string name="column_single">1 columna (Muy grande)</string>
+    <string name="column_double">2 columnas (Grande)</string>
+    <string name="column_triple">3 columnas (Estándar)</string>
+    <string name="column_compact">4 columnas (Compacto)</string>
+    <string name="column_dense">5 columnas (Denso)</string>
+    <string name="column_overview">6 columnas (Vista general)</string>
+    <string name="columns_count_format">%1$d columnas</string>
+    <string name="column_label_big">1 (Grande)</string>
+    <string name="column_label_normal">3 (Normal)</string>
+    <string name="column_label_dense">6 (Denso)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">Tacto y vibración háptica</string>
+    <string name="settings_haptics">Vibraciones hápticas</string>
+    <string name="settings_haptics_desc">Respuesta táctil al seleccionar fotos, desbloquear el baúl, editar y eliminar</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">Copia de seguridad y NAS local (Sin nube)</string>
+    <string name="settings_nas_card_title">Sincronización NAS local / WebDAV</string>
+    <string name="settings_nas_card_desc">Copia de seguridad sin nube a Synology, Nextcloud, TrueNAS o servidor doméstico por Wi-Fi</string>
+    <string name="settings_nas_configured">Configurado • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">Carpetas y acceso a medios</string>
+    <string name="settings_excluded_folders">Carpetas excluidas / ocultas</string>
+    <string name="settings_excluded_folders_none">Ninguna carpeta oculta</string>
+    <string name="settings_excluded_folders_count">%1$d carpeta(s) excluida(s) de la galería</string>
+    <string name="settings_auto_scrub_albums">Álbumes con limpieza automática</string>
+    <string name="settings_auto_scrub_none">Ningún álbum configurado</string>
+    <string name="settings_auto_scrub_count">%1$d álbum(es) desinfectados automáticamente</string>
+    <string name="settings_merge_albums">Combinar álbumes con el mismo nombre</string>
+    <string name="settings_merge_albums_desc">Combina carpetas con nombres coincidentes (ej. Descargas interna y de tarjeta SD) en una tarjeta unificada</string>
+    <string name="settings_sd_card">Acceso a tarjeta SD externa / USB OTG</string>
+    <string name="settings_sd_card_granted">Permiso concedido para almacenamiento externo</string>
+    <string name="settings_sd_card_desc">Conceder permiso SAF para almacenamiento secundario</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">Bloqueo de app y privacidad del dispositivo</string>
+    <string name="settings_app_lock_title">Bloqueo de app (Biométrico / PIN) 🔒</string>
+    <string name="settings_app_lock_desc">Requerir huella, rostro o PIN del dispositivo cada vez que se abre Imava</string>
+    <string name="settings_trash_lock">Bloqueo biométrico de papelera 🗑️</string>
+    <string name="settings_trash_lock_desc">Requerir huella, rostro o PIN para abrir la papelera e inspeccionar fotos eliminadas</string>
+    <string name="settings_recents_shield">Escudo de privacidad en apps recientes 🛡️</string>
+    <string name="settings_recents_shield_desc">Ocultar miniaturas en la vista de aplicaciones recientes de Android para evitar miradas indiscretas</string>
+    <string name="settings_guest_pinning">Modo invitado (Fijación de app) 📌</string>
+    <string name="settings_guest_pinning_desc">Al prestar tu teléfono, toca el ícono de fijar 📌 en el visor para bloquear la pantalla en ese elemento. Los invitados no podrán deslizar a otras fotos sin autenticación.</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">Limpiadores y mantenimiento de almacenamiento</string>
+    <string name="settings_file_shredder">Triturador criptográfico de archivos 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">Sobrescribir físicamente fotos eliminadas con datos aleatorios y ceros para evitar su recuperación forense</string>
+    <string name="settings_ghost_thumb_purger">Purgador de miniaturas fantasma 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">Triturar vistas previas huérfanas en DCIM/.thumbnails y caché para derrotar herramientas de recuperación forense</string>
+    <string name="action_shred_now">Triturar ahora</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">Escaneo profundo y almacenamiento</string>
+    <string name="settings_deep_discovery">Descubrimiento profundo de medios</string>
+    <string name="settings_deep_discovery_desc">Escanear fotos enviadas, carpetas privadas, GIFs y otros archivos .nomedia ocultos en tu dispositivo.</string>
+    <string name="settings_auto_deep_scan">Escaneo profundo automático</string>
+    <string name="settings_auto_deep_scan_on">Escaneo automático activo al iniciar y ante cambios de medios</string>
+    <string name="settings_auto_deep_scan_off">Escaneo automático desactivado</string>
+    <string name="action_scan_now">Escanear ahora</string>
+    <string name="scanning_device">Escaneando dispositivo…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">Acerca de y legal</string>
+    <string name="settings_about_legal_desc">Desarrollador, actualizaciones, licencias y permisos</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">Doctor de almacenamiento 🩺</string>
+    <string name="doctor_analyze">Total: %1$s · Analizar ➔</string>
+    <string name="doctor_photos_count">Fotos (%1$d)</string>
+    <string name="doctor_videos_count">Videos (%1$d)</string>
+    <string name="doctor_vault_count">Baúl (%1$d)</string>
+    <string name="doctor_trash_count">Papelera (%1$d)</string>
+    <string name="doctor_cleanable_space">Espacio liberable</string>
+    <string name="doctor_summary_format">Recupera almacenamiento eliminando videos y capturas de pantalla innecesarios.</string>
+    <string name="doctor_large_videos">Videos grandes (%1$d)</string>
+    <string name="doctor_screenshots">Capturas de pantalla (%1$d)</string>
+    <string name="doctor_burst_shots">Fotos en ráfaga (%1$d)</string>
+    <string name="doctor_no_large_videos">No se encontraron videos grandes (&gt;50 MB) 🎉</string>
+    <string name="doctor_no_screenshots">No se encontraron capturas antiguas (&gt;30 días) 🎉</string>
+    <string name="doctor_no_burst">No se encontraron fotos en ráfaga ni duplicados rápidos 🎉</string>
+    <string name="doctor_keep_best">Conservar mejor</string>
+    <string name="action_purge">Purgar</string>
+    <string name="doctor_ghost_purger_title">Purgador de miniaturas fantasma 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">Recupera espacio desperdiciado en caché y archivos de vista previa triturados</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">Buscar duplicados 🧹</string>
+    <string name="duplicate_finder_desc">Escanear y limpiar fotos duplicadas</string>
+    <string name="duplicate_analyzing">Analizando galería en busca de duplicados…</string>
+    <string name="duplicate_scanning_format">Escaneando %1$d / %2$d elementos…</string>
+    <string name="duplicate_none_found">No se encontraron fotos duplicadas 🎉</string>
+    <string name="duplicate_delete_button">Eliminar %1$d duplicados</string>
+    <string name="duplicate_confirm_title">Confirmar eliminación de duplicados</string>
+    <string name="duplicate_confirm_desc">¿Estás seguro de que deseas eliminar %1$d fotos duplicadas seleccionadas? Se moverán a la papelera.</string>
+    <string name="duplicate_not_same">No son iguales</string>
+    <string name="duplicate_compare_loupe">Lupa de comparación 🔍</string>
+    <string name="duplicate_keep">Conservar</string>
+    <string name="duplicate_delete_duplicates">Eliminar duplicados</string>
+    <string name="duplicate_keep_this">Conservar esta foto (Desmarcar)</string>
+    <string name="duplicate_mark_delete">Marcar para eliminar</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">Buscar fotos, videos, álbumes…</string>
+    <string name="albums_count_format">Álbumes (%1$d)</string>
+    <string name="pinned_albums_count_format">Álbumes fijados (%1$d)</string>
+    <string name="all_albums_count_format">Todos los álbumes (%1$d)</string>
+    <string name="layout_list_view">Vista de lista</string>
+    <string name="layout_grid_2">Cuadrícula grande (2 columnas)</string>
+    <string name="layout_grid_3">Cuadrícula mediana (3 columnas)</string>
+    <string name="layout_grid_4">Cuadrícula pequeña (4 columnas)</string>
+    <string name="sort_name_asc">Nombre (A a Z)</string>
+    <string name="sort_count_desc">Cantidad de elementos (Mayor)</string>
+    <string name="sort_recent">Actualizados recientemente</string>
+    <string name="album_pin_top">Fijar al principio</string>
+    <string name="album_unpin">Desfijar álbum</string>
+    <string name="album_pin_desc">Mantener álbum en la parte superior</string>
+    <string name="album_exclude">Excluir de la galería</string>
+    <string name="album_exclude_desc">Ocultar esta carpeta de los escaneos</string>
+    <string name="album_share">Compartir álbum</string>
+    <string name="album_share_desc">Exportar y compartir todas las fotos del álbum</string>
+    <string name="album_lock_bio">Bloquear con biometría</string>
+    <string name="album_unlock">Desbloquear álbum</string>
+    <string name="album_lock_desc">Proteger álbum con huella digital</string>
+    <string name="album_unlock_desc">Huella digital requerida</string>
+    <string name="album_scrub_meta">Limpiar metadatos del álbum</string>
+    <string name="album_scrub_meta_desc">Eliminar EXIF, ubicación GPS e información de cámara</string>
+    <string name="album_auto_scrub">Limpieza automática de fotos nuevas</string>
+    <string name="album_auto_scrub_on">Activado: limpia fotos entrantes automáticamente</string>
+    <string name="album_auto_scrub_off">Desactivado: conserva metadatos originales</string>
+    <string name="album_wifi_drop">Compartir por Wi-Fi Drop ⚡</string>
+    <string name="album_wifi_drop_desc">Transferir álbum a PC / Mac / teléfono por Wi-Fi local</string>
+    <string name="album_delete_desc">Eliminar permanentemente el álbum y todo su contenido</string>
+    <string name="album_delete_only">Eliminar solo el álbum</string>
+    <string name="album_delete_only_desc">Mantener fotos y videos a salvo (trasladados a Pictures)</string>
+    <string name="album_delete_media">Eliminar álbum y archivos</string>
+    <string name="album_delete_media_desc">Mover todas las fotos y videos a la papelera</string>
+    <string name="album_empty_trash_title">¿Vaciar papelera?</string>
+    <string name="album_empty_trash_desc">Todos los elementos de la papelera se eliminarán permanentemente. Esta acción no se puede deshacer.</string>
+    <string name="album_delete_confirm_title">¿Eliminar álbum ‘%1$s’?</string>
+    <string name="album_delete_choose_desc">Elige cómo deseas eliminar este álbum:</string>
+    <string name="trash_locked_subtitle">Protegido con biometría · Toca para desbloquear</string>
+    <string name="trash_unlocked_subtitle">Desbloqueado para esta sesión</string>
+    <string name="label_locked">Bloqueado</string>
+    <string name="unlock_trash_title">Desbloquear papelera</string>
+    <string name="unlock_trash_desc">Verifica biometría o PIN para acceder a elementos eliminados</string>
+    <string name="unlock_vault_title">Desbloquear baúl oculto</string>
+    <string name="unlock_vault_desc">Usa huella o desbloqueo facial para acceder a tus fotos ocultas</string>
 </resources>

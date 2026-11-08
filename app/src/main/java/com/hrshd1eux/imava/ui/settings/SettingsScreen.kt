@@ -191,26 +191,26 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Choose App Theme", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = stringResource(R.string.settings_choose_theme), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     ThemeOptionRow(
-                        title = "System Default",
+                        title = stringResource(R.string.theme_system),
                         selected = appTheme == "system",
                         onClick = { viewModel.appTheme = "system" }
                     )
                     ThemeOptionRow(
-                        title = "Dark Theme",
+                        title = stringResource(R.string.theme_dark),
                         selected = appTheme == "dark",
                         onClick = { viewModel.appTheme = "dark" }
                     )
                     ThemeOptionRow(
-                        title = "AMOLED Dark (Pure Black)",
+                        title = stringResource(R.string.theme_amoled),
                         selected = appTheme == "amoled",
                         onClick = { viewModel.appTheme = "amoled" }
                     )
                     ThemeOptionRow(
-                        title = "Light Theme",
+                        title = stringResource(R.string.theme_light),
                         selected = appTheme == "light",
                         onClick = { viewModel.appTheme = "light" }
                     )
@@ -219,14 +219,14 @@ fun SettingsScreen(
                     HorizontalDivider()
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(text = "Default Startup Screen", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = stringResource(R.string.settings_startup_screen), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     val galleryPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
                     var startScreen by remember { mutableStateOf(galleryPrefs.getString("default_start_screen", "timeline") ?: "timeline") }
 
                     ThemeOptionRow(
-                        title = "Photos (Main Timeline)",
+                        title = stringResource(R.string.startup_timeline),
                         selected = startScreen == "timeline",
                         onClick = {
                             startScreen = "timeline"
@@ -234,7 +234,7 @@ fun SettingsScreen(
                         }
                     )
                     ThemeOptionRow(
-                        title = "Albums",
+                        title = stringResource(R.string.startup_albums),
                         selected = startScreen == "albums",
                         onClick = {
                             startScreen = "albums"
@@ -242,7 +242,7 @@ fun SettingsScreen(
                         }
                     )
                     ThemeOptionRow(
-                        title = "Remember Last Active Tab",
+                        title = stringResource(R.string.startup_last_active),
                         selected = startScreen == "last_active",
                         onClick = {
                             startScreen = "last_active"
@@ -262,11 +262,11 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Viewer Brightness Boost ☀️",
+                                text = stringResource(R.string.settings_brightness_boost),
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Text(
-                                text = "Automatically max out screen brightness when viewing photos and videos for maximum HDR detail",
+                                text = stringResource(R.string.settings_brightness_boost_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -287,7 +287,7 @@ fun SettingsScreen(
 
 
         item {
-            SettingsCategoryHeader(title = "Grid & Display Size", icon = Icons.Default.GridView)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_grid_title), icon = Icons.Default.GridView)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -296,13 +296,13 @@ fun SettingsScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     val currentCols = viewModel.gridColumnCount
                     val label = when (currentCols) {
-                        1 -> "1 Column (Extra Large)"
-                        2 -> "2 Columns (Large)"
-                        3 -> "3 Columns (Standard)"
-                        4 -> "4 Columns (Compact)"
-                        5 -> "5 Columns (Dense)"
-                        6 -> "6 Columns (Overview)"
-                        else -> "$currentCols Columns"
+                        1 -> stringResource(R.string.column_single)
+                        2 -> stringResource(R.string.column_double)
+                        3 -> stringResource(R.string.column_triple)
+                        4 -> stringResource(R.string.column_compact)
+                        5 -> stringResource(R.string.column_dense)
+                        6 -> stringResource(R.string.column_overview)
+                        else -> stringResource(R.string.columns_count_format, currentCols)
                     }
 
                     Row(
@@ -311,7 +311,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Timeline Columns",
+                            text = stringResource(R.string.settings_timeline_columns),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Surface(
@@ -328,7 +328,7 @@ fun SettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Adjust the default size of photos in the timeline grid. You can also pinch-to-zoom on the timeline to resize at any time.",
+                        text = stringResource(R.string.settings_grid_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -352,9 +352,9 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "1 (Big)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(text = "3 (Normal)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(text = "6 (Dense)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text = stringResource(R.string.column_label_big), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text = stringResource(R.string.column_label_normal), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text = stringResource(R.string.column_label_dense), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -367,7 +367,7 @@ fun SettingsScreen(
             val galleryPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
             var hapticsEnabled by remember { mutableStateOf(galleryPrefs.getBoolean("haptics_enabled", true)) }
 
-            SettingsCategoryHeader(title = "Touch & Haptics", icon = Icons.Default.Vibration)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_touch_haptics), icon = Icons.Default.Vibration)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -381,11 +381,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Haptic Vibrations",
+                            text = stringResource(R.string.settings_haptics),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Tactile feedback when selecting photos, unlocking vault, editing, and deleting",
+                            text = stringResource(R.string.settings_haptics_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -409,7 +409,7 @@ fun SettingsScreen(
         item {
             val webDavConfig = remember(showWebDavDialog) { com.hrshd1eux.imava.data.sync.webdav.WebDavConfigManager.loadConfig(context) }
 
-            SettingsCategoryHeader(title = "Backup & Local NAS (Zero Cloud)", icon = Icons.Default.CloudUpload)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_nas_title), icon = Icons.Default.CloudUpload)
 
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -444,16 +444,16 @@ fun SettingsScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Local NAS / WebDAV Sync",
+                            text = stringResource(R.string.settings_nas_card_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = if (webDavConfig.isConfigured) {
-                                "Configured • ${webDavConfig.lastBackupStatus}"
+                                stringResource(R.string.settings_nas_configured, webDavConfig.lastBackupStatus)
                             } else {
-                                "Zero-cloud backup to Synology, Nextcloud, TrueNAS, or home server over Wi-Fi"
+                                stringResource(R.string.settings_nas_card_desc)
                             },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -481,7 +481,7 @@ fun SettingsScreen(
             var showManageAutoScrubDialog by remember { mutableStateOf(false) }
 
             // 1. Folders & Media Access Group
-            SettingsCategoryHeader(title = "Folders & Media Access", icon = Icons.Default.Folder)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_folders_access), icon = Icons.Default.Folder)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -496,11 +496,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Excluded / Hidden Folders",
+                            text = stringResource(R.string.settings_excluded_folders),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = if (excludedSet.isEmpty()) "No folders hidden" else "${excludedSet.size} folder(s) excluded from gallery",
+                            text = if (excludedSet.isEmpty()) stringResource(R.string.settings_excluded_folders_none) else stringResource(R.string.settings_excluded_folders_count, excludedSet.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -523,11 +523,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Auto-Scrub Albums",
+                            text = stringResource(R.string.settings_auto_scrub_albums),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = if (autoScrubSet.isEmpty()) "No albums configured" else "${autoScrubSet.size} album(s) automatically sanitized",
+                            text = if (autoScrubSet.isEmpty()) stringResource(R.string.settings_auto_scrub_none) else stringResource(R.string.settings_auto_scrub_count, autoScrubSet.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -551,11 +551,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Merge Same-Named Albums",
+                            text = stringResource(R.string.settings_merge_albums),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Combine folders with matching names (e.g. internal & SD Card Download) into one unified album card",
+                            text = stringResource(R.string.settings_merge_albums_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -598,11 +598,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "External SD Card / USB OTG Access",
+                            text = stringResource(R.string.settings_sd_card),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = if (sdTreeUri != null) "Permission granted for external storage" else "Grant Storage Access Framework tree permission for secondary storage",
+                            text = if (sdTreeUri != null) stringResource(R.string.settings_sd_card_granted) else stringResource(R.string.settings_sd_card_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -618,7 +618,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // 2. App Lock & Device Privacy Group
-            SettingsCategoryHeader(title = "App Lock & Device Privacy", icon = Icons.Default.Shield)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_app_lock_group), icon = Icons.Default.Shield)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -634,11 +634,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "App Lock (Biometric / PIN) 🔒",
+                            text = stringResource(R.string.settings_app_lock_title),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Require fingerprint, face, or device PIN every time Imava is opened",
+                            text = stringResource(R.string.settings_app_lock_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -675,11 +675,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Biometric Trash Lock 🗑️",
+                            text = stringResource(R.string.settings_trash_lock),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Require fingerprint, face, or PIN to open Trash and inspect deleted photos",
+                            text = stringResource(R.string.settings_trash_lock_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -719,11 +719,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "App Switcher Privacy Shield 🛡️",
+                            text = stringResource(R.string.settings_recents_shield),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Blank out gallery thumbnails in the Android recent apps overview to prevent shoulder surfing",
+                            text = stringResource(R.string.settings_recents_shield_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -750,11 +750,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Guest Hand-Off (App Pinning) 📌",
+                            text = stringResource(R.string.settings_guest_pinning),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "When handing your phone to someone, tap the Pin 📌 icon in the photo viewer to lock the screen to that single item. Guests cannot swipe to adjacent media without biometric or PIN authentication.",
+                            text = stringResource(R.string.settings_guest_pinning_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -770,7 +770,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // 3. Storage Cleaners & Maintenance Group
-            SettingsCategoryHeader(title = "Storage Cleaners & Maintenance", icon = Icons.Default.Delete)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_storage_cleaners), icon = Icons.Default.Delete)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -786,11 +786,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Cryptographic File Shredder 🛡️⚡",
+                            text = stringResource(R.string.settings_file_shredder),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Physically overwrite deleted photos with random data & zeroes to prevent recovery by forensic tools",
+                            text = stringResource(R.string.settings_file_shredder_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -819,11 +819,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Ghost Thumbnail Purger 🧹⚡",
+                            text = stringResource(R.string.settings_ghost_thumb_purger),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Shred orphaned unencrypted previews in DCIM/.thumbnails and cache to defeat forensic recovery tools",
+                            text = stringResource(R.string.settings_ghost_thumb_purger_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -855,7 +855,7 @@ fun SettingsScreen(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         } else {
-                            Text("Shred Now")
+                            Text(stringResource(R.string.action_shred_now))
                         }
                     }
                 }
@@ -954,7 +954,7 @@ fun SettingsScreen(
 
 
         item {
-            SettingsCategoryHeader(title = "Deep Media Scan & Storage", icon = Icons.Default.SdCard)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_deep_scan_title), icon = Icons.Default.SdCard)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -978,12 +978,12 @@ fun SettingsScreen(
                     }
 
                     Text(
-                        text = "Deep Media Discovery",
+                        text = stringResource(R.string.settings_deep_discovery),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Scan sent media, private folders, GIFs, and other hidden .nomedia media across your device.",
+                        text = stringResource(R.string.settings_deep_discovery_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1041,11 +1041,11 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Automatic Deep Scan",
+                                text = stringResource(R.string.settings_auto_deep_scan),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                text = if (autoScanEnabled) "Auto-scan active on startup and media changes" else "Auto-scan disabled",
+                                text = if (autoScanEnabled) stringResource(R.string.settings_auto_deep_scan_on) else stringResource(R.string.settings_auto_deep_scan_off),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1090,9 +1090,9 @@ fun SettingsScreen(
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Scanning device...")
+                            Text(stringResource(R.string.scanning_device))
                         } else {
-                            Text("Scan Now")
+                            Text(stringResource(R.string.action_scan_now))
                         }
                     }
                 }
@@ -1102,7 +1102,7 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsCategoryHeader(title = "About & Legal", icon = Icons.Default.Info)
+            SettingsCategoryHeader(title = stringResource(R.string.settings_about_legal), icon = Icons.Default.Info)
 
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -1139,12 +1139,12 @@ fun SettingsScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "About & Legal",
+                            text = stringResource(R.string.settings_about_legal),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Developer, updates, licenses & permissions",
+                            text = stringResource(R.string.settings_about_legal_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

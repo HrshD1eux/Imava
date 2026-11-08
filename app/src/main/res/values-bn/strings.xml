@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">স্টোরেজ ডক্টর</string>
     <string name="settings_about">সম্পর্কে ও সংস্করণ</string>
     <string name="settings_wifi_drop">ওয়াই-ফাই ড্রপ</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">অ্যাপ থিম বেছে নিন</string>
+    <string name="theme_system">সিস্টেম ডিফল্ট</string>
+    <string name="theme_dark">ডার্ক থিম</string>
+    <string name="theme_amoled">AMOLED ডার্ক (গাঢ় কালো)</string>
+    <string name="theme_light">লাইট থিম</string>
+    <string name="settings_startup_screen">ডিফল্ট স্টার্ট-আপ স্ক্রিন</string>
+    <string name="startup_timeline">ছবি (প্রধান টাইমলাইন)</string>
+    <string name="startup_albums">অ্যালবাম</string>
+    <string name="startup_last_active">সর্বশেষ সক্রিয় ট্যাব মনে রাখুন</string>
+    <string name="settings_brightness_boost">ভিউয়ার উজ্জ্বলতা বৃদ্ধি ☀️</string>
+    <string name="settings_brightness_boost_desc">ছবি এবং ভিডিও দেখার সময় সর্বোচ্চ HDR বিবরণের জন্য স্ক্রিনের উজ্জ্বলতা স্বয়ংক্রিয়ভাবে বৃদ্ধি করুন</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">গ্রিড ও প্রদর্শনের আকার</string>
+    <string name="settings_timeline_columns">টাইমলাইন কলাম</string>
+    <string name="settings_grid_desc">টাইমলাইন গ্রিডে ছবির আকার সমন্বয় করুন। আপনি যেকোনো সময় পিঞ্চ-টু-জুমও করতে পারেন।</string>
+    <string name="column_single">১ কলাম (খুব বড়)</string>
+    <string name="column_double">২ কলাম (বড়)</string>
+    <string name="column_triple">৩ কলাম (সাধারণ)</string>
+    <string name="column_compact">৪ কলাম (কম্প্যাক্ট)</string>
+    <string name="column_dense">৫ কলাম (ঘন)</string>
+    <string name="column_overview">৬ কলাম (ওভারভিউ)</string>
+    <string name="columns_count_format">%1$d কলাম</string>
+    <string name="column_label_big">১ (বড়)</string>
+    <string name="column_label_normal">৩ (সাধারণ)</string>
+    <string name="column_label_dense">৬ (ঘন)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">স্পর্শ ও হ্যাপটিক্স</string>
+    <string name="settings_haptics">হ্যাপটিক কম্পন</string>
+    <string name="settings_haptics_desc">ছবি নির্বাচন, ভল্ট আনলক, সম্পাদনা এবং মুছে ফেলার সময় স্পর্শীয় প্রতিক্রিয়া</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">ব্যাকআপ ও লোকাল NAS (শূন্য ক্লাউড)</string>
+    <string name="settings_nas_card_title">লোকাল NAS / WebDAV সিঙ্ক</string>
+    <string name="settings_nas_card_desc">ওয়াই-ফাইয়ের মাধ্যমে Synology, Nextcloud, TrueNAS বা হোম সার্ভারে ক্লাউডহীন ব্যাকআপ</string>
+    <string name="settings_nas_configured">কনফিগার করা হয়েছে • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">ফোল্ডার ও মিডিয়া অ্যাক্সেস</string>
+    <string name="settings_excluded_folders">বাদ দেওয়া / লুকানো ফোল্ডার</string>
+    <string name="settings_excluded_folders_none">কোনো ফোল্ডার লুকানো নেই</string>
+    <string name="settings_excluded_folders_count">গ্যালারি থেকে %1$dটি ফোল্ডার বাদ দেওয়া হয়েছে</string>
+    <string name="settings_auto_scrub_albums">স্বয়ংক্রিয় মেটাডেটা পরিচ্ছন্ন অ্যালবাম</string>
+    <string name="settings_auto_scrub_none">কোনো অ্যালবাম কনফিগার করা নেই</string>
+    <string name="settings_auto_scrub_count">%1$dটি অ্যালবাম স্বয়ংক্রিয়ভাবে পরিচ্ছন্ন হয়</string>
+    <string name="settings_merge_albums">একই নামের অ্যালবাম একত্র করুন</string>
+    <string name="settings_merge_albums_desc">একই নামের ফোল্ডারগুলিকে (যেমন ইন্টারনাল ও এসডি কার্ড ডাউনলোড) একটি একক অ্যালবাম কার্ডে যুক্ত করুন</string>
+    <string name="settings_sd_card">বাহ্যিক এসডি কার্ড / USB OTG অ্যাক্সেস</string>
+    <string name="settings_sd_card_granted">বাহ্যিক স্টোরেজের অনুমতি মঞ্জুর হয়েছে</string>
+    <string name="settings_sd_card_desc">গৌণ স্টোরেজের জন্য SAF ট্রির অনুমতি প্রদান করুন</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">অ্যাপ লক ও ডিভাইসের গোপনীয়তা</string>
+    <string name="settings_app_lock_title">অ্যাপ লক (বায়োমেট্রিক / পিন) 🔒</string>
+    <string name="settings_app_lock_desc">প্রতিবার Imava খোলার সময় আঙুলের ছাপ, মুখ বা পিন প্রয়োজন করুন</string>
+    <string name="settings_trash_lock">বায়োমেট্রিক ট্র্যাশ লক 🗑️</string>
+    <string name="settings_trash_lock_desc">ট্র্যাশ খুলতে এবং মুছে ফেলা ছবি দেখতে বায়োমেট্রিক বা পিন প্রয়োজন করুন</string>
+    <string name="settings_recents_shield">অ্যাপ সুইচার প্রাইভেসী শিল্ড 🛡️</string>
+    <string name="settings_recents_shield_desc">সাম্প্রতিক অ্যাপ ওভারভিউতে গ্যালারির থাম্বনেল লুকান</string>
+    <string name="settings_guest_pinning">গেস্ট মোড (স্ক্রিন পিনিং) 📌</string>
+    <string name="settings_guest_pinning_desc">অন্য কাউকে ফোন দেওয়ার সময়, ফটো ভিউয়ারে পিন 📌 আইকনে আলতো চাপুন। অতিথিরা প্রমাণীকরণ ছাড়া অন্য ছবি দেখতে পারবেন না।</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">স্টোরেজ ক্লিনার ও রক্ষণাবেক্ষণ</string>
+    <string name="settings_file_shredder">ক্রিপ্টোগ্রাফিক ফাইল শ্রেডার 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">মুছে ফেলা ফাইলগুলি র‍্যান্ডম ডেটা ও শূন্য দিয়ে ওভাররাইট করুন যাতে ফরেনসিক পুনরুদ্ধার অসম্ভব হয়</string>
+    <string name="settings_ghost_thumb_purger">ভুতুড়ে থাম্বনেল ক্লিনার 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails এবং ক্যাশে থাকা অরক্ষিত অবশিষ্ট থাম্বনেল ফাইলগুলি ধ্বংস করুন</string>
+    <string name="action_shred_now">ধ্বংস করুন</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">ডিপ মিডিয়া স্ক্যান ও স্টোরেজ</string>
+    <string name="settings_deep_discovery">গভীর মিডিয়া অনুসন্ধান</string>
+    <string name="settings_deep_discovery_desc">ডিভাইসের পাঠানো মিডিয়া, গোপন ফোল্ডার, GIF এবং লুকানো .nomedia ফাইল স্ক্যান করুন।</string>
+    <string name="settings_auto_deep_scan">স্বয়ংক্রিয় ডিপ স্ক্যান</string>
+    <string name="settings_auto_deep_scan_on">স্টার্টআপ ও মিডিয়া পরিবর্তনে অটো-স্ক্যান সক্রিয়</string>
+    <string name="settings_auto_deep_scan_off">অটো-স্ক্যান নিষ্ক্রিয়</string>
+    <string name="action_scan_now">এখনই স্ক্যান করুন</string>
+    <string name="scanning_device">ডিভাইস স্ক্যান করা হচ্ছে…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">সম্পর্কে ও আইনি তথ্য</string>
+    <string name="settings_about_legal_desc">ডেভেলপার, আপডেট, লাইসেন্স এবং অনুমতিসমূহ</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">স্টোরেজ ডক্টর 🩺</string>
+    <string name="doctor_analyze">মোট: %1$s · বিশ্লেষণ ➔</string>
+    <string name="doctor_photos_count">ছবি (%1$d)</string>
+    <string name="doctor_videos_count">ভিডিও (%1$d)</string>
+    <string name="doctor_vault_count">ভল্ট (%1$d)</string>
+    <string name="doctor_trash_count">ট্র্যাশ (%1$d)</string>
+    <string name="doctor_cleanable_space">খালি করার মতো স্টোরেজ</string>
+    <string name="doctor_summary_format">অপ্রয়োজনীয় ভিডিও এবং স্ক্রিনশট মুছে জায়গা খালি করুন।</string>
+    <string name="doctor_large_videos">বড় ভিডিও (%1$d)</string>
+    <string name="doctor_screenshots">স্ক্রিনশট (%1$d)</string>
+    <string name="doctor_burst_shots">বার্স্ট শট (%1$d)</string>
+    <string name="doctor_no_large_videos">কোনো বড় ভিডিও পাওয়া যায়নি (&gt;৫০ MB) 🎉</string>
+    <string name="doctor_no_screenshots">কোনো পুরোনো স্ক্রিনশট পাওয়া যায়নি (&gt;৩০ দিন) 🎉</string>
+    <string name="doctor_no_burst">কোনো বার্স্ট বা ডুপ্লিকেট শট পাওয়া যায়নি 🎉</string>
+    <string name="doctor_keep_best">সেরাটি রাখুন</string>
+    <string name="action_purge">পরিষ্কার করুন</string>
+    <string name="doctor_ghost_purger_title">ভুতুড়ে থাম্বনেল ক্লিনার 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">অপব্যয়িত ডিস্ক ক্যাশ এবং ধ্বংসাবশেষ থাম্বনেল পরিষ্কার করুন</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">ডুপ্লিকেট খুঁজুন 🧹</string>
+    <string name="duplicate_finder_desc">ডুপ্লিকেট ছবি স্ক্যান ও পরিষ্কার করুন</string>
+    <string name="duplicate_analyzing">ডুপ্লিকেটের জন্য গ্যালারি বিশ্লেষণ করা হচ্ছে…</string>
+    <string name="duplicate_scanning_format">%1$d / %2$dটি আইটেম স্ক্যান করা হচ্ছে…</string>
+    <string name="duplicate_none_found">কোনো ডুপ্লিকেট ছবি পাওয়া যায়নি 🎉</string>
+    <string name="duplicate_delete_button">%1$dটি ডুপ্লিকেট মুছুন</string>
+    <string name="duplicate_confirm_title">ডুপ্লিকেট মুছে ফেলার নিশ্চিতকরণ</string>
+    <string name="duplicate_confirm_desc">আপনি কি নিশ্চিত যে নির্বাচিত %1$dটি ডুপ্লিকেট ছবি মুছে ফেলতে চান? সেগুলি ট্র্যাশে সরানো হবে।</string>
+    <string name="duplicate_not_same">এক নয়</string>
+    <string name="duplicate_compare_loupe">তুলনামূলক আতশকাচ 🔍</string>
+    <string name="duplicate_keep">রাখুন</string>
+    <string name="duplicate_delete_duplicates">ডুপ্লিকেট মুছুন</string>
+    <string name="duplicate_keep_this">এই ছবিটি রাখুন (মুছা বাতিল করুন)</string>
+    <string name="duplicate_mark_delete">মুছতে চিহ্নিত করুন</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">ছবি, ভিডিও, অ্যালবাম অনুসন্ধান করুন…</string>
+    <string name="albums_count_format">অ্যালবাম (%1$d)</string>
+    <string name="pinned_albums_count_format">পিন করা অ্যালবাম (%1$d)</string>
+    <string name="all_albums_count_format">সব অ্যালবাম (%1$d)</string>
+    <string name="layout_list_view">তালিকা দৃশ্য</string>
+    <string name="layout_grid_2">বড় গ্রিড (২ কলাম)</string>
+    <string name="layout_grid_3">মাঝারি গ্রিড (৩ কলাম)</string>
+    <string name="layout_grid_4">ছোট গ্রিড (৪ কলাম)</string>
+    <string name="sort_name_asc">নাম (অ থেকে ক্ষ)</string>
+    <string name="sort_count_desc">উপাদান সংখ্যা (সর্বোচ্চ)</string>
+    <string name="sort_recent">সম্প্রতি হালনাগাদ</string>
+    <string name="album_pin_top">উপরে পিন করুন</string>
+    <string name="album_unpin">আনপিন করুন</string>
+    <string name="album_pin_desc">অ্যালবামটি গ্রিডের শীর্ষে রাখুন</string>
+    <string name="album_exclude">গ্যালারি থেকে বাদ দিন</string>
+    <string name="album_exclude_desc">মিডিয়া স্ক্যান থেকে এই ফোল্ডারটি লুকান</string>
+    <string name="album_share">অ্যালবাম শেয়ার করুন</string>
+    <string name="album_share_desc">অ্যালবামের সব ছবি এক্সপোর্ট ও শেয়ার করুন</string>
+    <string name="album_lock_bio">বায়োমেট্রিক দিয়ে লক করুন</string>
+    <string name="album_unlock">অ্যালবাম আনলক করুন</string>
+    <string name="album_lock_desc">আঙুলের ছাপ দিয়ে অ্যালবাম সুরক্ষিত করুন</string>
+    <string name="album_unlock_desc">আঙুলের ছাপ প্রয়োজন</string>
+    <string name="album_scrub_meta">অ্যালবাম মেটাডেটা সাফ করুন</string>
+    <string name="album_scrub_meta_desc">EXIF, জিপিএস অবস্থান ও ক্যামেরার তথ্য সরান</string>
+    <string name="album_auto_scrub">নতুন ছবির মেটাডেটা স্বয়ংক্রিয় পরিষ্কার</string>
+    <string name="album_auto_scrub_on">সক্রিয়: নতুন ছবি থেকে স্বয়ংক্রিয় তথ্য সরায়</string>
+    <string name="album_auto_scrub_off">নিষ্ক্রিয়: মূল মেটাডেটা অক্ষুণ্ণ রাখে</string>
+    <string name="album_wifi_drop">ওয়াই-ফাই ড্রপের মাধ্যমে শেয়ার করুন ⚡</string>
+    <string name="album_wifi_drop_desc">স্থানীয় ওয়াই-ফাইয়ে PC / Mac / ফোনে অ্যালবাম স্থানান্তর করুন</string>
+    <string name="album_delete_desc">অ্যালবাম এবং এর সমস্ত উপাদান চিরতরে মুছুন</string>
+    <string name="album_delete_only">শুধু অ্যালবাম মুছুন</string>
+    <string name="album_delete_only_desc">ছবি এবং ভিডিও সুরক্ষিত রাখুন (Pictures ফোল্ডারে সরানো হবে)</string>
+    <string name="album_delete_media">অ্যালবাম এবং মিডিয়া মুছুন</string>
+    <string name="album_delete_media_desc">সব ছবি এবং ভিডিও ট্র্যাশে স্থানান্তর করুন</string>
+    <string name="album_empty_trash_title">ট্র্যাশ খালি করবেন?</string>
+    <string name="album_empty_trash_desc">ট্র্যাশের সমস্ত উপাদান স্থায়ীভাবে মুছে ফেলা হবে। এটি ফিরিয়ে আনা সম্ভব নয়।</string>
+    <string name="album_delete_confirm_title">‘%1$s’ অ্যালবাম মুছবেন?</string>
+    <string name="album_delete_choose_desc">আপনি কীভাবে এই অ্যালবামটি মুছতে চান তা বেছে নিন:</string>
+    <string name="trash_locked_subtitle">বায়োমেট্রিক সুরক্ষিত · আনলক করতে স্পর্শ করুন</string>
+    <string name="trash_unlocked_subtitle">বর্তমান সেশনের জন্য আনলক করা হয়েছে</string>
+    <string name="label_locked">লক করা</string>
+    <string name="unlock_trash_title">ট্র্যাশ আনলক করুন</string>
+    <string name="unlock_trash_desc">মুছে ফেলা উপাদান দেখতে বায়োমেট্রিক বা পিন যাচাই করুন</string>
+    <string name="unlock_vault_title">লুকানো ভল্ট আনলক করুন</string>
+    <string name="unlock_vault_desc">লুকানো ছবিগুলি দেখতে আঙুলের ছাপ বা মুখ দিয়ে আনলক করুন</string>
 </resources>

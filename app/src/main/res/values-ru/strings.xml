@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">Анализ хранилища</string>
     <string name="settings_about">О приложении и версия</string>
     <string name="settings_wifi_drop">Wi-Fi Drop</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">Выбор темы приложения</string>
+    <string name="theme_system">Системная</string>
+    <string name="theme_dark">Темная тема</string>
+    <string name="theme_amoled">AMOLED Темная (Чистый черный)</string>
+    <string name="theme_light">Светлая тема</string>
+    <string name="settings_startup_screen">Стартовый экран по умолчанию</string>
+    <string name="startup_timeline">Фото (Основная шкала времени)</string>
+    <string name="startup_albums">Альбомы</string>
+    <string name="startup_last_active">Запоминать последнюю вкладку</string>
+    <string name="settings_brightness_boost">Максимальная яркость в просмотрщике ☀️</string>
+    <string name="settings_brightness_boost_desc">Автоматически увеличивать яркость экрана при просмотре фото и видео для максимальной детализации HDR</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">Сетка и размер отображения</string>
+    <string name="settings_timeline_columns">Столбцы шкалы времени</string>
+    <string name="settings_grid_desc">Настройте стандартный размер фото в сетке. Масштабировать также можно жестом щипка в любой момент.</string>
+    <string name="column_single">1 столбец (Очень крупно)</string>
+    <string name="column_double">2 столбца (Крупно)</string>
+    <string name="column_triple">3 столбца (Стандартно)</string>
+    <string name="column_compact">4 столбца (Компактно)</string>
+    <string name="column_dense">5 столбцов (Плотно)</string>
+    <string name="column_overview">6 столбцов (Обзор)</string>
+    <string name="columns_count_format">%1$d столбцов</string>
+    <string name="column_label_big">1 (Крупно)</string>
+    <string name="column_label_normal">3 (Стандартно)</string>
+    <string name="column_label_dense">6 (Плотно)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">Касания и тактильный отклик</string>
+    <string name="settings_haptics">Тактильная виброотдача</string>
+    <string name="settings_haptics_desc">Тактильный отклик при выборе фото, разблокировке сейфа, редактировании и удалении</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">Резервное копирование и локальный NAS (Без облака)</string>
+    <string name="settings_nas_card_title">Синхронизация с локальным NAS / WebDAV</string>
+    <string name="settings_nas_card_desc">Резервное копирование без сторонних облаков на Synology, Nextcloud, TrueNAS или домашний сервер по Wi-Fi</string>
+    <string name="settings_nas_configured">Настроено • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">Папки и доступ к медиа</string>
+    <string name="settings_excluded_folders">Исключенные / Скрытые папки</string>
+    <string name="settings_excluded_folders_none">Нет скрытых папок</string>
+    <string name="settings_excluded_folders_count">Папок исключено из галереи: %1$d</string>
+    <string name="settings_auto_scrub_albums">Альбомы с автоочисткой</string>
+    <string name="settings_auto_scrub_none">Нет настроенных альбомов</string>
+    <string name="settings_auto_scrub_count">Альбомов очищается автоматически: %1$d</string>
+    <string name="settings_merge_albums">Объединять одноименные альбомы</string>
+    <string name="settings_merge_albums_desc">Объединять папки с одинаковыми именами (напр., Внутренняя память и SD-карта Загрузки) в одну карточку альбома</string>
+    <string name="settings_sd_card">Доступ к внешней SD-карте / USB OTG</string>
+    <string name="settings_sd_card_granted">Разрешение для внешнего накопителя предоставлено</string>
+    <string name="settings_sd_card_desc">Предоставить доступ SAF для работы со вторичным накопителем</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">Блокировка и конфиденциальность устройства</string>
+    <string name="settings_app_lock_title">Блокировка приложения (Биометрия / PIN) 🔒</string>
+    <string name="settings_app_lock_desc">Запрашивать отпечаток пальца, лицо или PIN-код при каждом открытии Imava</string>
+    <string name="settings_trash_lock">Биометрическая защита корзины 🗑️</string>
+    <string name="settings_trash_lock_desc">Запрашивать биометрию или PIN для открытия корзины и просмотра удаленных фото</string>
+    <string name="settings_recents_shield">Защита в переключателе приложений 🛡️</string>
+    <string name="settings_recents_shield_desc">Скрывать миниатюры галереи на экране недавних приложений Android от посторонних глаз</string>
+    <string name="settings_guest_pinning">Гостевой режим (Закрепление приложения) 📌</string>
+    <string name="settings_guest_pinning_desc">Передавая телефон другому человеку, нажмите значок булавки 📌 в просмотрщике, чтобы зафиксировать экран на текущем фото. Гости не смогут листать другие медиа без аутентификации.</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">Очистка памяти и обслуживание</string>
+    <string name="settings_file_shredder">Криптографический шредер файлов 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">Физически перезаписывать удаляемые файлы случайными данными и нулями для предотвращения криминалистического восстановления</string>
+    <string name="settings_ghost_thumb_purger">Уничтожитель остаточных миниатюр 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">Уничтожать оставшиеся незашифрованные миниатюры в DCIM/.thumbnails и кэше</string>
+    <string name="action_shred_now">Уничтожить сейчас</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">Глубокое сканирование и память</string>
+    <string name="settings_deep_discovery">Глубокий поиск медиафайлов</string>
+    <string name="settings_deep_discovery_desc">Поиск отправленных медиа, приватных папок, GIF-анимаций и скрытых файлов .nomedia на вашем устройстве.</string>
+    <string name="settings_auto_deep_scan">Автоматическое глубокое сканирование</string>
+    <string name="settings_auto_deep_scan_on">Автосканирование активно при запуске и обновлении файлов</string>
+    <string name="settings_auto_deep_scan_off">Автосканирование отключено</string>
+    <string name="action_scan_now">Сканировать сейчас</string>
+    <string name="scanning_device">Сканирование устройства…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">О приложении и правовая информация</string>
+    <string name="settings_about_legal_desc">Разработчик, обновления, лицензии и разрешения</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">Анализ хранилища 🩺</string>
+    <string name="doctor_analyze">Всего: %1$s · Анализ ➔</string>
+    <string name="doctor_photos_count">Фото (%1$d)</string>
+    <string name="doctor_videos_count">Видео (%1$d)</string>
+    <string name="doctor_vault_count">Сейф (%1$d)</string>
+    <string name="doctor_trash_count">Корзина (%1$d)</string>
+    <string name="doctor_cleanable_space">Очищаемое пространство</string>
+    <string name="doctor_summary_format">Освободите память, удалив ненужные видео и скриншоты.</string>
+    <string name="doctor_large_videos">Большие видео (%1$d)</string>
+    <string name="doctor_screenshots">Скриншоты (%1$d)</string>
+    <string name="doctor_burst_shots">Серийная съемка (%1$d)</string>
+    <string name="doctor_no_large_videos">Больших видеофайлов не найдено (&gt;50 МБ) 🎉</string>
+    <string name="doctor_no_screenshots">Старых скриншотов не найдено (&gt;30 дней) 🎉</string>
+    <string name="doctor_no_burst">Серийных снимков и быстрых дубликатов не найдено 🎉</string>
+    <string name="doctor_keep_best">Оставить лучший</string>
+    <string name="action_purge">Очистить</string>
+    <string name="doctor_ghost_purger_title">Уничтожитель остаточных миниатюр 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">Освободите дисковый кэш и сотрите остаточные эскизы</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">Поиск дубликатов 🧹</string>
+    <string name="duplicate_finder_desc">Поиск и удаление дубликатов фото</string>
+    <string name="duplicate_analyzing">Анализ галереи на наличие дубликатов…</string>
+    <string name="duplicate_scanning_format">Сканирование %1$d из %2$d элементов…</string>
+    <string name="duplicate_none_found">Дубликатов фото не найдено 🎉</string>
+    <string name="duplicate_delete_button">Удалить дубликаты (%1$d)</string>
+    <string name="duplicate_confirm_title">Подтверждение удаления дубликатов</string>
+    <string name="duplicate_confirm_desc">Вы уверены, что хотите удалить %1$d выбранных фото-дубликатов? Они будут перемещены в корзину.</string>
+    <string name="duplicate_not_same">Не похожи</string>
+    <string name="duplicate_compare_loupe">Сравнение с лупой 🔍</string>
+    <string name="duplicate_keep">Оставить</string>
+    <string name="duplicate_delete_duplicates">Удалить дубликаты</string>
+    <string name="duplicate_keep_this">Оставить это фото (Снять метку удаления)</string>
+    <string name="duplicate_mark_delete">Отметить для удаления</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">Поиск фото, видео, альбомов…</string>
+    <string name="albums_count_format">Альбомы (%1$d)</string>
+    <string name="pinned_albums_count_format">Закрепленные альбомы (%1$d)</string>
+    <string name="all_albums_count_format">Все альбомы (%1$d)</string>
+    <string name="layout_list_view">Список</string>
+    <string name="layout_grid_2">Крупная сетка (2 столбца)</string>
+    <string name="layout_grid_3">Средняя сетка (3 столбца)</string>
+    <string name="layout_grid_4">Мелкая сетка (4 столбца)</string>
+    <string name="sort_name_asc">По имени (А–Я)</string>
+    <string name="sort_count_desc">По количеству файлов (По убыванию)</string>
+    <string name="sort_recent">Недавно обновленные</string>
+    <string name="album_pin_top">Закрепить вверху</string>
+    <string name="album_unpin">Открепить альбом</string>
+    <string name="album_pin_desc">Держать альбом в начале сетки</string>
+    <string name="album_exclude">Исключить из галереи</string>
+    <string name="album_exclude_desc">Скрыть эту папку при сканировании медиа</string>
+    <string name="album_share">Поделиться альбомом</string>
+    <string name="album_share_desc">Экспортировать и отправить все фото альбома</string>
+    <string name="album_lock_bio">Заблокировать биометрией</string>
+    <string name="album_unlock">Разблокировать альбом</string>
+    <string name="album_lock_desc">Защитить альбом отпечатком пальца</string>
+    <string name="album_unlock_desc">Требуется отпечаток пальца</string>
+    <string name="album_scrub_meta">Очистить метаданные альбома</string>
+    <string name="album_scrub_meta_desc">Удалить EXIF, GPS-координаты и параметры камеры</string>
+    <string name="album_auto_scrub">Автоочистка новых фото</string>
+    <string name="album_auto_scrub_on">Включено: автоматически очищает входящие фото</string>
+    <string name="album_auto_scrub_off">Выключено: сохраняет оригинальные метаданные</string>
+    <string name="album_wifi_drop">Поделиться через Wi-Fi Drop ⚡</string>
+    <string name="album_wifi_drop_desc">Передать альбом на ПК / Mac / смартфон по локальному Wi-Fi</string>
+    <string name="album_delete_desc">Безвозвратно удалить альбом и все его файлы</string>
+    <string name="album_delete_only">Удалить только альбом</string>
+    <string name="album_delete_only_desc">Сохранить фото и видео (переместить в Pictures)</string>
+    <string name="album_delete_media">Удалить альбом и медиа</string>
+    <string name="album_delete_media_desc">Переместить все фото и видео в корзину</string>
+    <string name="album_empty_trash_title">Очистить корзину?</string>
+    <string name="album_empty_trash_desc">Все элементы в корзине будут удалены навсегда. Это действие нельзя отменить.</string>
+    <string name="album_delete_confirm_title">Удалить альбом ‘%1$s’?</string>
+    <string name="album_delete_choose_desc">Выберите способ удаления этого альбома:</string>
+    <string name="trash_locked_subtitle">Защищено биометрией · Нажмите для разблокировки</string>
+    <string name="trash_unlocked_subtitle">Разблокировано на текущий сеанс</string>
+    <string name="label_locked">Заблокировано</string>
+    <string name="unlock_trash_title">Разблокировать корзину</string>
+    <string name="unlock_trash_desc">Подтвердите биометрию или PIN для доступа к удаленным файлам</string>
+    <string name="unlock_vault_title">Разблокировать скрытый сейф</string>
+    <string name="unlock_vault_desc">Используйте отпечаток пальца или лицо для доступа к скрытым фото</string>
 </resources>

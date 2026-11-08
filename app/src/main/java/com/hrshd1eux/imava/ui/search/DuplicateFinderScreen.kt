@@ -65,9 +65,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.DuplicateFinder
 import com.hrshd1eux.imava.core.util.DuplicateGroup
 import com.hrshd1eux.imava.data.model.MediaItem
@@ -127,7 +129,7 @@ fun DuplicateFinderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Duplicate Finder 🧹") },
+                title = { Text(stringResource(R.string.duplicate_finder_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -150,7 +152,7 @@ fun DuplicateFinderScreen(
                     ) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Delete ${selectedToDelete.size} Duplicates")
+                        Text(stringResource(R.string.duplicate_delete_button, selectedToDelete.size))
                     }
                 }
             }
@@ -178,7 +180,7 @@ fun DuplicateFinderScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = if (scanTotal > 0) "Scanning $scanCount / $scanTotal items..." else "Analyzing library for duplicates...",
+                        text = if (scanTotal > 0) stringResource(R.string.duplicate_scanning_format, scanCount, scanTotal) else stringResource(R.string.duplicate_analyzing),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -195,7 +197,7 @@ fun DuplicateFinderScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "No duplicate photos found 🎉",
+                        text = stringResource(R.string.duplicate_none_found),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -253,7 +255,7 @@ fun DuplicateFinderScreen(
                                     ) {
                                         Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Not Same", style = MaterialTheme.typography.labelMedium)
+                                        Text(stringResource(R.string.duplicate_not_same), style = MaterialTheme.typography.labelMedium)
                                     }
 
                                     if (group.items.size >= 2) {
@@ -264,7 +266,7 @@ fun DuplicateFinderScreen(
                                         ) {
                                             Icon(Icons.Default.Compare, contentDescription = null, modifier = Modifier.size(16.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text("Compare Loupe ⚖️", style = MaterialTheme.typography.labelMedium)
+                                            Text(stringResource(R.string.duplicate_compare_loupe), style = MaterialTheme.typography.labelMedium)
                                         }
                                     }
                                 }
@@ -308,7 +310,7 @@ fun DuplicateFinderScreen(
                                                     .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.extraSmall)
                                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                                             ) {
-                                                Text("Keep", style = MaterialTheme.typography.labelSmall, color = Color.White)
+                                                Text(stringResource(R.string.duplicate_keep), style = MaterialTheme.typography.labelSmall, color = Color.White)
                                             }
                                         }
 
@@ -350,9 +352,9 @@ fun DuplicateFinderScreen(
             AlertDialog(
                 onDismissRequest = { showDeleteConfirmDialog = false },
                 icon = { Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-                title = { Text("Confirm Duplicate Deletion") },
+                title = { Text(stringResource(R.string.duplicate_confirm_title)) },
                 text = {
-                    Text("Are you sure you want to delete ${selectedToDelete.size} selected duplicate photos? They will be moved to Trash.")
+                    Text(stringResource(R.string.duplicate_confirm_desc, selectedToDelete.size))
                 },
                 confirmButton = {
                     Button(
@@ -367,12 +369,12 @@ fun DuplicateFinderScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
-                        Text("Delete Duplicates")
+                        Text(stringResource(R.string.duplicate_delete_duplicates))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -486,7 +488,7 @@ fun DuplicateFinderScreen(
                                     contentDescription = null
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isMarkedForDelete) "Keep This Photo (Unmark Delete)" else "Mark to Delete")
+                                Text(if (isMarkedForDelete) stringResource(R.string.duplicate_keep_this) else stringResource(R.string.duplicate_mark_delete))
                             }
                         }
                     }

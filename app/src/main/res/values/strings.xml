@@ -76,4 +76,173 @@
     <string name="settings_storage_doctor">Storage Doctor</string>
     <string name="settings_about">About &amp; Version</string>
     <string name="settings_wifi_drop">Wi-Fi Drop</string>
+
+    <!-- Settings: Appearance &amp; Startup -->
+    <string name="settings_choose_theme">Choose App Theme</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="theme_amoled">AMOLED Dark (Pure Black)</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="settings_startup_screen">Default Startup Screen</string>
+    <string name="startup_timeline">Photos (Main Timeline)</string>
+    <string name="startup_albums">Albums</string>
+    <string name="startup_last_active">Remember Last Active Tab</string>
+    <string name="settings_brightness_boost">Viewer Brightness Boost ☀️</string>
+    <string name="settings_brightness_boost_desc">Automatically max out screen brightness when viewing photos and videos for maximum HDR detail</string>
+
+    <!-- Settings: Grid &amp; Layout -->
+    <string name="settings_grid_title">Grid &amp; Display Size</string>
+    <string name="settings_timeline_columns">Timeline Columns</string>
+    <string name="settings_grid_desc">Adjust the default size of photos in the timeline grid. You can also pinch-to-zoom on the timeline to resize at any time.</string>
+    <string name="column_single">1 Column (Extra Large)</string>
+    <string name="column_double">2 Columns (Large)</string>
+    <string name="column_triple">3 Columns (Standard)</string>
+    <string name="column_compact">4 Columns (Compact)</string>
+    <string name="column_dense">5 Columns (Dense)</string>
+    <string name="column_overview">6 Columns (Overview)</string>
+    <string name="columns_count_format">%1$d Columns</string>
+    <string name="column_label_big">1 (Big)</string>
+    <string name="column_label_normal">3 (Normal)</string>
+    <string name="column_label_dense">6 (Dense)</string>
+
+    <!-- Settings: Touch &amp; Haptics -->
+    <string name="settings_touch_haptics">Touch &amp; Haptics</string>
+    <string name="settings_haptics">Haptic Vibrations</string>
+    <string name="settings_haptics_desc">Tactile feedback when selecting photos, unlocking vault, editing, and deleting</string>
+
+    <!-- Settings: Backup &amp; NAS -->
+    <string name="settings_nas_title">Backup &amp; Local NAS (Zero Cloud)</string>
+    <string name="settings_nas_card_title">Local NAS / WebDAV Sync</string>
+    <string name="settings_nas_card_desc">Zero-cloud backup to Synology, Nextcloud, TrueNAS, or home server over Wi-Fi</string>
+    <string name="settings_nas_configured">Configured • %1$s</string>
+
+    <!-- Settings: Folders &amp; Storage -->
+    <string name="settings_folders_access">Folders &amp; Media Access</string>
+    <string name="settings_excluded_folders">Excluded / Hidden Folders</string>
+    <string name="settings_excluded_folders_none">No folders hidden</string>
+    <string name="settings_excluded_folders_count">%1$d folder(s) excluded from gallery</string>
+    <string name="settings_auto_scrub_albums">Auto-Scrub Albums</string>
+    <string name="settings_auto_scrub_none">No albums configured</string>
+    <string name="settings_auto_scrub_count">%1$d album(s) automatically sanitized</string>
+    <string name="settings_merge_albums">Merge Same-Named Albums</string>
+    <string name="settings_merge_albums_desc">Combine folders with matching names (e.g. internal &amp; SD Card Download) into one unified album card</string>
+    <string name="settings_sd_card">External SD Card / USB OTG Access</string>
+    <string name="settings_sd_card_granted">Permission granted for external storage</string>
+    <string name="settings_sd_card_desc">Grant Storage Access Framework tree permission for secondary storage</string>
+
+    <!-- Settings: Privacy &amp; App Lock -->
+    <string name="settings_app_lock_group">App Lock &amp; Device Privacy</string>
+    <string name="settings_app_lock_title">App Lock (Biometric / PIN) 🔒</string>
+    <string name="settings_app_lock_desc">Require fingerprint, face, or device PIN every time Imava is opened</string>
+    <string name="settings_trash_lock">Biometric Trash Lock 🗑️</string>
+    <string name="settings_trash_lock_desc">Require fingerprint, face, or PIN to open Trash and inspect deleted photos</string>
+    <string name="settings_recents_shield">App Switcher Privacy Shield 🛡️</string>
+    <string name="settings_recents_shield_desc">Blank out gallery thumbnails in the Android recent apps overview to prevent shoulder surfing</string>
+    <string name="settings_guest_pinning">Guest Hand-Off (App Pinning) 📌</string>
+    <string name="settings_guest_pinning_desc">When handing your phone to someone, tap the Pin 📌 icon in the photo viewer to lock the screen to that single item. Guests cannot swipe to adjacent media without biometric or PIN authentication.</string>
+
+    <!-- Settings: Storage Cleaners -->
+    <string name="settings_storage_cleaners">Storage Cleaners &amp; Maintenance</string>
+    <string name="settings_file_shredder">Cryptographic File Shredder 🛡️⚡</string>
+    <string name="settings_file_shredder_desc">Physically overwrite deleted photos with random data &amp; zeroes to prevent recovery by forensic tools</string>
+    <string name="settings_ghost_thumb_purger">Ghost Thumbnail Purger 🧹⚡</string>
+    <string name="settings_ghost_thumb_purger_desc">Shred orphaned unencrypted previews in DCIM/.thumbnails and cache to defeat forensic recovery tools</string>
+    <string name="action_shred_now">Shred Now</string>
+
+    <!-- Settings: Deep Scan -->
+    <string name="settings_deep_scan_title">Deep Media Scan &amp; Storage</string>
+    <string name="settings_deep_discovery">Deep Media Discovery</string>
+    <string name="settings_deep_discovery_desc">Scan sent media, private folders, GIFs, and other hidden .nomedia media across your device.</string>
+    <string name="settings_auto_deep_scan">Automatic Deep Scan</string>
+    <string name="settings_auto_deep_scan_on">Auto-scan active on startup and media changes</string>
+    <string name="settings_auto_deep_scan_off">Auto-scan disabled</string>
+    <string name="action_scan_now">Scan Now</string>
+    <string name="scanning_device">Scanning device…</string>
+
+    <!-- Settings: About &amp; Legal -->
+    <string name="settings_about_legal">About &amp; Legal</string>
+    <string name="settings_about_legal_desc">Developer, updates, licenses &amp; permissions</string>
+
+    <!-- Storage Doctor -->
+    <string name="doctor_title">Storage Doctor 🩺</string>
+    <string name="doctor_analyze">Total: %1$s · Analyze ➔</string>
+    <string name="doctor_photos_count">Photos (%1$d)</string>
+    <string name="doctor_videos_count">Videos (%1$d)</string>
+    <string name="doctor_vault_count">Vault (%1$d)</string>
+    <string name="doctor_trash_count">Trash (%1$d)</string>
+    <string name="doctor_cleanable_space">Cleanable Space</string>
+    <string name="doctor_summary_format">Reclaim storage by removing unnecessary videos and screenshots.</string>
+    <string name="doctor_large_videos">Large Videos (%1$d)</string>
+    <string name="doctor_screenshots">Screenshots (%1$d)</string>
+    <string name="doctor_burst_shots">Burst Shots (%1$d)</string>
+    <string name="doctor_no_large_videos">No large videos found (&gt;50 MB) 🎉</string>
+    <string name="doctor_no_screenshots">No old screenshots found (&gt;30 days) 🎉</string>
+    <string name="doctor_no_burst">No burst or rapid duplicate shots found 🎉</string>
+    <string name="doctor_keep_best">Keep Best</string>
+    <string name="action_purge">Purge</string>
+    <string name="doctor_ghost_purger_title">Ghost Thumbnail Purger 🧹⚡</string>
+    <string name="doctor_ghost_purger_desc">Reclaim wasted disk cache &amp; shredded preview files</string>
+
+    <!-- Duplicate Finder -->
+    <string name="duplicate_finder_title">Find Duplicates 🧹</string>
+    <string name="duplicate_finder_desc">Scan &amp; clean duplicate photos</string>
+    <string name="duplicate_analyzing">Analyzing library for duplicates…</string>
+    <string name="duplicate_scanning_format">Scanning %1$d / %2$d items…</string>
+    <string name="duplicate_none_found">No duplicate photos found 🎉</string>
+    <string name="duplicate_delete_button">Delete %1$d Duplicates</string>
+    <string name="duplicate_confirm_title">Confirm Duplicate Deletion</string>
+    <string name="duplicate_confirm_desc">Are you sure you want to delete %1$d selected duplicate photos? They will be moved to Trash.</string>
+    <string name="duplicate_not_same">Not Same</string>
+    <string name="duplicate_compare_loupe">Compare Loupe 🔍</string>
+    <string name="duplicate_keep">Keep</string>
+    <string name="duplicate_delete_duplicates">Delete Duplicates</string>
+    <string name="duplicate_keep_this">Keep This Photo (Unmark Delete)</string>
+    <string name="duplicate_mark_delete">Mark to Delete</string>
+
+    <!-- Albums Screen -->
+    <string name="search_hint">Search photos, videos, albums…</string>
+    <string name="albums_count_format">Albums (%1$d)</string>
+    <string name="pinned_albums_count_format">Pinned Albums (%1$d)</string>
+    <string name="all_albums_count_format">All Albums (%1$d)</string>
+    <string name="layout_list_view">List View</string>
+    <string name="layout_grid_2">Large Grid (2 Columns)</string>
+    <string name="layout_grid_3">Medium Grid (3 Columns)</string>
+    <string name="layout_grid_4">Small Grid (4 Columns)</string>
+    <string name="sort_name_asc">Name (A to Z)</string>
+    <string name="sort_count_desc">Item Count (Largest)</string>
+    <string name="sort_recent">Recently Updated</string>
+    <string name="album_pin_top">Pin to Top</string>
+    <string name="album_unpin">Unpin Album</string>
+    <string name="album_pin_desc">Keep album at the top of the grid</string>
+    <string name="album_exclude">Exclude from Gallery</string>
+    <string name="album_exclude_desc">Hide this folder from media scans</string>
+    <string name="album_share">Share Album</string>
+    <string name="album_share_desc">Export &amp; share all album photos</string>
+    <string name="album_lock_bio">Lock with Biometrics</string>
+    <string name="album_unlock">Unlock Album</string>
+    <string name="album_lock_desc">Protect album with fingerprint</string>
+    <string name="album_unlock_desc">Fingerprint required</string>
+    <string name="album_scrub_meta">Scrub Album Metadata</string>
+    <string name="album_scrub_meta_desc">Strip EXIF, GPS location &amp; camera info</string>
+    <string name="album_auto_scrub">Auto-Scrub New Photos</string>
+    <string name="album_auto_scrub_on">Enabled: auto-strips incoming photos</string>
+    <string name="album_auto_scrub_off">Disabled: preserves original metadata</string>
+    <string name="album_wifi_drop">Share via Wi-Fi Drop ⚡</string>
+    <string name="album_wifi_drop_desc">Transfer album to PC / Mac / phone over local Wi-Fi</string>
+    <string name="album_delete_desc">Permanently delete album &amp; all contents</string>
+    <string name="album_delete_only">Delete Album Only</string>
+    <string name="album_delete_only_desc">Keep photos &amp; videos safe (moved to Pictures)</string>
+    <string name="album_delete_media">Delete Album &amp; Media</string>
+    <string name="album_delete_media_desc">Move all photos &amp; videos to Trash</string>
+    <string name="album_empty_trash_title">Empty Trash?</string>
+    <string name="album_empty_trash_desc">All items in Trash will be permanently deleted. This action cannot be undone.</string>
+    <string name="album_delete_confirm_title">Delete Album ‘%1$s’?</string>
+    <string name="album_delete_choose_desc">Choose how you want to delete this album:</string>
+    <string name="trash_locked_subtitle">Biometric protected · Tap to unlock</string>
+    <string name="trash_unlocked_subtitle">Unlocked for this session</string>
+    <string name="label_locked">Locked</string>
+    <string name="unlock_trash_title">Unlock Trash</string>
+    <string name="unlock_trash_desc">Verify biometric or PIN to access deleted items</string>
+    <string name="unlock_vault_title">Unlock Hidden Vault</string>
+    <string name="unlock_vault_desc">Use fingerprint or face unlock to access your hidden photos</string>
 </resources>

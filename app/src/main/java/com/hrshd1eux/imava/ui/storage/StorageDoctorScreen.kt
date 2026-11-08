@@ -65,9 +65,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.StorageDoctorUtils
 import com.hrshd1eux.imava.data.model.MediaItem
@@ -114,7 +116,7 @@ fun StorageDoctorScreen(
         ) {
             // Top App Bar
             TopAppBar(
-                title = { Text("Storage Doctor 🩺") },
+                title = { Text(stringResource(R.string.doctor_title)) },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -171,13 +173,13 @@ fun StorageDoctorScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = "${StorageDoctorUtils.formatBytes(rep.totalPotentialReclaimBytes)} Cleanable Space",
+                                text = "${StorageDoctorUtils.formatBytes(rep.totalPotentialReclaimBytes)} " + stringResource(R.string.doctor_cleanable_space),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
-                                text = "${rep.largeVideos.size} Large Videos · ${rep.staleScreenshots.size} Old Screenshots · ${rep.burstGroups.size} Burst Groups",
+                                text = stringResource(R.string.doctor_summary_format),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                             )
@@ -203,12 +205,12 @@ fun StorageDoctorScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Ghost Thumbnail Purger 🧹⚡",
+                                text = stringResource(R.string.doctor_ghost_purger_title),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = "Shred orphaned previews in DCIM/.thumbnails to prevent recovery",
+                                text = stringResource(R.string.doctor_ghost_purger_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -236,7 +238,7 @@ fun StorageDoctorScreen(
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                             } else {
-                                Text("Purge")
+                                Text(stringResource(R.string.action_purge))
                             }
                         }
                     }
@@ -253,7 +255,7 @@ fun StorageDoctorScreen(
                             selectedTab = 0
                             HapticUtil.performSelection(context)
                         },
-                        text = { Text("Large Videos (${rep.largeVideos.size})") },
+                        text = { Text(stringResource(R.string.doctor_large_videos, rep.largeVideos.size)) },
                         icon = { Icon(Icons.Default.Videocam, contentDescription = null) }
                     )
                     Tab(
@@ -262,7 +264,7 @@ fun StorageDoctorScreen(
                             selectedTab = 1
                             HapticUtil.performSelection(context)
                         },
-                        text = { Text("Screenshots (${rep.staleScreenshots.size})") },
+                        text = { Text(stringResource(R.string.doctor_screenshots, rep.staleScreenshots.size)) },
                         icon = { Icon(Icons.Default.Screenshot, contentDescription = null) }
                     )
                     Tab(
@@ -271,7 +273,7 @@ fun StorageDoctorScreen(
                             selectedTab = 2
                             HapticUtil.performSelection(context)
                         },
-                        text = { Text("Burst Shots (${rep.burstGroups.size})") },
+                        text = { Text(stringResource(R.string.doctor_burst_shots, rep.burstGroups.size)) },
                         icon = { Icon(Icons.Default.BurstMode, contentDescription = null) }
                     )
                 }
@@ -287,7 +289,7 @@ fun StorageDoctorScreen(
                             if (rep.largeVideos.isEmpty()) {
                                 item {
                                     Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                                        Text("No large videos found (>50 MB) 🎉", style = MaterialTheme.typography.bodyMedium)
+                                        Text(stringResource(R.string.doctor_no_large_videos), style = MaterialTheme.typography.bodyMedium)
                                     }
                                 }
                             } else {
@@ -352,7 +354,7 @@ fun StorageDoctorScreen(
                             if (rep.staleScreenshots.isEmpty()) {
                                 item {
                                     Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                                        Text("No old screenshots found (>30 days) 🎉", style = MaterialTheme.typography.bodyMedium)
+                                        Text(stringResource(R.string.doctor_no_screenshots), style = MaterialTheme.typography.bodyMedium)
                                     }
                                 }
                             } else {
@@ -411,7 +413,7 @@ fun StorageDoctorScreen(
                             if (rep.burstGroups.isEmpty()) {
                                 item {
                                     Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                                        Text("No burst or rapid duplicate shots found 🎉", style = MaterialTheme.typography.bodyMedium)
+                                        Text(stringResource(R.string.doctor_no_burst), style = MaterialTheme.typography.bodyMedium)
                                     }
                                 }
                             } else {
@@ -448,7 +450,7 @@ fun StorageDoctorScreen(
                                                     ) {
                                                         Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                                                         Spacer(modifier = Modifier.width(4.dp))
-                                                        Text("Keep Best", style = MaterialTheme.typography.labelSmall, color = Color.White)
+                                                        Text(stringResource(R.string.doctor_keep_best), style = MaterialTheme.typography.labelSmall, color = Color.White)
                                                     }
                                                 }
                                             }
