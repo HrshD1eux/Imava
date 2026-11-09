@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">Code PIN d\'association copié dans le presse-papiers</string>
     <string name="drop_copied">Copié</string>
     <string name="drop_pin_instructions">Saisissez ce code PIN dans votre navigateur si demandé</string>
+    <string name="viewer_details_title">Détails et EXIF</string>
+    <string name="dual_pane_select_album">Sélectionnez un album pour parcourir les photos</string>
 </resources>

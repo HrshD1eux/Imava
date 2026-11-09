@@ -27,6 +27,7 @@
 | **Date-Range Multi-Select** | `TimelineHeader.kt` | Tap any date header's "Select" / "Deselect" button to instantaneously toggle all photos captured on that day. |
 | **Drag-to-Select Gesture** | `detectDragGestures`, `dragSelectionModifier` | Long-press and drag your finger across the grid to fluidly select dozens of media items in a single uninterrupted swipe. |
 | **Tactile Edge FastScroller & Floating Date Badge** | `TimelineFastScroller`, `TimelineFloatingDateBadge` | Draggable edge-anchored FastScroller with a tactile Month-Year pill, haptic feedback across month boundaries, and a top-center floating date capsule during scroll. Features a 3-tier lookup engine with neighbor window search and header-calibrated visibleItems mapping to eliminate date jumping. |
+| **Responsive Navigation Rail** | `NavigationRail`, `MainActivity.kt` | Automatically transitions from a bottom NavigationBar to an ergonomic vertical Material 3 NavigationRail on tablets, foldables, and desktop window sizes (>= 600dp), preserving fullscreen immersion for media overlays while retaining bottom action bars during batch selection. |
 | **Memories & Stories Carousel** | `MemoryStoryCalculator.kt`, `MemoriesStoriesHeader.kt` | Algorithmic retrospective stories: *"1 Year Ago Today"*, *"X Years Ago"*, and same-month memories. Includes an Instagram-style fullscreen Story Player with auto-advance and tap-to-pause. |
 | **Quick Filter Chips** | `TimelineFilterChips.kt` | Instant horizontal chip row to filter timeline view: **All**, **Photos**, **Videos**, **Custom Hashtags (`#tag`)**, with a tag manager sheet. |
 
@@ -44,6 +45,7 @@
 | **Album Auto-Scrubbing** | `AutoScrubManager.kt`, `AutoScrubWorker.kt` | Designate specific folders for continuous privacy sanitization. Strips all GPS coordinates, camera serial numbers, and EXIF metadata from incoming photos automatically. |
 | **Individual Album Biometric Lock** | `AppLockManager.kt` | Lock sensitive albums behind biometrics or device PIN. Locked albums are completely removed from the timeline and require authentication to inspect. |
 | **Secondary Storage Deep Scan** | `MediaStoreDataSource.kt` | Deep-scans device storage trees to unearth hidden third-party media (Telegram images, WhatsApp status caches, DCIM sub-folders) ignored by the standard MediaStore index. |
+| **Dual-Pane Tablet & Foldable Album Layout** | `AlbumsScreen.kt`, `isWideScreen` | On tablets, unfolded foldables, and desktop displays (>= 600dp), albums split into a responsive two-pane interface: a 360dp navigation/folder master pane on the left with active album highlight ring, and a full interactive timeline grid pane on the right for instant in-place browsing without screen switching. |
 
 ---
 
@@ -55,6 +57,7 @@
 | **Sub-Pixel Pinch & Pan Engine** | `Zoomable.kt` | Smooth multi-touch zoom up to 8x magnification, double-tap zoom toggle, and bounded pan constraints. |
 | **Guest Hand-Off (Pin Photo)** | `activity.startLockTask()`, `PhotoViewerScreen.kt` | Locks the phone screen to the current active photo. Friends or colleagues cannot swipe left/right, access other photos, exit to the gallery, or view other apps without biometric unlock. |
 | **Forensic EXIF Info Sheet** | `InfoBottomSheet.kt` | Comprehensive metadata breakdown: Camera Manufacturer, Model, Aperture ($f$-stop), Exposure Time (shutter speed), ISO, Focal Length, File Path, File Size, Exact Resolution, and clickable GPS Map coordinates. |
+| **Dual-Pane Media Inspector (Side Inspector)** | `PhotoViewerScreen.kt`, `MediaInfoContent` | On wide screens (>= 600dp), tapping Info opens a dedicated 360dp side inspector alongside the photo/video, providing real-time EXIF details, GPS location map previews, reverse geocoding, color palettes, and tag editors that update dynamically as you swipe between media. |
 | **On-Device Offline OCR** | `TesseractOcrEngine.kt`, `OcrScanBottomSheet.kt` | Extracts printed and handwritten text directly from photos completely offline without sending any data to the cloud. Allows 1-tap text copy and clipboard export. |
 | **Lossless EXIF Rotation** | `LosslessRotationUtil.kt` | Updates image orientation tags clockwise or counterclockwise directly in JPEG headers without decompressing or re-encoding pixels (0% quality loss, 0ms latency). |
 | **Target File-Size Compressor** | `ImageCompressor.kt`, `PhotoViewerScreen.kt` | Re-compresses photos to exact target sizes (e.g. <200 KB for government portals, or custom percentage) with resolution preview. |

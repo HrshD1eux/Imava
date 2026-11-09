@@ -118,6 +118,28 @@ fun InfoBottomSheet(
     onUpdateTags: ((List<String>) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        modifier = modifier
+    ) {
+        MediaInfoContent(
+            item = item,
+            onUpdateDateTaken = onUpdateDateTaken,
+            onUpdateTags = onUpdateTags,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+    }
+}
+
+@Composable
+fun MediaInfoContent(
+    item: MediaItem,
+    onUpdateDateTaken: ((Long) -> Unit)? = null,
+    onUpdateTags: ((List<String>) -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     var details by remember(item) { mutableStateOf<ExifDetails?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -231,17 +253,12 @@ fun InfoBottomSheet(
         datePickerDialog.show()
     }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+    Column(
         modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
-        ) {
             Text(
                 text = "Details",
                 style = MaterialTheme.typography.titleLarge,
@@ -822,7 +839,6 @@ fun InfoBottomSheet(
             )
         }
     }
-}
 
 @Composable
 fun InfoRow(

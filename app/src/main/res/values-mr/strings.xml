@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">पेअरिंग पिन क्लिपबोर्डवर कॉपी केला</string>
     <string name="drop_copied">कॉपी केले</string>
     <string name="drop_pin_instructions">विचारल्यास आपल्या ब्राउझरमध्ये हा पिन प्रविष्ट करा</string>
+    <string name="viewer_details_title">तपशील आणि EXIF</string>
+    <string name="dual_pane_select_album">फोटो पाहण्यासाठी एक अल्बम निवडा</string>
 </resources>

@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -120,6 +121,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.icons.filled.Photo
+import androidx.compose.ui.res.stringResource
+import com.hrshd1eux.imava.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -308,6 +311,9 @@ fun PhotoViewerScreen(
             showChrome = !showChrome
         }
     }
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isWideScreen = configuration.screenWidthDp >= 600
+    var showSideInspector by remember { mutableStateOf(false) }
     var showInfoSheet by remember { mutableStateOf(false) }
     var showOcrSheet by remember { mutableStateOf(false) }
     var showMoreMenu by remember { mutableStateOf(false) }
@@ -404,6 +410,12 @@ fun PhotoViewerScreen(
             .fillMaxSize()
             .background(Color.Black.copy(alpha = containerAlpha))
     ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
 
         HorizontalPager(
             state = pagerState,
@@ -537,7 +549,7 @@ fun PhotoViewerScreen(
         }
 
 
-        AnimatedVisibility(
+        androidx.compose.animation.AnimatedVisibility(
             visible = showChrome,
             enter = fadeIn() + slideInVertically { -it },
             exit = fadeOut() + slideOutVertically { -it },
@@ -689,8 +701,18 @@ fun PhotoViewerScreen(
                     }
                 }
 
-                IconButton(onClick = { showInfoSheet = true }) {
-                    Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.White)
+                IconButton(onClick = {
+                    if (isWideScreen) {
+                        showSideInspector = !showSideInspector
+                    } else {
+                        showInfoSheet = true
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Info",
+                        tint = if (isWideScreen && showSideInspector) MaterialTheme.colorScheme.primary else Color.White
+                    )
                 }
 
                 if (!isGuestModeLocked) {
@@ -761,7 +783,11 @@ fun PhotoViewerScreen(
                             },
                             onClick = {
                                 showMoreMenu = false
-                                showInfoSheet = true
+                                if (isWideScreen) {
+                                    showSideInspector = true
+                                } else {
+                                    showInfoSheet = true
+                                }
                             }
                         )
 
@@ -995,7 +1021,7 @@ fun PhotoViewerScreen(
         }
 
 
-        AnimatedVisibility(
+        androidx.compose.animation.AnimatedVisibility(
             visible = showChrome,
             enter = fadeIn() + slideInVertically { it },
             exit = fadeOut() + slideOutVertically { it },
@@ -1101,7 +1127,51 @@ fun PhotoViewerScreen(
                 }
             }
         }
+            }
 
+            if (isWideScreen && showSideInspector) {
+                Surface(
+                    modifier = Modifier
+                        .width(360.dp)
+                        .fillMaxHeight(),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 4.dp
+                ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .statusBarsPadding()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.viewer_details_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(onClick = { showSideInspector = false }) {
+                                Icon(Icons.Default.Close, contentDescription = "Close Inspector")
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        val inspectItem = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
+                        MediaInfoContent(
+                            item = inspectItem,
+                            onUpdateDateTaken = { newDate ->
+                                viewModel.updateMediaDateTaken(context, inspectItem, newDate)
+                            },
+                            onUpdateTags = { newTags ->
+                                viewModel.updateMediaTags(inspectItem, newTags)
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
 
         if (showShareDialog) {
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem

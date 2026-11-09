@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -124,7 +125,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.Scaffold
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -556,6 +561,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     }
 
     val screens = remember { listOf(Screen.Photos, Screen.Albums, Screen.Settings) }
+    val configuration = LocalConfiguration.current
+    val isWideScreen = configuration.screenWidthDp >= 600
     
     val backEnabled = selectionState.inSelectionMode ||
             collageImageUris != null ||
@@ -601,13 +608,21 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         } else if (viewModel.currentCategoryName != null) {
             if (viewModel.currentCategoryName == "Hidden Vault") {
                 viewModel.lockVault(context)
-            } else {
+            } else if (!isWideScreen) {
                 viewModel.currentCategoryName = null
                 viewModel.currentScreen = Screen.Albums
+            } else {
+                viewModel.currentCategoryName = null
+                viewModel.currentScreen = Screen.Photos
             }
         } else if (viewModel.currentBucketId != null) {
-            viewModel.selectBucket(null, null)
-            viewModel.currentScreen = Screen.Albums
+            if (!isWideScreen) {
+                viewModel.selectBucket(null, null)
+                viewModel.currentScreen = Screen.Albums
+            } else {
+                viewModel.selectBucket(null, null)
+                viewModel.currentScreen = Screen.Photos
+            }
         } else if (currentScreen != Screen.Photos) {
             viewModel.currentScreen = Screen.Photos
         }
@@ -1480,18 +1495,20 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             }
                         }
                     }
-                } else if (viewModel.currentCategoryName != "Hidden Vault") {
+                } else if (!isWideScreen && viewModel.currentCategoryName != "Hidden Vault") {
                     NavigationBar(
                         containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 8.dp
                     ) {
                         NavigationBarItem(
-                            selected = currentScreen == Screen.Photos,
+                            selected = currentScreen == Screen.Photos && viewModel.currentBucketId == null && viewModel.currentCategoryName == null,
                             onClick = {
-                                if (currentScreen == Screen.Photos) {
+                                if (currentScreen == Screen.Photos && viewModel.currentBucketId == null && viewModel.currentCategoryName == null) {
                                     viewModel.triggerScrollToTop()
                                     com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                 } else {
+                                    viewModel.selectBucket(null, null)
+                                    viewModel.currentCategoryName = null
                                     viewModel.setSearchQuery("")
                                     viewModel.currentScreen = Screen.Photos
                                 }
@@ -1542,21 +1559,75 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         viewModel.activeMediaItem != null ||
                         isFullScreenOverlayActive
 
-                HorizontalPager(
-                    state = mainPagerState,
-                    beyondBoundsPageCount = 0,
-                    modifier = Modifier.fillMaxSize(),
-                    userScrollEnabled = !isInsideSubView
-                ) { page ->
-                    when (screens[page]) {
-                        Screen.Photos -> TimelineScreen(viewModel = viewModel)
-                        Screen.Albums -> AlbumsScreen(
-                            viewModel = viewModel,
-                            onStorageDoctorClick = { showStorageDoctor = true },
-                        )
-                        Screen.Settings -> com.hrshd1eux.imava.ui.settings.SettingsScreen(viewModel = viewModel)
-                        else -> TimelineScreen(viewModel = viewModel)
+                val pagerContent: @Composable (Modifier) -> Unit = { pagerModifier ->
+                    HorizontalPager(
+                        state = mainPagerState,
+                        beyondBoundsPageCount = 0,
+                        modifier = pagerModifier,
+                        userScrollEnabled = !isInsideSubView
+                    ) { page ->
+                        when (screens[page]) {
+                            Screen.Photos -> TimelineScreen(viewModel = viewModel)
+                            Screen.Albums -> AlbumsScreen(
+                                viewModel = viewModel,
+                                onStorageDoctorClick = { showStorageDoctor = true },
+                            )
+                            Screen.Settings -> com.hrshd1eux.imava.ui.settings.SettingsScreen(viewModel = viewModel)
+                            else -> TimelineScreen(viewModel = viewModel)
+                        }
                     }
+                }
+
+                if (isWideScreen && !isFullScreenOverlayActive && !selectionState.inSelectionMode && viewModel.currentCategoryName != "Hidden Vault") {
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        NavigationRail(
+                            modifier = Modifier.fillMaxHeight(),
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            NavigationRailItem(
+                                selected = currentScreen == Screen.Photos && viewModel.currentBucketId == null && viewModel.currentCategoryName == null,
+                                onClick = {
+                                    if (currentScreen == Screen.Photos && viewModel.currentBucketId == null && viewModel.currentCategoryName == null) {
+                                        viewModel.triggerScrollToTop()
+                                        com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                    } else {
+                                        viewModel.selectBucket(null, null)
+                                        viewModel.currentCategoryName = null
+                                        viewModel.setSearchQuery("")
+                                        viewModel.currentScreen = Screen.Photos
+                                    }
+                                },
+                                icon = { Icon(Icons.Default.Photo, contentDescription = stringResource(R.string.nav_photos)) },
+                                label = { Text(stringResource(R.string.nav_photos)) }
+                            )
+                            NavigationRailItem(
+                                selected = currentScreen == Screen.Albums,
+                                onClick = {
+                                    viewModel.setSearchQuery("")
+                                    viewModel.currentScreen = Screen.Albums
+                                    viewModel.loadBuckets()
+                                },
+                                icon = { Icon(Icons.Default.Album, contentDescription = stringResource(R.string.nav_albums)) },
+                                label = { Text(stringResource(R.string.nav_albums)) }
+                            )
+                            NavigationRailItem(
+                                selected = currentScreen == Screen.Settings,
+                                onClick = {
+                                    viewModel.setSearchQuery("")
+                                    viewModel.currentScreen = Screen.Settings
+                                },
+                                icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.nav_settings)) },
+                                label = { Text(stringResource(R.string.nav_settings)) }
+                            )
+                        }
+                        VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                            pagerContent(Modifier.fillMaxSize())
+                        }
+                    }
+                } else {
+                    pagerContent(Modifier.fillMaxSize())
                 }
             }
 

@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">PIN de vinculación copiado al portapapeles</string>
     <string name="drop_copied">Copiado</string>
     <string name="drop_pin_instructions">Introduce este PIN en tu navegador si te lo solicita</string>
+    <string name="viewer_details_title">Detalles y EXIF</string>
+    <string name="dual_pane_select_album">Selecciona un álbum para explorar fotos</string>
 </resources>

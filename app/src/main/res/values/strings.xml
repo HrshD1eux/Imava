@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">Pairing PIN copied to clipboard</string>
     <string name="drop_copied">Copied</string>
     <string name="drop_pin_instructions">Enter this PIN in your browser if prompted</string>
+    <string name="viewer_details_title">Details &amp; EXIF</string>
+    <string name="dual_pane_select_album">Select an album to browse photos</string>
 </resources>

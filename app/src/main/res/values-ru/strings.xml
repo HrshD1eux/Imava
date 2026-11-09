@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">PIN-код сопряжения скопирован в буфер обмена</string>
     <string name="drop_copied">Скопировано</string>
     <string name="drop_pin_instructions">Введите этот PIN-код в браузере при запросе</string>
+    <string name="viewer_details_title">Сведения и EXIF</string>
+    <string name="dual_pane_select_album">Выберите альбом для просмотра фотографий</string>
 </resources>

@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">இணைத்தல் பின் கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது</string>
     <string name="drop_copied">நகலெடுக்கப்பட்டது</string>
     <string name="drop_pin_instructions">கேட்கப்பட்டால் இந்த பின்னை உங்கள் உலாவியில் உள்ளிடவும்</string>
+    <string name="viewer_details_title">விவரங்கள் &amp; EXIF</string>
+    <string name="dual_pane_select_album">புகைப்படங்களை உலாவ ஆல்பத்தைத் தேர்ந்தெடுக்கவும்</string>
 </resources>

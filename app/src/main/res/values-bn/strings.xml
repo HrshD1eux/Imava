@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">পেয়ারিং পিন ক্লিপবোর্ডে কপি করা হয়েছে</string>
     <string name="drop_copied">কপি করা হয়েছে</string>
     <string name="drop_pin_instructions">জিজ্ঞাসা করা হলে আপনার ব্রাউজারে এই পিনটি লিখুন</string>
+    <string name="viewer_details_title">বিবরণ ও EXIF</string>
+    <string name="dual_pane_select_album">ছবি দেখতে একটি অ্যালবাম নির্বাচন করুন</string>
 </resources>

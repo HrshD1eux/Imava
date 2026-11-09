@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">Kopplungs-PIN in die Zwischenablage kopiert</string>
     <string name="drop_copied">Kopiert</string>
     <string name="drop_pin_instructions">Geben Sie diese PIN in Ihren Browser ein, falls Sie dazu aufgefordert werden</string>
+    <string name="viewer_details_title">Details &amp; EXIF</string>
+    <string name="dual_pane_select_album">Wählen Sie ein Album aus, um Fotos anzusehen</string>
 </resources>

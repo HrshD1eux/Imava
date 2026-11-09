@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">PIN de emparelhamento copiado para a área de transferência</string>
     <string name="drop_copied">Copiado</string>
     <string name="drop_pin_instructions">Insira este PIN no seu navegador se solicitado</string>
+    <string name="viewer_details_title">Detalhes e EXIF</string>
+    <string name="dual_pane_select_album">Selecione um álbum para ver fotos</string>
 </resources>

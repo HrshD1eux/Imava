@@ -1688,12 +1688,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun selectBucket(bucketId: Long?, bucketName: String?, bucketIds: List<Long>? = null) {
+    fun selectBucket(bucketId: Long?, bucketName: String?, bucketIds: List<Long>? = null, navigateToPhotos: Boolean = true) {
         currentCategoryName = null // Reset category filter when selecting a folder
         currentBucketId = bucketId
         currentBucketIds = bucketIds ?: (bucketId?.let { listOf(it) } ?: emptyList())
         currentBucketName = bucketName
-        currentScreen = Screen.Photos
+        if (navigateToPhotos) {
+            currentScreen = Screen.Photos
+        }
         // refreshTrigger++ is called inside loadNextPage() above, which invalidates
         // both pagingDataFlow and getMediaFlow. No MAX_VALUE scan needed.
         loadNextPage()

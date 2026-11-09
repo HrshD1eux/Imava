@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">પેરિંગ પિન ક્લિપબોર્ડ પર કૉપિ થયો</string>
     <string name="drop_copied">કૉપિ થયું</string>
     <string name="drop_pin_instructions">પૂછવામાં આવે ત્યારે તમારા બ્રાઉઝરમાં આ પિન દાખલ કરો</string>
+    <string name="viewer_details_title">વિગતો અને EXIF</string>
+    <string name="dual_pane_select_album">ફોટો જોવા માટે આલ્બમ પસંદ કરો</string>
 </resources>

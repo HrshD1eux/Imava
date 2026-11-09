@@ -7,6 +7,7 @@ import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.findActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,6 +60,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +69,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +80,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,6 +88,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.hrshd1eux.imava.data.media.BucketInfo
 import com.hrshd1eux.imava.ui.MainViewModel
+import com.hrshd1eux.imava.ui.timeline.TimelineScreen
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -165,6 +171,19 @@ fun AlbumsScreen(
         visibleBuckets.filter { !pinnedBucketIds.contains(it.id.toString()) }
     }
 
+    val configuration = LocalConfiguration.current
+    val isWideScreen = configuration.screenWidthDp >= 600
+    val activeCategory by viewModel.currentCategoryNameFlow.collectAsState()
+    val activeBucketId = viewModel.currentBucketId
+
+    LaunchedEffect(isWideScreen, visibleBuckets) {
+        if (isWideScreen && viewModel.currentBucketId == null && viewModel.currentCategoryName == null) {
+            visibleBuckets.firstOrNull()?.let { firstBucket ->
+                viewModel.selectBucket(firstBucket.id, firstBucket.name, firstBucket.mergedBucketIds, navigateToPhotos = false)
+            }
+        }
+    }
+
     val openBucket: (BucketInfo) -> Unit = { bucket ->
         if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(context, bucket.id, bucket.name)) {
             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
@@ -173,14 +192,14 @@ fun AlbumsScreen(
                 subtitle = "Authenticate to open ${bucket.name}",
                 onSuccess = {
                     com.hrshd1eux.imava.core.util.AppLockManager.markAlbumUnlockedForSession(bucket.id)
-                    viewModel.selectBucket(bucket.id, bucket.name, bucket.mergedBucketIds)
+                    viewModel.selectBucket(bucket.id, bucket.name, bucket.mergedBucketIds, navigateToPhotos = !isWideScreen)
                 },
                 onError = { err ->
                     android.widget.Toast.makeText(context, "Album locked: $err", android.widget.Toast.LENGTH_SHORT).show()
                 }
             )
         } else {
-            viewModel.selectBucket(bucket.id, bucket.name, bucket.mergedBucketIds)
+            viewModel.selectBucket(bucket.id, bucket.name, bucket.mergedBucketIds, navigateToPhotos = !isWideScreen)
         }
     }
 
@@ -202,12 +221,12 @@ fun AlbumsScreen(
         MainViewModel.AlbumLayoutMode.GRID_4 -> 4
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    val albumsListContent = @Composable {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
+            contentPadding = PaddingValues(top = 16.dp, bottom = if (isWideScreen) 32.dp else 100.dp)
         ) {
 
             item {
@@ -352,11 +371,14 @@ fun AlbumsScreen(
                     icon = Icons.Default.Favorite,
                     title = stringResource(R.string.category_favorites),
                     count = favorites.size,
+                    isSelected = isWideScreen && activeCategory == "Favorites",
                     onClick = {
                         viewModel.currentBucketId = null
                         viewModel.currentBucketName = null
                         viewModel.currentCategoryName = "Favorites"
-                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        if (!isWideScreen) {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
                     }
                 )
             }
@@ -367,11 +389,14 @@ fun AlbumsScreen(
                     icon = Icons.Default.PlayCircle,
                     title = stringResource(R.string.category_videos),
                     count = videosCount,
+                    isSelected = isWideScreen && activeCategory == "Videos",
                     onClick = {
                         viewModel.currentBucketId = null
                         viewModel.currentBucketName = null
                         viewModel.currentCategoryName = "Videos"
-                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        if (!isWideScreen) {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
                     }
                 )
             }
@@ -385,6 +410,7 @@ fun AlbumsScreen(
                         icon = if (isVaultDisabled || !isPinConfigured) Icons.Default.LockOpen else Icons.Default.Lock,
                         title = stringResource(R.string.category_vault),
                         count = hidden.size,
+                        isSelected = isWideScreen && activeCategory == "Hidden Vault",
                         onClick = {
                             if (isVaultDisabled || !isPinConfigured) {
                                 viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.VaultSetup
@@ -403,7 +429,9 @@ fun AlbumsScreen(
                                         viewModel.currentBucketId = null
                                         viewModel.currentBucketName = null
                                         viewModel.currentCategoryName = "Hidden Vault"
-                                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                                        if (!isWideScreen) {
+                                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                                        }
                                     },
                                     onError = { _ ->
                                         showHiddenLockedDialog = true
@@ -437,6 +465,7 @@ fun AlbumsScreen(
                     count = if (isTrashLocked) 0 else trashed.size,
                     subtitle = trashSubtitle,
                     actionLabel = if (isTrashLocked) stringResource(R.string.label_locked) else null,
+                    isSelected = isWideScreen && activeCategory == "Trash",
                     onClick = {
                         if (isTrashLocked) {
                             val activity = context.findActivity()
@@ -451,7 +480,9 @@ fun AlbumsScreen(
                                         viewModel.currentBucketId = null
                                         viewModel.currentBucketName = null
                                         viewModel.currentCategoryName = "Trash"
-                                        viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                                        if (!isWideScreen) {
+                                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                                        }
                                     },
                                     onError = { err ->
                                         android.widget.Toast.makeText(context, "Trash locked: $err", android.widget.Toast.LENGTH_SHORT).show()
@@ -464,7 +495,9 @@ fun AlbumsScreen(
                             viewModel.currentBucketId = null
                             viewModel.currentBucketName = null
                             viewModel.currentCategoryName = "Trash"
-                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                            if (!isWideScreen) {
+                                viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                            }
                         }
                     }
                 )
@@ -606,12 +639,14 @@ fun AlbumsScreen(
                     items(pinnedBuckets, key = { it.id }) { bucket ->
                         val liveCount = resolveAlbumCount(bucket)
                         val coverUri = resolveAlbumCoverUri(bucket)
+                        val isBucketSelected = isWideScreen && activeCategory == null && (activeBucketId == bucket.id || (bucket.mergedBucketIds.isNotEmpty() && activeBucketId in bucket.mergedBucketIds))
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
                             coverUri = coverUri,
                             title = "${bucket.name} 📌",
                             count = liveCount,
                             subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
+                            isSelected = isBucketSelected,
                             onClick = { openBucket(bucket) },
                             onLongClick = { activeOptionsBucket = bucket }
                         )
@@ -628,11 +663,13 @@ fun AlbumsScreen(
                             rowBuckets.forEach { bucket ->
                                 val liveCount = resolveAlbumCount(bucket)
                                 val coverUri = resolveAlbumCoverUri(bucket)
+                                val isBucketSelected = isWideScreen && activeCategory == null && (activeBucketId == bucket.id || (bucket.mergedBucketIds.isNotEmpty() && activeBucketId in bucket.mergedBucketIds))
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(
                                         bucket = bucket.copy(count = liveCount),
                                         coverUri = coverUri,
                                         isPinned = true,
+                                        isSelected = isBucketSelected,
                                         onClick = { openBucket(bucket) },
                                         onLongClick = { activeOptionsBucket = bucket },
                                         layoutMode = albumLayoutMode
@@ -666,12 +703,14 @@ fun AlbumsScreen(
                     items(unpinnedBuckets, key = { it.id }) { bucket ->
                         val liveCount = resolveAlbumCount(bucket)
                         val coverUri = resolveAlbumCoverUri(bucket)
+                        val isBucketSelected = isWideScreen && activeCategory == null && (activeBucketId == bucket.id || (bucket.mergedBucketIds.isNotEmpty() && activeBucketId in bucket.mergedBucketIds))
                         AlbumRowItem(
                             icon = Icons.Default.Folder,
                             coverUri = coverUri,
                             title = bucket.name,
                             count = liveCount,
                             subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
+                            isSelected = isBucketSelected,
                             onClick = { openBucket(bucket) },
                             onLongClick = { activeOptionsBucket = bucket }
                         )
@@ -688,11 +727,13 @@ fun AlbumsScreen(
                             rowBuckets.forEach { bucket ->
                                 val liveCount = resolveAlbumCount(bucket)
                                 val coverUri = resolveAlbumCoverUri(bucket)
+                                val isBucketSelected = isWideScreen && activeCategory == null && (activeBucketId == bucket.id || (bucket.mergedBucketIds.isNotEmpty() && activeBucketId in bucket.mergedBucketIds))
                                 Box(modifier = Modifier.weight(1f)) {
                                     AlbumGridCard(
                                         bucket = bucket.copy(count = liveCount),
                                         coverUri = coverUri,
                                         isPinned = false,
+                                        isSelected = isBucketSelected,
                                         onClick = { openBucket(bucket) },
                                         onLongClick = { activeOptionsBucket = bucket },
                                         layoutMode = albumLayoutMode
@@ -706,6 +747,111 @@ fun AlbumsScreen(
                     }
                 }
             }
+        }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        if (isWideScreen) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .width(360.dp)
+                        .fillMaxHeight()
+                ) {
+                    albumsListContent()
+                }
+
+                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    val activeTitle = when {
+                        activeCategory == "Favorites" -> stringResource(R.string.category_favorites)
+                        activeCategory == "Videos" -> stringResource(R.string.category_videos)
+                        activeCategory == "Trash" -> stringResource(R.string.category_trash)
+                        activeCategory == "Hidden Vault" -> stringResource(R.string.category_vault)
+                        activeCategory != null -> activeCategory!!
+                        viewModel.currentBucketName != null -> viewModel.currentBucketName
+                        else -> null
+                    }
+
+                    if (activeTitle != null) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 2.dp,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        text = activeTitle,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    val count = if (activeCategory == "Favorites") favorites.size
+                                    else if (activeCategory == "Videos") videosCount
+                                    else if (activeCategory == "Trash") trashed.size
+                                    else if (activeCategory == "Hidden Vault") hidden.size
+                                    else activeBucketId?.let { bId -> visibleBuckets.find { it.id == bId }?.count } ?: 0
+                                    Text(
+                                        text = "$count items",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+
+                                if (activeCategory == "Trash") {
+                                    Button(
+                                        onClick = { showEmptyTrashConfirm = true },
+                                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                    ) {
+                                        Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(stringResource(R.string.empty_trash))
+                                    }
+                                }
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+                        TimelineScreen(
+                            viewModel = viewModel,
+                            modifier = Modifier.weight(1f).fillMaxWidth()
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = Icons.Default.Folder,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                    modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.dual_pane_select_album),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            albumsListContent()
         }
 
         if (activeOptionsBucket != null) {
@@ -1236,6 +1382,7 @@ fun AlbumGridCard(
     bucket: BucketInfo,
     coverUri: Uri?,
     isPinned: Boolean,
+    isSelected: Boolean = false,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     layoutMode: MainViewModel.AlbumLayoutMode
@@ -1244,6 +1391,11 @@ fun AlbumGridCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .then(
+                if (isSelected) {
+                    Modifier.border(2.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+                } else Modifier
+            )
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = {
@@ -1252,7 +1404,10 @@ fun AlbumGridCard(
                 }
             ),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
     ) {
         Column {
             Box(
@@ -1341,6 +1496,7 @@ fun AlbumRowItem(
     count: Int,
     subtitle: String? = null,
     actionLabel: String? = null,
+    isSelected: Boolean = false,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null
 ) {
@@ -1348,6 +1504,14 @@ fun AlbumRowItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .then(
+                if (isSelected) {
+                    Modifier
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                        .border(1.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+                } else Modifier
+            )
             .then(
                 if (onLongClick != null) {
                     Modifier.combinedClickable(
@@ -1361,7 +1525,7 @@ fun AlbumRowItem(
                     Modifier.clickable(onClick = onClick)
                 }
             )
-            .padding(vertical = 10.dp, horizontal = 4.dp),
+            .padding(vertical = 10.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (coverUri != null) {

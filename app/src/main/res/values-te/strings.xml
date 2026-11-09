@@ -318,4 +318,6 @@
     <string name="drop_pin_copied">పెయిరింగ్ పిన్ క్లిప్‌బోర్డ్‌కి కాపీ చేయబడింది</string>
     <string name="drop_copied">కాపీ చేయబడింది</string>
     <string name="drop_pin_instructions">అడిగితే మీ బ్రౌజర్‌లో ఈ పిన్‌ను నమోదు చేయండి</string>
+    <string name="viewer_details_title">వివరాలు మరియు EXIF</string>
+    <string name="dual_pane_select_album">ఫోటోలను వీక్షించడానికి ఆల్బమ్‌ను ఎంచుకోండి</string>
 </resources>
