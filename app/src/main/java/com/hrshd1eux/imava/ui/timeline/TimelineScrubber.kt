@@ -86,24 +86,49 @@ internal fun resolveDateLabel(
     // 1. Direct item peek
     if (index in 0 until totalCount) {
         val directItem = lazyPagingItems.peek(index)
-        if (directItem != null) {
-            return formatTimelineItemDate(directItem, zoneId, formatter, monthCache, undatedLabel)
+        if (directItem is TimelineItem.Media) {
+            val dateMs = if (directItem.item.trashTime > 0L) directItem.item.trashTime else directItem.item.dateTaken
+            if (dateMs > 0L) {
+                val localDate = Instant.ofEpochMilli(dateMs).atZone(zoneId).toLocalDate()
+                val monthKey = localDate.year.toLong() * 100 + localDate.monthValue
+                return monthCache.getOrPut(monthKey) { localDate.format(formatter) }
+            }
+        } else if (directItem is TimelineItem.Header) {
+            val nextItem = if (index + 1 < totalCount) lazyPagingItems.peek(index + 1) else null
+            if (nextItem is TimelineItem.Media) {
+                val dateMs = if (nextItem.item.trashTime > 0L) nextItem.item.trashTime else nextItem.item.dateTaken
+                if (dateMs > 0L) {
+                    val localDate = Instant.ofEpochMilli(dateMs).atZone(zoneId).toLocalDate()
+                    val monthKey = localDate.year.toLong() * 100 + localDate.monthValue
+                    return monthCache.getOrPut(monthKey) { localDate.format(formatter) }
+                }
+            }
         }
 
         // 2. Local window search for loaded neighbors (+/- 15 items)
         for (offset in 1..15) {
-            val prevIdx = index - offset
-            if (prevIdx in 0 until totalCount) {
-                val prevItem = lazyPagingItems.peek(prevIdx)
-                if (prevItem != null) {
-                    return formatTimelineItemDate(prevItem, zoneId, formatter, monthCache, undatedLabel)
-                }
-            }
             val nextIdx = index + offset
             if (nextIdx in 0 until totalCount) {
                 val nextItem = lazyPagingItems.peek(nextIdx)
-                if (nextItem != null) {
-                    return formatTimelineItemDate(nextItem, zoneId, formatter, monthCache, undatedLabel)
+                if (nextItem is TimelineItem.Media) {
+                    val dateMs = if (nextItem.item.trashTime > 0L) nextItem.item.trashTime else nextItem.item.dateTaken
+                    if (dateMs > 0L) {
+                        val localDate = Instant.ofEpochMilli(dateMs).atZone(zoneId).toLocalDate()
+                        val monthKey = localDate.year.toLong() * 100 + localDate.monthValue
+                        return monthCache.getOrPut(monthKey) { localDate.format(formatter) }
+                    }
+                }
+            }
+            val prevIdx = index - offset
+            if (prevIdx in 0 until totalCount) {
+                val prevItem = lazyPagingItems.peek(prevIdx)
+                if (prevItem is TimelineItem.Media) {
+                    val dateMs = if (prevItem.item.trashTime > 0L) prevItem.item.trashTime else prevItem.item.dateTaken
+                    if (dateMs > 0L) {
+                        val localDate = Instant.ofEpochMilli(dateMs).atZone(zoneId).toLocalDate()
+                        val monthKey = localDate.year.toLong() * 100 + localDate.monthValue
+                        return monthCache.getOrPut(monthKey) { localDate.format(formatter) }
+                    }
                 }
             }
         }
@@ -127,28 +152,6 @@ internal fun resolveDateLabel(
     return null
 }
 
-private fun formatTimelineItemDate(
-    item: TimelineItem,
-    zoneId: ZoneId,
-    formatter: DateTimeFormatter,
-    monthCache: HashMap<Long, String>,
-    undatedLabel: String = "Undated"
-): String {
-    return when (item) {
-        is TimelineItem.Header -> item.title
-        is TimelineItem.Media -> {
-            val dateMs = if (item.item.trashTime > 0L) item.item.trashTime else item.item.dateTaken
-            if (dateMs > 0L) {
-                val localDate = Instant.ofEpochMilli(dateMs).atZone(zoneId).toLocalDate()
-                val monthKey = localDate.year.toLong() * 100 + localDate.monthValue
-                monthCache.getOrPut(monthKey) { localDate.format(formatter) }
-            } else {
-                undatedLabel
-            }
-        }
-    }
-}
-
 /**
  * Minimalist top-center floating date badge.
  * Displays accurate date context during scroll without any flickering or inaccurate time-leaps.
@@ -169,11 +172,19 @@ fun TimelineFloatingDateBadge(
     val monthCache = remember { HashMap<Long, String>() }
     val undatedLabel = stringResource(R.string.date_undated)
 
-    val isScrollInProgress = staggeredGridState?.isScrollInProgress == true || gridState?.isScrollInProgress == true
+    val isScrollInProgress = when {
+        staggeredGridState != null -> staggeredGridState.isScrollInProgress
+        gridState != null -> gridState.isScrollInProgress
+        else -> false
+    }
 
-    val currentDateLabel by remember(isScrollInProgress) {
+    val currentDateLabel by remember(staggeredGridState, gridState) {
         derivedStateOf {
-            val firstIndex = staggeredGridState?.firstVisibleItemIndex ?: gridState?.firstVisibleItemIndex ?: 0
+            val firstIndex = when {
+                staggeredGridState != null -> staggeredGridState.firstVisibleItemIndex
+                gridState != null -> gridState.firstVisibleItemIndex
+                else -> 0
+            }
             resolveDateLabel(firstIndex, lazyPagingItems, visibleItems, zoneId, monthYearFormatter, monthCache, undatedLabel)
         }
     }
@@ -234,7 +245,11 @@ fun TimelineFastScroller(
     var lastHapticLabel by remember { mutableStateOf<String?>(null) }
     var userInteractedTimestamp by remember { mutableStateOf(0L) }
 
-    val isScrolling = staggeredGridState?.isScrollInProgress == true || gridState?.isScrollInProgress == true
+    val isScrolling = when {
+        staggeredGridState != null -> staggeredGridState.isScrollInProgress
+        gridState != null -> gridState.isScrollInProgress
+        else -> false
+    }
 
     LaunchedEffect(isScrolling) {
         if (isScrolling) {
@@ -256,12 +271,16 @@ fun TimelineFastScroller(
         }
     }
 
-    val currentScrollProgress by remember(isDragging, dragProgress) {
+    val currentScrollProgress by remember(isDragging, dragProgress, staggeredGridState, gridState) {
         derivedStateOf {
             if (isDragging) {
                 dragProgress
             } else {
-                val firstIdx = staggeredGridState?.firstVisibleItemIndex ?: gridState?.firstVisibleItemIndex ?: 0
+                val firstIdx = when {
+                    staggeredGridState != null -> staggeredGridState.firstVisibleItemIndex
+                    gridState != null -> gridState.firstVisibleItemIndex
+                    else -> 0
+                }
                 (firstIdx.toFloat() / (totalCount - 1).coerceAtLeast(1).toFloat()).coerceIn(0f, 1f)
             }
         }

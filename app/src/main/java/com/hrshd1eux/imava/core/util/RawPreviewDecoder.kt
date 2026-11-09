@@ -53,7 +53,11 @@ class RawPreviewDecoder(
     }
 
     override suspend fun decode(): DecodeResult? = withContext(Dispatchers.IO) {
-        val file = sourceResult.source.fileOrNull()?.toFile()
+        val file = sourceResult.source.fileOrNull()?.toFile() ?: try {
+            sourceResult.source.file().toFile()
+        } catch (_: Exception) {
+            null
+        }
 
         try {
             // 1. Create ExifInterface without buffering the entire RAW file into RAM

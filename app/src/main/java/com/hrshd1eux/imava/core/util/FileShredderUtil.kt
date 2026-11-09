@@ -13,21 +13,25 @@ import java.security.SecureRandom
 import java.util.UUID
 
 /**
- * Cryptographic Secure File Shredder Engine.
+ * Cryptographic Secure File Shredder Engine (DoD 5220.22-M / NIST SP 800-88 Rev. 1 Clear inspired).
  * 
- * Standard OS file deletion (`unlink`) only frees the inode and catalog reference,
- * leaving the physical NAND flash blocks completely untouched where data recovery tools
- * (DiskDigger, Recuva, PhotoRec) can easily reconstruct photos.
+ * Standard OS file deletion (`unlink`) only frees the filesystem inode and catalog reference,
+ * leaving the underlying data clusters completely untouched where commercial data recovery tools
+ * (DiskDigger, Recuva, PhotoRec, testdisk) can easily carve and reconstruct deleted photos and videos.
  * 
- * This engine physically overwrites the target file's exact byte blocks with CSPRNG
+ * This engine physically overwrites the target file's allocated byte blocks with CSPRNG
  * pseudo-random data, zeroes out file format magic headers (JPEG, PNG, MP4, EXIF),
  * forces hardware write cache flushes (`FileDescriptor.sync()`), truncates the file
- * size to 0 bytes, scrambles the filename in the directory entry (dentry), and then deletes it.
+ * size to 0 bytes, scrambles the filename in the directory entry (dentry), and unlinks it.
  * 
- * Note on Flash Storage (UFS / eMMC): Modern solid-state flash controllers use wear-leveling
- * and copy-on-write mapping. While this in-place overwrite guarantees data destruction at the
- * filesystem and OS recovery layer, low-level physical NAND remap residue cannot be completely
- * eradicated from userspace without full hardware-based File-Based Encryption (FBE).
+ * Architectural Notice on Solid-State Flash Media (UFS 2.x/3.x/4.x & eMMC):
+ * Modern solid-state flash controllers employ an internal Flash Translation Layer (FTL) with
+ * dynamic wear-leveling, bad-block retirement, and out-of-place copy-on-write mapping.
+ * While this in-place overwrite completely destroys the data at the filesystem, block-device,
+ * and user-space recovery layer (preventing any on-device or USB-attached file carver from
+ * recovering the media), retired or wear-leveled NAND physical flash cells cannot be directly
+ * addressed from unprivileged Android userspace without hardware-level cryptographic erasure
+ * (e.g. Android's hardware-backed File-Based Encryption / FBE master key revocation).
  */
 object FileShredderUtil {
 

@@ -611,8 +611,8 @@ fun TimelineScreen(
 
                 // Minimalist top-center floating date indicator (zero side-rail clutter)
                 TimelineFloatingDateBadge(
-                    gridState = gridState,
-                    staggeredGridState = staggeredGridState,
+                    gridState = if (viewModel.gridStyle == com.hrshd1eux.imava.ui.GridStyle.SQUARE) gridState else null,
+                    staggeredGridState = if (viewModel.gridStyle == com.hrshd1eux.imava.ui.GridStyle.NATURAL) staggeredGridState else null,
                     lazyPagingItems = lazyPagingItems,
                     visibleItems = visibleItems,
                     modifier = Modifier
@@ -622,8 +622,8 @@ fun TimelineScreen(
 
                 // Interactive edge-anchored FastScroller with tactile date pill & haptics
                 TimelineFastScroller(
-                    gridState = gridState,
-                    staggeredGridState = staggeredGridState,
+                    gridState = if (viewModel.gridStyle == com.hrshd1eux.imava.ui.GridStyle.SQUARE) gridState else null,
+                    staggeredGridState = if (viewModel.gridStyle == com.hrshd1eux.imava.ui.GridStyle.NATURAL) staggeredGridState else null,
                     lazyPagingItems = lazyPagingItems,
                     visibleItems = visibleItems,
                     modifier = Modifier.align(Alignment.CenterEnd)

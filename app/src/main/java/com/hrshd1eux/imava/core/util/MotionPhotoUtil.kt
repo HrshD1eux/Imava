@@ -22,13 +22,17 @@ object MotionPhotoUtil {
 
     suspend fun checkMotionPhoto(context: Context, uri: Uri): MotionPhotoInfo = withContext(Dispatchers.IO) {
         try {
-            // Check EXIF / XMP for GCamera:MicroVideo
+            // Check EXIF / XMP for GCamera:MicroVideo and Samsung MotionPhoto
             context.contentResolver.openInputStream(uri)?.use { stream ->
                 val exif = ExifInterface(stream)
                 val isMicroVideo = exif.getAttribute("GCamera:MicroVideo") == "1" ||
-                        exif.getAttribute("MicroVideo") == "1"
+                        exif.getAttribute("MicroVideo") == "1" ||
+                        exif.getAttribute("MotionPhoto") == "1" ||
+                        exif.getAttribute("Camera:MotionPhoto") == "1"
                 val offsetStr = exif.getAttribute("GCamera:MicroVideoOffset")
                     ?: exif.getAttribute("MicroVideoOffset")
+                    ?: exif.getAttribute("MotionPhoto_Data")
+                    ?: exif.getAttribute("Camera:MotionPhoto_Data")
 
                 if (isMicroVideo && offsetStr != null) {
                     val offset = offsetStr.toLongOrNull() ?: 0L

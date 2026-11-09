@@ -20,6 +20,12 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
+data class RemoteFileInfo(
+    val exists: Boolean,
+    val contentLength: Long = -1L,
+    val etag: String? = null
+)
+
 object WebDavClient {
 
     private fun createClient(trustAllCertificates: Boolean = true): OkHttpClient {
@@ -46,10 +52,14 @@ object WebDavClient {
         return builder.build()
     }
 
-    private fun buildUrl(baseUrl: String, path: String): String {
+    fun buildUrl(baseUrl: String, path: String): String {
         val cleanBase = baseUrl.trimEnd('/')
-        val cleanPath = path.trim().trimStart('/')
-        return if (cleanPath.isEmpty()) cleanBase else "$cleanBase/$cleanPath"
+        val cleanPath = path.trim().trim('/')
+        if (cleanPath.isEmpty()) return cleanBase
+        val encodedSegments = cleanPath.split("/").joinToString("/") { segment ->
+            java.net.URLEncoder.encode(segment, "UTF-8").replace("+", "%20")
+        }
+        return "$cleanBase/$encodedSegments"
     }
 
     suspend fun testConnection(config: WebDavConfig): Result<String> = withContext(Dispatchers.IO) {
@@ -138,19 +148,92 @@ object WebDavClient {
     }
 
     suspend fun checkRemoteFileExists(config: WebDavConfig, relativeFilePath: String): Boolean = withContext(Dispatchers.IO) {
+        getRemoteFileInfo(config, relativeFilePath).exists
+    }
+
+    suspend fun getRemoteFileInfo(config: WebDavConfig, relativeFilePath: String): RemoteFileInfo = withContext(Dispatchers.IO) {
         try {
             val client = createClient()
             val url = buildUrl(config.serverUrl, relativeFilePath)
-            val requestBuilder = Request.Builder().url(url)
+            val requestBuilder = Request.Builder().url(url).head()
             if (config.username.isNotBlank() || config.password.isNotBlank()) {
                 requestBuilder.header("Authorization", Credentials.basic(config.username, config.password))
             }
-            val resp = client.newCall(requestBuilder.head().build()).execute()
-            val exists = resp.isSuccessful
-            resp.close()
-            exists
+            val resp = client.newCall(requestBuilder.build()).execute()
+            resp.use {
+                if (it.isSuccessful) {
+                    val len = it.header("Content-Length")?.toLongOrNull() ?: -1L
+                    val etag = it.header("ETag")?.trim('"', ' ')
+                    RemoteFileInfo(exists = true, contentLength = len, etag = etag)
+                } else {
+                    RemoteFileInfo(exists = false)
+                }
+            }
         } catch (_: Exception) {
-            false
+            RemoteFileInfo(exists = false)
+        }
+    }
+
+    suspend fun moveRemoteFile(
+        config: WebDavConfig,
+        sourceRelativePath: String,
+        destRelativePath: String,
+        overwrite: Boolean = true
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val client = createClient()
+            val sourceUrl = buildUrl(config.serverUrl, sourceRelativePath)
+            val destUrl = buildUrl(config.serverUrl, destRelativePath)
+
+            val requestBuilder = Request.Builder()
+                .url(sourceUrl)
+                .method("MOVE", null)
+                .header("Destination", destUrl)
+                .header("Overwrite", if (overwrite) "T" else "F")
+
+            if (config.username.isNotBlank() || config.password.isNotBlank()) {
+                requestBuilder.header("Authorization", Credentials.basic(config.username, config.password))
+            }
+
+            val response = client.newCall(requestBuilder.build()).execute()
+            response.use { resp ->
+                if (resp.isSuccessful || resp.code in 200..299 || resp.code == 201 || resp.code == 204) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("MOVE failed: HTTP ${resp.code}: ${resp.message}"))
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteRemoteFile(
+        config: WebDavConfig,
+        relativePath: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val client = createClient()
+            val url = buildUrl(config.serverUrl, relativePath)
+
+            val requestBuilder = Request.Builder()
+                .url(url)
+                .delete()
+
+            if (config.username.isNotBlank() || config.password.isNotBlank()) {
+                requestBuilder.header("Authorization", Credentials.basic(config.username, config.password))
+            }
+
+            val response = client.newCall(requestBuilder.build()).execute()
+            response.use { resp ->
+                if (resp.isSuccessful || resp.code in 200..299 || resp.code == 404) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("DELETE failed: HTTP ${resp.code}: ${resp.message}"))
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
@@ -162,16 +245,26 @@ object WebDavClient {
         mimeType: String,
         totalBytes: Long
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        val cleanRemotePath = remoteRelativePath.trim().trimStart('/')
+        val tempRelativePath = "$cleanRemotePath.imava_tmp"
         try {
             val client = createClient()
-            val url = buildUrl(config.serverUrl, remoteRelativePath)
 
-            // Extract directory part to ensure it exists
-            val lastSlash = remoteRelativePath.lastIndexOf('/')
+            // 1. Check if identical file already exists on remote NAS (avoid redundant re-upload)
+            val existingInfo = getRemoteFileInfo(config, cleanRemotePath)
+            if (existingInfo.exists && totalBytes > 0L && existingInfo.contentLength == totalBytes) {
+                return@withContext Result.success(Unit)
+            }
+
+            // 2. Pre-ensure parent directory exists
+            val lastSlash = cleanRemotePath.lastIndexOf('/')
             if (lastSlash > 0) {
-                val dir = remoteRelativePath.substring(0, lastSlash)
+                val dir = cleanRemotePath.substring(0, lastSlash)
                 ensureRemoteDirectory(config, dir)
             }
+
+            // 3. Atomic upload: write to temporary file first (.imava_tmp)
+            val tempUrl = buildUrl(config.serverUrl, tempRelativePath)
 
             val requestBody = object : RequestBody() {
                 override fun contentType() = (mimeType.ifBlank { "application/octet-stream" }).toMediaTypeOrNull()
@@ -190,7 +283,7 @@ object WebDavClient {
             }
 
             val requestBuilder = Request.Builder()
-                .url(url)
+                .url(tempUrl)
                 .put(requestBody)
 
             if (config.username.isNotBlank() || config.password.isNotBlank()) {
@@ -198,11 +291,71 @@ object WebDavClient {
             }
 
             val response = client.newCall(requestBuilder.build()).execute()
+            val uploadSuccess = response.use { resp ->
+                resp.isSuccessful || resp.code in 200..299 || resp.code == 201 || resp.code == 204
+            }
+
+            if (!uploadSuccess) {
+                deleteRemoteFile(config, tempRelativePath)
+                return@withContext Result.failure(Exception("Upload failed to temp destination HTTP ${response.code}: ${response.message}"))
+            }
+
+            // 4. Atomic rename via WebDAV MOVE to finalize
+            val moveResult = moveRemoteFile(config, tempRelativePath, cleanRemotePath, overwrite = true)
+            if (moveResult.isFailure) {
+                // If MOVE method is not supported (HTTP 405), fallback to direct PUT
+                val err = moveResult.exceptionOrNull()
+                if (err?.message?.contains("405") == true) {
+                    deleteRemoteFile(config, tempRelativePath)
+                    return@withContext directUpload(config, context, uri, cleanRemotePath, mimeType, totalBytes)
+                }
+                deleteRemoteFile(config, tempRelativePath)
+                return@withContext moveResult
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            try {
+                deleteRemoteFile(config, tempRelativePath)
+            } catch (_: Exception) {}
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun directUpload(
+        config: WebDavConfig,
+        context: Context,
+        uri: Uri,
+        remoteRelativePath: String,
+        mimeType: String,
+        totalBytes: Long
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val client = createClient()
+            val url = buildUrl(config.serverUrl, remoteRelativePath)
+            val requestBody = object : RequestBody() {
+                override fun contentType() = (mimeType.ifBlank { "application/octet-stream" }).toMediaTypeOrNull()
+                override fun contentLength(): Long = totalBytes
+                override fun writeTo(sink: BufferedSink) {
+                    val stream: InputStream = context.contentResolver.openInputStream(uri)
+                        ?: throw IllegalStateException("Cannot open input stream for $uri")
+                    stream.use { input ->
+                        input.source().use { source ->
+                            sink.writeAll(source)
+                        }
+                    }
+                }
+            }
+            val requestBuilder = Request.Builder().url(url).put(requestBody)
+            if (config.username.isNotBlank() || config.password.isNotBlank()) {
+                requestBuilder.header("Authorization", Credentials.basic(config.username, config.password))
+            }
+            val response = client.newCall(requestBuilder.build()).execute()
             response.use { resp ->
                 if (resp.isSuccessful || resp.code in 200..299 || resp.code == 201 || resp.code == 204) {
                     Result.success(Unit)
                 } else {
-                    Result.failure(Exception("HTTP ${resp.code}: ${resp.message}"))
+                    Result.failure(Exception("Direct upload failed: HTTP ${resp.code}: ${resp.message}"))
                 }
             }
         } catch (e: Exception) {

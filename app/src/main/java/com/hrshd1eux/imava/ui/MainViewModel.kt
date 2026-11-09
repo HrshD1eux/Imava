@@ -3506,7 +3506,8 @@ class MainViewModel @Inject constructor(
             MediaFilterType.GIFS -> item.mimeType.contains("gif", ignoreCase = true) || item.path.endsWith(".gif", ignoreCase = true)
             MediaFilterType.RAW -> {
                 val p = item.path.lowercase()
-                p.endsWith(".dng") || p.endsWith(".cr2") || p.endsWith(".nef") || p.endsWith(".arw") || p.endsWith(".orf") || p.endsWith(".rw2")
+                com.hrshd1eux.imava.core.util.RawPreviewDecoder.RAW_EXTENSIONS.any { p.endsWith(".$it") } ||
+                        com.hrshd1eux.imava.core.util.RawPreviewDecoder.RAW_MIME_PREFIXES.any { item.mimeType.startsWith(it, ignoreCase = true) }
             }
         }
     }

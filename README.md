@@ -95,35 +95,57 @@ Imava is built specifically for users who refuse cloud telemetry, mandatory acco
 - **Album-Wide In-Place Scrubbing**: Sanitize entire albums with a single tap while intelligently preserving `DateTimeOriginal` and orientation tags so gallery chronology and photo rotation remain intact.
 - **Background Auto-Scrub Daemon**: Automatically sanitize newly captured photos in designated folders (e.g. Camera, Downloads) with a camera write-lock debounce.
 
-### 5. Private WebDAV / Home NAS Zero-Cloud Auto-Sync
+### 5. Private WebDAV / Home NAS Zero-Cloud Auto-Sync (Atomic Staging)
 - **100% Self-Hosted & Local**: Automatically back up your library to home NAS appliances (Synology, Nextcloud, TrueNAS, QNAP, ownCloud) or custom WebDAV endpoints over your local network.
+- **Atomic Two-Phase Upload Engine**: Staged upload to `.imava_tmp` followed by atomic RFC 4918 `MOVE` destination rename. Network drops or power loss will never leave half-written, corrupted files on your NAS.
+- **Redundant Upload Suppression**: Performs remote `HEAD` probes and `Content-Length` checks prior to transfer, skipping already backed-up files and saving mobile bandwidth and battery.
 - **Zero Third-Party Cloud**: No external servers, no subscriptions, and zero telemetry. Media never touches commercial cloud providers.
 - **Automated WorkManager Scheduling**: Incremental sync ledger backed by SQLite ensures only new/modified photos are uploaded, with strict **Wi-Fi Only** and **Device Charging** constraints.
 
-### 6. On-Device FOSS OCR & Text Search (Tesseract 5 C++)
+### 6. Tablet & Foldable Responsive Dual-Pane Architecture
+- **Adaptive Layout Engine**: Automatically transforms from single-column phone ergonomics to an edge-to-edge Navigation Rail and dual-pane layout on wide screens (tablets, unfolded foldables, and landscape devices).
+- **Master-Detail Album Tree**: Browse the album list and hierarchical directory tree on the left while simultaneously viewing the live media grid on the right—eliminating jarring screen transitions.
+- **Smooth State Persistence**: Seamlessly preserves scroll positions, active selections, and grid scaling when unfolding foldables or rotating tablets.
+
+### 7. Zero-ML Blurry Photo Detector (Storage Doctor)
+- **Pure Discrete Mathematics**: Analyzes images using a 3x3 discrete Laplacian edge operator ($\sigma^2$ variance) on sub-sampled luminance planes.
+- **Zero Neural Network Bloat**: Operates at lightning speed with zero external ML/AI libraries, no 25MB+ weights bloat, and virtually zero battery drain compared to heavy vision models.
+- **Actionable Cleanup**: Intelligently groups motion-blurred shots and accidental out-of-focus captures with customizable sensitivity thresholds for 1-tap review and batch deletion.
+
+### 8. Smart Albums 2.0 (Deterministic Rule Engine)
+- **Zero-AI High Precision**: Replaces slow, inaccurate AI photo tagging with deterministic, lightning-fast SQLite rule queries.
+- **Instant Specialized Collections**: 1-tap access to **Huge Videos (>500MB)**, **Burst Sequences**, **Captured This Year**, **Screenshots**, and **Tagged Media**.
+- **Real-Time Dynamic Chips**: Badged chips provide instant feedback on count and storage footprints without background indexing lag.
+
+### 9. On-Device FOSS OCR & Text Search (Tesseract 5 C++)
 - **Google-Free OCR Engine**: Powered by open-source Tesseract 5 C++ via Tesseract4Android (Apache 2.0). Zero dependencies on Google Play Services, Firebase, or proprietary ML blobs.
 - **On-Demand Engine Loading**: The fast English recognition model (`eng.traineddata`) is loaded on-demand only when used—keeping the base APK ultra-lean.
 - **Searchable Gallery Indexing**: Extracted text from receipts, documents, street signs, and serial numbers is indexed into your local SQLite Room database, making physical text searchable directly from the gallery search bar.
 - **Actionable Smart Chips**: 1-tap detection and interaction for phone numbers (call/copy), URLs (browser/copy), and email addresses.
 
-### 7. Instant Deep Media & Hidden Vault Carve (<100ms)
+### 10. Instant Deep Media & Hidden Vault Carve (<100ms)
 - **Direct SQLite Filesystem Carving**: Direct multi-pattern `MediaStore.Files` database query with `QUERY_ARG_MATCH_NOMEDIA` unearths hidden photos in under 100ms without filesystem crawl lag.
 - **App & Cloned Space Registry**: Instantly discovers sent folders, dual/cloned app spaces, and hidden media lurking inside `.nomedia`, `.hidden`, `.secret`, `.vault`, `.calculator`, and `.thumbnails` directories.
 
-### 8. Motion Photo Studio & Octree GIF Studio
-- **Micro-Video Frame Scrubber**: Play embedded motion photo video clips with interactive precision frame scrubbers.
+### 11. Motion Photo Studio, Samsung Galaxy Support & HDR Video
+- **Universal Motion Photo Engine**: Decodes both Google Camera `MicroVideo` and Samsung Galaxy `MotionPhoto_Data` embedded video streams with interactive precision frame scrubbers.
+- **Hardware HDR Video Playback**: Automatically requests 10-bit wide-color gamut rendering (`ActivityInfo.COLOR_MODE_HDR`) on HDR-capable OLED and mini-LED displays, preventing tone-mapping clipping.
 - **Best-Shot Extraction**: Extract full-sensor, uncompressed still images from motion photos at full resolution.
 - **Pure-Kotlin GIF89a Export**: Export motion photos to looping GIFs using a built-in, zero-dependency Octree color quantizer.
 
-### 9. Interactive Geo Map & Spatial Descriptions
+### 12. Camera RAW Pipeline & High-Performance Preview Decoder
+- **Zero-RAM EXIF Thumbnail Extraction**: Instantaneous preview decoding for professional camera RAW containers without loading multi-megabyte uncompressed sensor arrays into RAM.
+- **Broad Format Coverage**: Full support for Sony (`.arw`, `.srf`, `.sr2`), Canon (`.cr2`, `.cr3`), Nikon (`.nef`, `.nrw`), Fujifilm (`.raf`), Olympus (`.orf`), Panasonic (`.rw2`), Pentax (`.pef`), Samsung (`.srw`), and Adobe DNG (`.dng`).
+
+### 13. Interactive Geo Map & Spatial Descriptions
 - **Zero-Binary Map Explorer**: Lightweight Leaflet + OpenStreetMap engine (<150 KB, 0 native `.so` binaries) with dynamic cluster markers for all geotagged photos.
 - **Free-Form Spatial Search**: Add descriptive place tags (e.g., *"delhi rohtak madina village printing press"*) without needing numeric coordinates, with instant gallery search indexing.
 
-### 10. Native 11+ Multi-Language Engine & Android 13+ Per-App Locale
-- **Complete Native Translations**: 100% offline translations across 11 languages: **Spanish, Portuguese (Brazil), German, Russian, French, Hindi, Bengali, Marathi, Telugu, Tamil, and Gujarati**.
+### 14. Native 13 Multi-Language Engine & Android 13+ Per-App Locale
+- **Complete Native Translations**: 100% offline translations across 13 locales: **English, Spanish, Portuguese (Portugal), Portuguese (Brazil), German, Russian, French, Hindi, Bengali, Marathi, Telugu, Tamil, and Gujarati**.
 - **Android 13+ Per-App Locale Architecture**: Fully integrated with Android's system-level `LocaleManager` (`android:localeConfig`) as well as an in-app selector with native script typography.
 
-### 11. Privacy Shield & Biometric App Lock
+### 15. Privacy Shield & Biometric App Lock
 - **Recent Apps Masking**: Applies `FLAG_SECURE` to prevent Android's recent task switcher from snapshotting personal photos or vault contents.
 - **Biometric App Guard**: Secure entire gallery launch behind fingerprint, face unlock, or PIN with rate-limited lockout protection.
 

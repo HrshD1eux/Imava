@@ -224,11 +224,30 @@ fun VideoPlayerContainer(
         player.addListener(listener)
         exoPlayer = player
 
+        val win = context.findActivity()?.window
+        val prevColorMode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && win != null) {
+            val original = win.colorMode
+            try {
+                val isHdrSupported = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+                    win.windowManager.defaultDisplay.isHdr
+                } else false
+                if (isHdrSupported) {
+                    win.colorMode = android.content.pm.ActivityInfo.COLOR_MODE_HDR
+                }
+            } catch (_: Exception) {}
+            original
+        } else {
+            0
+        }
+
         onDispose {
             context.findActivity()?.window?.let { window ->
                 val lp = window.attributes
                 lp.screenBrightness = if (boostBrightness) 1.0f else android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                 window.attributes = lp
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    window.colorMode = prevColorMode
+                }
             }
             player.removeListener(listener)
             player.release()

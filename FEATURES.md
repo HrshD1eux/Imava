@@ -165,7 +165,10 @@
 
 | Feature | Technical Implementation | Practical Capability |
 | :--- | :--- | :--- |
-| **WebDAV / Local NAS Auto-Backup** | `WebDavSyncManager.kt`, `WebDavClient.kt` | Private synchronization with Synology NAS, TrueNAS, Nextcloud, QNAP, or personal WebDAV instances over local Wi-Fi. Includes periodic background WorkManager backups. |
+| **Atomic WebDAV / Local NAS Sync** | `WebDavSyncManager.kt`, `WebDavClient.kt` | Private synchronization with Synology NAS, TrueNAS, Nextcloud, QNAP, or personal WebDAV instances over local Wi-Fi. Features atomic `.imava_tmp` staging with RFC 4918 `MOVE` destination rename, pre-upload `Content-Length` duplicate suppression, and periodic background WorkManager backups. |
+| **Tablet & Foldable Dual-Pane Engine** | `AlbumsScreen.kt`, `NavigationRail` | Master-detail dual-pane architecture for tablets, foldables, and landscape mode. Keeps hierarchical album directory list on the left and live media grid on the right. |
+| **Camera RAW Processing Pipeline** | `RawPreviewDecoder.kt`, `MainViewModel.kt` | Zero-RAM embedded preview decoder for pro RAW files (.arw, .cr2, .cr3, .nef, .nrw, .raf, .orf, .rw2, .pef, .srw, .dng) with full DNG decoding. |
+| **Hardware-Accelerated HDR Video** | `VideoPlayer.kt` | Dynamic 10-bit wide-color gamut mode switching (`ActivityInfo.COLOR_MODE_HDR`) for HDR videos on supported displays, avoiding tonemapping clipping. |
 | **Direct GitHub Release Updater** | `AppUpdateManager.kt`, `AppUpdateCheckWorker.kt` | Checks the official GitHub repository releases API for version updates and allows direct APK downloads without relying on the Google Play Store. |
 | **Permissions Transparency & Licenses** | `PermissionsTransparencyScreen.kt`, `OpenSourceLicensesScreen.kt` | Explicit breakdown of every Android permission requested, why it is needed, and full open-source license attribution. |
 
