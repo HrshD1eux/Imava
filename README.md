@@ -64,6 +64,18 @@
         <b>Language Localization</b><br><br>
         <img src="screenshots/09_languages.png" width="100%" alt="Language Localization" />
       </td>
+      <td align="center" width="25%">
+        <b>Imava Drop (Wi-Fi P2P)</b><br><br>
+        <img src="screenshots/10_imava_drop.png" width="100%" alt="Imava Drop (Wi-Fi P2P)" />
+      </td>
+      <td align="center" width="25%">
+        <b>Imava Drop Web Portal</b><br><br>
+        <img src="screenshots/11_drop_web.png" width="100%" alt="Imava Drop Web Portal" />
+      </td>
+      <td align="center" width="25%">
+        <b>Tablets & Foldables UI</b><br><br>
+        <img src="screenshots/12_tablet_view.png" width="100%" alt="Tablets & Foldables UI" />
+      </td>
     </tr>
   </table>
 </div>
@@ -75,7 +87,7 @@
 
 Imava is built specifically for users who refuse cloud telemetry, mandatory accounts, and corporate tracking. Below are the advanced features that set Imava apart from standard Android galleries:
 
-### 1. Direct Wi-Fi P2P Drop ("AirDrop for Android Without Cloud")
+### 1. Direct Wi-Fi P2P Drop (Imava Drop - Zero Cloud)
 - **Instant 50–100+ MB/s Transfers**: Stream full, lossless original photos and 4K videos directly between your Android phone and any PC, Mac, iPhone, Linux, or secondary Android device over local Wi-Fi.
 - **Zero Client Software Needed**: Receivers don't install an app or create an account. They simply scan an on-device QR code or open `http://192.168.x.x:8765` in any standard web browser (Chrome, Safari, Firefox, Edge).
 - **On-the-Fly Dynamic ZIP Generator**: Download hundreds of selected photos as a single uncompressed ZIP stream with zero intermediate disk space used on your phone.

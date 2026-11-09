@@ -51,6 +51,12 @@ PRIORITY_ORDER = {
     'video_player': 10,
     'doctor': 11,
     'storage_doctor': 11,
+    'imava_drop': 12,
+    'drop': 12,
+    'drop_web': 13,
+    'web': 13,
+    'tablet': 14,
+    'tablet_view': 14,
 }
 
 ACRONYMS = {'ocr': 'OCR', 'gps': 'GPS', 'exif': 'EXIF', 'ai': 'AI', 'ui': 'UI', 'apk': 'APK', 'gif': 'GIF', 'mp4': 'MP4'}
@@ -73,6 +79,12 @@ TITLE_ALIASES = {
     'album_privacy': 'Album Privacy & Security',
     '09_languages': 'Language Localization',
     'languages': 'Language Localization',
+    '10_imava_drop': 'Imava Drop (Wi-Fi P2P)',
+    'imava_drop': 'Imava Drop (Wi-Fi P2P)',
+    '11_drop_web': 'Imava Drop Web Portal',
+    'drop_web': 'Imava Drop Web Portal',
+    '12_tablet_view': 'Tablets & Foldables UI',
+    'tablet_view': 'Tablets & Foldables UI',
     'setting': 'Settings',
     'settings': 'Settings',
 }
@@ -108,8 +120,14 @@ def format_title(filename: str) -> str:
 
 def get_sort_key(file_path: Path):
     stem = file_path.stem.lower()
+    m = re.match(r'^(\d+)[-_]', stem)
+    if m:
+        return (int(m.group(1)), stem)
+    cleaned = re.sub(r'^\d+[-_]', '', stem)
     for key, priority in PRIORITY_ORDER.items():
         if stem == key or stem.startswith(key + '_') or stem.startswith(key + '-'):
+            return (priority, stem)
+        if cleaned == key or cleaned.startswith(key + '_') or cleaned.startswith(key + '-'):
             return (priority, stem)
     return (100, stem)
 

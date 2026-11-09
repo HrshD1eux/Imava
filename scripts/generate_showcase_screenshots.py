@@ -110,12 +110,44 @@ SCREENSHOT_SPECS = [
         "accent_text": (17, 94, 89),       # Teal 800
         "pill_bg": (240, 253, 250),        # Teal 50
         "pill_border": (153, 246, 228)     # Teal 200
+    },
+    {
+        "filename": "10_imava_drop.png",
+        "badge": "DIRECT WI-FI P2P • ZERO CLOUD",
+        "title": "Instant Offline File Transfer.",
+        "subtitle": "Transfer uncompressed original media at 50–100 MB/s without Internet.",
+        "glow_color": (79, 70, 229),      # Indigo
+        "accent_text": (55, 48, 163),      # Indigo 800
+        "pill_bg": (238, 242, 255),        # Indigo 50
+        "pill_border": (165, 180, 252)     # Indigo 300
+    },
+    {
+        "filename": "11_drop_web.png",
+        "badge": "CROSS-PLATFORM WEB CLIENT",
+        "title": "Connect From Any Browser.",
+        "subtitle": "Download ZIP archives or upload photos straight from PC, Mac & iOS.",
+        "glow_color": (14, 165, 233),      # Sky
+        "accent_text": (3, 105, 161),      # Sky 800
+        "pill_bg": (240, 249, 255),        # Sky 50
+        "pill_border": (186, 230, 253)     # Sky 300
+    },
+    {
+        "filename": "12_tablet_view.png",
+        "badge": "TABLETS & FOLDABLES • RESPONSIVE",
+        "title": "Expansive Dual-Pane Workspace.",
+        "subtitle": "Adaptive navigation rail and multi-column grid for large displays.",
+        "glow_color": (147, 51, 234),     # Purple
+        "accent_text": (107, 33, 168),     # Purple 800
+        "pill_bg": (250, 245, 255),        # Purple 50
+        "pill_border": (233, 213, 255),    # Purple 300
+        "is_tablet": True
     }
 ]
 
 def render_showcase(spec: dict, raw_path: Path, output_path: Path):
     canvas_w = CANVAS_WIDTH
     canvas_h = CANVAS_HEIGHT
+    is_tablet = spec.get("is_tablet", False)
 
     # Light Theme Canvas Background: Clean Slate 50 to Slate 100/200
     canvas = Image.new("RGBA", (canvas_w, canvas_h), (248, 250, 252, 255))
@@ -133,12 +165,38 @@ def render_showcase(spec: dict, raw_path: Path, output_path: Path):
     pill_bg = spec["pill_bg"]
     pill_border = spec["pill_border"]
 
+    screen_raw = Image.open(raw_path).convert("RGBA")
+
+    if is_tablet:
+        screen_w = 1060
+        screen_h = int(screen_w * (screen_raw.height / screen_raw.width))
+        bezel = 22
+        frame_w = screen_w + (bezel * 2)
+        frame_h = screen_h + (bezel * 2)
+        screen_radius = 32
+        frame_radius = screen_radius + bezel
+        phone_x = (canvas_w - frame_w) // 2
+        phone_y = 720
+        glow_center_x = canvas_w // 2
+        glow_center_y = phone_y + frame_h // 2
+        glow_radius = 700
+    else:
+        screen_w = 900
+        screen_h = int(screen_w * (screen_raw.height / screen_raw.width))
+        bezel = 16
+        frame_w = screen_w + (bezel * 2)
+        frame_h = screen_h + (bezel * 2)
+        screen_radius = 50
+        frame_radius = screen_radius + bezel
+        phone_x = (canvas_w - frame_w) // 2
+        phone_y = 410
+        glow_center_x = canvas_w // 2
+        glow_center_y = 800
+        glow_radius = 620
+
     # Soft ambient pastel glow aura behind the device
     glow_img = Image.new("RGBA", (canvas_w, canvas_h), (0, 0, 0, 0))
     glow_draw = ImageDraw.Draw(glow_img)
-    glow_center_x = canvas_w // 2
-    glow_center_y = 800
-    glow_radius = 620
 
     for r in range(glow_radius, 0, -14):
         alpha = int(48 * (1 - r / glow_radius) ** 1.8)
@@ -170,7 +228,7 @@ def render_showcase(spec: dict, raw_path: Path, output_path: Path):
     pill_w = pill_text_w + 68
     pill_h = 58
     pill_x = (canvas_w - pill_w) // 2
-    pill_y = 90
+    pill_y = 130 if is_tablet else 90
 
     # Draw rounded pill capsule
     draw.rounded_rectangle(
@@ -201,7 +259,7 @@ def render_showcase(spec: dict, raw_path: Path, output_path: Path):
     title_bbox = font_title.getbbox(title_text)
     title_w = title_bbox[2] - title_bbox[0]
     title_x = (canvas_w - title_w) // 2
-    title_y = 175
+    title_y = 235 if is_tablet else 175
     draw.text((title_x, title_y), title_text, font=font_title, fill=(15, 23, 42, 255))
 
     # 3. Subtitle (Bolder, 34px, Slate 600 #475569)
@@ -209,33 +267,20 @@ def render_showcase(spec: dict, raw_path: Path, output_path: Path):
     sub_bbox = font_sub.getbbox(sub_text)
     sub_w = sub_bbox[2] - sub_bbox[0]
     sub_x = (canvas_w - sub_w) // 2
-    sub_y = 270
+    sub_y = 340 if is_tablet else 270
     draw.text((sub_x, sub_y), sub_text, font=font_sub, fill=(71, 85, 105, 255))
 
     # 4. Device Mockup Chassis
-    screen_raw = Image.open(raw_path).convert("RGBA")
-
-    screen_w = 900
-    screen_h = int(screen_w * (screen_raw.height / screen_raw.width))
     screen_resized = screen_raw.resize((screen_w, screen_h), Image.Resampling.LANCZOS)
-
-    # Screen corner radius
-    screen_radius = 50
     mask = Image.new("L", (screen_w, screen_h), 0)
     mask_draw = ImageDraw.Draw(mask)
     mask_draw.rounded_rectangle([0, 0, screen_w, screen_h], radius=screen_radius, fill=255)
 
-    # Frame specs
-    bezel = 16
-    frame_w = screen_w + (bezel * 2)
-    frame_h = screen_h + (bezel * 2)
-    frame_radius = screen_radius + bezel
-
-    phone_img = Image.new("RGBA", (frame_w, frame_h), (0, 0, 0, 0))
-    phone_draw = ImageDraw.Draw(phone_img)
+    device_img = Image.new("RGBA", (frame_w, frame_h), (0, 0, 0, 0))
+    device_draw = ImageDraw.Draw(device_img)
 
     # Outer metallic chassis (Titanium Dark Slate finish)
-    phone_draw.rounded_rectangle(
+    device_draw.rounded_rectangle(
         [0, 0, frame_w, frame_h],
         radius=frame_radius,
         fill=(24, 30, 44, 255),
@@ -243,7 +288,7 @@ def render_showcase(spec: dict, raw_path: Path, output_path: Path):
         width=3
     )
     # Inner bezel trim
-    phone_draw.rounded_rectangle(
+    device_draw.rounded_rectangle(
         [3, 3, frame_w - 3, frame_h - 3],
         radius=frame_radius - 2,
         fill=None,
@@ -252,28 +297,29 @@ def render_showcase(spec: dict, raw_path: Path, output_path: Path):
     )
 
     # Paste screen inside frame
-    phone_img.paste(screen_resized, (bezel, bezel), mask)
+    device_img.paste(screen_resized, (bezel, bezel), mask)
 
-    # Camera punch hole
-    cam_d = 26
-    cam_x = frame_w // 2 - cam_d // 2
-    cam_y = bezel + 22
-    phone_draw.ellipse([cam_x, cam_y, cam_x + cam_d, cam_y + cam_d], fill=(8, 10, 15, 255))
-    phone_draw.ellipse([cam_x + 5, cam_y + 5, cam_x + cam_d - 5, cam_y + cam_d - 5], fill=(22, 27, 46, 255))
-    phone_draw.ellipse([cam_x + 9, cam_y + 9, cam_x + 13, cam_y + 13], fill=(130, 180, 255, 140))
+    if not is_tablet:
+        # Camera punch hole
+        cam_d = 26
+        cam_x = frame_w // 2 - cam_d // 2
+        cam_y = bezel + 22
+        device_draw.ellipse([cam_x, cam_y, cam_x + cam_d, cam_y + cam_d], fill=(8, 10, 15, 255))
+        device_draw.ellipse([cam_x + 5, cam_y + 5, cam_x + cam_d - 5, cam_y + cam_d - 5], fill=(22, 27, 46, 255))
+        device_draw.ellipse([cam_x + 9, cam_y + 9, cam_x + 13, cam_y + 13], fill=(130, 180, 255, 140))
 
-    # Subtle screen glass glare reflection in upper right
-    glare_img = Image.new("RGBA", (screen_w, screen_h), (0, 0, 0, 0))
-    glare_draw = ImageDraw.Draw(glare_img)
-    glare_draw.polygon([
-        (screen_w // 2, 0),
-        (screen_w, 0),
-        (screen_w, int(screen_h * 0.35)),
-        (int(screen_w * 0.3), 0)
-    ], fill=(255, 255, 255, 14))
-    glare_masked = Image.new("RGBA", (screen_w, screen_h), (0, 0, 0, 0))
-    glare_masked.paste(glare_img, (0, 0), mask)
-    phone_img.alpha_composite(glare_masked, (bezel, bezel))
+        # Subtle screen glass glare reflection in upper right
+        glare_img = Image.new("RGBA", (screen_w, screen_h), (0, 0, 0, 0))
+        glare_draw = ImageDraw.Draw(glare_img)
+        glare_draw.polygon([
+            (screen_w // 2, 0),
+            (screen_w, 0),
+            (screen_w, int(screen_h * 0.35)),
+            (int(screen_w * 0.3), 0)
+        ], fill=(255, 255, 255, 14))
+        glare_masked = Image.new("RGBA", (screen_w, screen_h), (0, 0, 0, 0))
+        glare_masked.paste(glare_img, (0, 0), mask)
+        device_img.alpha_composite(glare_masked, (bezel, bezel))
 
     # Multi-tier drop shadow calibrated for light canvas
     shadow_pad = 120
@@ -296,11 +342,10 @@ def render_showcase(spec: dict, raw_path: Path, output_path: Path):
 
     # Position phone on canvas (rising gracefully from bottom)
     phone_x = (canvas_w - frame_w) // 2
-    phone_y = 410
 
     # Composite shadow then phone
     canvas.alpha_composite(shadow_blurred, (phone_x - shadow_pad, phone_y - shadow_pad))
-    canvas.alpha_composite(phone_img, (phone_x, phone_y))
+    canvas.alpha_composite(device_img, (phone_x, phone_y))
 
     # Save high-quality RGB PNG
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -325,7 +370,7 @@ def main():
         out_file = dest_dir / spec["filename"]
         render_showcase(spec, raw_file, out_file)
 
-    print("[SUCCESS] All 8 light-theme showcase screenshots generated successfully!")
+    print(f"[SUCCESS] All {len(SCREENSHOT_SPECS)} light-theme showcase screenshots generated successfully!")
 
 if __name__ == "__main__":
     main()
