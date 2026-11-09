@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">Introduza este PIN no seu navegador se solicitado</string>
     <string name="viewer_details_title">Detalhes e EXIF</string>
     <string name="dual_pane_select_album">Selecione um álbum para ver fotos</string>
+    <string name="smart_albums_title">Álbuns inteligentes ⚡</string>
+    <string name="smart_album_huge_videos">Vídeos grandes (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">Sequências de disparos contínuos</string>
+    <string name="smart_album_this_year">Capturado este ano</string>
+    <string name="smart_album_screenshots">Capturas de ecrã</string>
+    <string name="smart_album_tagged">Multimédia com etiquetas</string>
+    <string name="doctor_tab_blurry">Fotos desfocadas</string>
+    <string name="doctor_blurry_photos">Fotos desfocadas (%1$d)</string>
+    <string name="doctor_no_blurry_photos">Nenhuma foto desfocada detetada! As suas fotos estão nítidas.</string>
+    <string name="doctor_scan_blurry">Procurar fotos desfocadas</string>
+    <string name="doctor_scanning_blurry">A analisar nitidez das fotos... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">Identifica fotos desfocadas ou tremidas usando análise de variância de bordas no dispositivo.</string>
+    <string name="doctor_scan_now">Verificar agora</string>
+    <string name="doctor_rescan">Verificar novamente</string>
 </resources>

@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">Introduce este PIN en tu navegador si te lo solicita</string>
     <string name="viewer_details_title">Detalles y EXIF</string>
     <string name="dual_pane_select_album">Selecciona un álbum para explorar fotos</string>
+    <string name="smart_albums_title">Álbumes inteligentes ⚡</string>
+    <string name="smart_album_huge_videos">Videos grandes (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">Secuencias en ráfaga</string>
+    <string name="smart_album_this_year">Capturado este año</string>
+    <string name="smart_album_screenshots">Capturas de pantalla</string>
+    <string name="smart_album_tagged">Archivos con etiquetas</string>
+    <string name="doctor_tab_blurry">Fotos borrosas</string>
+    <string name="doctor_blurry_photos">Fotos borrosas (%1$d)</string>
+    <string name="doctor_no_blurry_photos">¡No se detectaron fotos borrosas! Tus fotos se ven nítidas.</string>
+    <string name="doctor_scan_blurry">Buscar fotos borrosas</string>
+    <string name="doctor_scanning_blurry">Analizando nitidez de fotos... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">Identifica fotos fuera de foco o movidas mediante análisis de varianza de bordes en el dispositivo.</string>
+    <string name="doctor_scan_now">Escanear ahora</string>
+    <string name="doctor_rescan">Volver a escanear</string>
 </resources>

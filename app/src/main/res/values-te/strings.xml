@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">అడిగితే మీ బ్రౌజర్‌లో ఈ పిన్‌ను నమోదు చేయండి</string>
     <string name="viewer_details_title">వివరాలు మరియు EXIF</string>
     <string name="dual_pane_select_album">ఫోటోలను వీక్షించడానికి ఆల్బమ్‌ను ఎంచుకోండి</string>
+    <string name="smart_albums_title">స్మార్ట్ ఆల్బమ్‌లు ⚡</string>
+    <string name="smart_album_huge_videos">భారీ వీడియోలు (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">బర్స్ట్ సీక్వెన్సులు</string>
+    <string name="smart_album_this_year">ఈ సంవత్సరం తీసినవి</string>
+    <string name="smart_album_screenshots">స్క్రీన్‌షాట్లు</string>
+    <string name="smart_album_tagged">ట్యాగ్ చేయబడిన మీడియా</string>
+    <string name="doctor_tab_blurry">మసక ఫోటోలు</string>
+    <string name="doctor_blurry_photos">మసక ఫోటోలు (%1$d)</string>
+    <string name="doctor_no_blurry_photos">మసక ఫోటోలు కనుగొనబడలేదు! మీ ఫోటోలు స్పష్టంగా ఉన్నాయి.</string>
+    <string name="doctor_scan_blurry">మసక ఫోటోల కోసం స్కాన్ చేయండి</string>
+    <string name="doctor_scanning_blurry">ఫోటో స్పష్టత విశ్లేషిస్తోంది... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">ఆన్-డివైస్ ఎడ్జ్ వేరియన్స్ విశ్లేషణను ఉపయోగించి మసకబారిన ఫోటోలను గుర్తిస్తుంది.</string>
+    <string name="doctor_scan_now">ఇప్పుడే స్కాన్ చేయండి</string>
+    <string name="doctor_rescan">మళ్ళీ స్కాన్ చేయండి</string>
 </resources>

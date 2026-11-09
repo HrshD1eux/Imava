@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">विचारल्यास आपल्या ब्राउझरमध्ये हा पिन प्रविष्ट करा</string>
     <string name="viewer_details_title">तपशील आणि EXIF</string>
     <string name="dual_pane_select_album">फोटो पाहण्यासाठी एक अल्बम निवडा</string>
+    <string name="smart_albums_title">स्मार्ट अल्बम ⚡</string>
+    <string name="smart_album_huge_videos">मोठे व्हिडिओ (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">बर्स्ट क्रम</string>
+    <string name="smart_album_this_year">या वर्षी काढलेले</string>
+    <string name="smart_album_screenshots">स्क्रीनशॉट</string>
+    <string name="smart_album_tagged">टॅग केलेले मीडिया</string>
+    <string name="doctor_tab_blurry">अस्पष्ट फोटो</string>
+    <string name="doctor_blurry_photos">अस्पष्ट फोटो (%1$d)</string>
+    <string name="doctor_no_blurry_photos">कोणतेही अस्पष्ट फोटो आढळले नाहीत! तुमचे फोटो स्पष्ट आहेत.</string>
+    <string name="doctor_scan_blurry">अस्पष्ट फोटोंसाठी स्कॅन करा</string>
+    <string name="doctor_scanning_blurry">फोटो स्पष्टता तपासत आहे... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">ऑन-डिव्हाइस एज व्हेरिएंस विश्लेषणाचा वापर करून अस्पष्ट किंवा हललेले फोटो ओळखतो.</string>
+    <string name="doctor_scan_now">आता स्कॅन करा</string>
+    <string name="doctor_rescan">पुन्हा स्कॅन करा</string>
 </resources>

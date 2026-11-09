@@ -957,6 +957,72 @@ class MainViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
+    data class SmartAlbumCounts(
+        val hugeVideos: Int = 0,
+        val burstShots: Int = 0,
+        val thisYear: Int = 0,
+        val screenshots: Int = 0,
+        val tagged: Int = 0
+    )
+
+    val smartAlbumCounts: StateFlow<SmartAlbumCounts> = combine(
+        mediaItems,
+        _excludedBucketIds,
+        com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion
+    ) { list, excluded, _ ->
+        val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+        val cal = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.YEAR, currentYear)
+            set(java.util.Calendar.DAY_OF_YEAR, 1)
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+        val startOfYearMs = cal.timeInMillis
+
+        val accessibleItems = list.filter {
+            !it.isTrashed && !it.isHidden &&
+            !excluded.contains(it.bucketId.toString()) &&
+            !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
+        }
+
+        var hugeVideos = 0
+        var thisYear = 0
+        var screenshots = 0
+        var tagged = 0
+        val photos = mutableListOf<MediaItem.Photo>()
+
+        for (item in accessibleItems) {
+            if (item is MediaItem.Video && item.size >= 500L * 1024 * 1024) {
+                hugeVideos++
+            }
+            if (item is MediaItem.Photo) {
+                photos.add(item)
+            }
+            if (item.dateTaken >= startOfYearMs) {
+                thisYear++
+            }
+            if (item.bucketName.contains("screenshot", ignoreCase = true) ||
+                item.path.contains("screenshot", ignoreCase = true)) {
+                screenshots++
+            }
+            if (item.tags.isNotEmpty()) {
+                tagged++
+            }
+        }
+
+        val burstCount = com.hrshd1eux.imava.core.util.StorageDoctorUtils.findBurstItemIds(photos).size
+
+        SmartAlbumCounts(
+            hugeVideos = hugeVideos,
+            burstShots = burstCount,
+            thisYear = thisYear,
+            screenshots = screenshots,
+            tagged = tagged
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SmartAlbumCounts())
+
     val visibleMediaItems: StateFlow<List<MediaItem>> = combine(
         combine(mediaItems, favorites) { m, f -> Pair(m, f) },
         combine(trashed, hidden) { t, h -> Pair(t, h) },
@@ -1001,13 +1067,41 @@ class MainViewModel @Inject constructor(
                     item.id !in trashedIds && item.id !in hiddenIds &&
                     item.path !in trashedPaths && item.path !in hiddenPaths
                 }
-                if (currentBucketId != null) {
+                val scopedBase = if (currentBucketId != null) {
                     if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(application, currentBucketId!!, currentBucketName)) emptyList()
                     else if (currentBucketIds.isNotEmpty()) base.filter { it.bucketId in currentBucketIds }
                     else base
                 } else base.filter {
                     !excluded.contains(it.bucketId.toString()) &&
                     !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
+                }
+
+                when (category) {
+                    "Smart:HugeVideos" -> scopedBase.filter { it is MediaItem.Video && it.size >= 500L * 1024 * 1024 }
+                    "Smart:BurstShots" -> {
+                        val photos = scopedBase.filterIsInstance<MediaItem.Photo>()
+                        val burstIds = com.hrshd1eux.imava.core.util.StorageDoctorUtils.findBurstItemIds(photos)
+                        photos.filter { it.id in burstIds }
+                    }
+                    "Smart:ThisYear" -> {
+                        val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+                        val cal = java.util.Calendar.getInstance().apply {
+                            set(java.util.Calendar.YEAR, currentYear)
+                            set(java.util.Calendar.DAY_OF_YEAR, 1)
+                            set(java.util.Calendar.HOUR_OF_DAY, 0)
+                            set(java.util.Calendar.MINUTE, 0)
+                            set(java.util.Calendar.SECOND, 0)
+                            set(java.util.Calendar.MILLISECOND, 0)
+                        }
+                        val startOfYearMs = cal.timeInMillis
+                        scopedBase.filter { it.dateTaken >= startOfYearMs }
+                    }
+                    "Smart:Screenshots" -> scopedBase.filter {
+                        it.bucketName.contains("screenshot", ignoreCase = true) ||
+                        it.path.contains("screenshot", ignoreCase = true)
+                    }
+                    "Smart:Tagged" -> scopedBase.filter { it.tags.isNotEmpty() }
+                    else -> scopedBase
                 }
             }
         }
@@ -1417,6 +1511,11 @@ class MainViewModel @Inject constructor(
         } else if (category == "Hidden Vault") {
             hidden.map { list ->
                 val sorted = if (order == SortOrder.OLDEST_FIRST) list.sortedBy { it.dateTaken } else list.sortedByDescending { it.dateTaken }
+                PagingData.from(sorted)
+            }
+        } else if (category?.startsWith("Smart:") == true) {
+            visibleMediaItems.map { allItems ->
+                val sorted = if (order == SortOrder.OLDEST_FIRST) allItems.sortedBy { it.dateTaken } else allItems.sortedByDescending { it.dateTaken }
                 PagingData.from(sorted)
             }
         } else if (!customTag.isNullOrBlank()) {

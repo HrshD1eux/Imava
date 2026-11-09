@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">Geben Sie diese PIN in Ihren Browser ein, falls Sie dazu aufgefordert werden</string>
     <string name="viewer_details_title">Details &amp; EXIF</string>
     <string name="dual_pane_select_album">Wählen Sie ein Album aus, um Fotos anzusehen</string>
+    <string name="smart_albums_title">Intelligente Alben ⚡</string>
+    <string name="smart_album_huge_videos">Große Videos (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">Serienbild-Sequenzen</string>
+    <string name="smart_album_this_year">Dieses Jahr aufgenommen</string>
+    <string name="smart_album_screenshots">Screenshots</string>
+    <string name="smart_album_tagged">Getaggte Medien</string>
+    <string name="doctor_tab_blurry">Unscharfe Fotos</string>
+    <string name="doctor_blurry_photos">Unscharfe Fotos (%1$d)</string>
+    <string name="doctor_no_blurry_photos">Keine unscharfen Fotos erkannt! Ihre Fotos sind gestochen scharf.</string>
+    <string name="doctor_scan_blurry">Nach unscharfen Fotos suchen</string>
+    <string name="doctor_scanning_blurry">Schärfe wird analysiert... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">Erkennt unscharfe oder verwackelte Fotos durch Kantenvarianz-Analyse direkt auf dem Gerät.</string>
+    <string name="doctor_scan_now">Jetzt scannen</string>
+    <string name="doctor_rescan">Erneut scannen</string>
 </resources>

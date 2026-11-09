@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.BurstMode
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CleaningServices
@@ -48,6 +49,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -92,6 +94,11 @@ fun StorageDoctorScreen(
     var isAnalyzing by remember { mutableStateOf(true) }
     var selectedTab by remember { mutableIntStateOf(0) }
     val selectedItemIds = remember { mutableStateOf(setOf<Long>()) }
+
+    var blurryPhotosList by remember { mutableStateOf<List<StorageDoctorUtils.BlurryPhotoItem>>(emptyList()) }
+    var hasScannedBlur by remember { mutableStateOf(false) }
+    var isScanningBlur by remember { mutableStateOf(false) }
+    var blurScanProgress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     BackHandler {
         onDismiss()
@@ -275,6 +282,34 @@ fun StorageDoctorScreen(
                         },
                         text = { Text(stringResource(R.string.doctor_burst_shots, rep.burstGroups.size)) },
                         icon = { Icon(Icons.Default.BurstMode, contentDescription = null) }
+                    )
+                    Tab(
+                        selected = selectedTab == 3,
+                        onClick = {
+                            selectedTab = 3
+                            HapticUtil.performSelection(context)
+                            if (!hasScannedBlur && !isScanningBlur) {
+                                isScanningBlur = true
+                                hasScannedBlur = true
+                                scope.launch {
+                                    val nonTrashedPhotos = allMediaItems.filter { !it.isTrashed }.filterIsInstance<MediaItem.Photo>()
+                                    val detected = StorageDoctorUtils.scanBlurryPhotos(
+                                        context = context,
+                                        photos = nonTrashedPhotos,
+                                        limit = 150,
+                                        onProgress = { cur, tot -> blurScanProgress = Pair(cur, tot) }
+                                    )
+                                    blurryPhotosList = detected
+                                    isScanningBlur = false
+                                    blurScanProgress = null
+                                    if (detected.isNotEmpty()) {
+                                        HapticUtil.performSuccess(context)
+                                    }
+                                }
+                            }
+                        },
+                        text = { Text(if (hasScannedBlur) stringResource(R.string.doctor_blurry_photos, blurryPhotosList.size) else stringResource(R.string.doctor_tab_blurry)) },
+                        icon = { Icon(Icons.Default.BlurOn, contentDescription = null) }
                     )
                 }
 
@@ -483,6 +518,188 @@ fun StorageDoctorScreen(
                                                     }
                                                 }
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        3 -> {
+                            if (isScanningBlur) {
+                                item {
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 24.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(24.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            CircularProgressIndicator(strokeWidth = 3.dp, modifier = Modifier.size(36.dp))
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            val (cur, tot) = blurScanProgress ?: Pair(0, 0)
+                                            Text(
+                                                text = stringResource(R.string.doctor_scanning_blurry, cur, tot),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            } else if (!hasScannedBlur) {
+                                item {
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 16.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(20.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.BlurOn,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(48.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            Text(
+                                                text = stringResource(R.string.doctor_scan_blurry),
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Text(
+                                                text = stringResource(R.string.doctor_blurry_desc),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                            )
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            Button(
+                                                onClick = {
+                                                    isScanningBlur = true
+                                                    hasScannedBlur = true
+                                                    scope.launch {
+                                                        val nonTrashedPhotos = allMediaItems.filter { !it.isTrashed }.filterIsInstance<MediaItem.Photo>()
+                                                        val detected = StorageDoctorUtils.scanBlurryPhotos(
+                                                            context = context,
+                                                            photos = nonTrashedPhotos,
+                                                            limit = 150,
+                                                            onProgress = { cur, tot -> blurScanProgress = Pair(cur, tot) }
+                                                        )
+                                                        blurryPhotosList = detected
+                                                        isScanningBlur = false
+                                                        blurScanProgress = null
+                                                        if (detected.isNotEmpty()) {
+                                                            HapticUtil.performSuccess(context)
+                                                        }
+                                                    }
+                                                }
+                                            ) {
+                                                Text(stringResource(R.string.doctor_scan_now))
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (blurryPhotosList.isEmpty()) {
+                                item {
+                                    Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                                        Text(stringResource(R.string.doctor_no_blurry_photos), style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                }
+                            } else {
+                                item {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 6.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "${blurryPhotosList.size} blurry shots found",
+                                            style = MaterialTheme.typography.labelLarge,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        TextButton(
+                                            onClick = {
+                                                isScanningBlur = true
+                                                scope.launch {
+                                                    val nonTrashedPhotos = allMediaItems.filter { !it.isTrashed }.filterIsInstance<MediaItem.Photo>()
+                                                    val detected = StorageDoctorUtils.scanBlurryPhotos(
+                                                        context = context,
+                                                        photos = nonTrashedPhotos,
+                                                        limit = 150,
+                                                        onProgress = { cur, tot -> blurScanProgress = Pair(cur, tot) }
+                                                    )
+                                                    blurryPhotosList = detected
+                                                    isScanningBlur = false
+                                                    blurScanProgress = null
+                                                }
+                                            }
+                                        ) {
+                                            Text(stringResource(R.string.doctor_rescan))
+                                        }
+                                    }
+                                }
+                                items(blurryPhotosList, key = { it.photo.id }) { item ->
+                                    val photo = item.photo
+                                    val isSelected = selectedItemIds.value.contains(photo.id)
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 6.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
+                                            .clickable {
+                                                if (selectedItemIds.value.isNotEmpty()) {
+                                                    selectedItemIds.value = if (isSelected) selectedItemIds.value - photo.id else selectedItemIds.value + photo.id
+                                                } else {
+                                                    onMediaClick(photo)
+                                                }
+                                            }
+                                            .padding(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(modifier = Modifier.size(60.dp).clip(RoundedCornerShape(8.dp))) {
+                                            AsyncImage(
+                                                model = photo.uri,
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(photo.path.substringAfterLast("/"), style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                                            Text(
+                                                "${StorageDoctorUtils.formatBytes(photo.size)} · Score: ${String.format("%.1f", item.variance)}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                        IconButton(
+                                            onClick = {
+                                                selectedItemIds.value = if (isSelected) selectedItemIds.value - photo.id else selectedItemIds.value + photo.id
+                                                HapticUtil.performSelection(context)
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = if (isSelected) Icons.Default.CheckCircle else Icons.Default.Delete,
+                                                contentDescription = null,
+                                                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                                            )
                                         }
                                     }
                                 }

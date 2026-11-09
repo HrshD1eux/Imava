@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">પૂછવામાં આવે ત્યારે તમારા બ્રાઉઝરમાં આ પિન દાખલ કરો</string>
     <string name="viewer_details_title">વિગતો અને EXIF</string>
     <string name="dual_pane_select_album">ફોટો જોવા માટે આલ્બમ પસંદ કરો</string>
+    <string name="smart_albums_title">સ્માર્ટ આલ્બમ ⚡</string>
+    <string name="smart_album_huge_videos">મોટા વીડિયો (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">બર્સ્ટ સિક્વન્સ</string>
+    <string name="smart_album_this_year">આ વર્ષે લીધેલા</string>
+    <string name="smart_album_screenshots">સ્ક્રીનશૉટ્સ</string>
+    <string name="smart_album_tagged">ટૅગ કરેલ મીડિયા</string>
+    <string name="doctor_tab_blurry">ઝાંખા ફોટા</string>
+    <string name="doctor_blurry_photos">ઝાંખા ફોટા (%1$d)</string>
+    <string name="doctor_no_blurry_photos">કોઈ ઝાંખો ફોટો મળ્યો નથી! તમારા ફોટા સ્પષ્ટ છે.</string>
+    <string name="doctor_scan_blurry">ઝાંખા ફોટા માટે સ્કેન કરો</string>
+    <string name="doctor_scanning_blurry">ફોટાની સ્પષ્ટતા વિશ્લેષિત થઈ રહી છે... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">ઓન-ડિવાઇસ એજ વેરિઅન્સ વિશ્લેષણનો ઉપયોગ કરીને ઝાંખા અથવા હલેલા ફોટા ઓળખે છે.</string>
+    <string name="doctor_scan_now">હમણાં સ્કેન કરો</string>
+    <string name="doctor_rescan">ફરીથી સ્કેન કરો</string>
 </resources>

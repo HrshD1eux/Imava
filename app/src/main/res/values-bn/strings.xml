@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">জিজ্ঞাসা করা হলে আপনার ব্রাউজারে এই পিনটি লিখুন</string>
     <string name="viewer_details_title">বিবরণ ও EXIF</string>
     <string name="dual_pane_select_album">ছবি দেখতে একটি অ্যালবাম নির্বাচন করুন</string>
+    <string name="smart_albums_title">স্মার্ট অ্যালবাম ⚡</string>
+    <string name="smart_album_huge_videos">বিশাল ভিডিও (&gt; ৫০০ MB)</string>
+    <string name="smart_album_burst_shots">ধারাবাহিক ছবি</string>
+    <string name="smart_album_this_year">এই বছর তোলা</string>
+    <string name="smart_album_screenshots">স্ক্রিনশট</string>
+    <string name="smart_album_tagged">ট্যাগ করা মিডিয়া</string>
+    <string name="doctor_tab_blurry">ঝাপসা ছবি</string>
+    <string name="doctor_blurry_photos">ঝাপসা ছবি (%1$d)</string>
+    <string name="doctor_no_blurry_photos">কোনো ঝাপসা ছবি পাওয়া যায়নি! আপনার ছবিগুলো নিখুঁত।</string>
+    <string name="doctor_scan_blurry">ঝাপসা ছবির জন্য স্ক্যান করুন</string>
+    <string name="doctor_scanning_blurry">ছবির স্পষ্টতা বিশ্লেষণ করা হচ্ছে... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">ডিভাইসে এজ ভ্যারিয়েন্স বিশ্লেষণের মাধ্যমে ঝাপসা বা নাড়া ছবি শনাক্ত করে।</string>
+    <string name="doctor_scan_now">এখনই স্ক্যান করুন</string>
+    <string name="doctor_rescan">আবার স্ক্যান করুন</string>
 </resources>

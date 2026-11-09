@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">Enter this PIN in your browser if prompted</string>
     <string name="viewer_details_title">Details &amp; EXIF</string>
     <string name="dual_pane_select_album">Select an album to browse photos</string>
+    <string name="smart_albums_title">Smart Albums ⚡</string>
+    <string name="smart_album_huge_videos">Huge Videos (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">Burst Sequences</string>
+    <string name="smart_album_this_year">Captured This Year</string>
+    <string name="smart_album_screenshots">Screenshots</string>
+    <string name="smart_album_tagged">Tagged Media</string>
+    <string name="doctor_tab_blurry">Blurry Photos</string>
+    <string name="doctor_blurry_photos">Blurry Photos (%1$d)</string>
+    <string name="doctor_no_blurry_photos">No blurry photos detected! Your photos look crisp.</string>
+    <string name="doctor_scan_blurry">Scan for Blurry Photos</string>
+    <string name="doctor_scanning_blurry">Analyzing photo clarity... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">Identifies out-of-focus, shaken, or blurry shots using on-device edge variance analysis.</string>
+    <string name="doctor_scan_now">Scan Now</string>
+    <string name="doctor_rescan">Re-scan</string>
 </resources>

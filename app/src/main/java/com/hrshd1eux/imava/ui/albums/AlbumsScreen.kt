@@ -30,9 +30,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.BurstMode
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Screenshot
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -101,6 +106,7 @@ fun AlbumsScreen(
     val trashed by viewModel.trashed.collectAsState()
     val hidden by viewModel.hidden.collectAsState()
     val videosCount by viewModel.videosCount.collectAsState()
+    val smartAlbumCounts by viewModel.smartAlbumCounts.collectAsState()
     val allMedia by viewModel.visibleMediaItems.collectAsState()
     val throwbackMemories by viewModel.throwbackMemories.collectAsState()
 
@@ -518,6 +524,108 @@ fun AlbumsScreen(
 
             item {
                 Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.smart_albums_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            item {
+                AlbumRowItem(
+                    icon = Icons.Default.Videocam,
+                    title = stringResource(R.string.smart_album_huge_videos),
+                    count = smartAlbumCounts.hugeVideos,
+                    isSelected = isWideScreen && activeCategory == "Smart:HugeVideos",
+                    onClick = {
+                        viewModel.currentBucketId = null
+                        viewModel.currentBucketName = null
+                        viewModel.currentCategoryName = "Smart:HugeVideos"
+                        if (!isWideScreen) {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
+                    }
+                )
+            }
+
+            item {
+                AlbumRowItem(
+                    icon = Icons.Default.BurstMode,
+                    title = stringResource(R.string.smart_album_burst_shots),
+                    count = smartAlbumCounts.burstShots,
+                    isSelected = isWideScreen && activeCategory == "Smart:BurstShots",
+                    onClick = {
+                        viewModel.currentBucketId = null
+                        viewModel.currentBucketName = null
+                        viewModel.currentCategoryName = "Smart:BurstShots"
+                        if (!isWideScreen) {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
+                    }
+                )
+            }
+
+            item {
+                AlbumRowItem(
+                    icon = Icons.Default.DateRange,
+                    title = stringResource(R.string.smart_album_this_year),
+                    count = smartAlbumCounts.thisYear,
+                    isSelected = isWideScreen && activeCategory == "Smart:ThisYear",
+                    onClick = {
+                        viewModel.currentBucketId = null
+                        viewModel.currentBucketName = null
+                        viewModel.currentCategoryName = "Smart:ThisYear"
+                        if (!isWideScreen) {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
+                    }
+                )
+            }
+
+            item {
+                AlbumRowItem(
+                    icon = Icons.Default.Screenshot,
+                    title = stringResource(R.string.smart_album_screenshots),
+                    count = smartAlbumCounts.screenshots,
+                    isSelected = isWideScreen && activeCategory == "Smart:Screenshots",
+                    onClick = {
+                        viewModel.currentBucketId = null
+                        viewModel.currentBucketName = null
+                        viewModel.currentCategoryName = "Smart:Screenshots"
+                        if (!isWideScreen) {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
+                    }
+                )
+            }
+
+            item {
+                AlbumRowItem(
+                    icon = Icons.AutoMirrored.Filled.Label,
+                    title = stringResource(R.string.smart_album_tagged),
+                    count = smartAlbumCounts.tagged,
+                    isSelected = isWideScreen && activeCategory == "Smart:Tagged",
+                    onClick = {
+                        viewModel.currentBucketId = null
+                        viewModel.currentBucketName = null
+                        viewModel.currentCategoryName = "Smart:Tagged"
+                        if (!isWideScreen) {
+                            viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
+                        }
+                    }
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -773,6 +881,11 @@ fun AlbumsScreen(
                         activeCategory == "Videos" -> stringResource(R.string.category_videos)
                         activeCategory == "Trash" -> stringResource(R.string.category_trash)
                         activeCategory == "Hidden Vault" -> stringResource(R.string.category_vault)
+                        activeCategory == "Smart:HugeVideos" -> stringResource(R.string.smart_album_huge_videos)
+                        activeCategory == "Smart:BurstShots" -> stringResource(R.string.smart_album_burst_shots)
+                        activeCategory == "Smart:ThisYear" -> stringResource(R.string.smart_album_this_year)
+                        activeCategory == "Smart:Screenshots" -> stringResource(R.string.smart_album_screenshots)
+                        activeCategory == "Smart:Tagged" -> stringResource(R.string.smart_album_tagged)
                         activeCategory != null -> activeCategory!!
                         viewModel.currentBucketName != null -> viewModel.currentBucketName
                         else -> null
@@ -797,11 +910,18 @@ fun AlbumsScreen(
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold
                                     )
-                                    val count = if (activeCategory == "Favorites") favorites.size
-                                    else if (activeCategory == "Videos") videosCount
-                                    else if (activeCategory == "Trash") trashed.size
-                                    else if (activeCategory == "Hidden Vault") hidden.size
-                                    else activeBucketId?.let { bId -> visibleBuckets.find { it.id == bId }?.count } ?: 0
+                                    val count = when (activeCategory) {
+                                        "Favorites" -> favorites.size
+                                        "Videos" -> videosCount
+                                        "Trash" -> trashed.size
+                                        "Hidden Vault" -> hidden.size
+                                        "Smart:HugeVideos" -> smartAlbumCounts.hugeVideos
+                                        "Smart:BurstShots" -> smartAlbumCounts.burstShots
+                                        "Smart:ThisYear" -> smartAlbumCounts.thisYear
+                                        "Smart:Screenshots" -> smartAlbumCounts.screenshots
+                                        "Smart:Tagged" -> smartAlbumCounts.tagged
+                                        else -> activeBucketId?.let { bId -> visibleBuckets.find { it.id == bId }?.count } ?: 0
+                                    }
                                     Text(
                                         text = "$count items",
                                         style = MaterialTheme.typography.bodySmall,

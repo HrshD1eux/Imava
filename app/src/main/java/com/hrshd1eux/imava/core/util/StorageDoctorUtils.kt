@@ -1,5 +1,6 @@
 package com.hrshd1eux.imava.core.util
 
+import android.content.Context
 import com.hrshd1eux.imava.data.model.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,10 +14,16 @@ object StorageDoctorUtils {
         val totalSizeBytes: Long
     )
 
+    data class BlurryPhotoItem(
+        val photo: MediaItem.Photo,
+        val variance: Double
+    )
+
     data class StorageReport(
         val largeVideos: List<MediaItem.Video>,
         val staleScreenshots: List<MediaItem>,
         val burstGroups: List<BurstGroup>,
+        val blurryPhotos: List<BlurryPhotoItem> = emptyList(),
         val totalPotentialReclaimBytes: Long
     )
 
@@ -96,5 +103,62 @@ object StorageDoctorUtils {
         if (mb < 1024) return String.format("%.1f MB", mb)
         val gb = mb / 1024.0
         return String.format("%.2f GB", gb)
+    }
+
+    /**
+     * Identifies all media item IDs that belong to rapid burst sequences (>= 3 photos within 2.5s).
+     */
+    fun findBurstItemIds(photos: List<MediaItem.Photo>): Set<Long> {
+        val photosSorted = photos.sortedWith(compareBy({ it.bucketName }, { it.dateTaken }))
+        val burstIds = mutableSetOf<Long>()
+        var currentGroup = mutableListOf<MediaItem.Photo>()
+
+        for (photo in photosSorted) {
+            if (currentGroup.isEmpty()) {
+                currentGroup.add(photo)
+            } else {
+                val prev = currentGroup.last()
+                val isSameBucket = prev.bucketName == photo.bucketName
+                val isRapid = abs(photo.dateTaken - prev.dateTaken) <= 2500L
+
+                if (isSameBucket && isRapid) {
+                    currentGroup.add(photo)
+                } else {
+                    if (currentGroup.size >= 3) {
+                        burstIds.addAll(currentGroup.map { it.id })
+                    }
+                    currentGroup.clear()
+                    currentGroup.add(photo)
+                }
+            }
+        }
+        if (currentGroup.size >= 3) {
+            burstIds.addAll(currentGroup.map { it.id })
+        }
+        return burstIds
+    }
+
+    /**
+     * Runs discrete Laplacian edge variance analysis over candidate photos to find blurry/unfocused shots.
+     */
+    suspend fun scanBlurryPhotos(
+        context: Context,
+        photos: List<MediaItem.Photo>,
+        limit: Int = 150,
+        onProgress: (scanned: Int, total: Int) -> Unit = { _, _ -> }
+    ): List<BlurryPhotoItem> = withContext(Dispatchers.Default) {
+        val candidates = photos.take(limit)
+        val result = mutableListOf<BlurryPhotoItem>()
+        val total = candidates.size
+
+        for (i in candidates.indices) {
+            val photo = candidates[i]
+            val eval = BlurDetector.evaluatePhoto(context, photo.uri)
+            if (eval.isBlurry) {
+                result.add(BlurryPhotoItem(photo, eval.variance))
+            }
+            onProgress(i + 1, total)
+        }
+        result.sortedBy { it.variance }
     }
 }

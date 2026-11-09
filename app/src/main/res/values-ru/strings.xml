@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">Введите этот PIN-код в браузере при запросе</string>
     <string name="viewer_details_title">Сведения и EXIF</string>
     <string name="dual_pane_select_album">Выберите альбом для просмотра фотографий</string>
+    <string name="smart_albums_title">Умные альбомы ⚡</string>
+    <string name="smart_album_huge_videos">Большие видео (&gt; 500 МБ)</string>
+    <string name="smart_album_burst_shots">Серийные снимки</string>
+    <string name="smart_album_this_year">Снято в этом году</string>
+    <string name="smart_album_screenshots">Скриншоты</string>
+    <string name="smart_album_tagged">Файлы с тегами</string>
+    <string name="doctor_tab_blurry">Размытые фото</string>
+    <string name="doctor_blurry_photos">Размытые фото (%1$d)</string>
+    <string name="doctor_no_blurry_photos">Размытых фото не обнаружено! Ваши снимки четкие.</string>
+    <string name="doctor_scan_blurry">Найти размытые фото</string>
+    <string name="doctor_scanning_blurry">Анализ четкости фото... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">Находит размытые и смазанные снимки с помощью встроенного анализа дисперсии контуров.</string>
+    <string name="doctor_scan_now">Сканировать сейчас</string>
+    <string name="doctor_rescan">Повторить</string>
 </resources>

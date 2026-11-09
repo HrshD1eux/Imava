@@ -77,4 +77,16 @@ class StorageDoctorUtilsTest {
         assertEquals(1, report.burstGroups.size)
         assertEquals(3, report.burstGroups.first().burstItems.size)
     }
+
+    @Test
+    fun testFindBurstItemIds_returnsIdsOnlyForGroupsOfThreeOrMore() {
+        val baseTime = 5000000L
+        val photo1 = createPhoto(101L, 1000L, baseTime)
+        val photo2 = createPhoto(102L, 1000L, baseTime + 500L)
+        val photo3 = createPhoto(103L, 1000L, baseTime + 1200L)
+        val isolatedPhoto = createPhoto(104L, 1000L, baseTime + 100000L)
+
+        val burstIds = StorageDoctorUtils.findBurstItemIds(listOf(photo1, photo2, photo3, isolatedPhoto))
+        assertEquals(setOf(101L, 102L, 103L), burstIds)
+    }
 }

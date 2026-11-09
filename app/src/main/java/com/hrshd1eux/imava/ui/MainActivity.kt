@@ -753,6 +753,11 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     "Trash" -> stringResource(R.string.category_trash)
                                     "Hidden Vault" -> stringResource(R.string.category_vault)
                                     "Videos" -> stringResource(R.string.category_videos)
+                                    "Smart:HugeVideos" -> stringResource(R.string.smart_album_huge_videos)
+                                    "Smart:BurstShots" -> stringResource(R.string.smart_album_burst_shots)
+                                    "Smart:ThisYear" -> stringResource(R.string.smart_album_this_year)
+                                    "Smart:Screenshots" -> stringResource(R.string.smart_album_screenshots)
+                                    "Smart:Tagged" -> stringResource(R.string.smart_album_tagged)
                                     else -> viewModel.currentCategoryName!!
                                 }
                             } else if (viewModel.currentBucketName != null && currentScreen == Screen.Photos) {

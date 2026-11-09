@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">पूछे जाने पर अपने ब्राउज़र में यह पिन दर्ज करें</string>
     <string name="viewer_details_title">विवरण और EXIF</string>
     <string name="dual_pane_select_album">फ़ोटो देखने के लिए एक एल्बम चुनें</string>
+    <string name="smart_albums_title">स्मार्ट एल्बम ⚡</string>
+    <string name="smart_album_huge_videos">बड़े वीडियो (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">बर्स्ट सीक्वेंस</string>
+    <string name="smart_album_this_year">इस वर्ष खींचे गए</string>
+    <string name="smart_album_screenshots">स्क्रीनशॉट</string>
+    <string name="smart_album_tagged">टैग की गई मीडिया</string>
+    <string name="doctor_tab_blurry">धुंधली तस्वीरें</string>
+    <string name="doctor_blurry_photos">धुंधली तस्वीरें (%1$d)</string>
+    <string name="doctor_no_blurry_photos">कोई धुंधली तस्वीर नहीं मिली! आपकी तस्वीरें साफ हैं।</string>
+    <string name="doctor_scan_blurry">धुंधली तस्वीरों के लिए स्कैन करें</string>
+    <string name="doctor_scanning_blurry">तस्वीरों की स्पष्टता जांची जा रही है... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">ऑन-डिवाइस एज वेरिएंस विश्लेषण का उपयोग करके धुंधली या हिली हुई तस्वीरों की पहचान करता है।</string>
+    <string name="doctor_scan_now">अभी स्कैन करें</string>
+    <string name="doctor_rescan">पुनः स्कैन करें</string>
 </resources>

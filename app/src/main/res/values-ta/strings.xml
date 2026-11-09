@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">கேட்கப்பட்டால் இந்த பின்னை உங்கள் உலாவியில் உள்ளிடவும்</string>
     <string name="viewer_details_title">விவரங்கள் &amp; EXIF</string>
     <string name="dual_pane_select_album">புகைப்படங்களை உலாவ ஆல்பத்தைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="smart_albums_title">ஸ்மார்ட் ஆல்பங்கள் ⚡</string>
+    <string name="smart_album_huge_videos">பெரிய வீடியோக்கள் (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">தொடர் புகைப்படங்கள்</string>
+    <string name="smart_album_this_year">இந்த ஆண்டு எடுத்தவை</string>
+    <string name="smart_album_screenshots">ஸ்கிரீன்ஷாட்கள்</string>
+    <string name="smart_album_tagged">குறிச்சொல் கொண்ட மீடியா</string>
+    <string name="doctor_tab_blurry">மங்கலான புகைப்படங்கள்</string>
+    <string name="doctor_blurry_photos">மங்கலான புகைப்படங்கள் (%1$d)</string>
+    <string name="doctor_no_blurry_photos">மங்கலான புகைப்படங்கள் எதுவும் கண்டறியப்படவில்லை! படங்கள் தெளிவாக உள்ளன.</string>
+    <string name="doctor_scan_blurry">மங்கலான புகைப்படங்களை ஸ்கேன் செய்க</string>
+    <string name="doctor_scanning_blurry">புகைப்படத்தின் தெளிவு பகுப்பாய்வு செய்யப்படுகிறது... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">சாதனத்திலேயே விளிம்பு மாறுபாட்டுப் பகுப்பாய்வு மூலம் மங்கலான படங்களை அடையாளம் காண்கிறது.</string>
+    <string name="doctor_scan_now">இப்போதே ஸ்கேன் செய்க</string>
+    <string name="doctor_rescan">மீண்டும் ஸ்கேன் செய்க</string>
 </resources>

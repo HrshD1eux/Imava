@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">Insira este PIN no seu navegador se solicitado</string>
     <string name="viewer_details_title">Detalhes e EXIF</string>
     <string name="dual_pane_select_album">Selecione um álbum para ver fotos</string>
+    <string name="smart_albums_title">Álbuns inteligentes ⚡</string>
+    <string name="smart_album_huge_videos">Vídeos grandes (&gt; 500 MB)</string>
+    <string name="smart_album_burst_shots">Sequências em sequência rápida</string>
+    <string name="smart_album_this_year">Capturado este ano</string>
+    <string name="smart_album_screenshots">Capturas de tela</string>
+    <string name="smart_album_tagged">Mídia com marcadores</string>
+    <string name="doctor_tab_blurry">Fotos borradas</string>
+    <string name="doctor_blurry_photos">Fotos borradas (%1$d)</string>
+    <string name="doctor_no_blurry_photos">Nenhuma foto borrada detectada! Suas fotos estão nítidas.</string>
+    <string name="doctor_scan_blurry">Escanear fotos borradas</string>
+    <string name="doctor_scanning_blurry">Analisando nitidez das fotos... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">Identifica fotos borradas ou tremidas usando análise de variância de bordas no dispositivo.</string>
+    <string name="doctor_scan_now">Escanear agora</string>
+    <string name="doctor_rescan">Reescanear</string>
 </resources>

@@ -46,6 +46,7 @@
 | **Individual Album Biometric Lock** | `AppLockManager.kt` | Lock sensitive albums behind biometrics or device PIN. Locked albums are completely removed from the timeline and require authentication to inspect. |
 | **Secondary Storage Deep Scan** | `MediaStoreDataSource.kt` | Deep-scans device storage trees to unearth hidden third-party media (Telegram images, WhatsApp status caches, DCIM sub-folders) ignored by the standard MediaStore index. |
 | **Dual-Pane Tablet & Foldable Album Layout** | `AlbumsScreen.kt`, `isWideScreen` | On tablets, unfolded foldables, and desktop displays (>= 600dp), albums split into a responsive two-pane interface: a 360dp navigation/folder master pane on the left with active album highlight ring, and a full interactive timeline grid pane on the right for instant in-place browsing without screen switching. |
+| **Smart Albums 2.0 (Rule-Based)** | `MainViewModel.kt`, `AlbumsScreen.kt` | Deterministic, zero-ML intelligent albums dynamically generated via optimized in-memory & Room queries: **Huge Videos (> 500 MB)**, **Burst Sequences (≥ 3 shots within 2.5s)**, **Captured This Year**, **Screenshots**, and **Tagged Media**. Lightning-fast, zero battery drain, zero APK bloat, with live reactive item counts. |
 
 ---
 
@@ -132,6 +133,7 @@
 | **Rapid Burst Take Grouping** | `StorageReport.burstGroups` | Groups photos taken within 2.5 seconds of each other in the same bucket, allowing 1-tap pruning of duplicate takes. |
 | **Exact Byte-for-Byte Duplicate Finder** | `DuplicateFinder.kt` | Scans files matching exact size, file length, and content hashes to eliminate identical duplicate files. |
 | **Perceptual Image Hash (Visual Duplicates)**| `DuplicateFinder.computeDHash()`, `computeAHash()` | Computes 64-bit difference hashes (`dHash`) and average hashes (`aHash`) to catch visually identical photos even if re-compressed, re-saved, or slightly resized (Hamming distance $\le 4$). |
+| **Blurry Photo Detector** | `BlurDetector.kt`, `StorageDoctorScreen.kt` | Pure-math discrete Laplacian edge variance analysis on downsampled 160px thumbnails (~2ms per photo). Detects out-of-focus, shaken, or blurred shots without heavy ML Kit/TensorFlow models, zero external dependencies, 100% offline, with live progress and batch move-to-trash. |
 
 ---
 
@@ -188,3 +190,5 @@ Subtle, high-leverage features built natively into Imava that solve daily mobile
 13. **Pure Kotlin QR Code Generator**: Reed-Solomon QR encoder running in pure Kotlin without ZXing or external dependencies.
 14. **Auto-Purge Expired Trash Worker**: Background WorkManager cleans up trashed files older than 30 days automatically.
 15. **Database Integrity & Orphan Cleaner Worker**: Cleans up Room database records for files deleted externally by third-party file managers.
+16. **Discrete Laplacian Blurry Photo Detector**: Pure-math edge variance analysis on downscaled thumbnails to flag out-of-focus or motion-blurred shots in milliseconds with zero ML bloat.
+17. **Deterministic Smart Albums**: Instant rule-based classification for giant videos (>500MB), burst sequences, screenshots, current-year captures, and user-tagged media without heavy AI models.

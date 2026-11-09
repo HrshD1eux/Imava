@@ -320,4 +320,18 @@
     <string name="drop_pin_instructions">Saisissez ce code PIN dans votre navigateur si demandé</string>
     <string name="viewer_details_title">Détails et EXIF</string>
     <string name="dual_pane_select_album">Sélectionnez un album pour parcourir les photos</string>
+    <string name="smart_albums_title">Albums intelligents ⚡</string>
+    <string name="smart_album_huge_videos">Vidéos volumineuses (&gt; 500 Mo)</string>
+    <string name="smart_album_burst_shots">Rafales de photos</string>
+    <string name="smart_album_this_year">Capturé cette année</string>
+    <string name="smart_album_screenshots">Captures d\'écran</string>
+    <string name="smart_album_tagged">Médias étiquetés</string>
+    <string name="doctor_tab_blurry">Photos floues</string>
+    <string name="doctor_blurry_photos">Photos floues (%1$d)</string>
+    <string name="doctor_no_blurry_photos">Aucune photo floue détectée ! Vos photos sont bien nettes.</string>
+    <string name="doctor_scan_blurry">Rechercher les photos floues</string>
+    <string name="doctor_scanning_blurry">Analyse de la netteté... (%1$d/%2$d)</string>
+    <string name="doctor_blurry_desc">Identifie les photos floues ou bougées grâce à l\'analyse de variance des contours sur l\'appareil.</string>
+    <string name="doctor_scan_now">Analyser maintenant</string>
+    <string name="doctor_rescan">Réanalyser</string>
 </resources>
