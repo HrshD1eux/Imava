@@ -3496,7 +3496,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun matchesFilter(item: MediaItem, filter: MediaFilterType): Boolean {
+    internal fun matchesFilter(item: MediaItem, filter: MediaFilterType): Boolean {
         return when (filter) {
             MediaFilterType.ALL -> true
             MediaFilterType.PHOTOS -> !item.isVideo && !item.mimeType.contains("gif", ignoreCase = true)

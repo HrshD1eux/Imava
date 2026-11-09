@@ -79,13 +79,32 @@ internal fun resolveDateLabel(
     formatter: DateTimeFormatter,
     monthCache: HashMap<Long, String>,
     undatedLabel: String = "Undated"
+): String? = resolveDateLabelInternal(
+    index = index,
+    totalCount = lazyPagingItems.itemCount,
+    itemProvider = { if (it in 0 until lazyPagingItems.itemCount) lazyPagingItems.peek(it) else null },
+    visibleItems = visibleItems,
+    zoneId = zoneId,
+    formatter = formatter,
+    monthCache = monthCache,
+    undatedLabel = undatedLabel
+)
+
+internal fun resolveDateLabelInternal(
+    index: Int,
+    totalCount: Int,
+    itemProvider: (Int) -> TimelineItem?,
+    visibleItems: List<MediaItem>,
+    zoneId: ZoneId,
+    formatter: DateTimeFormatter,
+    monthCache: HashMap<Long, String>,
+    undatedLabel: String = "Undated"
 ): String? {
-    val totalCount = lazyPagingItems.itemCount
     if (totalCount == 0 && visibleItems.isEmpty()) return null
 
     // 1. Direct item peek
     if (index in 0 until totalCount) {
-        val directItem = lazyPagingItems.peek(index)
+        val directItem = itemProvider(index)
         if (directItem is TimelineItem.Media) {
             val dateMs = if (directItem.item.trashTime > 0L) directItem.item.trashTime else directItem.item.dateTaken
             if (dateMs > 0L) {
@@ -94,7 +113,7 @@ internal fun resolveDateLabel(
                 return monthCache.getOrPut(monthKey) { localDate.format(formatter) }
             }
         } else if (directItem is TimelineItem.Header) {
-            val nextItem = if (index + 1 < totalCount) lazyPagingItems.peek(index + 1) else null
+            val nextItem = if (index + 1 < totalCount) itemProvider(index + 1) else null
             if (nextItem is TimelineItem.Media) {
                 val dateMs = if (nextItem.item.trashTime > 0L) nextItem.item.trashTime else nextItem.item.dateTaken
                 if (dateMs > 0L) {
@@ -109,7 +128,7 @@ internal fun resolveDateLabel(
         for (offset in 1..15) {
             val nextIdx = index + offset
             if (nextIdx in 0 until totalCount) {
-                val nextItem = lazyPagingItems.peek(nextIdx)
+                val nextItem = itemProvider(nextIdx)
                 if (nextItem is TimelineItem.Media) {
                     val dateMs = if (nextItem.item.trashTime > 0L) nextItem.item.trashTime else nextItem.item.dateTaken
                     if (dateMs > 0L) {
@@ -121,7 +140,7 @@ internal fun resolveDateLabel(
             }
             val prevIdx = index - offset
             if (prevIdx in 0 until totalCount) {
-                val prevItem = lazyPagingItems.peek(prevIdx)
+                val prevItem = itemProvider(prevIdx)
                 if (prevItem is TimelineItem.Media) {
                     val dateMs = if (prevItem.item.trashTime > 0L) prevItem.item.trashTime else prevItem.item.dateTaken
                     if (dateMs > 0L) {

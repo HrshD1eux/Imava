@@ -296,4 +296,38 @@ class MainViewModelTest {
         org.junit.Assert.assertEquals("/storage/emulated/0/DCIM/Camera/external.jpg", active?.path)
         org.junit.Assert.assertEquals("image/jpeg", active?.mimeType)
     }
+
+    @Test
+    fun testMatchesFilter_rawExtensionsAndMimes() {
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+
+        val rawDng = MediaItem.Photo(id = 1L, uri = mockUri, path = "/storage/emulated/0/DCIM/Camera/DSC001.dng", mimeType = "image/dng", dateTaken = 1000L, size = 50000L, width = 4000, height = 3000, bucketId = 1L, bucketName = "Camera")
+        val rawCr3 = MediaItem.Photo(id = 2L, uri = mockUri, path = "/storage/emulated/0/DCIM/Camera/IMG_01.CR3", mimeType = "image/x-canon-cr3", dateTaken = 1000L, size = 50000L, width = 4000, height = 3000, bucketId = 1L, bucketName = "Camera")
+        val rawNef = MediaItem.Photo(id = 3L, uri = mockUri, path = "/storage/emulated/0/DCIM/Camera/NIK_01.NEF", mimeType = "image/x-nikon-nef", dateTaken = 1000L, size = 50000L, width = 4000, height = 3000, bucketId = 1L, bucketName = "Camera")
+        val rawArw = MediaItem.Photo(id = 4L, uri = mockUri, path = "/storage/emulated/0/DCIM/Camera/SONY_01.arw", mimeType = "image/x-sony-arw", dateTaken = 1000L, size = 50000L, width = 4000, height = 3000, bucketId = 1L, bucketName = "Camera")
+        val standardJpg = MediaItem.Photo(id = 5L, uri = mockUri, path = "/storage/emulated/0/DCIM/Camera/NORMAL.jpg", mimeType = "image/jpeg", dateTaken = 1000L, size = 2000L, width = 1920, height = 1080, bucketId = 1L, bucketName = "Camera")
+
+        org.junit.Assert.assertTrue(viewModel.matchesFilter(rawDng, MediaFilterType.RAW))
+        org.junit.Assert.assertTrue(viewModel.matchesFilter(rawCr3, MediaFilterType.RAW))
+        org.junit.Assert.assertTrue(viewModel.matchesFilter(rawNef, MediaFilterType.RAW))
+        org.junit.Assert.assertTrue(viewModel.matchesFilter(rawArw, MediaFilterType.RAW))
+        org.junit.Assert.assertFalse(viewModel.matchesFilter(standardJpg, MediaFilterType.RAW))
+    }
+
+    @Test
+    fun testMatchesFilter_screenshotsAndGifs() {
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+
+        val screenshot1 = MediaItem.Photo(id = 1L, uri = mockUri, path = "/storage/emulated/0/Pictures/Screenshots/Screenshot_1.png", mimeType = "image/png", dateTaken = 1000L, size = 2000L, width = 1080, height = 2400, bucketId = 2L, bucketName = "Screenshots")
+        val screenshot2 = MediaItem.Photo(id = 2L, uri = mockUri, path = "/storage/emulated/0/DCIM/Camera/screenshot_2024.jpg", mimeType = "image/jpeg", dateTaken = 1000L, size = 2000L, width = 1080, height = 2400, bucketId = 1L, bucketName = "Camera")
+        val normalPhoto = MediaItem.Photo(id = 3L, uri = mockUri, path = "/storage/emulated/0/DCIM/Camera/IMG_2024.jpg", mimeType = "image/jpeg", dateTaken = 1000L, size = 2000L, width = 1920, height = 1080, bucketId = 1L, bucketName = "Camera")
+        val gifItem = MediaItem.Photo(id = 4L, uri = mockUri, path = "/storage/emulated/0/Download/funny.gif", mimeType = "image/gif", dateTaken = 1000L, size = 500L, width = 500, height = 500, bucketId = 3L, bucketName = "Download")
+
+        org.junit.Assert.assertTrue(viewModel.matchesFilter(screenshot1, MediaFilterType.SCREENSHOTS))
+        org.junit.Assert.assertTrue(viewModel.matchesFilter(screenshot2, MediaFilterType.SCREENSHOTS))
+        org.junit.Assert.assertFalse(viewModel.matchesFilter(normalPhoto, MediaFilterType.SCREENSHOTS))
+
+        org.junit.Assert.assertTrue(viewModel.matchesFilter(gifItem, MediaFilterType.GIFS))
+        org.junit.Assert.assertFalse(viewModel.matchesFilter(normalPhoto, MediaFilterType.GIFS))
+    }
 }

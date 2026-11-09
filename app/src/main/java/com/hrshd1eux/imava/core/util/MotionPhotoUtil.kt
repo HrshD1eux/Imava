@@ -186,47 +186,62 @@ object MotionPhotoUtil {
             if (scannedLength > 0L) return scannedLength
 
             // Fallback stream scanner using 64 KB chunking
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                skipFully(input, startOffset)
-                var currentPos = startOffset
-                var overlap = ByteArray(0)
+            val streamFound = context.contentResolver.openInputStream(uri)?.use { input ->
+                scanForMp4FromStream(input, totalLength)
+            } ?: 0L
+            if (streamFound > 0L) return streamFound
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return 0L
+    }
 
-                while (currentPos < totalLength) {
-                    val toRead = minOf(chunkSize.toLong(), totalLength - currentPos).toInt()
-                    val bytesRead = input.read(buffer, 0, toRead)
-                    if (bytesRead <= 0) break
+    internal fun scanForMp4FromStream(input: InputStream, totalLength: Long): Long {
+        val maxScanSize = minOf(totalLength, 30L * 1024L * 1024L)
+        val startOffset = totalLength - maxScanSize
+        val chunkSize = 64 * 1024
+        val buffer = ByteArray(chunkSize)
 
-                    val combinedSize = overlap.size + bytesRead
-                    val combined = if (overlap.isNotEmpty()) {
-                        val arr = ByteArray(combinedSize)
-                        System.arraycopy(overlap, 0, arr, 0, overlap.size)
-                        System.arraycopy(buffer, 0, arr, overlap.size, bytesRead)
-                        arr
-                    } else {
-                        buffer
-                    }
+        try {
+            skipFully(input, startOffset)
+            var currentPos = startOffset
+            var overlap = ByteArray(0)
 
-                    for (i in 4 until combinedSize - 4) {
-                        if (combined[i] == MP4_FTYP[0] &&
-                            combined[i + 1] == MP4_FTYP[1] &&
-                            combined[i + 2] == MP4_FTYP[2] &&
-                            combined[i + 3] == MP4_FTYP[3]
-                        ) {
-                            val offsetInBlock = if (overlap.isNotEmpty()) i - overlap.size else i
-                            val atomStartGlobal = currentPos + offsetInBlock - 4
-                            val videoLength = totalLength - atomStartGlobal
-                            if (videoLength in 4096..maxScanSize) {
-                                return videoLength
-                            }
+            while (currentPos < totalLength) {
+                val toRead = minOf(chunkSize.toLong(), totalLength - currentPos).toInt()
+                val bytesRead = input.read(buffer, 0, toRead)
+                if (bytesRead <= 0) break
+
+                val combinedSize = overlap.size + bytesRead
+                val combined = if (overlap.isNotEmpty()) {
+                    val arr = ByteArray(combinedSize)
+                    System.arraycopy(overlap, 0, arr, 0, overlap.size)
+                    System.arraycopy(buffer, 0, arr, overlap.size, bytesRead)
+                    arr
+                } else {
+                    buffer
+                }
+
+                for (i in 4 until combinedSize - 4) {
+                    if (combined[i] == MP4_FTYP[0] &&
+                        combined[i + 1] == MP4_FTYP[1] &&
+                        combined[i + 2] == MP4_FTYP[2] &&
+                        combined[i + 3] == MP4_FTYP[3]
+                    ) {
+                        val offsetInBlock = if (overlap.isNotEmpty()) i - overlap.size else i
+                        val atomStartGlobal = currentPos + offsetInBlock - 4
+                        val videoLength = totalLength - atomStartGlobal
+                        if (videoLength in 4096..maxScanSize) {
+                            return videoLength
                         }
                     }
-
-                    val overlapSize = minOf(3, bytesRead)
-                    overlap = ByteArray(overlapSize)
-                    System.arraycopy(buffer, bytesRead - overlapSize, overlap, 0, overlapSize)
-
-                    currentPos += bytesRead
                 }
+
+                val overlapSize = minOf(3, bytesRead)
+                overlap = ByteArray(overlapSize)
+                System.arraycopy(buffer, bytesRead - overlapSize, overlap, 0, overlapSize)
+
+                currentPos += bytesRead
             }
         } catch (e: Exception) {
             e.printStackTrace()
