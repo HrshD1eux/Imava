@@ -619,6 +619,15 @@ fun TimelineScreen(
                         .align(Alignment.TopCenter)
                         .padding(top = 10.dp)
                 )
+
+                // Interactive edge-anchored FastScroller with tactile date pill & haptics
+                TimelineFastScroller(
+                    gridState = gridState,
+                    staggeredGridState = staggeredGridState,
+                    lazyPagingItems = lazyPagingItems,
+                    visibleItems = visibleItems,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
     }

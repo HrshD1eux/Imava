@@ -312,4 +312,10 @@
     <string name="perm_status_granted">Accordée</string>
     <string name="perm_status_not_granted">Non accordée</string>
     <string name="perm_target_scope">Portée cible : %1$s</string>
+    <string name="date_undated">Sans date</string>
+    <string name="drop_pin_label">Code PIN d\'association</string>
+    <string name="drop_copy_pin">Copier le code PIN</string>
+    <string name="drop_pin_copied">Code PIN d\'association copié dans le presse-papiers</string>
+    <string name="drop_copied">Copié</string>
+    <string name="drop_pin_instructions">Saisissez ce code PIN dans votre navigateur si demandé</string>
 </resources>

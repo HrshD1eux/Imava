@@ -312,4 +312,10 @@
     <string name="perm_status_granted">મંજૂર</string>
     <string name="perm_status_not_granted">મંજૂર નથી</string>
     <string name="perm_target_scope">લક્ષ્ય વ્યાપ: %1$s</string>
+    <string name="date_undated">તારીખ વગરનું</string>
+    <string name="drop_pin_label">પેરિંગ પિન</string>
+    <string name="drop_copy_pin">પિન કૉપિ કરો</string>
+    <string name="drop_pin_copied">પેરિંગ પિન ક્લિપબોર્ડ પર કૉપિ થયો</string>
+    <string name="drop_copied">કૉપિ થયું</string>
+    <string name="drop_pin_instructions">પૂછવામાં આવે ત્યારે તમારા બ્રાઉઝરમાં આ પિન દાખલ કરો</string>
 </resources>

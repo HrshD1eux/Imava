@@ -312,4 +312,10 @@
     <string name="perm_status_granted">मंजूर</string>
     <string name="perm_status_not_granted">मंजूर नाही</string>
     <string name="perm_target_scope">लक्ष्य व्याप्ती: %1$s</string>
+    <string name="date_undated">विना दिनांक</string>
+    <string name="drop_pin_label">पेअरिंग पिन</string>
+    <string name="drop_copy_pin">पिन कॉपी करा</string>
+    <string name="drop_pin_copied">पेअरिंग पिन क्लिपबोर्डवर कॉपी केला</string>
+    <string name="drop_copied">कॉपी केले</string>
+    <string name="drop_pin_instructions">विचारल्यास आपल्या ब्राउझरमध्ये हा पिन प्रविष्ट करा</string>
 </resources>

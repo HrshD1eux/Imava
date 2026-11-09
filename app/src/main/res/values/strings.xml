@@ -312,4 +312,10 @@
     <string name="perm_status_granted">Granted</string>
     <string name="perm_status_not_granted">Not Granted</string>
     <string name="perm_target_scope">Target Scope: %1$s</string>
+    <string name="date_undated">Undated</string>
+    <string name="drop_pin_label">Pairing PIN</string>
+    <string name="drop_copy_pin">Copy PIN</string>
+    <string name="drop_pin_copied">Pairing PIN copied to clipboard</string>
+    <string name="drop_copied">Copied</string>
+    <string name="drop_pin_instructions">Enter this PIN in your browser if prompted</string>
 </resources>

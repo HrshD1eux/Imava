@@ -68,9 +68,9 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
     val dateTaken = when {
         rawDateTaken > 100000000000L -> rawDateTaken
         rawDateTaken > 100000000L -> rawDateTaken * 1000L
-        modMs > 0 -> modMs
         addedMs > 0 -> addedMs
-        else -> System.currentTimeMillis()
+        modMs > 0 -> modMs
+        else -> 0L
     }
 
     val size = if (indices.sizeCol != -1) getLong(indices.sizeCol) else 0L

@@ -312,4 +312,10 @@
     <string name="perm_status_granted">Предоставлено</string>
     <string name="perm_status_not_granted">Не предоставлено</string>
     <string name="perm_target_scope">Целевой уровень: %1$s</string>
+    <string name="date_undated">Без даты</string>
+    <string name="drop_pin_label">PIN-код сопряжения</string>
+    <string name="drop_copy_pin">Копировать PIN</string>
+    <string name="drop_pin_copied">PIN-код сопряжения скопирован в буфер обмена</string>
+    <string name="drop_copied">Скопировано</string>
+    <string name="drop_pin_instructions">Введите этот PIN-код в браузере при запросе</string>
 </resources>

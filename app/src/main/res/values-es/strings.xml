@@ -312,4 +312,10 @@
     <string name="perm_status_granted">Concedido</string>
     <string name="perm_status_not_granted">No concedido</string>
     <string name="perm_target_scope">Ámbito objetivo: %1$s</string>
+    <string name="date_undated">Sin fecha</string>
+    <string name="drop_pin_label">PIN de vinculación</string>
+    <string name="drop_copy_pin">Copiar PIN</string>
+    <string name="drop_pin_copied">PIN de vinculación copiado al portapapeles</string>
+    <string name="drop_copied">Copiado</string>
+    <string name="drop_pin_instructions">Introduce este PIN en tu navegador si te lo solicita</string>
 </resources>

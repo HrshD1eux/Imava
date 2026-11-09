@@ -312,4 +312,10 @@
     <string name="perm_status_granted">অনুমোদিত</string>
     <string name="perm_status_not_granted">অনুমোদিত নয়</string>
     <string name="perm_target_scope">লক্ষ্য পরিসীমা: %1$s</string>
+    <string name="date_undated">তারিখহীন</string>
+    <string name="drop_pin_label">পেয়ারিং পিন</string>
+    <string name="drop_copy_pin">পিন কপি করুন</string>
+    <string name="drop_pin_copied">পেয়ারিং পিন ক্লিপবোর্ডে কপি করা হয়েছে</string>
+    <string name="drop_copied">কপি করা হয়েছে</string>
+    <string name="drop_pin_instructions">জিজ্ঞাসা করা হলে আপনার ব্রাউজারে এই পিনটি লিখুন</string>
 </resources>

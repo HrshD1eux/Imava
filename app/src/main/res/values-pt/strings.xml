@@ -312,4 +312,10 @@
     <string name="perm_status_granted">Concedida</string>
     <string name="perm_status_not_granted">Não concedida</string>
     <string name="perm_target_scope">Escopo alvo: %1$s</string>
+    <string name="date_undated">Sem data</string>
+    <string name="drop_pin_label">PIN de emparelhamento</string>
+    <string name="drop_copy_pin">Copiar PIN</string>
+    <string name="drop_pin_copied">PIN de emparelhamento copiado para a área de transferência</string>
+    <string name="drop_copied">Copiado</string>
+    <string name="drop_pin_instructions">Introduza este PIN no seu navegador se solicitado</string>
 </resources>

@@ -42,6 +42,8 @@ import java.text.SimpleDateFormat
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.delay
+import java.security.SecureRandom
 import java.util.concurrent.Executors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -51,6 +53,8 @@ data class ImavaDropState(
     val ipAddress: String? = null,
     val port: Int = 8765,
     val url: String? = null,
+    val baseUrl: String? = null,
+    val pin: String = "",
     val sharedItems: List<MediaItem> = emptyList(),
     val totalBytes: Long = 0L,
     val logs: List<String> = emptyList(),
@@ -61,6 +65,8 @@ object ImavaDropServer {
 
     private var serverSocket: ServerSocket? = null
     private var serverJob: Job? = null
+    private var idleCheckJob: Job? = null
+    private var lastActivityTime = System.currentTimeMillis()
     private var threadPool = Executors.newCachedThreadPool()
     private var wifiLock: WifiManager.WifiLock? = null
 
@@ -72,6 +78,10 @@ object ImavaDropServer {
     var onFileReceived: (() -> Unit)? = null
 
     fun isRunning(): Boolean = _state.value.isRunning
+
+    private fun markActivity() {
+        lastActivityTime = System.currentTimeMillis()
+    }
 
     @Synchronized
     fun start(context: Context, items: List<MediaItem>, preferredPort: Int = 8765): Boolean {
@@ -119,20 +129,42 @@ object ImavaDropServer {
             threadPool = Executors.newCachedThreadPool()
         }
 
-        val fullUrl = if (ip != null) "http://$ip:$port" else "http://localhost:$port"
+        val pin = String.format(Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
+        val base = if (ip != null) "http://$ip:$port" else "http://localhost:$port"
+        val fullUrl = "$base?pin=$pin"
 
         _state.value = ImavaDropState(
             isRunning = true,
             ipAddress = ip,
             port = port,
             url = fullUrl,
+            baseUrl = base,
+            pin = pin,
             sharedItems = items,
             totalBytes = totalSize,
-            logs = listOf("Imava Drop started on $fullUrl", "Ready to transfer ${items.size} items (${FormatUtils.formatFileSize(totalSize)})")
+            logs = listOf(
+                "Imava Drop started on $base",
+                "Pairing PIN: $pin",
+                "Ready to transfer ${items.size} items (${FormatUtils.formatFileSize(totalSize)})"
+            )
         )
 
         serverJob = scope.launch {
             listenLoop(finalSocket)
+        }
+
+        lastActivityTime = System.currentTimeMillis()
+        idleCheckJob?.cancel()
+        idleCheckJob = scope.launch {
+            while (_state.value.isRunning) {
+                delay(30_000)
+                val elapsed = System.currentTimeMillis() - lastActivityTime
+                if (elapsed >= 15 * 60 * 1000L) { // 15 minutes idle timeout
+                    addLog("Imava Drop stopped automatically after 15 minutes of inactivity.")
+                    stop()
+                    break
+                }
+            }
         }
 
         try {
@@ -167,6 +199,9 @@ object ImavaDropServer {
 
         serverJob?.cancel()
         serverJob = null
+
+        idleCheckJob?.cancel()
+        idleCheckJob = null
 
         try {
             wifiLock?.let {
@@ -241,19 +276,43 @@ object ImavaDropServer {
 
             val clientIp = client.inetAddress.hostAddress ?: "Unknown"
 
-            when {
-                method == "OPTIONS" -> {
-                    val res = "HTTP/1.1 204 No Content\r\n" +
-                            "Access-Control-Allow-Origin: *\r\n" +
-                            "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" +
-                            "Access-Control-Allow-Headers: *\r\n" +
-                            "Access-Control-Max-Age: 86400\r\n" +
-                            "Connection: close\r\n\r\n"
-                    output.write(res.toByteArray(Charsets.UTF_8))
-                    output.flush()
+            val hostHeader = headers["host"]
+            if (!isValidHost(hostHeader, _state.value.ipAddress)) {
+                val res = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nForbidden: Invalid Host header"
+                output.write(res.toByteArray(Charsets.UTF_8))
+                output.flush()
+                return
+            }
+
+            if (method == "OPTIONS") {
+                val res = "HTTP/1.1 204 No Content\r\n" +
+                        "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" +
+                        "Access-Control-Allow-Headers: Content-Type, X-Filename, X-Imava-Pin\r\n" +
+                        "Access-Control-Max-Age: 86400\r\n" +
+                        "Connection: close\r\n\r\n"
+                output.write(res.toByteArray(Charsets.UTF_8))
+                output.flush()
+                return
+            }
+
+            val expectedPin = _state.value.pin
+            val isAuth = isAuthorized(queryParams, headers, expectedPin)
+
+            if (!isAuth) {
+                if (method == "GET" && (path == "/" || path == "/index.html")) {
+                    val hasFailedPin = queryParams.containsKey("pin")
+                    servePinAuthForm(output, hasError = hasFailedPin)
+                } else {
+                    send401(output)
                 }
+                return
+            }
+
+            markActivity()
+
+            when {
                 method == "GET" && (path == "/" || path == "/index.html") -> {
-                    serveHtmlClient(output)
+                    serveHtmlClient(output, cookiePin = expectedPin)
                 }
                 method == "GET" && path == "/download-all" -> {
                     addLog("Client ($clientIp) requested Download All (ZIP)")
@@ -318,7 +377,7 @@ object ImavaDropServer {
         return "media_${item.id}.$ext"
     }
 
-    private fun serveHtmlClient(output: OutputStream) {
+    private fun serveHtmlClient(output: OutputStream, cookiePin: String = "") {
         val items = _state.value.sharedItems
         val totalSizeStr = FormatUtils.formatFileSize(_state.value.totalBytes)
         val deviceModel = "${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}"
@@ -820,8 +879,10 @@ object ImavaDropServer {
         """.trimIndent()
 
         val bytes = html.toByteArray(Charsets.UTF_8)
+        val cookieHeader = if (cookiePin.isNotBlank()) "Set-Cookie: imava_pin=$cookiePin; Path=/; HttpOnly; SameSite=Strict\r\n" else ""
         val headers = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/html; charset=UTF-8\r\n" +
+                cookieHeader +
                 "Content-Length: ${bytes.size}\r\n" +
                 "Connection: close\r\n\r\n"
         output.write(headers.toByteArray(Charsets.UTF_8))
@@ -874,7 +935,6 @@ object ImavaDropServer {
 
                 val headers = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: image/jpeg\r\n" +
-                        "Access-Control-Allow-Origin: *\r\n" +
                         "Content-Length: ${bytes.size}\r\n" +
                         "Cache-Control: public, max-age=86400\r\n" +
                         "Connection: close\r\n\r\n"
@@ -972,7 +1032,6 @@ object ImavaDropServer {
 
                 val headerStr = "HTTP/1.1 206 Partial Content\r\n" +
                         "Content-Type: ${item.mimeType}\r\n" +
-                        "Access-Control-Allow-Origin: *\r\n" +
                         "Content-Range: bytes $start-$end/$fileLength\r\n" +
                         "Content-Length: $contentLength\r\n" +
                         "Accept-Ranges: bytes\r\n" +
@@ -985,7 +1044,6 @@ object ImavaDropServer {
             } else {
                 val headerStr = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: ${item.mimeType}\r\n" +
-                        "Access-Control-Allow-Origin: *\r\n" +
                         "Content-Length: $fileLength\r\n" +
                         "Accept-Ranges: bytes\r\n" +
                         "Content-Disposition: inline; filename=\"$filename\"\r\n" +
@@ -1152,7 +1210,6 @@ object ImavaDropServer {
             val json = """{"status":"ok","filename":"$cleanFilename"}"""
             val res = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: application/json\r\n" +
-                    "Access-Control-Allow-Origin: *\r\n" +
                     "Content-Length: ${json.length}\r\n" +
                     "Connection: close\r\n\r\n$json"
             output.write(res.toByteArray(Charsets.UTF_8))
@@ -1166,7 +1223,6 @@ object ImavaDropServer {
             val errJson = """{"status":"error","message":"${e.message}"}"""
             val res = "HTTP/1.1 500 Internal Error\r\n" +
                     "Content-Type: application/json\r\n" +
-                    "Access-Control-Allow-Origin: *\r\n" +
                     "Content-Length: ${errJson.length}\r\n" +
                     "Connection: close\r\n\r\n$errJson"
             output.write(res.toByteArray(Charsets.UTF_8))
@@ -1187,6 +1243,176 @@ object ImavaDropServer {
         val res = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: ${body.length}\r\nConnection: close\r\n\r\n$body"
         try {
             output.write(res.toByteArray(Charsets.UTF_8))
+            output.flush()
+        } catch (_: Exception) {}
+    }
+
+    private fun send401(output: OutputStream) {
+        val body = "401 Unauthorized: Valid Pairing PIN required"
+        val res = "HTTP/1.1 401 Unauthorized\r\nContent-Type: text/plain\r\nContent-Length: ${body.length}\r\nConnection: close\r\n\r\n$body"
+        try {
+            output.write(res.toByteArray(Charsets.UTF_8))
+            output.flush()
+        } catch (_: Exception) {}
+    }
+
+    private fun isValidHost(hostHeader: String?, localIp: String?): Boolean {
+        if (hostHeader.isNullOrBlank()) return true
+        val host = hostHeader.substringBefore(':').trim().lowercase(Locale.ROOT)
+        if (host == "localhost" || host == "127.0.0.1") return true
+        if (localIp != null && host == localIp.lowercase(Locale.ROOT)) return true
+        if (host.matches(Regex("""^(192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$"""))) {
+            return true
+        }
+        return false
+    }
+
+    private fun isAuthorized(queryParams: Map<String, String>, headers: Map<String, String>, expectedPin: String): Boolean {
+        if (expectedPin.isBlank()) return true
+        if (queryParams["pin"] == expectedPin) return true
+        if (headers["x-imava-pin"] == expectedPin) return true
+        val cookieHeader = headers["cookie"] ?: return false
+        val cookies = cookieHeader.split(";").associate {
+            val part = it.trim()
+            val eq = part.indexOf('=')
+            if (eq != -1) part.substring(0, eq).trim() to part.substring(eq + 1).trim()
+            else part to ""
+        }
+        return cookies["imava_pin"] == expectedPin
+    }
+
+    private fun servePinAuthForm(output: OutputStream, hasError: Boolean) {
+        val errorDisplay = if (hasError) "block" else "none"
+        val html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imava Drop · Pairing Authentication</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+            --error-color: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px 32px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+        .icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        p {
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        .pin-input {
+            width: 100%;
+            letter-spacing: 12px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 800;
+            font-family: monospace;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: #0f172a;
+            color: #fff;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .pin-input:focus {
+            border-color: var(--primary-color);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: $errorDisplay;
+        }
+        .footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">🔒</div>
+        <h1>Pairing PIN Required</h1>
+        <p>Enter the 6-digit PIN displayed on your phone's Imava Drop screen to connect securely.</p>
+        <div class="error">Incorrect pairing PIN. Please check your phone screen.</div>
+        <form method="GET" action="/">
+            <input type="text" name="pin" class="pin-input" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder="••••••" autofocus required autocomplete="off">
+            <button type="submit" class="btn-submit">Connect & Unlock ⚡</button>
+        </form>
+        <div class="footer">Imava Direct P2P · Zero Cloud</div>
+    </div>
+</body>
+</html>
+        """.trimIndent()
+        val bytes = html.toByteArray(Charsets.UTF_8)
+        val res = "HTTP/1.1 ${if (hasError) "401 Unauthorized" else "200 OK"}\r\n" +
+                "Content-Type: text/html; charset=UTF-8\r\n" +
+                "Content-Length: ${bytes.size}\r\n" +
+                "Connection: close\r\n\r\n"
+        try {
+            output.write(res.toByteArray(Charsets.UTF_8))
+            output.write(bytes)
             output.flush()
         } catch (_: Exception) {}
     }

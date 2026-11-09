@@ -312,4 +312,10 @@
     <string name="perm_status_granted">அனுமதிக்கப்பட்டது</string>
     <string name="perm_status_not_granted">அனுமதிக்கப்படவில்லை</string>
     <string name="perm_target_scope">இலக்கு நோக்கம்: %1$s</string>
+    <string name="date_undated">தேதியற்றது</string>
+    <string name="drop_pin_label">இணைத்தல் பின்</string>
+    <string name="drop_copy_pin">பின்னை நகலெடு</string>
+    <string name="drop_pin_copied">இணைத்தல் பின் கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது</string>
+    <string name="drop_copied">நகலெடுக்கப்பட்டது</string>
+    <string name="drop_pin_instructions">கேட்கப்பட்டால் இந்த பின்னை உங்கள் உலாவியில் உள்ளிடவும்</string>
 </resources>

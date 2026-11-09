@@ -312,4 +312,10 @@
     <string name="perm_status_granted">Gewährt</string>
     <string name="perm_status_not_granted">Nicht gewährt</string>
     <string name="perm_target_scope">Zielbereich: %1$s</string>
+    <string name="date_undated">Ohne Datum</string>
+    <string name="drop_pin_label">Kopplungs-PIN</string>
+    <string name="drop_copy_pin">PIN kopieren</string>
+    <string name="drop_pin_copied">Kopplungs-PIN in die Zwischenablage kopiert</string>
+    <string name="drop_copied">Kopiert</string>
+    <string name="drop_pin_instructions">Geben Sie diese PIN in Ihren Browser ein, falls Sie dazu aufgefordert werden</string>
 </resources>

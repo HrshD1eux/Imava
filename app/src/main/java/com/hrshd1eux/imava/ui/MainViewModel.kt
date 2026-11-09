@@ -1372,7 +1372,10 @@ class MainViewModel @Inject constructor(
         }
         val isTrash = category == "Trash"
         val dateMs = if (isTrash && media.trashTime > 0L) media.trashTime else media.dateTaken
-        val ms = if (dateMs > 0) dateMs else System.currentTimeMillis()
+        if (dateMs <= 0L) {
+            return try { application.getString(com.hrshd1eux.imava.R.string.date_undated) } catch (_: Exception) { "Undated" }
+        }
+        val ms = dateMs
         val localDate = Instant.ofEpochMilli(ms).atZone(headerZoneId).toLocalDate()
         val epochDay = localDate.toEpochDay()
 

@@ -26,7 +26,7 @@
 | **Sticky Date Headers** | `TimelineItem.Header`, `TimelineScreen.kt` | Groups photos chronologically (`Today`, `Yesterday`, `Mon, 19 Oct`, or full date for prior years) with full-line span separator injection. |
 | **Date-Range Multi-Select** | `TimelineHeader.kt` | Tap any date header's "Select" / "Deselect" button to instantaneously toggle all photos captured on that day. |
 | **Drag-to-Select Gesture** | `detectDragGestures`, `dragSelectionModifier` | Long-press and drag your finger across the grid to fluidly select dozens of media items in a single uninterrupted swipe. |
-| **Top-Center Floating Date Badge** | `TimelineFloatingDateBadge.kt` | Zero right-edge obstruction. A sleek elevated capsule (`CircleShape`, Material 3) pops up at top-center during scroll to display active month/year (`October 2026`), smoothly fading out when idle. Zero gesture collisions with Android OS back swipe. |
+| **Tactile Edge FastScroller & Floating Date Badge** | `TimelineFastScroller`, `TimelineFloatingDateBadge` | Draggable edge-anchored FastScroller with a tactile Month-Year pill, haptic feedback across month boundaries, and a top-center floating date capsule during scroll. Features a 3-tier lookup engine with neighbor window search and header-calibrated visibleItems mapping to eliminate date jumping. |
 | **Memories & Stories Carousel** | `MemoryStoryCalculator.kt`, `MemoriesStoriesHeader.kt` | Algorithmic retrospective stories: *"1 Year Ago Today"*, *"X Years Ago"*, and same-month memories. Includes an Instagram-style fullscreen Story Player with auto-advance and tap-to-pause. |
 | **Quick Filter Chips** | `TimelineFilterChips.kt` | Instant horizontal chip row to filter timeline view: **All**, **Photos**, **Videos**, **Custom Hashtags (`#tag`)**, with a tag manager sheet. |
 
@@ -114,6 +114,7 @@
 | **Fullscreen In-Browser Lightbox** | Embedded Web Script | Connecting browsers can preview full-resolution images and videos directly in a modal lightbox before downloading. |
 | **Bidirectional File Drag & Drop** | HTTP Multipart Upload Handler | Drag and drop photos or documents in the PC/Mac browser to upload them directly back into the phone's gallery. |
 | **Batch ZIP Archive Download** | `serveZipArchive()` | Compresses all shared media on-the-fly into a single `.zip` file for 1-click download on PC. |
+| **Pairing PIN Authentication & CORS Hardening** | `ImavaDropServer.kt`, `isAuthorized()` | Cryptographically secure 6-digit pairing PIN, automatic session cookies, DNS rebinding Host verification, strict CORS isolation, and 15-minute idle shutdown timer. |
 | **Background Service & Wi-Fi Lock** | `ImavaDropService.kt`, `WifiManager.WifiLock` | Runs as a foreground service with high-performance Wi-Fi lock. Minimizing the app or turning off the screen does **not** terminate transfers. |
 
 ---

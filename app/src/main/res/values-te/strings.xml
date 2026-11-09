@@ -312,4 +312,10 @@
     <string name="perm_status_granted">అనుమతించబడింది</string>
     <string name="perm_status_not_granted">అనుమతించబడలేదు</string>
     <string name="perm_target_scope">లక్ష్య పరిధి: %1$s</string>
+    <string name="date_undated">తేదీ లేదు</string>
+    <string name="drop_pin_label">పెయిరింగ్ పిన్</string>
+    <string name="drop_copy_pin">పిన్‌ను కాపీ చేయండి</string>
+    <string name="drop_pin_copied">పెయిరింగ్ పిన్ క్లిప్‌బోర్డ్‌కి కాపీ చేయబడింది</string>
+    <string name="drop_copied">కాపీ చేయబడింది</string>
+    <string name="drop_pin_instructions">అడిగితే మీ బ్రౌజర్‌లో ఈ పిన్‌ను నమోదు చేయండి</string>
 </resources>

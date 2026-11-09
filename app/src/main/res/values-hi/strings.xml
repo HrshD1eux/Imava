@@ -312,4 +312,10 @@
     <string name="perm_status_granted">अनुमति प्राप्त</string>
     <string name="perm_status_not_granted">अनुमति नहीं मिली</string>
     <string name="perm_target_scope">लक्षित दायरा: %1$s</string>
+    <string name="date_undated">बिना दिनांक</string>
+    <string name="drop_pin_label">पेयरिंग पिन</string>
+    <string name="drop_copy_pin">पिन कॉपी करें</string>
+    <string name="drop_pin_copied">पेयरिंग पिन क्लिपबोर्ड पर कॉपी किया गया</string>
+    <string name="drop_copied">कॉपी किया गया</string>
+    <string name="drop_pin_instructions">पूछे जाने पर अपने ब्राउज़र में यह पिन दर्ज करें</string>
 </resources>
