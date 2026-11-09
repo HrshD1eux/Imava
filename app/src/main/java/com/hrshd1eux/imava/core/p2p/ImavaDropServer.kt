@@ -1292,14 +1292,17 @@ object ImavaDropServer {
     <title>Imava Drop · Pairing Authentication</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --surface-color: #1e293b;
-            --primary-color: #6366f1;
-            --primary-hover: #4f46e5;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --border-color: #334155;
-            --error-color: #ef4444;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #f1f5f9;
+            --error-color: #dc2626;
+            --error-bg: #fef2f2;
+            --error-border: #fecaca;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -1315,23 +1318,31 @@ object ImavaDropServer {
         .card {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 36px 32px;
+            border-radius: 24px;
+            padding: 40px 32px;
             max-width: 420px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
         }
         .icon {
-            font-size: 40px;
-            margin-bottom: 16px;
-            display: inline-block;
+            font-size: 38px;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
         }
         h1 {
             font-size: 22px;
             font-weight: 700;
             margin-bottom: 8px;
             color: var(--text-main);
+            letter-spacing: -0.3px;
         }
         p {
             font-size: 14px;
@@ -1343,50 +1354,64 @@ object ImavaDropServer {
             width: 100%;
             letter-spacing: 12px;
             text-align: center;
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 800;
-            font-family: monospace;
-            padding: 14px 16px;
-            border-radius: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            padding: 16px 20px;
+            border-radius: 14px;
             border: 2px solid var(--border-color);
-            background: #0f172a;
-            color: #fff;
-            margin-bottom: 16px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            margin-bottom: 18px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s ease;
         }
         .pin-input:focus {
             border-color: var(--primary-color);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+        }
+        .pin-input::placeholder {
+            color: #94a3b8;
+            letter-spacing: 8px;
         }
         .btn-submit {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             background: var(--primary-color);
-            color: #fff;
+            color: #ffffff;
             border: none;
-            border-radius: 12px;
-            font-size: 15px;
+            border-radius: 14px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.15s;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+            transition: all 0.15s ease;
         }
         .btn-submit:hover {
             background: var(--primary-hover);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+            transform: translateY(-1px);
+        }
+        .btn-submit:active {
+            transform: translateY(0);
         }
         .error {
-            background: rgba(239, 68, 68, 0.15);
+            background: var(--error-bg);
             color: var(--error-color);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 10px;
-            padding: 10px 14px;
+            border: 1px solid var(--error-border);
+            border-radius: 12px;
+            padding: 12px 16px;
             font-size: 13px;
-            margin-bottom: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
             display: $errorDisplay;
         }
         .footer {
             margin-top: 24px;
             font-size: 12px;
             color: var(--text-sub);
+            font-weight: 500;
         }
     </style>
 </head>
