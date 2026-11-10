@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">Identifica fotos fuera de foco o movidas mediante análisis de varianza de bordes en el dispositivo.</string>
     <string name="doctor_scan_now">Escanear ahora</string>
     <string name="doctor_rescan">Volver a escanear</string>
+    <string name="drop_offline_hotspot_hint">¿Sin Wi-Fi? Activa el punto de acceso (Hotspot) desde Ajustes rápidos para transferir en cualquier lugar a máxima velocidad.</string>
 </resources>

@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">Identifie les photos floues ou bougées grâce à l\'analyse de variance des contours sur l\'appareil.</string>
     <string name="doctor_scan_now">Analyser maintenant</string>
     <string name="doctor_rescan">Réanalyser</string>
+    <string name="drop_offline_hotspot_hint">Pas de Wi-Fi ? Activez le point d\'accès (Hotspot) depuis les Paramètres rapides pour transférer n\'importe où à vitesse maximale.</string>
 </resources>

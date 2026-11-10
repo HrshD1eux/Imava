@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">ऑन-डिव्हाइस एज व्हेरिएंस विश्लेषणाचा वापर करून अस्पष्ट किंवा हललेले फोटो ओळखतो.</string>
     <string name="doctor_scan_now">आता स्कॅन करा</string>
     <string name="doctor_rescan">पुन्हा स्कॅन करा</string>
+    <string name="drop_offline_hotspot_hint">वाय-फाय नाही? कुठेही कमाल वेगाने ट्रान्सफर करण्यासाठी द्रुत सेटिंग्जमधून तुमच्या फोनचा हॉटस्पॉट चालू करा.</string>
 </resources>

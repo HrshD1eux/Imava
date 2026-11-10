@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -214,6 +215,65 @@ fun ImavaDropDialog(
                             else
                                 MaterialTheme.colorScheme.error
                         )
+                    }
+
+                    // Offline Hotspot Guidance Banner (shown when no Wi-Fi or Hotspot IP is detected)
+                    val isOffline = !serverState.isRunning || serverState.ipAddress == null
+                    if (isOffline) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(14.dp))
+                                .clickable {
+                                    HapticUtil.performSelection(context)
+                                    try {
+                                        context.startActivity(Intent("android.settings.TETHER_SETTINGS"))
+                                    } catch (_: Exception) {
+                                        try {
+                                            context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                                        } catch (_: Exception) {}
+                                    }
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.WifiTethering,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.secondary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = stringResource(R.string.drop_offline_hotspot_hint),
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        fontWeight = FontWeight.Medium,
+                                        lineHeight = 16.sp
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))

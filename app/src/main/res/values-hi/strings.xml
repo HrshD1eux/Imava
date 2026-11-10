@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">ऑन-डिवाइस एज वेरिएंस विश्लेषण का उपयोग करके धुंधली या हिली हुई तस्वीरों की पहचान करता है।</string>
     <string name="doctor_scan_now">अभी स्कैन करें</string>
     <string name="doctor_rescan">पुनः स्कैन करें</string>
+    <string name="drop_offline_hotspot_hint">वाई-फ़ाई नहीं है? कहीं भी अधिकतम गति से ट्रांसफ़र करने के लिए त्वरित सेटिंग से अपने फ़ोन का हॉटस्पॉट चालू करें।</string>
 </resources>

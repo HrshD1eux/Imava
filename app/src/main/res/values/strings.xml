@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">Identifies out-of-focus, shaken, or blurry shots using on-device edge variance analysis.</string>
     <string name="doctor_scan_now">Scan Now</string>
     <string name="doctor_rescan">Re-scan</string>
+    <string name="drop_offline_hotspot_hint">No Wi-Fi? Turn on your phone\'s Hotspot from Quick Settings to transfer anywhere at maximum speed.</string>
 </resources>

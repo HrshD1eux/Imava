@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">Identifica fotos desfocadas ou tremidas usando análise de variância de bordas no dispositivo.</string>
     <string name="doctor_scan_now">Verificar agora</string>
     <string name="doctor_rescan">Verificar novamente</string>
+    <string name="drop_offline_hotspot_hint">Sem Wi-Fi? Ative o ponto de acesso (Hotspot) nas Definições rápidas para transferir em qualquer lugar à velocidade máxima.</string>
 </resources>

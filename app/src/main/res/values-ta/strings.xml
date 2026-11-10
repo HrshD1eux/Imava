@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">சாதனத்திலேயே விளிம்பு மாறுபாட்டுப் பகுப்பாய்வு மூலம் மங்கலான படங்களை அடையாளம் காண்கிறது.</string>
     <string name="doctor_scan_now">இப்போதே ஸ்கேன் செய்க</string>
     <string name="doctor_rescan">மீண்டும் ஸ்கேன் செய்க</string>
+    <string name="drop_offline_hotspot_hint">வைஃபை இல்லையா? எங்கும் அதிகபட்ச வேகத்தில் மாற்ற விரைவு அமைப்புகளில் இருந்து உங்கள் மொபைலின் ஹாட்ஸ்பாட்டை இயக்கவும்.</string>
 </resources>

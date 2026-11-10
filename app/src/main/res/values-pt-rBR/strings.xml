@@ -334,4 +334,5 @@
     <string name="doctor_blurry_desc">Identifica fotos borradas ou tremidas usando análise de variância de bordas no dispositivo.</string>
     <string name="doctor_scan_now">Escanear agora</string>
     <string name="doctor_rescan">Reescanear</string>
+    <string name="drop_offline_hotspot_hint">Sem Wi-Fi? Ative o ponto de acesso (Hotspot) nas Configurações rápidas para transferir em qualquer lugar na velocidade máxima.</string>
 </resources>
