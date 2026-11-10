@@ -68,6 +68,7 @@ object ImavaDropServer {
     private var serverSocket: ServerSocket? = null
     private var serverJob: Job? = null
     private var idleCheckJob: Job? = null
+    private var networkMonitorJob: Job? = null
     private var lastActivityTime = System.currentTimeMillis()
     private var threadPool = Executors.newCachedThreadPool()
     private var wifiLock: WifiManager.WifiLock? = null
@@ -132,20 +133,20 @@ object ImavaDropServer {
         }
 
         val pin = String.format(Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
-        val base = if (ip != null) "http://$ip:$port" else "http://localhost:$port"
-        val fullUrl = "$base?pin=$pin"
+        val base = if (ip != null) "http://$ip:$port" else null
+        val fullUrl = if (base != null) "$base?pin=$pin" else null
 
         _state.value = ImavaDropState(
             isRunning = true,
             ipAddress = ip,
             port = port,
             url = fullUrl,
-            baseUrl = base,
+            baseUrl = base ?: "http://localhost:$port",
             pin = pin,
             sharedItems = items,
             totalBytes = totalSize,
             logs = listOf(
-                "Imava Drop started on $base",
+                if (base != null) "Imava Drop started on $base" else "Imava Drop waiting for Wi-Fi or Hotspot connection",
                 "Pairing PIN: $pin",
                 "Ready to transfer ${items.size} items (${FormatUtils.formatFileSize(totalSize)})"
             )
@@ -153,6 +154,30 @@ object ImavaDropServer {
 
         serverJob = scope.launch {
             listenLoop(finalSocket)
+        }
+
+        networkMonitorJob?.cancel()
+        networkMonitorJob = scope.launch {
+            while (_state.value.isRunning) {
+                delay(2000)
+                val currentIp = getLocalIpAddress()
+                if (currentIp != _state.value.ipAddress) {
+                    val currentPort = _state.value.port
+                    val currentPin = _state.value.pin
+                    val newBase = if (currentIp != null) "http://$currentIp:$currentPort" else null
+                    val newUrl = if (newBase != null) "$newBase?pin=$currentPin" else null
+                    _state.value = _state.value.copy(
+                        ipAddress = currentIp,
+                        baseUrl = newBase ?: "http://localhost:$currentPort",
+                        url = newUrl
+                    )
+                    if (currentIp != null) {
+                        addLog("Local Wi-Fi IP detected: $currentIp")
+                    } else {
+                        addLog("Local Wi-Fi disconnected. Waiting for connection or Hotspot.")
+                    }
+                }
+            }
         }
 
         lastActivityTime = System.currentTimeMillis()
@@ -204,6 +229,9 @@ object ImavaDropServer {
 
         idleCheckJob?.cancel()
         idleCheckJob = null
+
+        networkMonitorJob?.cancel()
+        networkMonitorJob = null
 
         try {
             wifiLock?.let {
@@ -1491,25 +1519,36 @@ object ImavaDropServer {
     fun getLocalIpAddress(): String? {
         try {
             val interfaces = NetworkInterface.getNetworkInterfaces() ?: return null
-            for (intf in Collections.list(interfaces)) {
+            val intfList = Collections.list(interfaces)
+
+            // Pass 1: Local Wi-Fi or Hotspot interface (wlan, ap, softap, swlan, eth, rndis)
+            for (intf in intfList) {
                 if (intf.isLoopback || !intf.isUp) continue
-                for (addr in Collections.list(intf.inetAddresses)) {
-                    if (!addr.isLoopbackAddress && addr is Inet4Address) {
-                        val host = addr.hostAddress ?: continue
-                        if (host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.")) {
-                            return host
+                val name = intf.name.lowercase(Locale.ROOT)
+                if (isExcludedInterface(name)) continue
+
+                if (isLocalTransferInterface(name)) {
+                    for (addr in Collections.list(intf.inetAddresses)) {
+                        if (!addr.isLoopbackAddress && addr is Inet4Address) {
+                            val host = addr.hostAddress ?: continue
+                            if (host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.")) {
+                                return host
+                            }
                         }
                     }
                 }
             }
-            // Fallback: any non-loopback IPv4
-            val fallbackInterfaces = NetworkInterface.getNetworkInterfaces() ?: return null
-            for (intf in Collections.list(fallbackInterfaces)) {
+
+            // Pass 2: Any non-excluded interface strictly with 192.168.x.x (standard hotspot/router IP)
+            for (intf in intfList) {
                 if (intf.isLoopback || !intf.isUp) continue
+                val name = intf.name.lowercase(Locale.ROOT)
+                if (isExcludedInterface(name)) continue
+
                 for (addr in Collections.list(intf.inetAddresses)) {
                     if (!addr.isLoopbackAddress && addr is Inet4Address) {
-                        val host = addr.hostAddress
-                        if (host != null && !host.startsWith("127.")) {
+                        val host = addr.hostAddress ?: continue
+                        if (host.startsWith("192.168.")) {
                             return host
                         }
                     }
@@ -1517,5 +1556,32 @@ object ImavaDropServer {
             }
         } catch (_: Exception) {}
         return null
+    }
+
+    private fun isExcludedInterface(name: String): Boolean {
+        val lower = name.lowercase(Locale.ROOT)
+        return lower.startsWith("rmnet") ||  // Qualcomm cellular
+                lower.startsWith("ccmni") || // MediaTek cellular
+                lower.startsWith("pdp") ||   // Samsung Exynos cellular
+                lower.startsWith("clat") ||  // 464xlat mobile data
+                lower.startsWith("tun") ||   // VPN tunnel (WireGuard, OpenVPN)
+                lower.startsWith("tap") ||   // VPN tap
+                lower.startsWith("ppp") ||   // Point-to-point cellular
+                lower.startsWith("dummy") ||
+                lower.startsWith("radio") ||
+                lower.startsWith("wwan") ||
+                lower.startsWith("bond") ||
+                lower.startsWith("v4-") ||   // CLAT v4-rmnet
+                lower.startsWith("p2p")      // Wi-Fi Direct p2p control
+    }
+
+    private fun isLocalTransferInterface(name: String): Boolean {
+        val lower = name.lowercase(Locale.ROOT)
+        return lower.startsWith("wlan") ||
+                lower.startsWith("ap") ||
+                lower.startsWith("softap") ||
+                lower.startsWith("swlan") ||
+                lower.startsWith("eth") ||
+                lower.startsWith("rndis")
     }
 }

@@ -315,7 +315,7 @@ fun ImavaDropDialog(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Connect to Wi-Fi to generate transfer link",
+                                text = "Connect to Wi-Fi or turn on Hotspot to generate transfer QR code",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
@@ -324,103 +324,104 @@ fun ImavaDropDialog(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // URL & Quick Actions Card - Never cuts off URL
-                    val url = serverState.url ?: "http://..."
-                    Surface(
-                        shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp)
+                    // URL & Quick Actions Card (shown only when an active local network is detected)
+                    if (serverState.ipAddress != null && serverState.url != null) {
+                        val url = serverState.url!!
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                text = url,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 13.sp
-                                ),
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp)
                             ) {
-                                OutlinedButton(
-                                    onClick = {
-                                        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                        cm.setPrimaryClip(ClipData.newPlainText("Imava Drop Link", url))
-                                        HapticUtil.performSuccess(context)
-                                        isCopied = true
-                                        Toast.makeText(context, "Link copied to clipboard", Toast.LENGTH_SHORT).show()
-                                    },
-                                    modifier = Modifier.height(32.dp),
-                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                                    shape = RoundedCornerShape(8.dp)
+                                Text(
+                                    text = url,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontFamily = FontFamily.Monospace,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp
+                                    ),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(14.dp),
-                                        tint = if (isCopied) Color(0xFF10B981) else MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = if (isCopied) "Copied" else "Copy Link",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (isCopied) Color(0xFF10B981) else MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(6.dp))
-                                IconButton(
-                                    onClick = {
-                                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                            putExtra(Intent.EXTRA_TEXT, url)
-                                            type = "text/plain"
-                                        }
-                                        context.startActivity(Intent.createChooser(sendIntent, "Share Imava Drop Link"))
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Share,
-                                        contentDescription = "Share Link",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {
-                                        try {
-                                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                            context.startActivity(browserIntent)
-                                        } catch (_: Exception) {
-                                            Toast.makeText(context, "Could not open browser", Toast.LENGTH_SHORT).show()
-                                        }
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.OpenInBrowser,
-                                        contentDescription = "Open in Browser",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
+                                    OutlinedButton(
+                                        onClick = {
+                                            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                            cm.setPrimaryClip(ClipData.newPlainText("Imava Drop Link", url))
+                                            HapticUtil.performSuccess(context)
+                                            isCopied = true
+                                            Toast.makeText(context, "Link copied to clipboard", Toast.LENGTH_SHORT).show()
+                                        },
+                                        modifier = Modifier.height(32.dp),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(14.dp),
+                                            tint = if (isCopied) Color(0xFF10B981) else MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = if (isCopied) "Copied" else "Copy Link",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = if (isCopied) Color(0xFF10B981) else MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    IconButton(
+                                        onClick = {
+                                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                                putExtra(Intent.EXTRA_TEXT, url)
+                                                type = "text/plain"
+                                            }
+                                            context.startActivity(Intent.createChooser(sendIntent, "Share Imava Drop Link"))
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Share,
+                                            contentDescription = "Share Link",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            try {
+                                                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                                context.startActivity(browserIntent)
+                                            } catch (_: Exception) {
+                                                Toast.makeText(context, "Could not open browser", Toast.LENGTH_SHORT).show()
+                                            }
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.OpenInBrowser,
+                                            contentDescription = "Open in Browser",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
 
-                    // Pairing PIN Card
-                    if (serverState.pin.isNotBlank()) {
+                    // Pairing PIN Card (shown only when an active local network is detected)
+                    if (serverState.ipAddress != null && serverState.pin.isNotBlank()) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Surface(
                             shape = RoundedCornerShape(14.dp),
