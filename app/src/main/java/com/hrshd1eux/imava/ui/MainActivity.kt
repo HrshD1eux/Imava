@@ -869,8 +869,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 AlertDialog(
                                     onDismissRequest = { showEmptyTrashConfirm = false },
                                     icon = { Icon(Icons.Default.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-                                    title = { Text("Empty Trash?") },
-                                    text = { Text("All items in Trash will be permanently deleted from your device storage. This action cannot be undone.") },
+                                    title = { Text(stringResource(R.string.album_empty_trash_title)) },
+                                    text = { Text(stringResource(R.string.album_empty_trash_desc)) },
                                     confirmButton = {
                                         Button(
                                             onClick = {
@@ -879,12 +879,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             },
                                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                                         ) {
-                                            Text("Empty Trash")
+                                            Text(stringResource(R.string.empty_trash))
                                         }
                                     },
                                     dismissButton = {
                                         TextButton(onClick = { showEmptyTrashConfirm = false }) {
-                                            Text("Cancel")
+                                            Text(stringResource(R.string.action_cancel))
                                         }
                                     }
                                 )
@@ -912,8 +912,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 DropdownMenuItem(
                                     text = {
                                         Column {
-                                            Text("Lock Vault Now", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                            Text("Immediately lock and hide private media", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            Text(stringResource(R.string.lock_vault_now), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                            Text(stringResource(R.string.lock_vault_now_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                     },
                                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
@@ -928,8 +928,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 DropdownMenuItem(
                                     text = {
                                         Column {
-                                            Text("Vault Security Settings", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                            Text("Master password, decoy PIN, backup & delete", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            Text(stringResource(R.string.vault_security_settings), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                            Text(stringResource(R.string.vault_security_settings_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                     },
                                     leadingIcon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
@@ -959,7 +959,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 onDismissRequest = { showAlbumMenu = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Scrub Album Metadata 🛡️") },
+                                    text = { Text(stringResource(R.string.scrub_album_title)) },
                                     leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
                                     onClick = {
                                         showAlbumMenu = false
@@ -1101,8 +1101,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text("Compress Images", style = MaterialTheme.typography.bodyMedium)
-                                                    Text("Bulk compress photos to target size", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    Text(stringResource(R.string.menu_compress_images), style = MaterialTheme.typography.bodyMedium)
+                                                    Text(stringResource(R.string.menu_compress_images_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
                                             },
                                             leadingIcon = {
@@ -1117,8 +1117,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text("Manage Tags", style = MaterialTheme.typography.bodyMedium)
-                                                    Text("Add or remove tags for selected items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    Text(stringResource(R.string.menu_manage_tags), style = MaterialTheme.typography.bodyMedium)
+                                                    Text(stringResource(R.string.menu_manage_tags_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
                                             },
                                             leadingIcon = {
@@ -1215,8 +1215,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text("Compress Images", style = MaterialTheme.typography.bodyMedium)
-                                                    Text("Bulk compress photos to target size", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    Text(stringResource(R.string.menu_compress_images), style = MaterialTheme.typography.bodyMedium)
+                                                    Text(stringResource(R.string.menu_compress_images_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
                                             },
                                             leadingIcon = {
@@ -1231,8 +1231,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text("Manage Tags", style = MaterialTheme.typography.bodyMedium)
-                                                    Text("Add or remove tags for selected items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    Text(stringResource(R.string.menu_manage_tags), style = MaterialTheme.typography.bodyMedium)
+                                                    Text(stringResource(R.string.menu_manage_tags_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
                                             },
                                             leadingIcon = {
@@ -1248,8 +1248,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text("Move / Copy", style = MaterialTheme.typography.bodyMedium)
-                                                        Text("Move or copy to an album", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(stringResource(R.string.menu_move_copy), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(stringResource(R.string.menu_move_copy_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1288,8 +1288,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text(if (selectedIds.size == 1) "Rename" else "Batch Rename", style = MaterialTheme.typography.bodyMedium)
-                                                        Text(if (selectedIds.size == 1) "Rename item" else "Rename ${selectedIds.size} items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(if (selectedIds.size == 1) stringResource(R.string.action_rename) else stringResource(R.string.rename_file), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(if (selectedIds.size == 1) "Rename item" else stringResource(R.string.items_selected_format, selectedIds.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1311,8 +1311,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text("Create PDF", style = MaterialTheme.typography.bodyMedium)
-                                                    Text("Convert photos into PDF", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    Text(stringResource(R.string.menu_create_pdf), style = MaterialTheme.typography.bodyMedium)
+                                                    Text(stringResource(R.string.menu_create_pdf_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
                                             },
                                             leadingIcon = {
@@ -1342,8 +1342,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text("Clean Copy (Strip EXIF)", style = MaterialTheme.typography.bodyMedium)
-                                                    Text("Export copies without metadata", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    Text(stringResource(R.string.menu_clean_copy), style = MaterialTheme.typography.bodyMedium)
+                                                    Text(stringResource(R.string.menu_clean_copy_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
                                             },
                                             leadingIcon = {
@@ -1365,8 +1365,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text("Lossless Rotate", style = MaterialTheme.typography.bodyMedium)
-                                                    Text("Rotate photos 90° clockwise", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    Text(stringResource(R.string.menu_lossless_rotate), style = MaterialTheme.typography.bodyMedium)
+                                                    Text(stringResource(R.string.menu_lossless_rotate_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
                                             },
                                             leadingIcon = {
@@ -1393,7 +1393,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text("Collage", style = MaterialTheme.typography.bodyMedium)
+                                                        Text(stringResource(R.string.menu_collage), style = MaterialTheme.typography.bodyMedium)
                                                         Text(if (selectedIds.size in 2..9) "Create collage" else "Requires 2 to 9 photos", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
@@ -1419,8 +1419,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text("Compare", style = MaterialTheme.typography.bodyMedium)
-                                                        Text(if (selectedIds.size == 2) "Compare 2 items side-by-side" else "Requires exactly 2 items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(stringResource(R.string.menu_compare), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(if (selectedIds.size == 2) stringResource(R.string.menu_compare_desc) else "Requires exactly 2 items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1441,8 +1441,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text("Slideshow", style = MaterialTheme.typography.bodyMedium)
-                                                        Text("Play animated slideshow", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(stringResource(R.string.menu_slideshow), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(stringResource(R.string.menu_slideshow_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1463,8 +1463,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text("Print", style = MaterialTheme.typography.bodyMedium)
-                                                        Text("Send photo to printer", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(stringResource(R.string.menu_print), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(stringResource(R.string.menu_print_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1487,8 +1487,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text("Shift Timestamp", style = MaterialTheme.typography.bodyMedium)
-                                                        Text("Adjust date and time", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(stringResource(R.string.menu_shift_timestamp), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(stringResource(R.string.menu_shift_timestamp_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1888,11 +1888,11 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     if (showSelectionShareDialog) {
         AlertDialog(
             onDismissRequest = { showSelectionShareDialog = false },
-            title = { Text("Share Selected Files 🛡️") },
+            title = { Text(stringResource(R.string.share_dialog_title)) },
             text = {
                 Column {
                     Text(
-                        text = "Choose metadata & privacy level before sharing:",
+                        text = stringResource(R.string.share_choose_privacy),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -1910,8 +1910,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("Strip All Metadata 🛡️", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                            Text("Remove all GPS coordinates, timestamps, & camera serials", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.share_strip_all), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.share_strip_all_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
 
@@ -1928,8 +1928,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("Fuzz GPS Location (~2 km) 🌐", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                            Text("Obscure exact street with coarse ~2 km radius; keep city area", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.share_fuzz_gps), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.share_fuzz_gps_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
 
@@ -1946,8 +1946,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("Full Metadata 📷", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                            Text("Preserve original EXIF markers and exact GPS position", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.share_full_metadata), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.share_full_metadata_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
 
@@ -2000,12 +2000,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         viewModel.shareSelectedMedia(context, selectionSharePrivacyMode)
                     }
                 ) {
-                    Text("Share")
+                    Text(stringResource(R.string.action_share))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSelectionShareDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -2031,10 +2031,10 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         AlertDialog(
             onDismissRequest = { showVaultPreConfirmDialog = false },
             icon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text("Hide in Private Vault") },
+            title = { Text(stringResource(R.string.vault_hide_dialog_title)) },
             text = {
                 Column {
-                    Text("The selected items will be safely locked in your private vault so only you can see them.")
+                    Text(stringResource(R.string.vault_hide_dialog_message))
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Next, your phone will ask to remove the copies from your main gallery. Please tap Allow on the next screen.",
@@ -2061,12 +2061,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         }
                     }
                 ) {
-                    Text("Continue")
+                    Text(stringResource(R.string.action_continue))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showVaultPreConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -2079,9 +2079,9 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 pendingMoveToVaultIds = emptySet()
             },
             icon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text("Vault Setup Required") },
+            title = { Text(stringResource(R.string.vault_setup_required_title)) },
             text = {
-                Text("Private Vault has not been set up yet. Please create your master password, PIN, or pattern first so your selected items can be securely encrypted.")
+                Text(stringResource(R.string.vault_setup_required_message))
             },
             confirmButton = {
                 Button(
@@ -2090,7 +2090,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         viewModel.currentScreen = Screen.VaultSetup
                     }
                 ) {
-                    Text("Set Up Vault")
+                    Text(stringResource(R.string.vault_setup_button))
                 }
             },
             dismissButton = {
@@ -2100,7 +2100,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         pendingMoveToVaultIds = emptySet()
                     }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -2111,8 +2111,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         AlertDialog(
             onDismissRequest = { showSelectionRestoreConfirmDialog = false },
             icon = { Icon(Icons.Default.RestoreFromTrash, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text("Restore items?") },
-            text = { Text("Are you sure you want to restore $count ${if (count == 1) "item" else "items"} from Trash back to your gallery?") },
+            title = { Text(stringResource(R.string.restore_items_confirm_title)) },
+            text = { Text(stringResource(R.string.restore_items_confirm_message, count)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -2121,12 +2121,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         viewModel.restoreSelectedMedia(context)
                     }
                 ) {
-                    Text("Restore")
+                    Text(stringResource(R.string.action_restore))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSelectionRestoreConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -2137,8 +2137,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         val count = selectionState.selectedIds.size
         AlertDialog(
             onDismissRequest = { showSelectionDeleteConfirmDialog = false },
-            title = { Text("Move to Trash?") },
-            text = { Text("Are you sure you want to move $count ${if (count == 1) "item" else "items"} to Trash?") },
+            title = { Text(stringResource(R.string.trash_items_confirm_title)) },
+            text = { Text(stringResource(R.string.trash_items_confirm_message, count)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -2147,12 +2147,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Move to Trash")
+                    Text(stringResource(R.string.move_to_trash))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSelectionDeleteConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -2162,8 +2162,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         val count = selectionState.selectedIds.size
         AlertDialog(
             onDismissRequest = { showSelectionDeletePermanentlyConfirmDialog = false },
-            title = { Text("Delete Permanently?") },
-            text = { Text("Are you sure you want to permanently delete $count ${if (count == 1) "item" else "items"}? This action is irreversible and cannot be undone.") },
+            title = { Text(stringResource(R.string.delete_permanently_confirm_title)) },
+            text = { Text(stringResource(R.string.delete_permanently_confirm_message, count)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -2172,12 +2172,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Delete Permanently")
+                    Text(stringResource(R.string.delete_permanently))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSelectionDeletePermanentlyConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )

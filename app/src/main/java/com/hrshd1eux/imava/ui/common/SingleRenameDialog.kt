@@ -36,8 +36,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.FormatUtils
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.data.model.MediaItem
@@ -70,7 +72,7 @@ fun SingleRenameDialog(
         },
         title = {
             Text(
-                text = "Rename File",
+                text = stringResource(R.string.rename_file),
                 style = MaterialTheme.typography.titleLarge
             )
         },
@@ -124,8 +126,8 @@ fun SingleRenameDialog(
                 OutlinedTextField(
                     value = customRenameText,
                     onValueChange = { customRenameText = it },
-                    label = { Text("New File Name") },
-                    placeholder = { Text("Enter name") },
+                    label = { Text(stringResource(R.string.new_file_name)) },
+                    placeholder = { Text(stringResource(R.string.enter_name)) },
                     singleLine = true,
                     isError = customRenameText.any { it in "/\\:*?\"<>|" },
                     trailingIcon = {
@@ -140,7 +142,7 @@ fun SingleRenameDialog(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
-                                        contentDescription = "Clear",
+                                        contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -167,9 +169,9 @@ fun SingleRenameDialog(
                     supportingText = {
                         Text(
                             text = if (customRenameText.any { it in "/\\:*?\"<>|" }) {
-                                "Name cannot contain / \\ : * ? \" < > |"
+                                stringResource(R.string.filename_invalid_characters)
                             } else if (ext.isNotEmpty()) {
-                                "Extension $ext will be preserved automatically"
+                                stringResource(R.string.extension_preserved_format, ext)
                             } else {
                                 ""
                             },
@@ -192,12 +194,12 @@ fun SingleRenameDialog(
                     }
                 }
             ) {
-                Text("Rename")
+                Text(stringResource(R.string.action_rename))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

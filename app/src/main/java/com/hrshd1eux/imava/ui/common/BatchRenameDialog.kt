@@ -40,9 +40,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 import java.io.File
 import java.text.SimpleDateFormat
@@ -109,7 +111,7 @@ fun BatchRenameDialog(
         },
         title = {
             Text(
-                text = "Batch Rename (${selectedItems.size} items)",
+                text = stringResource(R.string.batch_rename_title, selectedItems.size),
                 style = MaterialTheme.typography.titleLarge
             )
         },
@@ -128,17 +130,17 @@ fun BatchRenameDialog(
                     FilterChip(
                         selected = mode == RenameMode.NUMBERED,
                         onClick = { mode = RenameMode.NUMBERED },
-                        label = { Text("Numbered") }
+                        label = { Text(stringResource(R.string.rename_mode_numbered)) }
                     )
                     FilterChip(
                         selected = mode == RenameMode.DATE_PREFIX,
                         onClick = { mode = RenameMode.DATE_PREFIX },
-                        label = { Text("Date Prefix") }
+                        label = { Text(stringResource(R.string.rename_mode_date_prefix)) }
                     )
                     FilterChip(
                         selected = mode == RenameMode.FIND_REPLACE,
                         onClick = { mode = RenameMode.FIND_REPLACE },
-                        label = { Text("Find & Replace") }
+                        label = { Text(stringResource(R.string.rename_mode_find_replace)) }
                     )
                 }
 
@@ -149,13 +151,13 @@ fun BatchRenameDialog(
                         OutlinedTextField(
                             value = prefix,
                             onValueChange = { prefix = it },
-                            label = { Text("Prefix") },
+                            label = { Text(stringResource(R.string.rename_prefix)) },
                             placeholder = { Text("e.g. Vacation_") },
                             singleLine = true,
                             trailingIcon = {
                                 if (prefix.isNotEmpty()) {
                                     IconButton(onClick = { prefix = "" }) {
-                                        Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
+                                        Icon(imageVector = Icons.Default.Clear, contentDescription = null)
                                     }
                                 }
                             },
@@ -182,7 +184,7 @@ fun BatchRenameDialog(
                         OutlinedTextField(
                             value = startNumber,
                             onValueChange = { startNumber = it.filter { char -> char.isDigit() } },
-                            label = { Text("Start Counter") },
+                            label = { Text(stringResource(R.string.rename_start_counter)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -194,7 +196,7 @@ fun BatchRenameDialog(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Prepends capture date 'YYYY-MM-DD_' to each file's original name.",
+                                text = stringResource(R.string.rename_date_prefix_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(12.dp)
@@ -205,12 +207,12 @@ fun BatchRenameDialog(
                         OutlinedTextField(
                             value = findText,
                             onValueChange = { findText = it },
-                            label = { Text("Find text") },
+                            label = { Text(stringResource(R.string.rename_find_text)) },
                             singleLine = true,
                             trailingIcon = {
                                 if (findText.isNotEmpty()) {
                                     IconButton(onClick = { findText = "" }) {
-                                        Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
+                                        Icon(imageVector = Icons.Default.Clear, contentDescription = null)
                                     }
                                 }
                             },
@@ -220,12 +222,12 @@ fun BatchRenameDialog(
                         OutlinedTextField(
                             value = replaceText,
                             onValueChange = { replaceText = it },
-                            label = { Text("Replace with") },
+                            label = { Text(stringResource(R.string.rename_replace_with)) },
                             singleLine = true,
                             trailingIcon = {
                                 if (replaceText.isNotEmpty()) {
                                     IconButton(onClick = { replaceText = "" }) {
-                                        Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
+                                        Icon(imageVector = Icons.Default.Clear, contentDescription = null)
                                     }
                                 }
                             },
@@ -249,13 +251,13 @@ fun BatchRenameDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "⚡ Live Preview",
+                                text = stringResource(R.string.rename_live_preview),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "${selectedItems.size} items",
+                                text = stringResource(R.string.items_selected_format, selectedItems.size),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -304,7 +306,7 @@ fun BatchRenameDialog(
 
                         if (plannedRenames.size > 4) {
                             Text(
-                                text = "... and ${plannedRenames.size - 4} more files",
+                                text = stringResource(R.string.rename_more_files_format, plannedRenames.size - 4),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -318,12 +320,12 @@ fun BatchRenameDialog(
             Button(
                 onClick = { onConfirmRename(plannedRenames) }
             ) {
-                Text("Rename All (${selectedItems.size})")
+                Text(stringResource(R.string.rename_all_format, selectedItems.size))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

@@ -42,8 +42,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -88,7 +90,7 @@ fun BulkTagDialog(
         },
         title = {
             Text(
-                text = "Manage Tags",
+                text = stringResource(R.string.menu_manage_tags),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -108,14 +110,14 @@ fun BulkTagDialog(
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            text = "Applying to ${selectedItems.size} selected item(s)",
+                            text = stringResource(R.string.bulk_tag_applying_to, selectedItems.size),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Tags allow you to quickly search and filter media across your entire gallery.",
+                            text = stringResource(R.string.bulk_tag_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -132,8 +134,8 @@ fun BulkTagDialog(
                     OutlinedTextField(
                         value = tagInput,
                         onValueChange = { tagInput = it },
-                        label = { Text("Add custom tag") },
-                        placeholder = { Text("e.g. vacation, family") },
+                        label = { Text(stringResource(R.string.add_custom_tag)) },
+                        placeholder = { Text(stringResource(R.string.add_custom_tag_hint)) },
                         singleLine = true,
                         modifier = Modifier.weight(1f)
                     )
@@ -144,7 +146,7 @@ fun BulkTagDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Add Tag",
+                            contentDescription = null,
                             tint = if (tagInput.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -156,7 +158,7 @@ fun BulkTagDialog(
                 val visibleCurrentTags = (initialCurrentTags + tagsToAdd).filter { !tagsToRemove.contains(it) }.distinct()
 
                 Text(
-                    text = "Active Tags (${visibleCurrentTags.size})",
+                    text = stringResource(R.string.active_tags_format, visibleCurrentTags.size),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )
@@ -164,7 +166,7 @@ fun BulkTagDialog(
 
                 if (visibleCurrentTags.isEmpty()) {
                     Text(
-                        text = "No tags assigned yet. Type above or tap suggestions below.",
+                        text = stringResource(R.string.no_tags_yet),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -181,7 +183,7 @@ fun BulkTagDialog(
                                 trailingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove tag",
+                                        contentDescription = null,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 },
@@ -209,7 +211,7 @@ fun BulkTagDialog(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Suggested Tags from Gallery",
+                        text = stringResource(R.string.suggested_tags_title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium
                     )
@@ -244,12 +246,12 @@ fun BulkTagDialog(
                     onConfirm(tagsToAdd.toSet(), tagsToRemove.toSet())
                 }
             ) {
-                Text("Apply Tags")
+                Text(stringResource(R.string.apply_tags))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

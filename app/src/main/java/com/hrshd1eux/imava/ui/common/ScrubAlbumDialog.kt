@@ -29,8 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.ExifSanitizerUtil
 
 @Composable
@@ -59,7 +61,7 @@ fun ScrubAlbumDialog(
         },
         title = {
             Text(
-                text = "Scrub Album Metadata 🛡️",
+                text = stringResource(R.string.scrub_album_title),
                 style = MaterialTheme.typography.titleLarge
             )
         },
@@ -67,7 +69,7 @@ fun ScrubAlbumDialog(
             Column(modifier = Modifier.fillMaxWidth()) {
                 if (isScrubbing) {
                     Text(
-                        text = "Scrubbing $albumName...",
+                        text = stringResource(R.string.scrubbing_album_format, albumName),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -79,13 +81,13 @@ fun ScrubAlbumDialog(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "$progressCurrent of $progressTotal photos sanitized",
+                        text = stringResource(R.string.scrubbing_progress_format, progressCurrent, progressTotal),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Text(
-                        text = "Permanently strip GPS location, camera model, body/lens serial numbers, and device fingerprints from all $itemCount photos in $albumName.",
+                        text = stringResource(R.string.scrub_album_warning, itemCount, albumName),
                         style = MaterialTheme.typography.bodyMedium
                     )
 
@@ -110,12 +112,12 @@ fun ScrubAlbumDialog(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Preserve capture date & orientation",
+                                    text = stringResource(R.string.scrub_preserve_date),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
-                                    text = "Recommended: preserves timeline order and keeps portrait photos upright.",
+                                    text = stringResource(R.string.scrub_preserve_date_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -131,7 +133,7 @@ fun ScrubAlbumDialog(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "⚠️ Irreversible: Original files in this folder will be modified in-place.",
+                            text = stringResource(R.string.scrub_irreversible_warning),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.padding(8.dp)
@@ -155,14 +157,14 @@ fun ScrubAlbumDialog(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Text("Scrub Photos")
+                    Text(stringResource(R.string.scrub_photos_action))
                 }
             }
         },
         dismissButton = {
             if (!isScrubbing) {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         }

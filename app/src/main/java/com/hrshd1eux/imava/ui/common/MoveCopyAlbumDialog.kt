@@ -45,9 +45,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.media.BucketInfo
 import java.io.File
 
@@ -69,7 +71,7 @@ fun MoveCopyAlbumDialog(
             shape = RoundedCornerShape(20.dp),
             title = {
                 Text(
-                    text = "New Album",
+                    text = stringResource(R.string.new_album),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -78,7 +80,7 @@ fun MoveCopyAlbumDialog(
                 OutlinedTextField(
                     value = newAlbumName,
                     onValueChange = { newAlbumName = it },
-                    label = { Text("Album Name") },
+                    label = { Text(stringResource(R.string.album_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -97,12 +99,12 @@ fun MoveCopyAlbumDialog(
                     },
                     enabled = newAlbumName.isNotBlank()
                 ) {
-                    Text("Create & Select")
+                    Text(stringResource(R.string.create_and_select))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showCreateAlbumDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -121,7 +123,7 @@ fun MoveCopyAlbumDialog(
         },
         title = {
             Text(
-                text = if (currentIsCopy) "Copy to Album" else "Move to Album",
+                text = if (currentIsCopy) stringResource(R.string.copy_to_album) else stringResource(R.string.move_to_album),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -162,7 +164,7 @@ fun MoveCopyAlbumDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Move",
+                                    text = stringResource(R.string.action_move),
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = if (!currentIsCopy) FontWeight.Bold else FontWeight.Normal,
                                     color = if (!currentIsCopy) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
@@ -192,7 +194,7 @@ fun MoveCopyAlbumDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Copy",
+                                    text = stringResource(R.string.action_copy),
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = if (currentIsCopy) FontWeight.Bold else FontWeight.Normal,
                                     color = if (currentIsCopy) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
@@ -227,7 +229,7 @@ fun MoveCopyAlbumDialog(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "+ Create New Album",
+                            text = "+ ${stringResource(R.string.create_new_album)}",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary
@@ -325,12 +327,12 @@ fun MoveCopyAlbumDialog(
                 },
                 enabled = selectedBucket != null
             ) {
-                Text(if (currentIsCopy) "Copy" else "Move")
+                Text(if (currentIsCopy) stringResource(R.string.action_copy) else stringResource(R.string.action_move))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

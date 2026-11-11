@@ -20,7 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
@@ -53,14 +55,14 @@ fun AppLockScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Imava is Locked",
+                text = stringResource(R.string.app_locked_title),
                 style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Biometric authentication required to open gallery",
+                text = stringResource(R.string.app_locked_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -73,7 +75,7 @@ fun AppLockScreen(
             ) {
                 Icon(Icons.Default.Fingerprint, contentDescription = null)
                 Spacer(modifier = Modifier.size(8.dp))
-                Text("Unlock Gallery")
+                Text(stringResource(R.string.app_unlock_button))
             }
         }
     }

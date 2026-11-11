@@ -30,8 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import java.util.Calendar
 
 @Composable
@@ -86,7 +88,7 @@ fun ExifTimeShiftDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Date & Time") },
+        title = { Text(stringResource(R.string.edit_date_time_title)) },
         text = {
             Column(
                 modifier = Modifier
@@ -96,7 +98,7 @@ fun ExifTimeShiftDialog(
                     .imePadding()
             ) {
                 Text(
-                    text = "Update timestamps for $selectedCount selected items.",
+                    text = stringResource(R.string.edit_date_time_desc, selectedCount),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -110,12 +112,12 @@ fun ExifTimeShiftDialog(
                     FilterChip(
                         selected = mode == 0,
                         onClick = { mode = 0 },
-                        label = { Text("Shift Relative") }
+                        label = { Text(stringResource(R.string.shift_relative)) }
                     )
                     FilterChip(
                         selected = mode == 1,
                         onClick = { mode = 1 },
-                        label = { Text("Set Exact Date") }
+                        label = { Text(stringResource(R.string.set_exact_date)) }
                     )
                 }
 
@@ -135,7 +137,7 @@ fun ExifTimeShiftDialog(
                         ) {
                             RadioButton(selected = isForward, onClick = { isForward = true })
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Forward (+)")
+                            Text(stringResource(R.string.direction_forward))
                         }
 
                         Row(
@@ -144,7 +146,7 @@ fun ExifTimeShiftDialog(
                         ) {
                             RadioButton(selected = !isForward, onClick = { isForward = false })
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Backward (-)")
+                            Text(stringResource(R.string.direction_backward))
                         }
                     }
 
@@ -157,7 +159,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = daysText,
                             onValueChange = { if (it.all { c -> c.isDigit() }) daysText = it },
-                            label = { Text("Days") },
+                            label = { Text(stringResource(R.string.unit_days)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -166,7 +168,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = hoursText,
                             onValueChange = { if (it.all { c -> c.isDigit() }) hoursText = it },
-                            label = { Text("Hours") },
+                            label = { Text(stringResource(R.string.unit_hours)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -175,7 +177,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = minutesText,
                             onValueChange = { if (it.all { c -> c.isDigit() }) minutesText = it },
-                            label = { Text("Mins") },
+                            label = { Text(stringResource(R.string.unit_mins)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -198,7 +200,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = yearText,
                             onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 4) yearText = it },
-                            label = { Text("Year") },
+                            label = { Text(stringResource(R.string.unit_year)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1.3f),
                             singleLine = true
@@ -206,7 +208,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = monthText,
                             onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) monthText = it },
-                            label = { Text("Month") },
+                            label = { Text(stringResource(R.string.unit_month)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -214,7 +216,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = dayText,
                             onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) dayText = it },
-                            label = { Text("Day") },
+                            label = { Text(stringResource(R.string.unit_day)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -230,7 +232,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = exactHourText,
                             onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) exactHourText = it },
-                            label = { Text("Hour (0-23)") },
+                            label = { Text(stringResource(R.string.unit_hour)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -238,7 +240,7 @@ fun ExifTimeShiftDialog(
                         OutlinedTextField(
                             value = exactMinuteText,
                             onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) exactMinuteText = it },
-                            label = { Text("Minute (0-59)") },
+                            label = { Text(stringResource(R.string.unit_minute)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -258,12 +260,12 @@ fun ExifTimeShiftDialog(
                 },
                 enabled = if (mode == 0) totalOffsetMs != 0L else parsedExactTimestamp != null
             ) {
-                Text("Apply")
+                Text(stringResource(R.string.action_apply))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

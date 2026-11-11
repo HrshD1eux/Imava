@@ -40,9 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.ImageCompressor
 import com.hrshd1eux.imava.data.model.MediaItem
@@ -84,7 +86,7 @@ fun BulkCompressDialog(
         },
         title = {
             Text(
-                text = "Bulk Compress Photos",
+                text = stringResource(R.string.bulk_compress_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -104,7 +106,7 @@ fun BulkCompressDialog(
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            text = "${photos.size} photo(s) selected for compression",
+                            text = stringResource(R.string.bulk_compress_photos_selected, photos.size),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -112,14 +114,14 @@ fun BulkCompressDialog(
                         if (skippedVideosCount > 0) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "Note: $skippedVideosCount video(s) will be skipped",
+                                text = stringResource(R.string.bulk_compress_skipped_videos, skippedVideosCount),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Compressed copies will be saved in Pictures/Compressed with original metadata preserved.",
+                            text = stringResource(R.string.bulk_compress_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -129,7 +131,7 @@ fun BulkCompressDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Target Size Per Photo",
+                    text = stringResource(R.string.target_size_per_photo),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )
@@ -164,7 +166,7 @@ fun BulkCompressDialog(
                             targetKbInput = input
                         }
                     },
-                    label = { Text("Custom Target (KB)") },
+                    label = { Text(stringResource(R.string.custom_target_kb)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
@@ -185,7 +187,7 @@ fun BulkCompressDialog(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Compressing $processedCount of ${photos.size} (${(progressFraction * 100).toInt()}%)...",
+                            text = stringResource(R.string.compressing_progress_format, processedCount, photos.size, (progressFraction * 100).toInt()),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -236,7 +238,7 @@ fun BulkCompressDialog(
                     }
                 }
             ) {
-                Text(if (isCompressing) "Compressing..." else "Compress (${photos.size})")
+                Text(stringResource(R.string.compress_button_format, photos.size))
             }
         },
         dismissButton = {
@@ -244,7 +246,7 @@ fun BulkCompressDialog(
                 enabled = !isCompressing,
                 onClick = onDismiss
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
