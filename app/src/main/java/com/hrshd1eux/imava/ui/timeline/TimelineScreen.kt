@@ -118,6 +118,12 @@ import com.hrshd1eux.imava.data.model.formattedDuration
 import com.hrshd1eux.imava.data.model.isVideo
 import com.hrshd1eux.imava.data.model.TimelineItem
 import com.hrshd1eux.imava.ui.MainViewModel
+import androidx.compose.ui.res.stringResource
+import com.hrshd1eux.imava.R
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.CircularProgressIndicator
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -320,8 +326,45 @@ fun TimelineScreen(
                 )
             }
 
+            val isLibraryScanning by viewModel.isLibraryScanning.collectAsState()
+            AnimatedVisibility(
+                visible = isLibraryScanning,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically(),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 4.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 4.dp,
+                    shadowElevation = 4.dp,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(13.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.scanning_media_library),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 val isPagingLoading = lazyPagingItems.loadState.refresh is androidx.paging.LoadState.Loading
+
                 if (lazyPagingItems.itemCount == 0) {
                     if (!hasInitiallyLoaded && isPagingLoading) {
                         TimelineSkeletonGrid(columns = viewModel.gridColumnCount)

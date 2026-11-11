@@ -210,7 +210,7 @@ fun PhotoViewerScreen(
         val baseList = if (visibleMediaItems.isNotEmpty()) {
             val listWithUpdatedActive = visibleMediaItems.map { if (it.id == activeItem.id) activeItem else it }
             if (listWithUpdatedActive.none { it.id == activeItem.id } && activeItem.id !in deletedMediaIds) {
-                listOf(activeItem) + listWithUpdatedActive
+                listWithUpdatedActive + listOf(activeItem)
             } else {
                 listWithUpdatedActive
             }
@@ -240,7 +240,7 @@ fun PhotoViewerScreen(
     LaunchedEffect(viewModel.activeMediaItem?.id) {
         val target = viewModel.activeMediaItem ?: return@LaunchedEffect
         if (target.id in deletedMediaIds) {
-            deletedMediaIds = deletedMediaIds - target.id
+            return@LaunchedEffect
         }
         val targetIdx = mediaItems.indexOfFirst { it.id == target.id }
         if (targetIdx != -1 && targetIdx != pagerState.currentPage && targetIdx != pagerState.settledPage && !pagerState.isScrollInProgress) {
@@ -1345,7 +1345,17 @@ fun PhotoViewerScreen(
                             showDeleteConfirmDialog = false
                             val currentIndex = pagerState.currentPage
                             val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            deletedMediaIds = deletedMediaIds + item.id
+                            if (nextItem != null) {
+                                viewModel.activeMediaItem = nextItem
+                            }
                             viewModel.toggleTrashed(context, item, nextItem)
+                            if (nextItem == null) {
+                                viewModel.activeMediaItem = null
+                                if (viewModel.isExternalViewIntent) {
+                                    activity?.finish()
+                                }
+                            }
                         }
                     ) {
                         Text("Move to Trash")
@@ -1373,7 +1383,17 @@ fun PhotoViewerScreen(
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                             val currentIndex = pagerState.currentPage
                             val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            deletedMediaIds = deletedMediaIds + item.id
+                            if (nextItem != null) {
+                                viewModel.activeMediaItem = nextItem
+                            }
                             viewModel.toggleTrashed(context, item, nextItem)
+                            if (nextItem == null) {
+                                viewModel.activeMediaItem = null
+                                if (viewModel.isExternalViewIntent) {
+                                    activity?.finish()
+                                }
+                            }
                         }
                     ) {
                         Text("Restore")
@@ -1399,7 +1419,17 @@ fun PhotoViewerScreen(
                             showDeletePermanentlyConfirmDialog = false
                             val currentIndex = pagerState.currentPage
                             val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                            deletedMediaIds = deletedMediaIds + item.id
+                            if (nextItem != null) {
+                                viewModel.activeMediaItem = nextItem
+                            }
                             viewModel.deletePermanently(context, item, nextItem)
+                            if (nextItem == null) {
+                                viewModel.activeMediaItem = null
+                                if (viewModel.isExternalViewIntent) {
+                                    activity?.finish()
+                                }
+                            }
                         }
                     ) {
                         Text("Delete")

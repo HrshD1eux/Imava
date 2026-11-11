@@ -335,4 +335,5 @@
     <string name="doctor_scan_now">এখনই স্ক্যান করুন</string>
     <string name="doctor_rescan">আবার স্ক্যান করুন</string>
     <string name="drop_offline_hotspot_hint">ওয়াই-ফাই নেই? যেকোনো জায়গায় সর্বোচ্চ গতিতে স্থানান্তর করতে দ্রুত সেটিংস থেকে আপনার ফোনের হটস্পট চালু করুন।</string>
+    <string name="scanning_media_library">মিডিয়া লাইব্রেরি স্ক্যান করা হচ্ছে…</string>
 </resources>

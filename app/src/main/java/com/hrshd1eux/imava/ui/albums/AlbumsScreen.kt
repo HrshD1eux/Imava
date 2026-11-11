@@ -90,6 +90,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.defaultMinSize
 import coil.compose.AsyncImage
 import com.hrshd1eux.imava.data.media.BucketInfo
 import com.hrshd1eux.imava.ui.MainViewModel
@@ -1589,18 +1591,42 @@ fun AlbumGridCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .defaultMinSize(
+                        minHeight = when (layoutMode) {
+                            MainViewModel.AlbumLayoutMode.GRID_4 -> 44.dp
+                            MainViewModel.AlbumLayoutMode.GRID_3 -> 50.dp
+                            else -> 56.dp
+                        }
+                    )
             ) {
                 Text(
                     text = bucket.name,
-                    style = if (layoutMode == MainViewModel.AlbumLayoutMode.GRID_4) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium,
+                    style = when (layoutMode) {
+                        MainViewModel.AlbumLayoutMode.GRID_4 -> MaterialTheme.typography.labelSmall
+                        MainViewModel.AlbumLayoutMode.GRID_3 -> MaterialTheme.typography.bodySmall
+                        else -> MaterialTheme.typography.bodyMedium
+                    },
+                    lineHeight = when (layoutMode) {
+                        MainViewModel.AlbumLayoutMode.GRID_4 -> 13.sp
+                        MainViewModel.AlbumLayoutMode.GRID_3 -> 15.sp
+                        else -> 18.sp
+                    },
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(2.dp))
+                val subtitleText = when {
+                    layoutMode == MainViewModel.AlbumLayoutMode.GRID_4 -> "${bucket.count}"
+                    layoutMode == MainViewModel.AlbumLayoutMode.GRID_3 -> if (bucket.paths.size > 1) "${bucket.count} (${bucket.paths.size})" else "${bucket.count}"
+                    else -> if (bucket.paths.size > 1) "${bucket.count} • ${bucket.paths.size} locations" else "${bucket.count}"
+                }
                 Text(
-                    text = if (bucket.paths.size > 1) "${bucket.count} • ${bucket.paths.size} locations" else "${bucket.count}",
+                    text = subtitleText,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -1677,13 +1703,17 @@ fun AlbumRowItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

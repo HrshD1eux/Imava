@@ -335,4 +335,5 @@
     <string name="doctor_scan_now">Сканировать сейчас</string>
     <string name="doctor_rescan">Повторить</string>
     <string name="drop_offline_hotspot_hint">Нет Wi-Fi? Включите точку доступа в быстрых настройках, чтобы передавать файлы где угодно на максимальной скорости.</string>
+    <string name="scanning_media_library">Сканирование медиатеки…</string>
 </resources>

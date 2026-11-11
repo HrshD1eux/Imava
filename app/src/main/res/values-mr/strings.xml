@@ -335,4 +335,5 @@
     <string name="doctor_scan_now">आता स्कॅन करा</string>
     <string name="doctor_rescan">पुन्हा स्कॅन करा</string>
     <string name="drop_offline_hotspot_hint">वाय-फाय नाही? कुठेही कमाल वेगाने ट्रान्सफर करण्यासाठी द्रुत सेटिंग्जमधून तुमच्या फोनचा हॉटस्पॉट चालू करा.</string>
+    <string name="scanning_media_library">मीडिया लायब्ररी स्कॅन करत आहे…</string>
 </resources>

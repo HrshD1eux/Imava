@@ -335,4 +335,5 @@
     <string name="doctor_scan_now">Escanear ahora</string>
     <string name="doctor_rescan">Volver a escanear</string>
     <string name="drop_offline_hotspot_hint">¿Sin Wi-Fi? Activa el punto de acceso (Hotspot) desde Ajustes rápidos para transferir en cualquier lugar a máxima velocidad.</string>
+    <string name="scanning_media_library">Escaneando biblioteca multimedia…</string>
 </resources>

@@ -218,6 +218,16 @@ class MainViewModel @Inject constructor(
     private val _isDeepScanning = MutableStateFlow(false)
     val isDeepScanning: StateFlow<Boolean> = _isDeepScanning.asStateFlow()
 
+    private val _isInitialScanning = MutableStateFlow(true)
+    val isInitialScanning: StateFlow<Boolean> = _isInitialScanning.asStateFlow()
+
+    val isLibraryScanning: StateFlow<Boolean> = combine(
+        _isDeepScanning,
+        _isInitialScanning
+    ) { deepScanning, initialScanning ->
+        deepScanning || initialScanning
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
     private val _lastDeepScanCount = MutableStateFlow(
         galleryPrefs.getInt("last_deep_scan_count", 0)
     )
@@ -1608,6 +1618,7 @@ class MainViewModel @Inject constructor(
                 repository.getMediaFlow(bucketId, order)
             }.collect { items ->
                 _mediaItems.value = items
+                _isInitialScanning.value = false
             }
         }
 
@@ -2297,7 +2308,7 @@ class MainViewModel @Inject constructor(
                     else if (idx - 1 >= 0) list[idx - 1]
                     else null
                 } else {
-                    list.firstOrNull()
+                    null
                 }
             }
         }
