@@ -1069,7 +1069,10 @@ class MainViewModel @Inject constructor(
             "Hidden Vault" -> if (isDecoyVault) emptyList() else vault
             "Videos" -> {
                 val trashedIds = trash.map { it.id }.toSet()
-                val trashedPaths = trash.map { it.path }.toSet()
+                val trashedPaths = trash.filter {
+                    val f = java.io.File(it.path)
+                    !f.exists() || f.name.startsWith(".trashed")
+                }.map { it.path }.toSet()
                 val hiddenIds = vault.map { it.id }.toSet()
                 val hiddenPaths = vault.map { it.path }.toSet()
                 val videos = raw.filterIsInstance<MediaItem.Video>().filter { item ->
@@ -1088,7 +1091,10 @@ class MainViewModel @Inject constructor(
             }
             else -> {
                 val trashedIds = trash.map { it.id }.toSet()
-                val trashedPaths = trash.map { it.path }.toSet()
+                val trashedPaths = trash.filter {
+                    val f = java.io.File(it.path)
+                    !f.exists() || f.name.startsWith(".trashed")
+                }.map { it.path }.toSet()
                 val hiddenIds = vault.map { it.id }.toSet()
                 val hiddenPaths = vault.map { it.path }.toSet()
                 val base = raw.filter { item ->
@@ -1852,6 +1858,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun refreshAll() {
+        repository.invalidateThirdPartyCache()
         refreshTrigger.value++
         loadBuckets()
     }
@@ -2492,6 +2499,8 @@ class MainViewModel @Inject constructor(
                     } catch (_: Exception) {}
                 }
                 repository.toggleTrashed(item)
+                repository.evictSecondaryDiskItem(item.id, item.path)
+                repository.invalidateThirdPartyCache()
                 advanceActiveMediaItem(item, targetNextItem)
                 _lastDeletedMediaId.value = item.id
                 pendingActionItem = null

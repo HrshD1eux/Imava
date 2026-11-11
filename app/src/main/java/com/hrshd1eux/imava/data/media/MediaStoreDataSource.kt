@@ -855,8 +855,8 @@ class MediaStoreDataSource @Inject constructor(
                 val queryArgs = Bundle().apply {
                     putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
                     putInt(QUERY_ARG_MATCH_NOMEDIA, MediaStore.MATCH_DEFAULT)
-                    // MUST include trashed items so MediaStore-trashed files are recognized as managed and not re-discovered as new photos
-                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_INCLUDE)
+                    // Only match active items so re-downloaded media replacing a previously trashed path is recognized as unindexed
+                    putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_EXCLUDE)
                 }
                 contentResolver.query(collection, projection, queryArgs, null)?.use { cursor ->
                     val dataCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)
@@ -1157,9 +1157,13 @@ class MediaStoreDataSource @Inject constructor(
                                     val ext = file.extension.lowercase(java.util.Locale.ROOT)
                                     if (validMediaExtensions.contains(ext)) {
                                         val absPath = file.absolutePath
-                                        // Skip if known to MediaStore (active or trashed) or in trashed paths
-                                        if (absPath !in mediaStorePaths && absPath !in trashedPaths) {
-                                            if (absPath !in previouslyKnownPaths) {
+                                        val isKnownActive = absPath in mediaStorePaths
+                                        val isKnownTrashed = absPath in trashedPaths
+                                        // If not known as active media in MediaStore, discover and index it!
+                                        // Even if previously marked trashed in MediaStore, this live file physically exists,
+                                        // so submit to MediaScannerConnection so MediaStore updates its index and clears trash state.
+                                        if (!isKnownActive) {
+                                            if (absPath !in previouslyKnownPaths || isKnownTrashed) {
                                                 newDiscovered++
                                                 unindexedFiles.add(absPath)
                                             }

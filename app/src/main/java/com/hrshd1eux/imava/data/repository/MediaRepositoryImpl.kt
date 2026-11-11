@@ -55,6 +55,37 @@ class MediaRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun getSanitizedHiddenOrTrashedMetadata(): List<MediaMetadataEntity> {
+        val list = try { metadataDao.getHiddenOrTrashedMetadata() } catch (_: Exception) { emptyList() }
+        if (list.isEmpty()) return emptyList()
+        return list.mapNotNull { meta ->
+            if (meta.isTrashed && meta.originalPath.isNotBlank()) {
+                val file = java.io.File(meta.originalPath)
+                if (file.exists() && file.isFile && file.length() > 0L && !file.name.startsWith(".trashed")) {
+                    // Physical file physically exists at originalPath: the file was re-downloaded (e.g. via WhatsApp)
+                    // or replaced with live media. Clear stale trashed state in DB so the media item appears immediately.
+                    try {
+                        metadataDao.updateTrashed(meta.mediaId, false, 0L)
+                        cleanupImavaTrashFile(meta.mediaId)
+                    } catch (_: Exception) {}
+                    return@mapNotNull null
+                }
+            }
+            meta
+        }
+    }
+
+    private fun cleanupImavaTrashFile(mediaId: Long) {
+        try {
+            val trashDir = java.io.File(context.filesDir, "imava_trash")
+            if (trashDir.exists()) {
+                trashDir.listFiles { _, name -> name.startsWith("${mediaId}_") }?.forEach { tf ->
+                    try { tf.delete() } catch (_: Exception) {}
+                }
+            }
+        } catch (_: Exception) {}
+    }
+
     // ── Option C: Third-party media cache ──────────────────────────────────────
     // Cache result for 60s to avoid running 15 LIKE-pattern MediaStore queries
     // on every pager page load and every getTotalMediaCount() call.
@@ -109,7 +140,7 @@ class MediaRepositoryImpl @Inject constructor(
         val metaList = getMetadataForMediaIdsChunked(ids)
         val metaMap = metaList.associateBy { it.mediaId }
 
-        val hiddenOrTrashedMeta = metadataDao.getHiddenOrTrashedMetadata()
+        val hiddenOrTrashedMeta = getSanitizedHiddenOrTrashedMetadata()
         val trashedPaths = hiddenOrTrashedMeta.filter { it.isTrashed && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
         val trashedIds = hiddenOrTrashedMeta.filter { it.isTrashed }.map { it.mediaId }.toSet()
         val hiddenPaths = hiddenOrTrashedMeta.filter { it.isHidden && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
@@ -166,7 +197,7 @@ class MediaRepositoryImpl @Inject constructor(
         val resultList = mutableListOf<MediaItem>()
         var reachedEnd = false
 
-        val hiddenOrTrashedMeta = metadataDao.getHiddenOrTrashedMetadata()
+        val hiddenOrTrashedMeta = getSanitizedHiddenOrTrashedMetadata()
         val trashedPaths = hiddenOrTrashedMeta.filter { it.isTrashed && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
         val trashedIds = hiddenOrTrashedMeta.filter { it.isTrashed }.map { it.mediaId }.toSet()
         val hiddenPaths = hiddenOrTrashedMeta.filter { it.isHidden && it.originalPath.isNotBlank() }.map { it.originalPath }.toSet()
@@ -271,7 +302,7 @@ class MediaRepositoryImpl @Inject constructor(
     ): Int = withContext(Dispatchers.IO) {
         val baseCount = mediaStoreDataSource.getTotalMediaCount(bucketId, bucketIds, mediaType)
         val hiddenOrTrashedCount = try {
-            val meta = metadataDao.getHiddenOrTrashedMetadata()
+            val meta = getSanitizedHiddenOrTrashedMetadata()
             meta.count { it.isHidden || it.isTrashed }
         } catch (_: Exception) { 0 }
         val adjustedBase = (baseCount - hiddenOrTrashedCount).coerceAtLeast(0)
@@ -293,7 +324,7 @@ class MediaRepositoryImpl @Inject constructor(
 
     override suspend fun getBuckets(): List<BucketInfo> = withContext(Dispatchers.IO) {
         val rawBuckets = mediaStoreDataSource.fetchBuckets()
-        val metadataList = metadataDao.getHiddenOrTrashedMetadata()
+        val metadataList = getSanitizedHiddenOrTrashedMetadata()
         
         val hiddenOrTrashedCounts = metadataList
             .filter { it.isHidden || it.isTrashed }
@@ -602,6 +633,15 @@ class MediaRepositoryImpl @Inject constructor(
                 // Recover any trashed items stored in local imava_trash that are missing from MediaStore query
                 trashedIds.filter { it !in foundIds }.forEach { missingId ->
                     val meta = metadataMap[missingId]
+                    if (meta != null && meta.originalPath.isNotBlank()) {
+                        val origFile = java.io.File(meta.originalPath)
+                        if (origFile.exists() && origFile.isFile && origFile.length() > 0L && !origFile.name.startsWith(".trashed")) {
+                            // Live file exists at originalPath! Obsolete trash copy should be cleared and excluded from trash.
+                            cleanupImavaTrashFile(missingId)
+                            try { metadataDao.updateTrashed(missingId, false, 0L) } catch (_: Exception) {}
+                            return@forEach
+                        }
+                    }
                     val origName = if (meta != null && meta.originalPath.isNotBlank()) java.io.File(meta.originalPath).name else null
                     val candidateFile = if (origName != null) {
                         java.io.File(trashDir, "${missingId}_$origName")
@@ -716,6 +756,16 @@ class MediaRepositoryImpl @Inject constructor(
             val idPrefix = file.name.substringBefore("_").toLongOrNull()
             if (idPrefix != null) {
                 val existing = metadataDao.getMetadataForMedia(idPrefix)
+                if (existing != null && existing.originalPath.isNotBlank()) {
+                    val orig = java.io.File(existing.originalPath)
+                    if (orig.exists() && orig.isFile && orig.length() > 0L && !orig.name.startsWith(".trashed")) {
+                        // Original file has been re-downloaded / replaced with live media.
+                        // Trash copy is obsolete; delete it and ensure metadata is untrashed.
+                        try { file.delete() } catch (_: Exception) {}
+                        try { metadataDao.updateTrashed(existing.mediaId, false, 0L) } catch (_: Exception) {}
+                        return@forEach
+                    }
+                }
                 if (existing == null) {
                     val isVideo = file.name.endsWith(".mp4", ignoreCase = true) ||
                             file.name.endsWith(".mkv", ignoreCase = true) ||
@@ -864,21 +914,31 @@ class MediaRepositoryImpl @Inject constructor(
         val tagList = if (meta.tags.isNotBlank()) meta.tags.split(",").map { it.trim() }.filter { it.isNotEmpty() } else emptyList()
         val customDate = if (meta.dateTaken > 0) meta.dateTaken else item.dateTaken
         val finalTrashTime = if (meta.trashTime > 0L) meta.trashTime else item.trashTime
+        val isItemTrashed = if (meta.isTrashed) {
+            val f = java.io.File(item.path)
+            if (f.exists() && f.isFile && f.length() > 0L && !f.name.startsWith(".trashed")) {
+                false
+            } else {
+                true
+            }
+        } else {
+            item.isTrashed
+        }
         return when (item) {
             is MediaItem.Photo -> item.copy(
                 dateTaken = customDate,
                 isFavorite = meta.isFavorite,
                 isHidden = meta.isHidden,
-                isTrashed = meta.isTrashed || item.isTrashed,
-                trashTime = finalTrashTime,
+                isTrashed = isItemTrashed,
+                trashTime = if (isItemTrashed) finalTrashTime else 0L,
                 tags = tagList
             )
             is MediaItem.Video -> item.copy(
                 dateTaken = customDate,
                 isFavorite = meta.isFavorite,
                 isHidden = meta.isHidden,
-                isTrashed = meta.isTrashed || item.isTrashed,
-                trashTime = finalTrashTime,
+                isTrashed = isItemTrashed,
+                trashTime = if (isItemTrashed) finalTrashTime else 0L,
                 tags = tagList
             )
         }

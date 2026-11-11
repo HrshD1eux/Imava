@@ -62,7 +62,11 @@ class MediaRepositoryImplTest {
 
         override suspend fun updateFavorite(mediaId: Long, isFavorite: Boolean) {}
         override suspend fun updateHidden(mediaId: Long, isHidden: Boolean) {}
-        override suspend fun updateTrashed(mediaId: Long, isTrashed: Boolean, trashTime: Long) {}
+        override suspend fun updateTrashed(mediaId: Long, isTrashed: Boolean, trashTime: Long) {
+            dbMap[mediaId]?.let {
+                dbMap[mediaId] = it.copy(isTrashed = isTrashed, trashTime = trashTime)
+            }
+        }
         
         override suspend fun delete(metadata: MediaMetadataEntity) {
             dbMap.remove(metadata.mediaId)
@@ -700,5 +704,58 @@ class MediaRepositoryImplTest {
         val result = repository.scanSecondaryMediaDirectories()
         assertEquals(2, result.newCount)
         assertEquals(64, result.totalCount)
+    }
+
+    @Test
+    fun testLoadMediaPaged_whenReDownloadedFileExistsAtPreviouslyTrashedPath_showsItemAndUntrashes() {
+        runBlocking {
+            val fakeDao = FakeMetadataDao()
+            val mockContext = mockk<Context>(relaxed = true)
+            val mockDataSource = mockk<MediaStoreDataSource>(relaxed = true)
+
+            val tempFile = java.io.File.createTempFile("wa_test_", ".jpg")
+            tempFile.writeBytes(byteArrayOf(1, 2, 3))
+            tempFile.deleteOnExit()
+
+            val mediaId = 777L
+            fakeDao.insertOrUpdate(
+                MediaMetadataEntity(
+                    mediaId = mediaId,
+                    originalPath = tempFile.absolutePath,
+                    isTrashed = true,
+                    trashTime = 12345L
+                )
+            )
+
+            val mockUri = mockk<Uri>(relaxed = true)
+            val photo = MediaItem.Photo(
+                id = mediaId,
+                uri = mockUri,
+                path = tempFile.absolutePath,
+                mimeType = "image/jpeg",
+                dateTaken = 1000L,
+                size = tempFile.length(),
+                width = 100,
+                height = 100,
+                bucketId = 123L,
+                bucketName = "WhatsApp Images"
+            )
+
+            coEvery { mockDataSource.fetchMedia(any(), any(), any(), any(), any(), any(), any()) } returns listOf(photo)
+
+            val repository = MediaRepositoryImpl(
+                context = mockContext,
+                mediaStoreDataSource = mockDataSource,
+                metadataDao = fakeDao
+            )
+
+            val results = repository.loadMediaPaged(limit = 100, offset = 0)
+            assertEquals(1, results.size)
+            assertEquals(mediaId, results[0].id)
+            assertEquals(false, results[0].isTrashed)
+            assertEquals(false, fakeDao.getMetadataForMedia(mediaId)?.isTrashed)
+
+            tempFile.delete()
+        }
     }
 }
