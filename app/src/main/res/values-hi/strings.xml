@@ -337,4 +337,8 @@
     <string name="drop_offline_hotspot_hint">वाई-फ़ाई नहीं है? कहीं भी अधिकतम गति से ट्रांसफ़र करने के लिए त्वरित सेटिंग से अपने फ़ोन का हॉटस्पॉट चालू करें।</string>
     <string name="scanning_media_library">मीडिया लाइब्रेरी स्कैन हो रही है…</string>
     <string name="doctor_analyzing_storage">स्टोरेज की जांच की जा रही है…</string>
+    <string name="emptying_trash">ट्रैश खाली किया जा रहा है…</string>
+    <string name="moving_media">फ़ाइलें ले जाई जा रही हैं…</string>
+    <string name="copying_media">फ़ाइलें कॉपी की जा रही हैं…</string>
+    <string name="deleting_media">फ़ाइलें हटाई जा रही हैं…</string>
 </resources>

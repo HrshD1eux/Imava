@@ -58,7 +58,7 @@ interface MediaRepository {
     suspend fun clearVaultCache(context: android.content.Context)
     suspend fun restoreAllVaultMedia(context: android.content.Context): Int
     suspend fun deleteAllVaultData(context: android.content.Context): Int
-    suspend fun moveOrCopyMedia(context: android.content.Context, items: List<MediaItem>, targetDirectory: java.io.File, isCopy: Boolean): Result<MoveCopyResult>
+    suspend fun moveOrCopyMedia(context: android.content.Context, items: List<MediaItem>, targetDirectory: java.io.File, isCopy: Boolean, onProgress: ((current: Int, total: Int) -> Unit)? = null): Result<MoveCopyResult>
     suspend fun shiftMediaTimestamps(context: android.content.Context, items: List<MediaItem>, offsetMillis: Long, exactTimestamp: Long? = null): Result<Int>
     suspend fun updateMediaTags(mediaId: Long, tags: List<String>)
     suspend fun bulkUpdateMediaTags(itemIds: Set<Long>, tagsToAdd: Set<String>, tagsToRemove: Set<String>)

@@ -1439,7 +1439,8 @@ class MediaRepositoryImpl @Inject constructor(
         context: Context,
         items: List<MediaItem>,
         targetDirectory: java.io.File,
-        isCopy: Boolean
+        isCopy: Boolean,
+        onProgress: ((current: Int, total: Int) -> Unit)?
     ): Result<MoveCopyResult> = withContext(Dispatchers.IO) {
         if (!targetDirectory.exists()) {
             targetDirectory.mkdirs()
@@ -1449,7 +1450,8 @@ class MediaRepositoryImpl @Inject constructor(
         val failedDeleteItems = mutableListOf<MediaItem>()
         val createdTargetsForFailed = mutableListOf<java.io.File>()
 
-        for (item in items) {
+        for ((index, item) in items.withIndex()) {
+            onProgress?.invoke(index + 1, items.size)
             try {
                 val sourceFile = java.io.File(item.path)
                 if (!sourceFile.exists()) continue

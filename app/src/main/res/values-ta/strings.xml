@@ -337,4 +337,8 @@
     <string name="drop_offline_hotspot_hint">வைஃபை இல்லையா? எங்கும் அதிகபட்ச வேகத்தில் மாற்ற விரைவு அமைப்புகளில் இருந்து உங்கள் மொபைலின் ஹாட்ஸ்பாட்டை இயக்கவும்.</string>
     <string name="scanning_media_library">மீடியா நூலகம் ஸ்கேன் செய்யப்படுகிறது…</string>
     <string name="doctor_analyzing_storage">சேமிப்பகத்தின் நிலை ஆய்வு செய்யப்படுகிறது…</string>
+    <string name="emptying_trash">குப்பைத்தொட்டி அழிக்கப்படுகிறது…</string>
+    <string name="moving_media">மீடியா நகர்த்தப்படுகிறது…</string>
+    <string name="copying_media">மீடியா நகலெடுக்கப்படுகிறது…</string>
+    <string name="deleting_media">மீடியா நீக்கப்படுகிறது…</string>
 </resources>

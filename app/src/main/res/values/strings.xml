@@ -337,4 +337,8 @@
     <string name="drop_offline_hotspot_hint">No Wi-Fi? Turn on your phone\'s Hotspot from Quick Settings to transfer anywhere at maximum speed.</string>
     <string name="scanning_media_library">Scanning media library…</string>
     <string name="doctor_analyzing_storage">Analyzing storage health…</string>
+    <string name="emptying_trash">Emptying Trash…</string>
+    <string name="moving_media">Moving media…</string>
+    <string name="copying_media">Copying media…</string>
+    <string name="deleting_media">Deleting media…</string>
 </resources>

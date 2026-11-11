@@ -337,4 +337,8 @@
     <string name="drop_offline_hotspot_hint">वाय-फाय नाही? कुठेही कमाल वेगाने ट्रान्सफर करण्यासाठी द्रुत सेटिंग्जमधून तुमच्या फोनचा हॉटस्पॉट चालू करा.</string>
     <string name="scanning_media_library">मीडिया लायब्ररी स्कॅन करत आहे…</string>
     <string name="doctor_analyzing_storage">स्टोरेज स्थितीचे विश्लेषण करत आहे…</string>
+    <string name="emptying_trash">ट्रॅश रिकामे करत आहे…</string>
+    <string name="moving_media">मीडिया हलवत आहे…</string>
+    <string name="copying_media">मीडिया कॉपी करत आहे…</string>
+    <string name="deleting_media">मीडिया हटवत आहे…</string>
 </resources>

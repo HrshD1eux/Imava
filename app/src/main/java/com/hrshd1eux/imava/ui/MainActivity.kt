@@ -137,6 +137,11 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.animation.core.tween
 import android.content.pm.ActivityInfo
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ContentCopy
@@ -1549,6 +1554,77 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
+            val batchProgress by viewModel.batchOperationProgress.collectAsState()
+            AnimatedVisibility(
+                visible = batchProgress != null,
+                enter = fadeIn(animationSpec = tween(200)) + slideInVertically(
+                    animationSpec = tween(250),
+                    initialOffsetY = { -it }
+                ),
+                exit = fadeOut(animationSpec = tween(150)) + slideOutVertically(
+                    animationSpec = tween(200),
+                    targetOffsetY = { -it }
+                ),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(150f)
+                    .statusBarsPadding()
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            ) {
+                batchProgress?.let { progress ->
+                    Surface(
+                        shape = RoundedCornerShape(28.dp),
+                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp),
+                        shadowElevation = 8.dp,
+                        tonalElevation = 6.dp,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (progress.isIndeterminate || progress.total <= 0) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(18.dp),
+                                    strokeWidth = 2.5.dp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            } else {
+                                val frac = (progress.current.toFloat() / progress.total.toFloat()).coerceIn(0f, 1f)
+                                CircularProgressIndicator(
+                                    progress = { frac },
+                                    modifier = Modifier.size(18.dp),
+                                    strokeWidth = 2.5.dp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+
+                            Text(
+                                text = progress.title,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                            if (!progress.isIndeterminate && progress.total > 0) {
+                                Text(
+                                    text = "${progress.current} / ${progress.total}",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()

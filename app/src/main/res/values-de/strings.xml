@@ -337,4 +337,8 @@
     <string name="drop_offline_hotspot_hint">Kein WLAN? Aktiviere den Hotspot deines Telefons in den Schnelleinstellungen, um überall mit Höchstgeschwindigkeit zu übertragen.</string>
     <string name="scanning_media_library">Medienbibliothek wird gescannt…</string>
     <string name="doctor_analyzing_storage">Speicherintegrität wird analysiert…</string>
+    <string name="emptying_trash">Papierkorb wird geleert…</string>
+    <string name="moving_media">Medien werden verschoben…</string>
+    <string name="copying_media">Medien werden kopiert…</string>
+    <string name="deleting_media">Medien werden gelöscht…</string>
 </resources>

@@ -337,4 +337,8 @@
     <string name="drop_offline_hotspot_hint">¿Sin Wi-Fi? Activa el punto de acceso (Hotspot) desde Ajustes rápidos para transferir en cualquier lugar a máxima velocidad.</string>
     <string name="scanning_media_library">Escaneando biblioteca multimedia…</string>
     <string name="doctor_analyzing_storage">Analizando el estado del almacenamiento…</string>
+    <string name="emptying_trash">Vaciando papelera…</string>
+    <string name="moving_media">Moviendo archivos…</string>
+    <string name="copying_media">Copiando archivos…</string>
+    <string name="deleting_media">Eliminando archivos…</string>
 </resources>

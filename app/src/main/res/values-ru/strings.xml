@@ -337,4 +337,8 @@
     <string name="drop_offline_hotspot_hint">Нет Wi-Fi? Включите точку доступа в быстрых настройках, чтобы передавать файлы где угодно на максимальной скорости.</string>
     <string name="scanning_media_library">Сканирование медиатеки…</string>
     <string name="doctor_analyzing_storage">Анализ состояния хранилища…</string>
+    <string name="emptying_trash">Очистка корзины…</string>
+    <string name="moving_media">Перемещение медиа…</string>
+    <string name="copying_media">Копирование медиа…</string>
+    <string name="deleting_media">Удаление медиа…</string>
 </resources>
