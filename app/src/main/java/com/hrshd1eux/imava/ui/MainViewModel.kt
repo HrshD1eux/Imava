@@ -252,6 +252,14 @@ class MainViewModel @Inject constructor(
     private val _batchOperationProgress = MutableStateFlow<BatchProgress?>(null)
     val batchOperationProgress: StateFlow<BatchProgress?> = _batchOperationProgress.asStateFlow()
 
+    fun updateBatchProgress(title: String, current: Int, total: Int, isIndeterminate: Boolean = false) {
+        _batchOperationProgress.value = BatchProgress(title, current, total, isIndeterminate)
+    }
+
+    fun clearBatchProgress() {
+        _batchOperationProgress.value = null
+    }
+
     private var lastAutoScanTimestamp = 0L
 
     fun triggerAutoDeepScan(force: Boolean = false, isManual: Boolean = false) {

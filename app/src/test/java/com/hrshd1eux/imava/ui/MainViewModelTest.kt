@@ -330,4 +330,89 @@ class MainViewModelTest {
         org.junit.Assert.assertTrue(viewModel.matchesFilter(gifItem, MediaFilterType.GIFS))
         org.junit.Assert.assertFalse(viewModel.matchesFilter(normalPhoto, MediaFilterType.GIFS))
     }
+
+    @Test
+    fun testAdvanceActiveMediaItem_whenMiddleItemDeleted_advancesToNextItemNotFirst() = runTest(testDispatcher) {
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+        val item1 = MediaItem.Photo(10L, mockUri, "/path10.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+        val item2 = MediaItem.Photo(20L, mockUri, "/path20.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+        val item3 = MediaItem.Photo(30L, mockUri, "/path30.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+        val item4 = MediaItem.Photo(40L, mockUri, "/path40.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+        val item5 = MediaItem.Photo(50L, mockUri, "/path50.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+
+        viewModel.setCustomViewerMediaItems(listOf(item1, item2, item3, item4, item5))
+        for (i in 1..50) {
+            testDispatcher.scheduler.advanceUntilIdle()
+            if (viewModel.viewerMediaItems.value.size == 5) break
+            Thread.sleep(20)
+        }
+
+        viewModel.activeMediaItem = item3
+        viewModel.advanceActiveMediaItem(deletedItem = item3)
+
+        // Item 3 was at index 2; next item is item 4 at index 3, NOT item 1 at index 0!
+        assertEquals(40L, viewModel.activeMediaItem?.id)
+    }
+
+    @Test
+    fun testAdvanceActiveMediaItem_whenLastItemDeleted_advancesToPreviousItemNotFirst() = runTest(testDispatcher) {
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+        val item1 = MediaItem.Photo(10L, mockUri, "/path10.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+        val item2 = MediaItem.Photo(20L, mockUri, "/path20.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+        val item3 = MediaItem.Photo(30L, mockUri, "/path30.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+
+        viewModel.setCustomViewerMediaItems(listOf(item1, item2, item3))
+        for (i in 1..50) {
+            testDispatcher.scheduler.advanceUntilIdle()
+            if (viewModel.viewerMediaItems.value.size == 3) break
+            Thread.sleep(20)
+        }
+
+        viewModel.activeMediaItem = item3
+        viewModel.advanceActiveMediaItem(deletedItem = item3)
+
+        // Item 3 was the last item; previous item is item 2, NOT item 1!
+        assertEquals(20L, viewModel.activeMediaItem?.id)
+    }
+
+    @Test
+    fun testAdvanceActiveMediaItem_whenExplicitTargetNextItemProvided_directlyAdvances() {
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+        val item2 = MediaItem.Photo(20L, mockUri, "/path20.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+        val item3 = MediaItem.Photo(30L, mockUri, "/path30.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+
+        viewModel.activeMediaItem = item2
+        viewModel.advanceActiveMediaItem(deletedItem = item2, targetNextItem = item3)
+
+        assertEquals(30L, viewModel.activeMediaItem?.id)
+    }
+
+    @Test
+    fun testAdvanceActiveMediaItem_whenSoleItemDeleted_setsActiveItemNull() = runTest(testDispatcher) {
+        val mockUri = mockk<android.net.Uri>(relaxed = true)
+        val item1 = MediaItem.Photo(10L, mockUri, "/path10.jpg", "image/jpeg", 1000L, 100L, 100, 100, false, false, false, 1L, "Camera")
+
+        viewModel.setCustomViewerMediaItems(listOf(item1))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.activeMediaItem = item1
+        viewModel.advanceActiveMediaItem(deletedItem = item1)
+
+        assertNull(viewModel.activeMediaItem)
+    }
+
+    @Test
+    fun testBatchOperationProgress_updateAndClear() {
+        assertNull(viewModel.batchOperationProgress.value)
+
+        viewModel.updateBatchProgress(title = "Moving media…", current = 5, total = 20)
+        val progress = viewModel.batchOperationProgress.value
+        org.junit.Assert.assertNotNull(progress)
+        assertEquals("Moving media…", progress?.title)
+        assertEquals(5, progress?.current)
+        assertEquals(20, progress?.total)
+
+        viewModel.clearBatchProgress()
+        assertNull(viewModel.batchOperationProgress.value)
+    }
 }
