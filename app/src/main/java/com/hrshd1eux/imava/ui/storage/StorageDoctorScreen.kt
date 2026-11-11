@@ -69,6 +69,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.hrshd1eux.imava.R
@@ -152,7 +153,19 @@ fun StorageDoctorScreen(
 
             if (isAnalyzing || report == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(24.dp)
+                    ) {
+                        CircularProgressIndicator(strokeWidth = 3.dp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(R.string.doctor_analyzing_storage),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             } else {
                 val rep = report!!
@@ -362,7 +375,12 @@ fun StorageDoctorScreen(
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(video.path.substringAfterLast("/"), style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                                            Text(
+                                                text = video.path.substringAfterLast("/"),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
                                             Text(
                                                 "${StorageDoctorUtils.formatBytes(video.size)} · ${video.durationMs / 1000}s",
                                                 style = MaterialTheme.typography.bodySmall,
@@ -421,7 +439,12 @@ fun StorageDoctorScreen(
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(shot.path.substringAfterLast("/"), style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                                            Text(
+                                                text = shot.path.substringAfterLast("/"),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
                                             Text(
                                                 StorageDoctorUtils.formatBytes(shot.size),
                                                 style = MaterialTheme.typography.bodySmall,
@@ -682,7 +705,12 @@ fun StorageDoctorScreen(
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(photo.path.substringAfterLast("/"), style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                                            Text(
+                                                text = photo.path.substringAfterLast("/"),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
                                             Text(
                                                 "${StorageDoctorUtils.formatBytes(photo.size)} · Score: ${String.format("%.1f", item.variance)}",
                                                 style = MaterialTheme.typography.bodySmall,

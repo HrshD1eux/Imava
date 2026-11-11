@@ -97,6 +97,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
@@ -626,8 +627,9 @@ fun PhotoViewerScreen(
                 Text(
                     text = fileName,
                     style = MaterialTheme.typography.titleMedium,
+                    lineHeight = 18.sp,
                     color = Color.White,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(1f)
@@ -1665,7 +1667,14 @@ fun PhotoViewerScreen(
                                 val currentIndex = pagerState.currentPage
                                 val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
                                 deletedMediaIds = deletedMediaIds + item.id
-                                viewModel.activeMediaItem = nextItem
+                                if (nextItem != null) {
+                                    viewModel.activeMediaItem = nextItem
+                                } else {
+                                    viewModel.activeMediaItem = null
+                                    if (viewModel.isExternalViewIntent) {
+                                        activity?.finish()
+                                    }
+                                }
                             }
                         }
                     }
@@ -1715,7 +1724,14 @@ fun PhotoViewerScreen(
                                 val currentIndex = pagerState.currentPage
                                 val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
                                 deletedMediaIds = deletedMediaIds + item.id
-                                viewModel.activeMediaItem = nextItem
+                                if (nextItem != null) {
+                                    viewModel.activeMediaItem = nextItem
+                                } else {
+                                    viewModel.activeMediaItem = null
+                                    if (viewModel.isExternalViewIntent) {
+                                        activity?.finish()
+                                    }
+                                }
                                 viewModel.toggleHidden(context, item, nextItem)
                             }
                         }
@@ -2410,11 +2426,17 @@ fun PhotoViewerScreen(
                                                 }
                                             }
                                         },
-                                        modifier = Modifier.weight(1f).height(40.dp),
-                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 40.dp),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
                                         shape = RoundedCornerShape(10.dp)
                                     ) {
-                                        Text("Home 🏠", style = MaterialTheme.typography.labelMedium, maxLines = 1)
+                                        Text(
+                                            "Home 🏠",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            maxLines = 2,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
                                     }
 
                                     Button(
@@ -2441,11 +2463,17 @@ fun PhotoViewerScreen(
                                                 }
                                             }
                                         },
-                                        modifier = Modifier.weight(1f).height(40.dp),
-                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 40.dp),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
                                         shape = RoundedCornerShape(10.dp)
                                     ) {
-                                        Text("Lock 🔒", style = MaterialTheme.typography.labelMedium, maxLines = 1)
+                                        Text(
+                                            "Lock 🔒",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            maxLines = 2,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
                                     }
 
                                     FilledTonalButton(
@@ -2472,11 +2500,17 @@ fun PhotoViewerScreen(
                                                 }
                                             }
                                         },
-                                        modifier = Modifier.weight(1f).height(40.dp),
-                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 40.dp),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
                                         shape = RoundedCornerShape(10.dp)
                                     ) {
-                                        Text("Both 📱", style = MaterialTheme.typography.labelMedium, maxLines = 1)
+                                        Text(
+                                            "Both 📱",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            maxLines = 2,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
                                     }
                                 }
                             }

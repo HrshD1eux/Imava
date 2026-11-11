@@ -336,4 +336,5 @@
     <string name="doctor_rescan">पुनः स्कैन करें</string>
     <string name="drop_offline_hotspot_hint">वाई-फ़ाई नहीं है? कहीं भी अधिकतम गति से ट्रांसफ़र करने के लिए त्वरित सेटिंग से अपने फ़ोन का हॉटस्पॉट चालू करें।</string>
     <string name="scanning_media_library">मीडिया लाइब्रेरी स्कैन हो रही है…</string>
+    <string name="doctor_analyzing_storage">स्टोरेज की जांच की जा रही है…</string>
 </resources>

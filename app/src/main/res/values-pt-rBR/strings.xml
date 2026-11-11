@@ -336,4 +336,5 @@
     <string name="doctor_rescan">Reescanear</string>
     <string name="drop_offline_hotspot_hint">Sem Wi-Fi? Ative o ponto de acesso (Hotspot) nas Configurações rápidas para transferir em qualquer lugar na velocidade máxima.</string>
     <string name="scanning_media_library">Examinando biblioteca de mídia…</string>
+    <string name="doctor_analyzing_storage">Analisando integridade do armazenamento…</string>
 </resources>

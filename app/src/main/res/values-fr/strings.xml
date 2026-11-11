@@ -336,4 +336,5 @@
     <string name="doctor_rescan">Réanalyser</string>
     <string name="drop_offline_hotspot_hint">Pas de Wi-Fi ? Activez le point d\'accès (Hotspot) depuis les Paramètres rapides pour transférer n\'importe où à vitesse maximale.</string>
     <string name="scanning_media_library">Analyse de la médiathèque…</string>
+    <string name="doctor_analyzing_storage">Analyse de l\'état du stockage…</string>
 </resources>

@@ -336,4 +336,5 @@
     <string name="doctor_rescan">మళ్ళీ స్కాన్ చేయండి</string>
     <string name="drop_offline_hotspot_hint">వై-ఫై లేదా? ఎక్కడైనా గరిష్ట వేగంతో బదిలీ చేయడానికి త్వరిత సెట్టింగ్‌ల నుండి మీ ఫోన్ హాట్‌స్పాట్‌ను ఆన్ చేయండి.</string>
     <string name="scanning_media_library">మీడియా లైబ్రరీ స్కాన్ చేయబడుతోంది…</string>
+    <string name="doctor_analyzing_storage">నిల్వ స్థితి విశ్లేషించబడుతోంది…</string>
 </resources>

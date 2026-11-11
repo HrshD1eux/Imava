@@ -106,7 +106,7 @@ fun SingleRenameDialog(
                             Text(
                                 text = rawFullName,
                                 style = MaterialTheme.typography.bodyMedium,
-                                maxLines = 1,
+                                maxLines = 2,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
                             Spacer(modifier = Modifier.height(2.dp))
