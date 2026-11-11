@@ -240,6 +240,9 @@ object ImavaDropServer {
         } catch (_: Exception) {}
         wifiLock = null
 
+        cachedFaviconBytes = null
+        cachedFaviconBase64 = null
+
         _state.value = _state.value.copy(
             isRunning = false,
             logs = _state.value.logs + "Imava Drop stopped."
@@ -325,7 +328,7 @@ object ImavaDropServer {
                 return
             }
 
-            if (method == "GET" && (path == "/favicon.ico" || path == "/favicon.png")) {
+            if (method == "GET" && (path == "/favicon.ico" || path == "/favicon.png" || path == "/apple-touch-icon.png")) {
                 serveFavicon(output)
                 return
             }
@@ -416,6 +419,7 @@ object ImavaDropServer {
         val items = _state.value.sharedItems
         val totalSizeStr = FormatUtils.formatFileSize(_state.value.totalBytes)
         val deviceModel = "${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}"
+        val faviconBase64 = getFaviconBase64()
 
         val itemsJson = items.joinToString(",", "[", "]") { item ->
             val filename = getFilename(item).replace("\\", "\\\\").replace("\"", "\\\"")
@@ -457,9 +461,10 @@ object ImavaDropServer {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Imava Drop · Local Wi-Fi Transfer</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M16 46 L26 32 L34 40 L42 28 L52 46 Z' fill='%23ffffff'/%3E%3Ccircle cx='23' cy='22' r='4' fill='%23facc15'/%3E%3C/svg%3E">
-    <link rel="alternate icon" href="/favicon.png">
+    <link rel="icon" type="image/png" href="data:image/png;base64,$faviconBase64">
+    <link rel="alternate icon" type="image/png" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/favicon.png">
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -1321,6 +1326,7 @@ object ImavaDropServer {
 
     private fun servePinAuthForm(output: OutputStream, hasError: Boolean) {
         val errorDisplay = if (hasError) "block" else "none"
+        val faviconBase64 = getFaviconBase64()
         val html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -1328,9 +1334,10 @@ object ImavaDropServer {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Imava Drop · Pairing Authentication</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M16 46 L26 32 L34 40 L42 28 L52 46 Z' fill='%23ffffff'/%3E%3Ccircle cx='23' cy='22' r='4' fill='%23facc15'/%3E%3C/svg%3E">
-    <link rel="alternate icon" href="/favicon.png">
+    <link rel="icon" type="image/png" href="data:image/png;base64,$faviconBase64">
+    <link rel="alternate icon" type="image/png" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/favicon.png">
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -1483,26 +1490,78 @@ object ImavaDropServer {
         } catch (_: Exception) {}
     }
 
-    private fun serveFavicon(output: OutputStream) {
-        try {
+    @Volatile
+    private var cachedFaviconBytes: ByteArray? = null
+    @Volatile
+    private var cachedFaviconBase64: String? = null
+
+    internal fun getFaviconBytes(): ByteArray {
+        cachedFaviconBytes?.let { return it }
+        val ctx = appContext
+        val bitmap = if (ctx != null) {
+            try {
+                BitmapFactory.decodeResource(ctx.resources, com.hrshd1eux.imava.R.drawable.ic_imava_logo)
+            } catch (_: Exception) {
+                null
+            }
+        } else null
+
+        val finalBitmap = bitmap ?: run {
+            val bmp = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bmp)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF0D328C.toInt() }
+            canvas.drawRoundRect(0f, 0f, 64f, 64f, 16f, 16f, paint)
+            bmp
+        }
+
+        val baos = ByteArrayOutputStream()
+        finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        val bytes = baos.toByteArray()
+        cachedFaviconBytes = bytes
+        return bytes
+    }
+
+    internal fun getFaviconBase64(): String {
+        cachedFaviconBase64?.let { return it }
+        val fullBytes = getFaviconBytes()
+        val b64 = try {
             val ctx = appContext
             val bitmap = if (ctx != null) {
-                val drawable = ctx.packageManager.getApplicationIcon(ctx.packageName)
-                val bmp = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bmp)
-                drawable.setBounds(0, 0, canvas.width, canvas.height)
-                drawable.draw(canvas)
-                bmp
+                try {
+                    BitmapFactory.decodeResource(ctx.resources, com.hrshd1eux.imava.R.drawable.ic_imava_logo)
+                } catch (_: Exception) { null }
+            } else null
+            if (bitmap != null) {
+                val scaled = Bitmap.createScaledBitmap(bitmap, 64, 64, true)
+                val baos = ByteArrayOutputStream()
+                scaled.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                val scaledBytes = baos.toByteArray()
+                try {
+                    android.util.Base64.encodeToString(scaledBytes, android.util.Base64.NO_WRAP)
+                } catch (_: Exception) {
+                    null
+                } ?: java.util.Base64.getEncoder().encodeToString(scaledBytes)
             } else {
-                val bmp = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bmp)
-                val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFF4F46E5.toInt() }
-                canvas.drawRoundRect(0f, 0f, 64f, 64f, 16f, 16f, paint)
-                bmp
+                try {
+                    android.util.Base64.encodeToString(fullBytes, android.util.Base64.NO_WRAP)
+                } catch (_: Exception) {
+                    null
+                } ?: java.util.Base64.getEncoder().encodeToString(fullBytes)
             }
-            val baos = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
-            val bytes = baos.toByteArray()
+        } catch (_: Exception) {
+            try {
+                android.util.Base64.encodeToString(fullBytes, android.util.Base64.NO_WRAP)
+            } catch (_: Exception) {
+                null
+            } ?: java.util.Base64.getEncoder().encodeToString(fullBytes)
+        }
+        cachedFaviconBase64 = b64
+        return b64
+    }
+
+    internal fun serveFavicon(output: OutputStream) {
+        try {
+            val bytes = getFaviconBytes()
             val resHeaders = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: image/png\r\n" +
                     "Content-Length: ${bytes.size}\r\n" +
