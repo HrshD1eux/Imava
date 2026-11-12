@@ -73,8 +73,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.PhotoEditorUtils
 import com.hrshd1eux.imava.core.util.PhotoMarkupUtils
@@ -83,6 +85,7 @@ import com.hrshd1eux.imava.ui.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import kotlin.math.abs
 
 enum class EditorTab {
@@ -320,8 +323,8 @@ fun PhotoEditorScreen(
                     modifier = Modifier.size(28.dp)
                 )
             },
-            title = { Text("Unsaved Edits") },
-            text = { Text("You have unsaved changes to this photo. Do you want to save your edits or discard them?") },
+            title = { Text(stringResource(R.string.editor_unsaved_title)) },
+            text = { Text(stringResource(R.string.editor_unsaved_desc)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -329,7 +332,7 @@ fun PhotoEditorScreen(
                         performSaveEditedPhoto()
                     }
                 ) {
-                    Text("Save Changes")
+                    Text(stringResource(R.string.editor_save_changes))
                 }
             },
             dismissButton = {
@@ -340,11 +343,11 @@ fun PhotoEditorScreen(
                             onDismiss()
                         }
                     ) {
-                        Text("Discard", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.editor_discard), color = MaterialTheme.colorScheme.error)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     TextButton(onClick = { showDiscardConfirmDialog = false }) {
-                        Text("Keep Editing")
+                        Text(stringResource(R.string.editor_keep_editing))
                     }
                 }
             }
@@ -375,11 +378,11 @@ fun PhotoEditorScreen(
                 },
                 enabled = !isSaving
             ) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel", tint = Color.White)
+                Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(R.string.action_cancel), tint = Color.White)
             }
 
             Text(
-                text = "Photo Editor",
+                text = stringResource(R.string.editor_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White
             )
@@ -397,7 +400,7 @@ fun PhotoEditorScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Save Changes",
+                        contentDescription = stringResource(R.string.editor_save_changes),
                         tint = if (hasModifications) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
@@ -439,7 +442,7 @@ fun PhotoEditorScreen(
                     ) {
                         Image(
                             bitmap = displayBitmap.asImageBitmap(),
-                            contentDescription = "Edited Photo Preview",
+                            contentDescription = stringResource(R.string.editor_preview_cd),
                             modifier = Modifier.fillMaxSize()
                         )
 
@@ -614,7 +617,7 @@ fun PhotoEditorScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.RotateRight,
-                                    contentDescription = "Rotate 90°",
+                                    contentDescription = stringResource(R.string.editor_rotate_90),
                                     modifier = Modifier.size(22.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -625,7 +628,7 @@ fun PhotoEditorScreen(
                                     else -> "0°"
                                 }
                                 Text(
-                                    text = if (rotationDegrees != 0f) "Rotate 90° ($degLabel)" else "Rotate 90°",
+                                    text = if (rotationDegrees != 0f) stringResource(R.string.editor_rotate_90_deg_fmt, degLabel) else stringResource(R.string.editor_rotate_90),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -640,12 +643,12 @@ fun PhotoEditorScreen(
                             FilterChip(
                                 selected = flipHorizontal,
                                 onClick = { flipHorizontal = !flipHorizontal },
-                                label = { Text("Horizontal") }
+                                label = { Text(stringResource(R.string.editor_flip_horizontal)) }
                             )
                             FilterChip(
                                 selected = flipVertical,
                                 onClick = { flipVertical = !flipVertical },
-                                label = { Text("Vertical") }
+                                label = { Text(stringResource(R.string.editor_flip_vertical)) }
                             )
                         }
                     }
@@ -659,7 +662,7 @@ fun PhotoEditorScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
                             ) {
-                                Text("Drag corners/edges to crop", color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.editor_crop_hint), color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodySmall)
                                 if (freeCropLeft > 0.001f || freeCropTop > 0.001f || freeCropRight > 0.001f || freeCropBottom > 0.001f || cropAspectRatio != null) {
                                     TextButton(
                                         onClick = {
@@ -671,7 +674,7 @@ fun PhotoEditorScreen(
                                             isCropApplied = false
                                         }
                                     ) {
-                                        Text("Reset", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
+                                        Text(stringResource(R.string.action_reset), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
                                     }
                                 }
                             }
@@ -686,7 +689,7 @@ fun PhotoEditorScreen(
                                         cropAspectRatio = null
                                         isCropApplied = false
                                     },
-                                    label = { Text("Freeform") }
+                                    label = { Text(stringResource(R.string.editor_freeform)) }
                                 )
                                 FilterChip(
                                     selected = cropAspectRatio == 1.0f,
@@ -725,35 +728,35 @@ fun PhotoEditorScreen(
                                     FilterChip(
                                         selected = activeTuneSubTab == "presets",
                                         onClick = { activeTuneSubTab = "presets" },
-                                        label = { Text("🎨 Presets") }
+                                        label = { Text(stringResource(R.string.editor_subtab_presets)) }
                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeTuneSubTab == "brightness",
                                         onClick = { activeTuneSubTab = "brightness" },
-                                        label = { Text("☀️ Brightness") }
+                                        label = { Text(stringResource(R.string.editor_subtab_brightness)) }
                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeTuneSubTab == "contrast",
                                         onClick = { activeTuneSubTab = "contrast" },
-                                        label = { Text("🌓 Contrast") }
+                                        label = { Text(stringResource(R.string.editor_subtab_contrast)) }
                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeTuneSubTab == "saturation",
                                         onClick = { activeTuneSubTab = "saturation" },
-                                        label = { Text("🌈 Saturation") }
+                                        label = { Text(stringResource(R.string.editor_subtab_saturation)) }
                                     )
                                 }
                                 item {
                                     FilterChip(
                                         selected = activeTuneSubTab == "warmth",
                                         onClick = { activeTuneSubTab = "warmth" },
-                                        label = { Text("🔥 Warmth") }
+                                        label = { Text(stringResource(R.string.editor_subtab_warmth)) }
                                     )
                                 }
                             }
@@ -765,18 +768,18 @@ fun PhotoEditorScreen(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         val presets = listOf(
-                                            "none" to "Original",
-                                            "bw" to "B&W",
-                                            "sunset" to "Sunset",
-                                            "cool" to "Cool",
-                                            "sepia" to "Sepia",
-                                            "vivid" to "Vivid"
+                                            "none" to R.string.editor_preset_original,
+                                            "bw" to R.string.editor_preset_bw,
+                                            "sunset" to R.string.editor_preset_sunset,
+                                            "cool" to R.string.editor_preset_cool,
+                                            "sepia" to R.string.editor_preset_sepia,
+                                            "vivid" to R.string.editor_preset_vivid
                                         )
-                                        items(presets) { (key, label) ->
+                                        items(presets) { (key, labelRes) ->
                                             FilterChip(
                                                 selected = selectedPreset == key,
                                                 onClick = { selectedPreset = key },
-                                                label = { Text(label) }
+                                                label = { Text(stringResource(labelRes)) }
                                             )
                                         }
                                     }
@@ -808,7 +811,7 @@ fun PhotoEditorScreen(
                                             modifier = Modifier.weight(1f)
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text(text = String.format("%.1fx", contrast), color = Color.White, style = MaterialTheme.typography.bodySmall)
+                                        Text(text = String.format(Locale.getDefault(), "%.1fx", contrast), color = Color.White, style = MaterialTheme.typography.bodySmall)
                                     }
                                 }
                                 "saturation" -> {
@@ -823,7 +826,7 @@ fun PhotoEditorScreen(
                                             modifier = Modifier.weight(1f)
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text(text = String.format("%.1fx", saturation), color = Color.White, style = MaterialTheme.typography.bodySmall)
+                                        Text(text = String.format(Locale.getDefault(), "%.1fx", saturation), color = Color.White, style = MaterialTheme.typography.bodySmall)
                                     }
                                 }
                                 "warmth" -> {
@@ -858,7 +861,7 @@ fun PhotoEditorScreen(
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.PIXELATE_MOSAIC
                                         },
-                                        label = { Text("⬛ Redact/Mosaic") }
+                                        label = { Text(stringResource(R.string.editor_markup_mosaic)) }
                                      )
                                 }
                                 item {
@@ -867,7 +870,7 @@ fun PhotoEditorScreen(
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.PEN
                                         },
-                                        label = { Text("✏️ Pen") }
+                                        label = { Text(stringResource(R.string.editor_markup_pen)) }
                                      )
                                 }
                                 item {
@@ -876,7 +879,7 @@ fun PhotoEditorScreen(
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.ARROW
                                         },
-                                        label = { Text("↗️ Arrow") }
+                                        label = { Text(stringResource(R.string.editor_markup_arrow)) }
                                      )
                                 }
                                 item {
@@ -885,7 +888,7 @@ fun PhotoEditorScreen(
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.RECTANGLE
                                         },
-                                        label = { Text("⬜ Box") }
+                                        label = { Text(stringResource(R.string.editor_markup_box)) }
                                      )
                                 }
                                 item {
@@ -894,7 +897,7 @@ fun PhotoEditorScreen(
                                         onClick = {
                                             activeMarkupTool = PhotoMarkupUtils.MarkupTool.CIRCLE
                                         },
-                                        label = { Text("⭕ Oval") }
+                                        label = { Text(stringResource(R.string.editor_markup_oval)) }
                                      )
                                 }
                             }
@@ -907,7 +910,7 @@ fun PhotoEditorScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = "Width: ${activeMarkupWidth.toInt()}px",
+                                    text = stringResource(R.string.editor_markup_width_fmt, activeMarkupWidth.toInt()),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = Color.White
                                 )
@@ -971,7 +974,7 @@ fun PhotoEditorScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.Undo,
-                                            contentDescription = "Undo",
+                                            contentDescription = stringResource(R.string.editor_undo_cd),
                                             tint = if (markupStrokes.isNotEmpty()) Color.White else Color.Gray
                                         )
                                     }
@@ -983,7 +986,7 @@ fun PhotoEditorScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Clear All",
+                                            contentDescription = stringResource(R.string.editor_clear_all_cd),
                                             tint = if (markupStrokes.isNotEmpty()) MaterialTheme.colorScheme.error else Color.Gray
                                         )
                                     }
@@ -1002,14 +1005,14 @@ fun PhotoEditorScreen(
                 NavigationBarItem(
                     selected = selectedTab == EditorTab.ROTATE,
                     onClick = { selectedTab = EditorTab.ROTATE },
-                    icon = { Icon(Icons.AutoMirrored.Filled.RotateRight, contentDescription = "Rotate") },
-                    label = { Text("Rotate") }
+                    icon = { Icon(Icons.AutoMirrored.Filled.RotateRight, contentDescription = stringResource(R.string.editor_tab_rotate)) },
+                    label = { Text(stringResource(R.string.editor_tab_rotate)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == EditorTab.FLIP,
                     onClick = { selectedTab = EditorTab.FLIP },
-                    icon = { Icon(Icons.Default.Flip, contentDescription = "Flip") },
-                    label = { Text("Flip") }
+                    icon = { Icon(Icons.Default.Flip, contentDescription = stringResource(R.string.editor_tab_flip)) },
+                    label = { Text(stringResource(R.string.editor_tab_flip)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == EditorTab.CROP,
@@ -1017,20 +1020,20 @@ fun PhotoEditorScreen(
                         selectedTab = EditorTab.CROP
                         isCropApplied = false
                     },
-                    icon = { Icon(Icons.Default.Crop, contentDescription = "Crop") },
-                    label = { Text("Crop") }
+                    icon = { Icon(Icons.Default.Crop, contentDescription = stringResource(R.string.editor_tab_crop)) },
+                    label = { Text(stringResource(R.string.editor_tab_crop)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == EditorTab.TUNING,
                     onClick = { selectedTab = EditorTab.TUNING },
-                    icon = { Icon(Icons.Default.Tune, contentDescription = "Tune") },
-                    label = { Text("Tuning") }
+                    icon = { Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.editor_tab_tune_cd)) },
+                    label = { Text(stringResource(R.string.editor_tab_tuning)) }
                 )
                 NavigationBarItem(
                     selected = selectedTab == EditorTab.MARKUP,
                     onClick = { selectedTab = EditorTab.MARKUP },
-                    icon = { Icon(Icons.Default.Brush, contentDescription = "Markup") },
-                    label = { Text("Markup") }
+                    icon = { Icon(Icons.Default.Brush, contentDescription = stringResource(R.string.editor_tab_markup)) },
+                    label = { Text(stringResource(R.string.editor_tab_markup)) }
                 )
             }
         }

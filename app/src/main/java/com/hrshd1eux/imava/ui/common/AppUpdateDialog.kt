@@ -393,7 +393,7 @@ fun AppUpdateDialog(
                             )
                             Icon(
                                 imageVector = if (isNotesExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = if (isNotesExpanded) "Collapse" else "Expand",
+                                contentDescription = if (isNotesExpanded) stringResource(R.string.action_collapse) else stringResource(R.string.action_expand),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }

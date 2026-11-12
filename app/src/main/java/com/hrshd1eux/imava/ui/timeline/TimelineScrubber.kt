@@ -44,8 +44,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.core.os.ConfigurationCompat
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -186,9 +188,10 @@ fun TimelineFloatingDateBadge(
     val totalCount = lazyPagingItems.itemCount
     if (totalCount <= 12 && visibleItems.size <= 12) return
 
-    val monthYearFormatter = remember { DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()) }
+    val currentLocale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: Locale.getDefault()
+    val monthYearFormatter = remember(currentLocale) { DateTimeFormatter.ofPattern("MMMM yyyy", currentLocale) }
     val zoneId = remember { ZoneId.systemDefault() }
-    val monthCache = remember { HashMap<Long, String>() }
+    val monthCache = remember(currentLocale) { HashMap<Long, String>() }
     val undatedLabel = stringResource(R.string.date_undated)
 
     val isScrollInProgress = when {
@@ -254,9 +257,10 @@ fun TimelineFastScroller(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
-    val monthYearFormatter = remember { DateTimeFormatter.ofPattern("MMM yyyy", Locale.getDefault()) }
+    val currentLocale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: Locale.getDefault()
+    val monthYearFormatter = remember(currentLocale) { DateTimeFormatter.ofPattern("MMM yyyy", currentLocale) }
     val zoneId = remember { ZoneId.systemDefault() }
-    val monthCache = remember { HashMap<Long, String>() }
+    val monthCache = remember(currentLocale) { HashMap<Long, String>() }
     val undatedLabel = stringResource(R.string.date_undated)
 
     var isDragging by remember { mutableStateOf(false) }

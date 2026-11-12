@@ -72,13 +72,21 @@ object WebDavSyncManager {
 
         val config = WebDavConfigManager.loadConfig(context)
         if (!config.isConfigured) {
-            _syncStatus.value = "WebDAV server is not configured"
+            _syncStatus.value = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                context,
+                com.hrshd1eux.imava.R.string.webdav_err_not_configured,
+                "WebDAV server is not configured"
+            )
             return
         }
 
         _isSyncing.value = true
         _syncProgressFraction.value = 0f
-        _syncStatus.value = "Preparing backup list..."
+        _syncStatus.value = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+            context,
+            com.hrshd1eux.imava.R.string.webdav_status_preparing,
+            "Preparing backup list..."
+        )
 
         scope.launch(Dispatchers.IO) {
             var successCount = 0
@@ -94,14 +102,23 @@ object WebDavSyncManager {
 
                 val total = eligibleItems.size
                 if (total == 0) {
-                    _syncStatus.value = "All media already backed up to NAS"
+                    _syncStatus.value = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                        context,
+                        com.hrshd1eux.imava.R.string.webdav_status_all_backed_up,
+                        "All media already backed up to NAS"
+                    )
                     _isSyncing.value = false
                     _syncProgressFraction.value = 1f
                     onFinished(0, 0)
                     return@launch
                 }
 
-                _syncStatus.value = "Found $total new items to backup..."
+                _syncStatus.value = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                    context,
+                    com.hrshd1eux.imava.R.string.webdav_status_found_items_fmt,
+                    "Found $total new items to backup...",
+                    total
+                )
 
                 // Pre-ensure root remote directory exists
                 WebDavClient.ensureRemoteDirectory(config, config.remoteDirectory)
@@ -111,7 +128,14 @@ object WebDavSyncManager {
                     val folderName = item.bucketName.ifBlank { "Camera" }
                     val remotePath = "${config.remoteDirectory.trim('/')}/$folderName/$fileName"
 
-                    _syncStatus.value = "Backing up ${index + 1}/$total: $fileName"
+                    _syncStatus.value = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                        context,
+                        com.hrshd1eux.imava.R.string.webdav_status_backing_up_fmt,
+                        "Backing up ${index + 1}/$total: $fileName",
+                        index + 1,
+                        total,
+                        fileName
+                    )
                     _syncProgressFraction.value = (index.toFloat() / total)
 
                     val result = WebDavClient.uploadMedia(
@@ -132,12 +156,33 @@ object WebDavSyncManager {
                 }
 
                 val now = System.currentTimeMillis()
-                val statusText = if (failCount == 0) "Completed: $successCount items backed up" else "Completed: $successCount backed up, $failCount failed"
+                val statusText = if (failCount == 0) {
+                    com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                        context,
+                        com.hrshd1eux.imava.R.string.webdav_status_completed_fmt,
+                        "Completed: $successCount items backed up",
+                        successCount
+                    )
+                } else {
+                    com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                        context,
+                        com.hrshd1eux.imava.R.string.webdav_status_completed_partial_fmt,
+                        "Completed: $successCount backed up, $failCount failed",
+                        successCount,
+                        failCount
+                    )
+                }
                 WebDavConfigManager.updateLastBackup(context, now, successCount, statusText)
                 _syncStatus.value = statusText
                 _syncProgressFraction.value = 1f
             } catch (e: Exception) {
-                _syncStatus.value = "Backup failed: ${e.message}"
+                val errMsg = e.message ?: ""
+                _syncStatus.value = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                    context,
+                    com.hrshd1eux.imava.R.string.webdav_status_backup_failed_fmt,
+                    "Backup failed: $errMsg",
+                    errMsg
+                )
             } finally {
                 _isSyncing.value = false
                 onFinished(successCount, failCount)

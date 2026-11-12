@@ -147,7 +147,7 @@ fun BulkCompressDialog(
                 ) {
                     presets.forEach { presetKb ->
                         val isSelected = targetKbInput == presetKb.toString()
-                        val label = if (presetKb >= 1000) "${presetKb / 1000} MB" else "$presetKb KB"
+                        val label = if (presetKb >= 1000) stringResource(R.string.unit_mb_fmt, presetKb / 1000) else stringResource(R.string.unit_kb_fmt, presetKb)
                         FilterChip(
                             selected = isSelected,
                             onClick = { targetKbInput = presetKb.toString() },
@@ -222,7 +222,7 @@ fun BulkCompressDialog(
                             HapticUtil.performSuccess(context)
                             Toast.makeText(
                                 context,
-                                "Successfully compressed $successCount photos to Pictures/Compressed",
+                                context.getString(R.string.bulk_compress_success_toast_fmt, successCount),
                                 Toast.LENGTH_LONG
                             ).show()
                             onComplete(successCount)
@@ -230,7 +230,7 @@ fun BulkCompressDialog(
                             HapticUtil.performError(context)
                             Toast.makeText(
                                 context,
-                                "Failed to compress photos. Check target size.",
+                                context.getString(R.string.bulk_compress_failed_toast),
                                 Toast.LENGTH_SHORT
                             ).show()
                             onDismiss()

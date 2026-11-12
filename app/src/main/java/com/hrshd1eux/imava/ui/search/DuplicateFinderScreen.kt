@@ -132,7 +132,7 @@ fun DuplicateFinderScreen(
                 title = { Text(stringResource(R.string.duplicate_finder_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -202,7 +202,7 @@ fun DuplicateFinderScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Your gallery is clean and optimized.",
+                        text = stringResource(R.string.dup_clean_empty),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -227,7 +227,7 @@ fun DuplicateFinderScreen(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "${group.items.size} Similar Photos",
+                                        text = stringResource(R.string.dup_similar_photos_fmt, group.items.size),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold
@@ -248,7 +248,7 @@ fun DuplicateFinderScreen(
                                             DuplicateFinder.ignoreGroup(context, group)
                                             groups = groups.filter { it.id != group.id }
                                             group.items.forEach { selectedToDelete.remove(it.id) }
-                                            android.widget.Toast.makeText(context, "Group marked as not duplicate (ignored next time)", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.dup_not_duplicate_toast), android.widget.Toast.LENGTH_SHORT).show()
                                         },
                                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                                         shape = RoundedCornerShape(12.dp)
@@ -334,7 +334,7 @@ fun DuplicateFinderScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Visibility,
-                                                contentDescription = "Preview",
+                                                contentDescription = stringResource(R.string.dup_preview_cd),
                                                 tint = Color.White,
                                                 modifier = Modifier.size(16.dp)
                                             )
@@ -434,7 +434,7 @@ fun DuplicateFinderScreen(
                                 .clip(CircleShape)
                                 .background(Color.Black.copy(alpha = 0.5f))
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close), tint = Color.White)
                         }
 
                         Column(horizontalAlignment = Alignment.End) {

@@ -66,9 +66,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 import com.hrshd1eux.imava.ui.MainViewModel
 import kotlinx.coroutines.launch
@@ -91,12 +93,12 @@ fun OcrScanBottomSheet(
     var recognizedText by remember { mutableStateOf<String?>(null) }
     var scanError by remember { mutableStateOf<String?>(null) }
 
-    fun copyToClipboard(text: String, label: String = "Text") {
+    fun copyToClipboard(text: String, label: String = context.getString(R.string.ocr_copy_label_all_text)) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("Imava OCR", text)
         clipboard.setPrimaryClip(clip)
         com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-        Toast.makeText(context, "Copied $label to clipboard", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.ocr_copied_toast_fmt, label), Toast.LENGTH_SHORT).show()
     }
 
     fun startOcr() {
@@ -110,10 +112,10 @@ fun OcrScanBottomSheet(
                     val text = result.getOrNull().orEmpty()
                     recognizedText = text
                 } else {
-                    scanError = result.exceptionOrNull()?.message ?: "Failed to extract text"
+                    scanError = result.exceptionOrNull()?.message ?: context.getString(R.string.ocr_failed_extract)
                 }
             } catch (e: Exception) {
-                scanError = e.message ?: "Recognition failed"
+                scanError = e.message ?: context.getString(R.string.ocr_recognition_failed)
             } finally {
                 isScanning = false
             }
@@ -168,12 +170,12 @@ fun OcrScanBottomSheet(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "Text Recognition",
+                            text = stringResource(R.string.ocr_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Offline On-Device • Tesseract 5 Engine",
+                            text = stringResource(R.string.ocr_engine_subtitle),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -181,7 +183,7 @@ fun OcrScanBottomSheet(
                 }
 
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
                 }
             }
 
@@ -204,14 +206,14 @@ fun OcrScanBottomSheet(
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
-                                text = "One-Time Language Model Setup",
+                                text = stringResource(R.string.ocr_model_setup_title),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "To keep the base app lightweight and free from Google proprietary services, offline text extraction uses the open-source Tesseract English model (~4.1 MB). Once downloaded, all text recognition runs entirely on your device with zero network calls.",
+                            text = stringResource(R.string.ocr_model_setup_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -230,7 +232,7 @@ fun OcrScanBottomSheet(
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = "Downloading model: ${(progress * 100).toInt()}%",
+                                    text = stringResource(R.string.ocr_downloading_pct_fmt, (progress * 100).toInt()),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -245,7 +247,7 @@ fun OcrScanBottomSheet(
                                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                                             startOcr()
                                         } else {
-                                            Toast.makeText(context, "Download failed: ${res.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, context.getString(R.string.ocr_download_failed_fmt, res.exceptionOrNull()?.message ?: ""), Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 },
@@ -254,7 +256,7 @@ fun OcrScanBottomSheet(
                             ) {
                                 Icon(Icons.Default.CloudDownload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Download English Model (~4.1 MB)")
+                                Text(stringResource(R.string.ocr_download_model_btn))
                             }
                         }
                     }
@@ -271,13 +273,13 @@ fun OcrScanBottomSheet(
                         CircularProgressIndicator(modifier = Modifier.size(36.dp), strokeWidth = 3.dp)
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(
-                            text = "Extracting text from photo...",
+                            text = stringResource(R.string.ocr_extracting_text),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Processing locally with Tesseract 5",
+                            text = stringResource(R.string.ocr_processing_tesseract),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -305,8 +307,8 @@ fun OcrScanBottomSheet(
                 ) {
                     FilterChip(
                         selected = true,
-                        onClick = { copyToClipboard(text, "All text") },
-                        label = { Text("Copy All") },
+                        onClick = { copyToClipboard(text, context.getString(R.string.ocr_copy_label_all_text)) },
+                        label = { Text(stringResource(R.string.ocr_copy_all_btn)) },
                         leadingIcon = { Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp)) }
                     )
 
@@ -319,7 +321,7 @@ fun OcrScanBottomSheet(
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(target)).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
                                     context.startActivity(intent)
                                 } catch (_: Exception) {
-                                    copyToClipboard(url, "URL")
+                                    copyToClipboard(url, context.getString(R.string.ocr_copy_label_url))
                                 }
                             },
                             label = { Text(url, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -335,7 +337,7 @@ fun OcrScanBottomSheet(
                                     val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone")).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
                                     context.startActivity(intent)
                                 } catch (_: Exception) {
-                                    copyToClipboard(phone, "Phone")
+                                    copyToClipboard(phone, context.getString(R.string.viewer_mock_phone))
                                 }
                             },
                             label = { Text(phone) },
@@ -351,7 +353,7 @@ fun OcrScanBottomSheet(
                                     val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email")).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
                                     context.startActivity(intent)
                                 } catch (_: Exception) {
-                                    copyToClipboard(email, "Email")
+                                    copyToClipboard(email, context.getString(R.string.ocr_copy_label_email))
                                 }
                             },
                             label = { Text(email) },
@@ -406,7 +408,7 @@ fun OcrScanBottomSheet(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Indexed for gallery search",
+                            text = stringResource(R.string.ocr_indexed_search),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium
@@ -419,7 +421,7 @@ fun OcrScanBottomSheet(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Rescan", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(R.string.ocr_rescan_btn), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             } else {
@@ -431,7 +433,7 @@ fun OcrScanBottomSheet(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = scanError ?: "No readable text detected in this photo",
+                        text = scanError ?: stringResource(R.string.ocr_no_text_detected),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -442,7 +444,7 @@ fun OcrScanBottomSheet(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Try Scanning Again")
+                        Text(stringResource(R.string.ocr_try_again_btn))
                     }
                 }
             }

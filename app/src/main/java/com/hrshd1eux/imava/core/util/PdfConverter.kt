@@ -176,7 +176,10 @@ object PdfConverter {
             putExtra(Intent.EXTRA_STREAM, pdfUri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        val chooser = Intent.createChooser(intent, "Share PDF").apply {
+        val chooser = Intent.createChooser(
+            intent,
+            LocaleHelper.getString(context, com.hrshd1eux.imava.R.string.chooser_share_pdf, "Share PDF")
+        ).apply {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }

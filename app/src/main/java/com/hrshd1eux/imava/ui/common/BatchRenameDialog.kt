@@ -152,7 +152,7 @@ fun BatchRenameDialog(
                             value = prefix,
                             onValueChange = { prefix = it },
                             label = { Text(stringResource(R.string.rename_prefix)) },
-                            placeholder = { Text("e.g. Vacation_") },
+                            placeholder = { Text(stringResource(R.string.rename_prefix_hint)) },
                             singleLine = true,
                             trailingIcon = {
                                 if (prefix.isNotEmpty()) {

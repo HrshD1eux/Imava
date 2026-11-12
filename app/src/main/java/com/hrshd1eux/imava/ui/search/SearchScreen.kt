@@ -60,9 +60,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 import com.hrshd1eux.imava.data.model.formattedDuration
 import com.hrshd1eux.imava.data.model.isVideo
@@ -118,19 +120,19 @@ fun SearchScreen(
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(R.string.action_back)
                     )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { viewModel.setSearchQuery(it) },
-                    placeholder = { Text("Search photos, folders, dates...") },
+                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.setSearchQuery("") }) {
-                                Icon(Icons.Default.Close, contentDescription = "Clear search")
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_clear_cd))
                             }
                         }
                     },
@@ -157,8 +159,8 @@ fun SearchScreen(
                         if (isBiometricEnabled && activity != null) {
                             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                 activity = activity,
-                                title = "Unlock Hidden Vault",
-                                subtitle = "Stealth Passphrase Matched",
+                                title = context.getString(R.string.unlock_vault_title),
+                                subtitle = context.getString(R.string.search_stealth_subtitle),
                                 onSuccess = {
                                     viewModel.setSearchQuery("")
                                     viewModel.unlockVault()
@@ -227,7 +229,7 @@ fun SearchScreen(
                         },
                         label = {
                             Text(
-                                text = if (advancedFilter.isActive) "Filters (${advancedFilter.activeFilterCount})" else "Filters",
+                                text = if (advancedFilter.isActive) stringResource(R.string.search_filters_count, advancedFilter.activeFilterCount) else stringResource(R.string.search_filters_label),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (advancedFilter.isActive) FontWeight.Bold else FontWeight.Medium
                             )
@@ -243,7 +245,7 @@ fun SearchScreen(
                             val next = advancedFilter.copy(fileSize = if (isSelected) FileSizeFilter.ANY else FileSizeFilter.OVER_500MB)
                             viewModel.setAdvancedFilterState(next)
                         },
-                        label = { Text("> 500 MB", style = MaterialTheme.typography.labelSmall) }
+                        label = { Text(stringResource(FileSizeFilter.OVER_500MB.labelRes), style = MaterialTheme.typography.labelSmall) }
                     )
                 }
 
@@ -255,7 +257,7 @@ fun SearchScreen(
                             val next = advancedFilter.copy(resolution = if (isSelected) ResolutionFilter.ANY else ResolutionFilter.UHD_4K)
                             viewModel.setAdvancedFilterState(next)
                         },
-                        label = { Text("4K UHD", style = MaterialTheme.typography.labelSmall) }
+                        label = { Text(stringResource(ResolutionFilter.UHD_4K.labelRes), style = MaterialTheme.typography.labelSmall) }
                     )
                 }
 
@@ -267,7 +269,7 @@ fun SearchScreen(
                             val next = advancedFilter.copy(resolution = if (isSelected) ResolutionFilter.ANY else ResolutionFilter.PANORAMA)
                             viewModel.setAdvancedFilterState(next)
                         },
-                        label = { Text("Panorama", style = MaterialTheme.typography.labelSmall) }
+                        label = { Text(stringResource(ResolutionFilter.PANORAMA.labelRes), style = MaterialTheme.typography.labelSmall) }
                     )
                 }
 
@@ -279,7 +281,7 @@ fun SearchScreen(
                             val next = advancedFilter.copy(mediaType = if (isSelected) MediaTypeFilterChoice.ALL else MediaTypeFilterChoice.VIDEOS_ONLY)
                             viewModel.setAdvancedFilterState(next)
                         },
-                        label = { Text("Videos", style = MaterialTheme.typography.labelSmall) }
+                        label = { Text(stringResource(MediaTypeFilterChoice.VIDEOS_ONLY.labelRes), style = MaterialTheme.typography.labelSmall) }
                     )
                 }
 
@@ -291,7 +293,7 @@ fun SearchScreen(
                             val next = advancedFilter.copy(mediaType = if (isSelected) MediaTypeFilterChoice.ALL else MediaTypeFilterChoice.RAW_DNG)
                             viewModel.setAdvancedFilterState(next)
                         },
-                        label = { Text("RAW (DNG)", style = MaterialTheme.typography.labelSmall) }
+                        label = { Text(stringResource(MediaTypeFilterChoice.RAW_DNG.labelRes), style = MaterialTheme.typography.labelSmall) }
                     )
                 }
 
@@ -303,7 +305,7 @@ fun SearchScreen(
                             val next = advancedFilter.copy(datePreset = if (isSelected) DatePreset.ANY else DatePreset.THIS_MONTH)
                             viewModel.setAdvancedFilterState(next)
                         },
-                        label = { Text("This Month", style = MaterialTheme.typography.labelSmall) }
+                        label = { Text(stringResource(DatePreset.THIS_MONTH.labelRes), style = MaterialTheme.typography.labelSmall) }
                     )
                 }
             }
@@ -332,20 +334,20 @@ fun SearchScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val summaryList = listOfNotNull(
-                        if (advancedFilter.mediaType != MediaTypeFilterChoice.ALL) advancedFilter.mediaType.label else null,
-                        if (advancedFilter.fileSize != FileSizeFilter.ANY) advancedFilter.fileSize.label else null,
-                        if (advancedFilter.resolution != ResolutionFilter.ANY) advancedFilter.resolution.label else null,
-                        if (advancedFilter.datePreset != DatePreset.ANY) advancedFilter.datePreset.label else null,
-                        if (advancedFilter.cameraModelQuery.isNotBlank()) "Camera: ${advancedFilter.cameraModelQuery}" else null
+                        if (advancedFilter.mediaType != MediaTypeFilterChoice.ALL) stringResource(advancedFilter.mediaType.labelRes) else null,
+                        if (advancedFilter.fileSize != FileSizeFilter.ANY) stringResource(advancedFilter.fileSize.labelRes) else null,
+                        if (advancedFilter.resolution != ResolutionFilter.ANY) stringResource(advancedFilter.resolution.labelRes) else null,
+                        if (advancedFilter.datePreset != DatePreset.ANY) stringResource(advancedFilter.datePreset.labelRes) else null,
+                        if (advancedFilter.cameraModelQuery.isNotBlank()) stringResource(R.string.search_active_camera_fmt, advancedFilter.cameraModelQuery) else null
                     )
                     Text(
-                        text = "Active: ${summaryList.joinToString(" • ")}",
+                        text = stringResource(R.string.search_active_prefix_fmt, summaryList.joinToString(" • ")),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f)
                     )
                     TextButton(onClick = { viewModel.clearAdvancedFilter() }) {
-                        Text("Reset", style = MaterialTheme.typography.labelSmall)
+                        Text(stringResource(R.string.action_reset), style = MaterialTheme.typography.labelSmall)
                     }
                 }
             }
@@ -361,7 +363,7 @@ fun SearchScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "Custom Offline Tags & Hashtags 🏷️",
+                        text = stringResource(R.string.search_custom_tags_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -385,7 +387,7 @@ fun SearchScreen(
                     }
 
                     Text(
-                        text = "Quick Media Filters 🔍",
+                        text = stringResource(R.string.search_quick_filters_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -397,7 +399,13 @@ fun SearchScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
                     ) {
-                        listOf("Photos" to "photo", "Videos" to "mp4", "PNG" to "png", "JPG" to "jpg", "Screenshots" to "Screenshot").forEach { (label, query) ->
+                        listOf(
+                                    stringResource(R.string.filter_media_photos) to "photo",
+                                    stringResource(R.string.filter_media_videos) to "mp4",
+                                    stringResource(R.string.search_chip_png) to "png",
+                                    stringResource(R.string.search_chip_jpg) to "jpg",
+                                    stringResource(R.string.smart_album_screenshots) to "Screenshot"
+                                ).forEach { (label, query) ->
                             SuggestionChip(
                                 onClick = { viewModel.setSearchQuery(query) },
                                 label = { Text(label) }
@@ -407,7 +415,7 @@ fun SearchScreen(
                 }
             } else {
                 Text(
-                    text = "Found ${searchResults.size} result${if (searchResults.size == 1) "" else "s"}",
+                    text = if (searchResults.size == 1) stringResource(R.string.search_found_one) else stringResource(R.string.search_found_plural, searchResults.size),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 12.dp)
@@ -419,7 +427,7 @@ fun SearchScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (searchQuery.isNotBlank()) "No matching media found for \"$searchQuery\"" else "No matching media found with active filters",
+                            text = if (searchQuery.isNotBlank()) stringResource(R.string.search_empty_query, searchQuery) else stringResource(R.string.search_empty_filters),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -494,7 +502,7 @@ fun SearchResultGridCell(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Video",
+                        contentDescription = stringResource(R.string.cd_video),
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.height(12.dp)
                     )

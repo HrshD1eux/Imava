@@ -48,10 +48,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 
 enum class CompareLayoutMode {
@@ -107,7 +109,7 @@ fun PhotoCompareScreen(
                                 offsetY2 = offsetY1
                             }
                         },
-                        label = "Photo A"
+                        label = stringResource(R.string.compare_photo_a)
                     )
                 }
 
@@ -134,7 +136,7 @@ fun PhotoCompareScreen(
                                 offsetY1 = offsetY2
                             }
                         },
-                        label = "Photo B"
+                        label = stringResource(R.string.compare_photo_b)
                     )
                 }
             }
@@ -156,7 +158,7 @@ fun PhotoCompareScreen(
                                 offsetY2 = offsetY1
                             }
                         },
-                        label = "Photo A"
+                        label = stringResource(R.string.compare_photo_a)
                     )
                 }
 
@@ -183,7 +185,7 @@ fun PhotoCompareScreen(
                                 offsetY1 = offsetY2
                             }
                         },
-                        label = "Photo B"
+                        label = stringResource(R.string.compare_photo_b)
                     )
                 }
             }
@@ -204,13 +206,13 @@ fun PhotoCompareScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.action_back),
                     tint = Color.White
                 )
             }
 
             Text(
-                text = "Side-by-Side Compare",
+                text = stringResource(R.string.compare_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -229,7 +231,7 @@ fun PhotoCompareScreen(
                 ) {
                     Icon(
                         imageVector = if (layoutMode == CompareLayoutMode.VERTICAL) Icons.Default.SwapHoriz else Icons.Default.SwapVert,
-                        contentDescription = "Toggle Split Orientation",
+                        contentDescription = stringResource(R.string.compare_toggle_split_cd),
                         tint = Color.White
                     )
                 }
@@ -242,7 +244,7 @@ fun PhotoCompareScreen(
                 ) {
                     Icon(
                         imageVector = if (isSynchronized) Icons.Default.Lock else Icons.Default.LockOpen,
-                        contentDescription = "Toggle Zoom Sync",
+                        contentDescription = stringResource(R.string.compare_toggle_sync_cd),
                         tint = if (isSynchronized) MaterialTheme.colorScheme.primary else Color.White
                     )
                 }
@@ -266,7 +268,7 @@ fun PhotoCompareScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isSynchronized) "⚡ Synchronized Zoom & Pan" else "🖐️ Independent Pan",
+                    text = if (isSynchronized) stringResource(R.string.compare_sync_active) else stringResource(R.string.compare_independent_pan),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.8f)
                 )
@@ -275,7 +277,7 @@ fun PhotoCompareScreen(
                     Button(
                         onClick = {
                             com.hrshd1eux.imava.core.util.DuplicateFinder.ignorePair(context, item1.id, item2.id)
-                            android.widget.Toast.makeText(context, "Pair marked as not duplicates (will be ignored)", android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.compare_not_dup_toast), android.widget.Toast.LENGTH_SHORT).show()
                             onBack()
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -284,7 +286,7 @@ fun PhotoCompareScreen(
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Not Same ✕")
+                        Text(stringResource(R.string.compare_not_same_btn))
                     }
 
                     Button(
@@ -295,7 +297,7 @@ fun PhotoCompareScreen(
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("1:1 Reset Zoom")
+                        Text(stringResource(R.string.compare_reset_zoom_btn))
                     }
                 }
             }

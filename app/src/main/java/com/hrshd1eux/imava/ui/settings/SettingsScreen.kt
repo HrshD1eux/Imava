@@ -462,7 +462,7 @@ fun SettingsScreen(
 
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Configure",
+                        contentDescription = stringResource(R.string.settings_configure),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
@@ -582,7 +582,7 @@ fun SettingsScreen(
                             sdTreeUri = uri.toString()
                             viewModel.refreshAll()
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            android.widget.Toast.makeText(context, "Storage permission granted", android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.settings_storage_perm_granted), android.widget.Toast.LENGTH_SHORT).show()
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -648,8 +648,8 @@ fun SettingsScreen(
                         onCheckedChange = { enabled ->
                             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                 activity = context,
-                                title = if (enabled) "Enable App Lock" else "Disable App Lock",
-                                subtitle = if (enabled) "Verify your identity to lock the app" else "Verify your identity to disable app lock",
+                                title = if (enabled) context.getString(R.string.settings_enable_app_lock) else context.getString(R.string.settings_disable_app_lock),
+                                subtitle = if (enabled) context.getString(R.string.settings_verify_lock_app) else context.getString(R.string.settings_verify_unlock_app),
                                 onSuccess = {
                                     com.hrshd1eux.imava.core.util.AppLockManager.setAppLockEnabled(context, enabled)
                                     appLockEnabled = enabled
@@ -689,8 +689,8 @@ fun SettingsScreen(
                         onCheckedChange = { enabled ->
                             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                 activity = context,
-                                title = if (enabled) "Lock Trash" else "Unlock Trash",
-                                subtitle = if (enabled) "Verify identity to enable biometric Trash lock" else "Verify identity to disable Trash lock",
+                                title = if (enabled) context.getString(R.string.settings_lock_trash) else context.getString(R.string.settings_unlock_trash),
+                                subtitle = if (enabled) context.getString(R.string.settings_verify_lock_trash) else context.getString(R.string.settings_verify_unlock_trash),
                                 onSuccess = {
                                     com.hrshd1eux.imava.core.util.AppLockManager.setTrashLockEnabled(context, enabled)
                                     trashLockEnabled = enabled
@@ -835,10 +835,11 @@ fun SettingsScreen(
                                 purgeScope.launch {
                                     com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
                                     val result = com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.purgeAndShredGhostThumbnails(context)
-                                    val mbFreed = String.format("%.2f MB", result.bytesReclaimed / (1024.0 * 1024.0))
+                                    val mbStr = String.format(java.util.Locale.getDefault(), "%.2f", result.bytesReclaimed / (1024.0 * 1024.0))
+                                    val mbFreed = context.getString(R.string.settings_mb_fmt, mbStr)
                                     android.widget.Toast.makeText(
                                         context,
-                                        "Shredded ${result.filesPurged} ghost preview files ($mbFreed reclaimed)!",
+                                        context.getString(R.string.settings_shredded_previews_fmt, result.filesPurged, mbFreed),
                                         android.widget.Toast.LENGTH_LONG
                                     ).show()
                                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
@@ -864,16 +865,16 @@ fun SettingsScreen(
             if (showManageExcludedDialog) {
                 AlertDialog(
                     onDismissRequest = { showManageExcludedDialog = false },
-                    title = { Text("Excluded Folders") },
+                    title = { Text(stringResource(R.string.settings_excluded_folders_title)) },
                     text = {
                         if (excludedSet.isEmpty()) {
-                            Text("You have not excluded any folders yet. Long-press any album in the Albums tab to hide it.")
+                            Text(stringResource(R.string.settings_excluded_folders_empty))
                         } else {
                             Column {
-                                Text("These folders are hidden from your gallery view:")
+                                Text(stringResource(R.string.settings_excluded_folders_desc))
                                 Spacer(modifier = Modifier.height(8.dp))
                                 excludedSet.toList().forEach { bucketId ->
-                                    val folderName = allBuckets.find { it.id.toString() == bucketId }?.name ?: "Folder #$bucketId"
+                                    val folderName = allBuckets.find { it.id.toString() == bucketId }?.name ?: stringResource(R.string.settings_folder_id_fmt, bucketId)
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -887,7 +888,7 @@ fun SettingsScreen(
                                                 viewModel.restoreExcludedBucket(bucketId)
                                             }
                                         ) {
-                                            Text("Restore")
+                                            Text(stringResource(R.string.action_restore))
                                         }
                                     }
                                 }
@@ -896,7 +897,7 @@ fun SettingsScreen(
                     },
                     confirmButton = {
                         Button(onClick = { showManageExcludedDialog = false }) {
-                            Text("Done")
+                            Text(stringResource(R.string.action_done))
                         }
                     }
                 )
@@ -905,17 +906,17 @@ fun SettingsScreen(
             if (showManageAutoScrubDialog) {
                 AlertDialog(
                     onDismissRequest = { showManageAutoScrubDialog = false },
-                    title = { Text("Auto-Scrub Albums 🛡️") },
+                    title = { Text(stringResource(R.string.settings_auto_scrub_title)) },
                     text = {
                         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                             Text(
-                                text = "Photos in selected albums are automatically sanitized in the background, removing GPS and camera fingerprints while preserving capture dates and orientation.",
+                                text = stringResource(R.string.settings_auto_scrub_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             if (allBuckets.isEmpty()) {
-                                Text("No albums discovered yet.")
+                                Text(stringResource(R.string.settings_no_albums_discovered))
                             } else {
                                 allBuckets.forEach { bucket ->
                                     val isEnabled = autoScrubSet.contains(bucket.id.toString())
@@ -929,7 +930,7 @@ fun SettingsScreen(
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(bucket.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                            Text("${bucket.count} items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            Text(stringResource(R.string.items_count_fmt, bucket.count), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                         Checkbox(
                                             checked = isEnabled,
@@ -942,7 +943,7 @@ fun SettingsScreen(
                     },
                     confirmButton = {
                         Button(onClick = { showManageAutoScrubDialog = false }) {
-                            Text("Done")
+                            Text(stringResource(R.string.action_done))
                         }
                     }
                 )
@@ -969,9 +970,9 @@ fun SettingsScreen(
                     LaunchedEffect(Unit) {
                         viewModel.deepScanCompletionEvent.collect { result ->
                             val msg = if (result.newCount > 0) {
-                                "Deep scan complete: ${result.newCount} new media items discovered (${result.totalCount} total indexed)"
+                                context.getString(R.string.settings_deep_scan_new_fmt, result.newCount, result.totalCount)
                             } else {
-                                "Deep scan complete: All ${result.totalCount} hidden media items are up to date"
+                                context.getString(R.string.settings_deep_scan_uptodate_fmt, result.totalCount)
                             }
                             android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
                         }
@@ -998,13 +999,13 @@ fun SettingsScreen(
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
-                                    text = "All Files Access Recommended",
+                                    text = stringResource(R.string.settings_all_files_title),
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.onErrorContainer
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Android 11+ restricts access to third-party app media folders. Grant All Files Access to discover all hidden media.",
+                                    text = stringResource(R.string.settings_all_files_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onErrorContainer
                                 )
@@ -1021,13 +1022,13 @@ fun SettingsScreen(
                                                 val intent = Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
                                                 context.startActivity(intent)
                                             } catch (e: Exception) {
-                                                android.widget.Toast.makeText(context, "Could not open storage settings: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                                                android.widget.Toast.makeText(context, context.getString(R.string.settings_storage_open_error_fmt, e.message ?: ""), android.widget.Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     },
                                     modifier = Modifier.align(Alignment.End)
                                 ) {
-                                    Text("Grant Access")
+                                    Text(stringResource(R.string.settings_grant_access))
                                 }
                             }
                         }
@@ -1063,9 +1064,9 @@ fun SettingsScreen(
 
                     if (autoScanEnabled && lastScanCount > 0 && !isScanning) {
                         val statusText = if (lastScanNewCount > 0) {
-                            "✓ Last scan: $lastScanNewCount new media items discovered ($lastScanCount total indexed)"
+                            stringResource(R.string.settings_last_scan_new_fmt, lastScanNewCount, lastScanCount)
                         } else {
-                            "✓ All $lastScanCount hidden media items are indexed and up to date"
+                            stringResource(R.string.settings_last_scan_uptodate_fmt, lastScanCount)
                         }
                         Text(
                             text = statusText,
@@ -1078,7 +1079,7 @@ fun SettingsScreen(
                     Button(
                         onClick = {
                             viewModel.triggerAutoDeepScan(force = true, isManual = true)
-                            android.widget.Toast.makeText(context, "Deep scan started...", android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.settings_deep_scan_started), android.widget.Toast.LENGTH_SHORT).show()
                         },
                         enabled = !isScanning,
                         modifier = Modifier.fillMaxWidth()

@@ -62,10 +62,15 @@ object WebDavClient {
         return "$cleanBase/$encodedSegments"
     }
 
-    suspend fun testConnection(config: WebDavConfig): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun testConnection(config: WebDavConfig, context: Context? = null): Result<String> = withContext(Dispatchers.IO) {
         try {
             if (!config.isConfigured) {
-                return@withContext Result.failure(IllegalArgumentException("Server URL is invalid"))
+                val msg = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                    context,
+                    com.hrshd1eux.imava.R.string.webdav_err_invalid_url,
+                    "Server URL is invalid"
+                )
+                return@withContext Result.failure(IllegalArgumentException(msg))
             }
 
             val client = createClient()
@@ -87,9 +92,21 @@ object WebDavClient {
                 val code = resp.code
                 if (code in 200..299 || code == 207) {
                     val server = resp.header("Server") ?: "WebDAV Server"
-                    return@withContext Result.success("Connected successfully ($server, code $code)")
+                    val msg = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                        context,
+                        com.hrshd1eux.imava.R.string.webdav_test_connected_server_fmt,
+                        "Connected successfully ($server, code $code)",
+                        server,
+                        code
+                    )
+                    return@withContext Result.success(msg)
                 } else if (code == 401) {
-                    return@withContext Result.failure(Exception("Authentication failed (401). Verify username and password."))
+                    val msg = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                        context,
+                        com.hrshd1eux.imava.R.string.webdav_test_auth_failed,
+                        "Authentication failed (401). Verify username and password."
+                    )
+                    return@withContext Result.failure(Exception(msg))
                 } else if (code == 405) {
                     // Method not allowed for PROPFIND, fallback to test with HEAD/GET
                     val headRequest = Request.Builder().url(url)
@@ -99,13 +116,33 @@ object WebDavClient {
                     val headResp = client.newCall(headRequest.head().build()).execute()
                     headResp.use { hResp ->
                         if (hResp.isSuccessful || hResp.code in 200..399) {
-                            return@withContext Result.success("Connected successfully to host (code ${hResp.code})")
+                            val msg = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                                context,
+                                com.hrshd1eux.imava.R.string.webdav_test_connected_host_fmt,
+                                "Connected successfully to host (code ${hResp.code})",
+                                hResp.code
+                            )
+                            return@withContext Result.success(msg)
                         } else {
-                            return@withContext Result.failure(Exception("Server returned HTTP ${hResp.code}: ${hResp.message}"))
+                            val msg = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                                context,
+                                com.hrshd1eux.imava.R.string.webdav_test_http_err_fmt,
+                                "Server returned HTTP ${hResp.code}: ${hResp.message}",
+                                hResp.code,
+                                hResp.message
+                            )
+                            return@withContext Result.failure(Exception(msg))
                         }
                     }
                 } else {
-                    return@withContext Result.failure(Exception("Server returned HTTP $code: ${resp.message}"))
+                    val msg = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                        context,
+                        com.hrshd1eux.imava.R.string.webdav_test_http_err_fmt,
+                        "Server returned HTTP $code: ${resp.message}",
+                        code,
+                        resp.message
+                    )
+                    return@withContext Result.failure(Exception(msg))
                 }
             }
         } catch (e: Exception) {

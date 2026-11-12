@@ -33,7 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.VideoTrimmer
 import com.hrshd1eux.imava.data.model.MediaItem
@@ -82,7 +84,7 @@ fun VideoTrimDialog(
                 modifier = Modifier.size(28.dp)
             )
         },
-        title = { Text(text = "Trim Video / Create GIF") },
+        title = { Text(text = stringResource(R.string.trim_dialog_title)) },
         text = {
             Column(
                 modifier = Modifier
@@ -116,13 +118,13 @@ fun VideoTrimDialog(
                     FilterChip(
                         selected = !exportAsGif,
                         onClick = { exportAsGif = false },
-                        label = { Text("Trim Video (.mp4)") },
+                        label = { Text(stringResource(R.string.trim_mode_mp4)) },
                         leadingIcon = { Icon(Icons.Default.Movie, contentDescription = null, modifier = Modifier.size(16.dp)) }
                     )
                     FilterChip(
                         selected = exportAsGif,
                         onClick = { exportAsGif = true },
-                        label = { Text("Make GIF (.gif)") },
+                        label = { Text(stringResource(R.string.trim_mode_gif)) },
                         leadingIcon = { Icon(Icons.Default.Gif, contentDescription = null, modifier = Modifier.size(16.dp)) }
                     )
                 }
@@ -136,17 +138,17 @@ fun VideoTrimDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Start: ${formatDuration(startMs)}",
+                        text = stringResource(R.string.trim_start_fmt, formatDuration(startMs)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Length: ${formatDuration(selectedDurationMs)}",
+                        text = stringResource(R.string.trim_length_fmt, formatDuration(selectedDurationMs)),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "End: ${formatDuration(endMs)}",
+                        text = stringResource(R.string.trim_end_fmt, formatDuration(endMs)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -173,7 +175,7 @@ fun VideoTrimDialog(
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = if (exportAsGif) "Generating GIF..." else "Trimming video...",
+                            text = if (exportAsGif) stringResource(R.string.trim_generating_gif) else stringResource(R.string.trim_trimming_video),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -197,25 +199,25 @@ fun VideoTrimDialog(
                             HapticUtil.performSuccess(context)
                             Toast.makeText(
                                 context,
-                                if (exportAsGif) "Saved to Pictures/GIFs" else "Saved to Movies/Trimmed",
+                                if (exportAsGif) context.getString(R.string.trim_saved_gif_toast) else context.getString(R.string.trim_saved_video_toast),
                                 Toast.LENGTH_LONG
                             ).show()
                             onSuccess()
                             onDismiss()
                         } else {
                             HapticUtil.performError(context)
-                            Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.trim_export_failed_toast), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             ) {
-                Text(if (exportAsGif) "Export GIF" else "Trim & Save")
+                Text(if (exportAsGif) stringResource(R.string.motion_export_gif_btn) else stringResource(R.string.trim_save_btn))
             }
         },
         dismissButton = {
             if (!isProcessing) {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         }

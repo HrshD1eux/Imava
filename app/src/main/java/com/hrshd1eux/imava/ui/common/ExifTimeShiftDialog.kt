@@ -186,8 +186,9 @@ fun ExifTimeShiftDialog(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    val offsetStr = "${if (isForward) "+" else "-"}${days}d ${hours}h ${minutes}m"
                     Text(
-                        text = "Offset: ${if (isForward) "+" else "-"}${days}d ${hours}h ${minutes}m",
+                        text = stringResource(R.string.exif_shift_offset_fmt, offsetStr),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )

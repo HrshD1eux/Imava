@@ -3,8 +3,10 @@ package com.hrshd1eux.imava.core.util
 import android.app.LocaleManager
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Build
 import android.os.LocaleList
+import androidx.core.os.ConfigurationCompat
 import java.util.Locale
 
 object LocaleHelper {
@@ -31,6 +33,15 @@ object LocaleHelper {
         SupportedLanguage("gu", "Gujarati", "ગુજરાતી")
     )
 
+    private fun resolveSystemLocale(): Locale {
+        val sysConfig = Resources.getSystem()?.configuration ?: return Locale.getDefault()
+        return ConfigurationCompat.getLocales(sysConfig).get(0) ?: Locale.getDefault()
+    }
+
+    fun resolveTargetLocale(languageTag: String): Locale {
+        return if (languageTag.isBlank()) resolveSystemLocale() else Locale.forLanguageTag(languageTag)
+    }
+
     fun getSavedLanguageTag(context: Context): String {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             try {
@@ -54,6 +65,9 @@ object LocaleHelper {
         val prefs = context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("app_language", languageTag).apply()
 
+        val targetLocale = resolveTargetLocale(languageTag)
+        Locale.setDefault(targetLocale)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val localeManager = context.getSystemService(LocaleManager::class.java)
             if (languageTag.isBlank()) {
@@ -62,15 +76,9 @@ object LocaleHelper {
                 localeManager?.applicationLocales = LocaleList.forLanguageTags(languageTag)
             }
         } else {
-            val locale = if (languageTag.isBlank()) {
-                Locale.getDefault()
-            } else {
-                Locale.forLanguageTag(languageTag)
-            }
-            Locale.setDefault(locale)
             val config = context.resources.configuration
-            config.setLocale(locale)
-            config.setLayoutDirection(locale)
+            config.setLocale(targetLocale)
+            config.setLayoutDirection(targetLocale)
             @Suppress("DEPRECATION")
             context.resources.updateConfiguration(config, context.resources.displayMetrics)
         }
@@ -78,13 +86,49 @@ object LocaleHelper {
 
     fun wrapContext(context: Context): Context {
         val lang = getSavedLanguageTag(context)
+        val locale = resolveTargetLocale(lang)
+        Locale.setDefault(locale)
         if (lang.isBlank()) return context
 
-        val locale = Locale.forLanguageTag(lang)
-        Locale.setDefault(locale)
-        val config = Configuration(context.resources.configuration)
+        val baseConfig = context.resources?.configuration ?: return context
+        val config = Configuration(baseConfig)
         config.setLocale(locale)
         config.setLayoutDirection(locale)
-        return context.createConfigurationContext(config)
+        return context.createConfigurationContext(config) ?: context
+    }
+
+    /** Returns a Context bound to the active app locale for resolving localized strings inside long-lived ViewModels. */
+    fun localizedContext(context: Context): Context {
+        val lang = getSavedLanguageTag(context)
+        val locale = resolveTargetLocale(lang)
+        Locale.setDefault(locale)
+        val baseConfig = context.resources?.configuration ?: return context
+        val config = Configuration(baseConfig)
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+        return context.createConfigurationContext(config) ?: context
+    }
+
+    /**
+     * Resolves a localized string under the active app locale, falling back to [fallback] if the
+     * supplied Context has incomplete resources (e.g. JVM unit-test mocks).
+     */
+    fun getString(context: Context?, resId: Int, fallback: String = "", vararg formatArgs: Any): String {
+        if (context == null) return fallback
+        return try {
+            val locCtx = try {
+                localizedContext(context)
+            } catch (_: Exception) {
+                context
+            }
+            val resolved = if (formatArgs.isEmpty()) {
+                locCtx.getString(resId)
+            } else {
+                locCtx.getString(resId, *formatArgs)
+            }
+            resolved.takeIf { it.isNotBlank() } ?: fallback
+        } catch (_: Exception) {
+            fallback
+        }
     }
 }

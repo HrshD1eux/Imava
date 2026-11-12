@@ -244,6 +244,7 @@ class MainActivity : FragmentActivity() {
 
         checkPermissions()
         handleIncomingIntent(intent)
+        viewModel.syncLocaleState()
 
         setContent {
             ImavaTheme(appTheme = viewModel.appTheme) {
@@ -283,8 +284,8 @@ class MainActivity : FragmentActivity() {
     private fun promptAppUnlock() {
         com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
             activity = this,
-            title = "Imava Gallery is Locked",
-            subtitle = "Authenticate to access gallery",
+            title = getString(R.string.app_locked_title),
+            subtitle = getString(R.string.app_lock_biometric_subtitle),
             onSuccess = {
                 com.hrshd1eux.imava.core.util.AppLockManager.markAppUnlocked()
                 isAppLockedState.value = false
@@ -530,7 +531,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             viewModel.lockVault(context)
                             viewModel.activeMediaItem = null
                             com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                            android.widget.Toast.makeText(context, "Emergency Shake: Vault Locked 🔒", android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.emergency_shake_vault_locked), android.widget.Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -689,7 +690,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     TopAppBar(
                         title = {
                             Text(
-                                text = "${selectionState.selectedIds.size} selected",
+                                text = stringResource(R.string.items_selected_format, selectionState.selectedIds.size),
                                 style = MaterialTheme.typography.titleLarge
                             )
                         },
@@ -697,7 +698,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             IconButton(onClick = { selectionState.clear() }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Exit selection"
+                                    contentDescription = stringResource(R.string.action_exit_selection)
                                 )
                             }
                         },
@@ -707,7 +708,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.WifiTethering,
-                                    contentDescription = "Wi-Fi Drop",
+                                    contentDescription = stringResource(R.string.settings_wifi_drop),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -727,7 +728,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = if (isAllSelected) "Deselect All" else "Select All",
+                                    text = if (isAllSelected) stringResource(R.string.action_deselect_all) else stringResource(R.string.action_select_all),
                                     style = MaterialTheme.typography.labelLarge
                                 )
                             }
@@ -789,14 +790,14 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 viewModel.currentScreen = Screen.Albums
                             }
                         }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "All Media")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.nav_all_media))
                         }
                     } else if (viewModel.currentBucketId != null && currentScreen == Screen.Photos) {
                         IconButton(onClick = { 
                             viewModel.selectBucket(null, null) 
                             viewModel.currentScreen = Screen.Albums
                         }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "All Media")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.nav_all_media))
                         }
                     }
                 },
@@ -804,52 +805,52 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     if (currentScreen == Screen.Photos && viewModel.currentCategoryName != "Trash") {
                         DescriptiveIconButton(
                             onClick = { viewModel.toggleGridStyle() },
-                            title = "Grid Layout",
-                            description = if (viewModel.gridStyle == GridStyle.SQUARE) "Current: Square grid. Tap to switch to adaptive ratio." else "Current: Adaptive aspect ratio. Tap to switch to square."
+                            title = stringResource(R.string.toolbar_grid_layout),
+                            description = if (viewModel.gridStyle == GridStyle.SQUARE) stringResource(R.string.toolbar_grid_square_desc) else stringResource(R.string.toolbar_grid_adaptive_desc)
                         ) {
                             Icon(
                                 imageVector = if (viewModel.gridStyle == GridStyle.SQUARE) Icons.Default.CropSquare else Icons.Default.GridView,
-                                contentDescription = "Toggle Grid Style"
+                                contentDescription = stringResource(R.string.toolbar_toggle_grid_style)
                             )
                         }
 
                         DescriptiveIconButton(
                             onClick = { viewModel.toggleSortOrder() },
-                            title = "Sort Order",
-                            description = if (viewModel.sortOrder == SortOrder.NEWEST_FIRST) "Current: Newest first. Tap to show oldest first." else "Current: Oldest first. Tap to show newest first."
+                            title = stringResource(R.string.toolbar_sort_order),
+                            description = if (viewModel.sortOrder == SortOrder.NEWEST_FIRST) stringResource(R.string.toolbar_sort_newest_desc) else stringResource(R.string.toolbar_sort_oldest_desc)
                         ) {
                             Icon(
                                 imageVector = androidx.compose.material.icons.Icons.Default.SwapVert,
-                                contentDescription = if (viewModel.sortOrder == SortOrder.NEWEST_FIRST) "Newest First" else "Oldest First",
+                                contentDescription = if (viewModel.sortOrder == SortOrder.NEWEST_FIRST) stringResource(R.string.sort_newest_first) else stringResource(R.string.sort_oldest_first),
                                 tint = if (viewModel.sortOrder == SortOrder.OLDEST_FIRST) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                             )
                         }
 
                         DescriptiveIconButton(
                             onClick = { viewModel.toggleSortMode() },
-                            title = "View Mode",
-                            description = if (viewModel.sortMode == TimelineSortMode.DATE_GROUPED) "Current: Grouped by date. Tap for continuous stream." else "Current: Continuous stream. Tap to group by date."
+                            title = stringResource(R.string.toolbar_view_mode),
+                            description = if (viewModel.sortMode == TimelineSortMode.DATE_GROUPED) stringResource(R.string.toolbar_view_grouped_desc) else stringResource(R.string.toolbar_view_stream_desc)
                         ) {
                             Icon(
                                 imageVector = if (viewModel.sortMode == TimelineSortMode.DATE_GROUPED) Icons.Default.DateRange else Icons.Default.ViewStream,
-                                contentDescription = "Toggle Sort Mode"
+                                contentDescription = stringResource(R.string.toolbar_toggle_sort_mode)
                             )
                         }
 
                         DescriptiveIconButton(
                             onClick = {
                                 if (selectionState.selectedIds.isEmpty()) {
-                                    Toast.makeText(context, "Select the images you want to share", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.wifi_drop_select_prompt), Toast.LENGTH_SHORT).show()
                                 } else {
                                     showImavaDropDialog = true
                                 }
                             },
-                            title = "Wi-Fi Drop ⚡",
-                            description = "Transfer media directly to PC, Mac, or phone over local Wi-Fi without cloud"
+                            title = stringResource(R.string.settings_wifi_drop),
+                            description = stringResource(R.string.wifi_drop_toolbar_desc)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.WifiTethering,
-                                contentDescription = "Wi-Fi Drop"
+                                contentDescription = stringResource(R.string.settings_wifi_drop)
                             )
                         }
 
@@ -860,7 +861,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             IconButton(onClick = { showEmptyTrashConfirm = true }) {
                                 Icon(
                                     imageVector = Icons.Default.DeleteForever,
-                                    contentDescription = "Empty Trash",
+                                    contentDescription = stringResource(R.string.empty_trash),
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -897,7 +898,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             IconButton(onClick = { showVaultMenu = true }) {
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
-                                    contentDescription = "Vault Security Options"
+                                    contentDescription = stringResource(R.string.vault_security_options)
                                 )
                             }
 
@@ -944,13 +945,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         if (viewModel.currentBucketId != null && categoryName == null) {
                             var showAlbumMenu by remember { mutableStateOf(false) }
                             val currentBucketId = viewModel.currentBucketId!!
-                            val currentBucketName = viewModel.currentBucketName ?: "Album"
+                            val currentBucketName = viewModel.currentBucketName ?: stringResource(R.string.album_default_label)
                             val isAutoScrub = viewModel.isAutoScrubEnabled(currentBucketId)
 
                             IconButton(onClick = { showAlbumMenu = true }) {
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
-                                    contentDescription = "Album Options"
+                                    contentDescription = stringResource(R.string.album_options)
                                 )
                             }
 
@@ -967,7 +968,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(if (isAutoScrub) "Auto-Scrub: Enabled ✓" else "Auto-Scrub: Disabled 🔄") },
+                                    text = { Text(if (isAutoScrub) stringResource(R.string.auto_scrub_enabled_menu) else stringResource(R.string.auto_scrub_disabled_menu)) },
                                     leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null) },
                                     onClick = {
                                         showAlbumMenu = false
@@ -975,7 +976,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                         android.widget.Toast.makeText(
                                             context,
-                                            if (newState) "Auto-Scrub enabled for $currentBucketName 🔄" else "Auto-Scrub disabled for $currentBucketName",
+                                            if (newState) context.getString(R.string.auto_scrub_enabled_toast, currentBucketName) else context.getString(R.string.auto_scrub_disabled_toast, currentBucketName),
                                             android.widget.Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -1024,13 +1025,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.RestoreFromTrash,
-                                    label = "Restore",
+                                    label = stringResource(R.string.action_restore),
                                     onClick = { showSelectionRestoreConfirmDialog = true }
                                 )
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.DeleteForever,
-                                    label = "Delete Forever",
+                                    label = stringResource(R.string.delete_forever),
                                     tint = MaterialTheme.colorScheme.error,
                                     onClick = { showSelectionDeletePermanentlyConfirmDialog = true }
                                 )
@@ -1046,7 +1047,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Visibility,
-                                    label = "Unhide",
+                                    label = stringResource(R.string.action_unhide),
                                     onClick = {
                                         com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                         viewModel.hideSelectedMedia(context)
@@ -1056,14 +1057,14 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Share,
-                                    label = "Share",
+                                    label = stringResource(R.string.action_share),
                                     onClick = { showSelectionShareDialog = true }
                                 )
 
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.DeleteForever,
-                                    label = "Delete",
+                                    label = stringResource(R.string.action_delete),
                                     tint = MaterialTheme.colorScheme.error,
                                     onClick = { showSelectionDeletePermanentlyConfirmDialog = true }
                                 )
@@ -1072,7 +1073,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     SelectionActionButton(
                                         modifier = Modifier.fillMaxWidth(),
                                         icon = Icons.Default.MoreVert,
-                                        label = "More",
+                                        label = stringResource(R.string.action_more),
                                         onClick = { showSelectionMorePopup = true }
                                     )
 
@@ -1086,7 +1087,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     ) {
                                         DropdownMenuItem(
                                             text = {
-                                                Text("Favorite", style = MaterialTheme.typography.bodyMedium)
+                                                Text(stringResource(R.string.action_favorite), style = MaterialTheme.typography.bodyMedium)
                                             },
                                             leadingIcon = {
                                                 Icon(Icons.Default.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
@@ -1144,14 +1145,14 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Share,
-                                    label = "Share",
+                                    label = stringResource(R.string.action_share),
                                     onClick = { showSelectionShareDialog = true }
                                 )
 
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Edit,
-                                    label = "Edit",
+                                    label = stringResource(R.string.action_edit),
                                     enabled = selectedIds.size == 1,
                                     onClick = {
                                         if (selectedIds.size == 1) {
@@ -1161,12 +1162,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                 selectionState.clear()
                                                 viewModel.editingMediaItem = item
                                             } else if (item is com.hrshd1eux.imava.data.model.MediaItem.Video) {
-                                                android.widget.Toast.makeText(context, "Editing is only supported for photos", android.widget.Toast.LENGTH_SHORT).show()
+                                                android.widget.Toast.makeText(context, context.getString(R.string.edit_photos_only_toast), android.widget.Toast.LENGTH_SHORT).show()
                                             } else {
-                                                android.widget.Toast.makeText(context, "Item not found", android.widget.Toast.LENGTH_SHORT).show()
+                                                android.widget.Toast.makeText(context, context.getString(R.string.item_not_found_toast), android.widget.Toast.LENGTH_SHORT).show()
                                             }
                                         } else {
-                                            android.widget.Toast.makeText(context, "Select 1 photo to edit", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.select_one_photo_to_edit_toast), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 )
@@ -1174,7 +1175,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                 SelectionActionButton(
                                     modifier = Modifier.weight(1f),
                                     icon = Icons.Default.Delete,
-                                    label = "Delete",
+                                    label = stringResource(R.string.action_delete),
                                     tint = MaterialTheme.colorScheme.error,
                                     onClick = { showSelectionDeleteConfirmDialog = true }
                                 )
@@ -1186,7 +1187,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     SelectionActionButton(
                                         modifier = Modifier.fillMaxWidth(),
                                         icon = Icons.Default.MoreVert,
-                                        label = "More",
+                                        label = stringResource(R.string.action_more),
                                         onClick = { showSelectionMorePopup = true }
                                     )
 
@@ -1200,7 +1201,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                     ) {
                                         DropdownMenuItem(
                                             text = {
-                                                Text("Favorite", style = MaterialTheme.typography.bodyMedium)
+                                                Text(stringResource(R.string.action_favorite), style = MaterialTheme.typography.bodyMedium)
                                             },
                                             leadingIcon = {
                                                 Icon(Icons.Default.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
@@ -1266,8 +1267,8 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
-                                                        Text(if (isViewingVault) "Unhide" else "Move to Vault", style = MaterialTheme.typography.bodyMedium)
-                                                        Text(if (isViewingVault) "Restore to gallery" else "Protect with PIN/Password", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(if (isViewingVault) stringResource(R.string.action_unhide) else stringResource(R.string.menu_move_to_vault), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(if (isViewingVault) stringResource(R.string.menu_unhide_desc) else stringResource(R.string.menu_move_to_vault_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1289,7 +1290,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                 text = {
                                                     Column {
                                                         Text(if (selectedIds.size == 1) stringResource(R.string.action_rename) else stringResource(R.string.rename_file), style = MaterialTheme.typography.bodyMedium)
-                                                        Text(if (selectedIds.size == 1) "Rename item" else stringResource(R.string.items_selected_format, selectedIds.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(if (selectedIds.size == 1) stringResource(R.string.menu_rename_item_desc) else stringResource(R.string.items_selected_format, selectedIds.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1323,17 +1324,17 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                 scope.launch {
                                                     val itemsToExport = viewModel.getSelectedMediaItems(selectedIds.toSet())
                                                     if (itemsToExport.isNotEmpty()) {
-                                                        android.widget.Toast.makeText(context, "Generating PDF...", android.widget.Toast.LENGTH_SHORT).show()
+                                                        android.widget.Toast.makeText(context, context.getString(R.string.toast_generating_pdf), android.widget.Toast.LENGTH_SHORT).show()
                                                         val pdfUri = com.hrshd1eux.imava.core.util.PdfConverter.createPdfFromImages(context, itemsToExport)
                                                         if (pdfUri != null) {
                                                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                                                             com.hrshd1eux.imava.core.util.PdfConverter.sharePdf(context, pdfUri)
                                                         } else {
                                                             com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                                                            android.widget.Toast.makeText(context, "Could not create PDF from selected items", android.widget.Toast.LENGTH_SHORT).show()
+                                                            android.widget.Toast.makeText(context, context.getString(R.string.toast_pdf_failed), android.widget.Toast.LENGTH_SHORT).show()
                                                         }
                                                     } else {
-                                                        android.widget.Toast.makeText(context, "No photos selected for PDF", android.widget.Toast.LENGTH_SHORT).show()
+                                                        android.widget.Toast.makeText(context, context.getString(R.string.toast_pdf_no_photos), android.widget.Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             }
@@ -1356,7 +1357,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                     if (items.isNotEmpty()) {
                                                         viewModel.exportCleanCopies(context, items)
                                                     } else {
-                                                        android.widget.Toast.makeText(context, "No photos selected to export", android.widget.Toast.LENGTH_SHORT).show()
+                                                        android.widget.Toast.makeText(context, context.getString(R.string.toast_no_photos_export), android.widget.Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             }
@@ -1383,7 +1384,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                         }
                                                         selectionState.clear()
                                                     } else {
-                                                        android.widget.Toast.makeText(context, "Select photos to rotate", android.widget.Toast.LENGTH_SHORT).show()
+                                                        android.widget.Toast.makeText(context, context.getString(R.string.toast_select_photos_rotate), android.widget.Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             }
@@ -1394,7 +1395,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                 text = {
                                                     Column {
                                                         Text(stringResource(R.string.menu_collage), style = MaterialTheme.typography.bodyMedium)
-                                                        Text(if (selectedIds.size in 2..9) "Create collage" else "Requires 2 to 9 photos", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(if (selectedIds.size in 2..9) stringResource(R.string.menu_collage_ready_desc) else stringResource(R.string.menu_collage_req_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1410,7 +1411,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                             selectionState.clear()
                                                             collageImageUris = photoUris
                                                         } else {
-                                                            android.widget.Toast.makeText(context, "Select 2 to 9 photos for collage", android.widget.Toast.LENGTH_SHORT).show()
+                                                            android.widget.Toast.makeText(context, context.getString(R.string.toast_select_collage_photos), android.widget.Toast.LENGTH_SHORT).show()
                                                         }
                                                     }
                                                 }
@@ -1420,7 +1421,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                 text = {
                                                     Column {
                                                         Text(stringResource(R.string.menu_compare), style = MaterialTheme.typography.bodyMedium)
-                                                        Text(if (selectedIds.size == 2) stringResource(R.string.menu_compare_desc) else "Requires exactly 2 items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                        Text(if (selectedIds.size == 2) stringResource(R.string.menu_compare_desc) else stringResource(R.string.menu_compare_req_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                     }
                                                 },
                                                 leadingIcon = {
@@ -1478,7 +1479,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                                         if (firstPhoto != null) {
                                                             com.hrshd1eux.imava.core.util.PrintUtil.printPhoto(context, firstPhoto)
                                                         } else {
-                                                            android.widget.Toast.makeText(context, "Select a photo to print", android.widget.Toast.LENGTH_SHORT).show()
+                                                            android.widget.Toast.makeText(context, context.getString(R.string.toast_select_photo_print), android.widget.Toast.LENGTH_SHORT).show()
                                                         }
                                                     }
                                                 }
@@ -1774,7 +1775,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         if (pendingMoveToVaultIds.isNotEmpty()) {
                             viewModel.hideMediaByIds(context, pendingMoveToVaultIds)
                             pendingMoveToVaultIds = emptySet()
-                            android.widget.Toast.makeText(context, "Items safely moved to your Private Vault!", android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.toast_moved_to_vault), android.widget.Toast.LENGTH_SHORT).show()
                         }
                         viewModel.currentBucketId = null
                         viewModel.currentBucketName = null
@@ -1978,13 +1979,13 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Send via Imava Wi-Fi Drop ⚡",
+                                    text = stringResource(R.string.share_via_wifi_drop_title),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = "Direct high-speed P2P transfer to PC, Mac or phone (zero cloud)",
+                                    text = stringResource(R.string.share_via_wifi_drop_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -2037,7 +2038,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     Text(stringResource(R.string.vault_hide_dialog_message))
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Next, your phone will ask to remove the copies from your main gallery. Please tap Allow on the next screen.",
+                        text = stringResource(R.string.vault_hide_allow_next_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -2282,7 +2283,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                 android.widget.Toast.makeText(
                     context,
-                    "Updated tags on ${selectedItems.size} items",
+                    context.getString(R.string.toast_updated_tags_count, selectedItems.size),
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
             }
@@ -2315,7 +2316,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             },
             title = {
                 Text(
-                    text = "Update Ready to Install",
+                    text = stringResource(R.string.update_ready_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -2323,12 +2324,12 @@ fun MainScreenLayout(viewModel: MainViewModel) {
             text = {
                 Column {
                     Text(
-                        text = "Imava v${completedUpdateState.version} has finished downloading. Install it now to apply the update.",
+                        text = stringResource(R.string.update_ready_desc, completedUpdateState.version),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Tap Install Now to begin installation.",
+                        text = stringResource(R.string.update_tap_install_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -2344,14 +2345,14 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                 ) {
                     Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Install Now")
+                    Text(stringResource(R.string.update_install_now))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { installPromptDismissedVersion = completedUpdateState.version }
                 ) {
-                    Text("Later")
+                    Text(stringResource(R.string.update_later))
                 }
             }
         )
@@ -2359,7 +2360,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
 
     if (showScrubCurrentAlbumDialog && viewModel.currentBucketId != null) {
         val currentBucketId = viewModel.currentBucketId!!
-        val currentBucketName = viewModel.currentBucketName ?: "Album"
+        val currentBucketName = viewModel.currentBucketName ?: stringResource(R.string.album_default_label)
         val allVisibleItems by viewModel.visibleMediaItems.collectAsState()
         val albumItemCount = remember(allVisibleItems, currentBucketId) {
             allVisibleItems.count { it.bucketId == currentBucketId }
@@ -2393,9 +2394,9 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         showScrubCurrentAlbumDialog = false
                         if (count > 0) {
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            android.widget.Toast.makeText(context, "Sanitized $count photos in $currentBucketName", android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.toast_sanitized_count_album, count, currentBucketName), android.widget.Toast.LENGTH_LONG).show()
                         } else {
-                            android.widget.Toast.makeText(context, "No photos required sanitization in $currentBucketName", android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.toast_no_sanitization_needed, currentBucketName), android.widget.Toast.LENGTH_SHORT).show()
                         }
                     }
                 )

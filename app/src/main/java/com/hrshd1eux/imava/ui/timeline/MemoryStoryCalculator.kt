@@ -1,23 +1,32 @@
 package com.hrshd1eux.imava.ui.timeline
 
+import android.content.Context
+import androidx.core.os.ConfigurationCompat
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 object MemoryStoryCalculator {
 
-    fun generateStories(items: List<MediaItem>): List<MemoryStory> {
+    fun generateStories(items: List<MediaItem>, context: Context? = null): List<MemoryStory> {
         if (items.isEmpty()) return emptyList()
 
+        val locale = if (context != null) {
+            ConfigurationCompat.getLocales(context.resources.configuration)[0] ?: Locale.getDefault()
+        } else {
+            Locale.getDefault()
+        }
         val zoneId = ZoneId.systemDefault()
         val today = LocalDate.now(zoneId)
         val todayMonth = today.monthValue
         val todayDay = today.dayOfMonth
-        val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.getDefault())
-        val monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
+        val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale)
+        val monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
 
         val stories = mutableListOf<MemoryStory>()
 
@@ -32,7 +41,12 @@ object MemoryStoryCalculator {
             }
             groupedByYear.forEach { (year, yearItems) ->
                 val yearsAgo = today.year - year
-                val title = if (yearsAgo == 1) "1 Year Ago Today" else "$yearsAgo Years Ago"
+                val title = when {
+                    context != null && yearsAgo == 1 -> context.getString(R.string.memory_years_ago_one)
+                    context != null -> context.getString(R.string.memory_years_ago_plural, yearsAgo)
+                    yearsAgo == 1 -> "1 Year Ago Today"
+                    else -> "$yearsAgo Years Ago"
+                }
                 val sampleDate = Instant.ofEpochMilli(yearItems.first().dateTaken).atZone(zoneId).toLocalDate().format(formatter)
                 val cover = yearItems.firstOrNull()
                 if (cover != null) {
@@ -65,8 +79,8 @@ object MemoryStoryCalculator {
                     stories.add(
                         MemoryStory(
                             id = "memory_month_$year",
-                            title = "$sampleDate Memories",
-                            dateSubtitle = "${yearItems.size} moments",
+                            title = context?.getString(R.string.memory_month_memories, sampleDate) ?: "$sampleDate Memories",
+                            dateSubtitle = context?.getString(R.string.memory_moments_count, yearItems.size) ?: "${yearItems.size} moments",
                             coverItem = cover,
                             items = yearItems
                         )
@@ -88,8 +102,8 @@ object MemoryStoryCalculator {
                     stories.add(
                         MemoryStory(
                             id = "memory_fallback_${cover.id}",
-                            title = "$sampleDate Highlights",
-                            dateSubtitle = "${monthItems.size} moments",
+                            title = context?.getString(R.string.memory_month_highlights, sampleDate) ?: "$sampleDate Highlights",
+                            dateSubtitle = context?.getString(R.string.memory_moments_count, monthItems.size) ?: "${monthItems.size} moments",
                             coverItem = cover,
                             items = monthItems
                         )

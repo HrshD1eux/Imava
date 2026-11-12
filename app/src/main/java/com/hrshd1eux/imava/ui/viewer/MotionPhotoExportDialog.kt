@@ -45,7 +45,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.MotionPhotoUtil
 import androidx.compose.foundation.rememberScrollState
@@ -53,6 +55,7 @@ import androidx.compose.foundation.verticalScroll
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Locale
 
 @Composable
 fun MotionPhotoExportDialog(
@@ -82,7 +85,7 @@ fun MotionPhotoExportDialog(
     AlertDialog(
         onDismissRequest = { if (!isProcessing) onDismiss() },
         title = {
-            Text("Motion Photo Tools 🎞️")
+            Text(stringResource(R.string.motion_tools_title))
         },
         text = {
             Column(
@@ -103,7 +106,7 @@ fun MotionPhotoExportDialog(
                     if (previewBitmap != null) {
                         Image(
                             bitmap = previewBitmap!!.asImageBitmap(),
-                            contentDescription = "Frame preview",
+                            contentDescription = stringResource(R.string.motion_frame_preview_cd),
                             modifier = Modifier.matchParentSize(),
                             contentScale = ContentScale.Fit
                         )
@@ -134,8 +137,9 @@ fun MotionPhotoExportDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Scrubber slider
+                val formattedSec = String.format(Locale.getDefault(), "%.2fs", currentSliderPos * (durationUs / 1_000_000f))
                 Text(
-                    text = "Scrub Frame: ${(currentSliderPos * (durationUs / 1_000_000f)).let { String.format("%.2fs", it) }}",
+                    text = stringResource(R.string.motion_scrub_frame_fmt, formattedSec),
                     style = MaterialTheme.typography.labelMedium
                 )
                 Slider(
@@ -162,16 +166,16 @@ fun MotionPhotoExportDialog(
                     onClick = {
                         val bmp = previewBitmap ?: return@Button
                         isProcessing = true
-                        processingMsg = "Saving still frame..."
+                        processingMsg = context.getString(R.string.motion_saving_frame)
                         scope.launch {
                             val uri = MotionPhotoUtil.saveExtractedFrame(context, bmp, baseName)
                             isProcessing = false
                             if (uri != null) {
                                 HapticUtil.performSuccess(context)
-                                Toast.makeText(context, "Saved frame to Pictures! 📸", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.motion_frame_saved_toast), Toast.LENGTH_SHORT).show()
                                 onDismiss()
                             } else {
-                                Toast.makeText(context, "Failed to save frame", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.motion_frame_failed_toast), Toast.LENGTH_SHORT).show()
                             }
                         }
                     },
@@ -180,7 +184,7 @@ fun MotionPhotoExportDialog(
                 ) {
                     Icon(Icons.Default.CameraAlt, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Save Frame as Photo")
+                    Text(stringResource(R.string.motion_save_frame_btn))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -189,16 +193,16 @@ fun MotionPhotoExportDialog(
                     FilledTonalButton(
                         onClick = {
                             isProcessing = true
-                            processingMsg = "Encoding animated GIF..."
+                            processingMsg = context.getString(R.string.motion_encoding_gif)
                             scope.launch {
                                 val uri = MotionPhotoUtil.exportMotionToGif(context, videoFile, baseName)
                                 isProcessing = false
                                 if (uri != null) {
                                     HapticUtil.performSuccess(context)
-                                    Toast.makeText(context, "Exported as GIF! 🎞️", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.motion_gif_exported_toast), Toast.LENGTH_SHORT).show()
                                     onDismiss()
                                 } else {
-                                    Toast.makeText(context, "Failed to export GIF", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.motion_gif_failed_toast), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
@@ -207,22 +211,22 @@ fun MotionPhotoExportDialog(
                     ) {
                         Icon(Icons.Default.Gif, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Export GIF")
+                        Text(stringResource(R.string.motion_export_gif_btn))
                     }
 
                     FilledTonalButton(
                         onClick = {
                             isProcessing = true
-                            processingMsg = "Exporting MP4 video..."
+                            processingMsg = context.getString(R.string.motion_exporting_mp4)
                             scope.launch {
                                 val uri = MotionPhotoUtil.exportMotionVideo(context, videoFile, baseName)
                                 isProcessing = false
                                 if (uri != null) {
                                     HapticUtil.performSuccess(context)
-                                    Toast.makeText(context, "Saved video clip to Movies! 🎬", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.motion_mp4_saved_toast), Toast.LENGTH_SHORT).show()
                                     onDismiss()
                                 } else {
-                                    Toast.makeText(context, "Failed to export video", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.motion_mp4_failed_toast), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
@@ -231,7 +235,7 @@ fun MotionPhotoExportDialog(
                     ) {
                         Icon(Icons.Default.Movie, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Export MP4")
+                        Text(stringResource(R.string.motion_export_mp4_btn))
                     }
                 }
             }
@@ -241,7 +245,7 @@ fun MotionPhotoExportDialog(
                 onClick = onDismiss,
                 enabled = !isProcessing
             ) {
-                Text("Close")
+                Text(stringResource(R.string.action_close))
             }
         }
     )

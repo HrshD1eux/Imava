@@ -63,8 +63,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.ConfigurationCompat
+import com.hrshd1eux.imava.R
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -141,6 +145,10 @@ fun MediaInfoContent(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val currentLocale = remember(configuration) {
+        ConfigurationCompat.getLocales(configuration).get(0) ?: Locale.getDefault()
+    }
     var details by remember(item) { mutableStateOf<ExifDetails?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
     var tagsList by remember(item.id, item.tags) { mutableStateOf(item.tags) }
@@ -157,9 +165,9 @@ fun MediaInfoContent(
     var displayedPlaceName by remember(item.id) { mutableStateOf<String?>(null) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
 
-    LaunchedEffect(item) {
+    LaunchedEffect(item, currentLocale) {
         withContext(Dispatchers.IO) {
-            details = readExifDetails(context, item)
+            details = readExifDetails(context, item, currentLocale)
         }
     }
 
@@ -236,12 +244,12 @@ fun MediaInfoContent(
                         }
                         val newTimestamp = newCal.timeInMillis
                         onUpdateDateTaken?.invoke(newTimestamp)
-                        details = details?.copy(dateTaken = formatDateTaken(null, newTimestamp))
+                        details = details?.copy(dateTaken = formatDateTaken(null, newTimestamp, currentLocale))
                         showDatePicker = false
                     },
                     currentHour,
                     currentMinute,
-                    false
+                    android.text.format.DateFormat.is24HourFormat(context)
                 )
                 timePickerDialog.show()
             },
@@ -260,7 +268,7 @@ fun MediaInfoContent(
             .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
             Text(
-                text = "Details",
+                text = stringResource(R.string.details),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -270,7 +278,7 @@ fun MediaInfoContent(
                 // File Name
                 InfoRow(
                     icon = Icons.AutoMirrored.Filled.InsertDriveFile,
-                    title = "File Name",
+                    title = stringResource(R.string.info_file_name),
                     subtitle = info.fileName
                 )
 
@@ -280,11 +288,11 @@ fun MediaInfoContent(
                 val resolvedAlbumName = if (item.bucketName.isNotBlank() && item.bucketName != "Unknown") {
                     item.bucketName
                 } else {
-                    java.io.File(item.path).parentFile?.name ?: "Unknown"
+                    java.io.File(item.path).parentFile?.name ?: stringResource(R.string.label_unknown)
                 }
                 InfoRow(
                     icon = Icons.Default.CollectionsBookmark,
-                    title = "Album",
+                    title = stringResource(R.string.album_default_label),
                     subtitle = resolvedAlbumName
                 )
 
@@ -293,7 +301,7 @@ fun MediaInfoContent(
                 // Path
                 InfoRow(
                     icon = Icons.Default.Folder,
-                    title = "Path",
+                    title = stringResource(R.string.info_path),
                     subtitle = info.filePath
                 )
 
@@ -307,8 +315,8 @@ fun MediaInfoContent(
                     Box(modifier = Modifier.weight(1f)) {
                         InfoRow(
                             icon = Icons.Default.Info,
-                            title = "Date Taken",
-                            subtitle = info.dateTaken ?: SimpleDateFormat("dd MMM yyyy · hh:mm a", Locale.getDefault()).format(Date(item.dateTaken))
+                            title = stringResource(R.string.info_date_taken),
+                            subtitle = info.dateTaken ?: java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, currentLocale).format(Date(item.dateTaken))
                         )
                     }
                     if (onUpdateDateTaken != null) {
@@ -318,7 +326,7 @@ fun MediaInfoContent(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit Date & Time",
+                                contentDescription = stringResource(R.string.edit_date_time_title),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -329,7 +337,7 @@ fun MediaInfoContent(
                     Spacer(modifier = Modifier.height(12.dp))
                     InfoRow(
                         icon = Icons.Default.Schedule,
-                        title = "Date Modified",
+                        title = stringResource(R.string.info_date_modified),
                         subtitle = info.dateModified
                     )
                 }
@@ -339,15 +347,17 @@ fun MediaInfoContent(
                 // Camera model section
                 InfoRow(
                     icon = Icons.Default.PhotoCamera,
-                    title = "Camera Model",
-                    subtitle = info.cameraModel ?: "No EXIF camera info"
+                    title = stringResource(R.string.info_camera_model),
+                    subtitle = info.cameraModel ?: stringResource(R.string.info_no_exif_camera)
                 )
 
                 val shotDetails = listOfNotNull(
                     info.aperture?.let { "f/$it" },
                     info.shutterSpeed,
-                    info.focalLength?.let { "${it}mm" },
-                    info.iso?.let { "ISO $it" },
+                    info.focalLength?.let { stringResource(R.string.exif_focal_mm_fmt, it) },
+                    info.iso?.let { rawIso ->
+                        rawIso.toIntOrNull()?.let { stringResource(R.string.exif_iso_fmt, it) } ?: "ISO $rawIso"
+                    },
                     info.exposureBias
                 ).joinToString("  ·  ")
 
@@ -355,26 +365,26 @@ fun MediaInfoContent(
                     Spacer(modifier = Modifier.height(12.dp))
                     InfoRow(
                         icon = Icons.Default.Tune,
-                        title = "Shot Details",
+                        title = stringResource(R.string.info_shot_details),
                         subtitle = shotDetails
                     )
                 }
 
                 val extraExif = listOfNotNull(
                     info.flash,
-                    info.whiteBalance?.let { "WB: $it" },
-                    info.meteringMode?.let { "Metering: $it" },
+                    info.whiteBalance?.let { stringResource(R.string.info_wb_fmt, it) },
+                    info.meteringMode?.let { stringResource(R.string.info_metering_fmt, it) },
                     info.colorSpace,
                     info.digitalZoom,
-                    info.lensModel?.let { "Lens: $it" },
-                    info.software?.let { "Software: $it" }
+                    info.lensModel?.let { stringResource(R.string.info_lens_fmt, it) },
+                    info.software?.let { stringResource(R.string.info_software_fmt, it) }
                 ).joinToString("  ·  ")
 
                 if (extraExif.isNotBlank()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     InfoRow(
                         icon = Icons.Default.CameraAlt,
-                        title = "Hardware & Processing",
+                        title = stringResource(R.string.info_hardware_processing),
                         subtitle = extraExif
                     )
                 }
@@ -384,14 +394,14 @@ fun MediaInfoContent(
                 // File metadata details
                 InfoRow(
                     icon = Icons.Default.Info,
-                    title = "Properties",
+                    title = stringResource(R.string.info_properties),
                     subtitle = "${info.resolution}  ·  ${info.fileSize}"
                 )
 
                 if (paletteColors.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Dominant Colors 🎨",
+                        text = stringResource(R.string.info_dominant_colors),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -402,7 +412,7 @@ fun MediaInfoContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         paletteColors.forEach { colorInt ->
-                            val hex = String.format("#%06X", 0xFFFFFF and colorInt)
+                            val hex = String.format(Locale.US, "#%06X", 0xFFFFFF and colorInt)
                             val composeColor = androidx.compose.ui.graphics.Color(colorInt)
                             Box(
                                 modifier = Modifier
@@ -412,10 +422,10 @@ fun MediaInfoContent(
                                     .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), CircleShape)
                                     .clickable {
                                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                        val clip = android.content.ClipData.newPlainText("Hex Color", hex)
+                                        val clip = android.content.ClipData.newPlainText(context.getString(R.string.info_hex_color_cd), hex)
                                         clipboard.setPrimaryClip(clip)
                                         com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
-                                        android.widget.Toast.makeText(context, "Copied $hex to clipboard! 📋", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.info_copied_hex_toast, hex), android.widget.Toast.LENGTH_SHORT).show()
                                     }
                             )
                         }
@@ -431,7 +441,7 @@ fun MediaInfoContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Tags & Hashtags 🏷️",
+                        text = stringResource(R.string.info_tags_hashtags),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -441,7 +451,7 @@ fun MediaInfoContent(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Add Tag",
+                            contentDescription = stringResource(R.string.timeline_add_tag),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
@@ -456,13 +466,13 @@ fun MediaInfoContent(
                         InputChip(
                             selected = false,
                             onClick = { showAddTagDialog = true },
-                            label = { Text("+ Add Tag") }
+                            label = { Text(stringResource(R.string.info_add_tag_btn)) }
                         )
                     }
                     if (tagsList.isEmpty()) {
                         item {
                             Text(
-                                text = "No custom tags added yet",
+                                text = stringResource(R.string.info_no_tags_yet),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                 modifier = Modifier.padding(start = 4.dp, top = 8.dp)
@@ -477,7 +487,7 @@ fun MediaInfoContent(
                                 trailingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove Tag",
+                                        contentDescription = stringResource(R.string.info_remove_tag_cd),
                                         modifier = Modifier
                                             .size(14.dp)
                                             .clickable {
@@ -495,14 +505,18 @@ fun MediaInfoContent(
                 if (info.hasGps || !displayedPlaceName.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    val gpsLine = if (info.hasGps) {
+                        stringResource(R.string.info_gps_prefix_fmt, info.location ?: "") +
+                            if (!info.altitude.isNullOrBlank()) stringResource(R.string.info_alt_prefix_fmt, info.altitude) else ""
+                    } else ""
                     InfoRow(
                         icon = Icons.Default.LocationOn,
-                        title = "Location",
+                        title = stringResource(R.string.info_location_title),
                         subtitle = when {
-                            !displayedPlaceName.isNullOrBlank() && info.hasGps -> "${displayedPlaceName}\nGPS: ${info.location}${if (!info.altitude.isNullOrBlank()) "  ·  Alt: ${info.altitude}" else ""}"
+                            !displayedPlaceName.isNullOrBlank() && info.hasGps -> "${displayedPlaceName}\n$gpsLine"
                             !displayedPlaceName.isNullOrBlank() -> displayedPlaceName!!
-                            info.hasGps -> "GPS: ${info.location}${if (!info.altitude.isNullOrBlank()) "  ·  Alt: ${info.altitude}" else ""}"
-                            else -> "Location added"
+                            info.hasGps -> gpsLine
+                            else -> stringResource(R.string.info_location_added)
                         }
                     )
 
@@ -512,7 +526,7 @@ fun MediaInfoContent(
                         Button(
                             onClick = {
                                 val uriStr = if (info.hasGps && info.latitude != 0.0) {
-                                    "geo:${info.latitude},${info.longitude}?q=${info.latitude},${info.longitude}(${Uri.encode(displayedPlaceName ?: "Photo Location")})"
+                                    "geo:${info.latitude},${info.longitude}?q=${info.latitude},${info.longitude}(${Uri.encode(displayedPlaceName ?: context.getString(R.string.info_location_title))})"
                                 } else {
                                     "geo:0,0?q=${Uri.encode(displayedPlaceName ?: "")}"
                                 }
@@ -527,7 +541,7 @@ fun MediaInfoContent(
                         ) {
                             Icon(imageVector = Icons.Default.LocationOn, contentDescription = null)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Open Maps")
+                            Text(stringResource(R.string.info_open_maps))
                         }
 
                         androidx.compose.material3.OutlinedButton(
@@ -541,14 +555,14 @@ fun MediaInfoContent(
                             },
                             modifier = Modifier.weight(0.9f)
                         ) {
-                            Text("Edit")
+                            Text(stringResource(R.string.action_edit))
                         }
 
                         androidx.compose.material3.OutlinedButton(
                             onClick = { showRemoveGpsConfirm = true },
                             modifier = Modifier.weight(0.9f)
                         ) {
-                            Text("Remove")
+                            Text(stringResource(R.string.action_remove))
                         }
                     }
                 } else {
@@ -566,12 +580,12 @@ fun MediaInfoContent(
                     ) {
                         Icon(imageVector = Icons.Default.LocationOn, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add Location / Place Name 📍")
+                        Text(stringResource(R.string.info_add_location_btn))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             } ?: Text(
-                text = "Loading metadata...",
+                text = stringResource(R.string.info_loading_metadata),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -583,13 +597,13 @@ fun MediaInfoContent(
         if (showAddTagDialog) {
             AlertDialog(
                 onDismissRequest = { showAddTagDialog = false },
-                title = { Text("Add Tag / Hashtag") },
+                title = { Text(stringResource(R.string.info_add_tag_dialog_title)) },
                 text = {
                     OutlinedTextField(
                         value = newTagInput,
                         onValueChange = { newTagInput = it },
-                        label = { Text("Tag name") },
-                        placeholder = { Text("e.g. vacation, sunset") },
+                        label = { Text(stringResource(R.string.info_tag_name_label)) },
+                        placeholder = { Text(stringResource(R.string.info_tag_name_hint)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -608,12 +622,12 @@ fun MediaInfoContent(
                             showAddTagDialog = false
                         }
                     ) {
-                        Text("Add")
+                        Text(stringResource(R.string.timeline_add_btn))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showAddTagDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -622,8 +636,8 @@ fun MediaInfoContent(
         if (showRemoveGpsConfirm) {
             AlertDialog(
                 onDismissRequest = { showRemoveGpsConfirm = false },
-                title = { Text("Remove Location?") },
-                text = { Text("This will permanently remove the custom place description and scrub GPS latitude, longitude, and altitude tags from this photo.") },
+                title = { Text(stringResource(R.string.info_remove_location_title)) },
+                text = { Text(stringResource(R.string.info_remove_location_desc)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -632,20 +646,20 @@ fun MediaInfoContent(
                                 val success = com.hrshd1eux.imava.core.util.ExifLocationUtil.removeAllLocation(context, item.id, item.uri, item.path)
                                 if (success) {
                                     displayedPlaceName = null
-                                    details = withContext(Dispatchers.IO) { readExifDetails(context, item) }
-                                    android.widget.Toast.makeText(context, "Location removed! 🗑️", android.widget.Toast.LENGTH_SHORT).show()
+                                    details = withContext(Dispatchers.IO) { readExifDetails(context, item, currentLocale) }
+                                    android.widget.Toast.makeText(context, context.getString(R.string.info_location_removed_toast), android.widget.Toast.LENGTH_SHORT).show()
                                 } else {
-                                    android.widget.Toast.makeText(context, "Failed to remove location", android.widget.Toast.LENGTH_SHORT).show()
+                                    android.widget.Toast.makeText(context, context.getString(R.string.info_location_remove_failed_toast), android.widget.Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
                     ) {
-                        Text("Remove")
+                        Text(stringResource(R.string.action_remove))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showRemoveGpsConfirm = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -675,7 +689,7 @@ fun MediaInfoContent(
                         } else {
                             android.widget.Toast.makeText(
                                 context,
-                                "Online lookup couldn't find exact coordinates. You can still save your place name as a custom description!",
+                                context.getString(R.string.info_online_lookup_fallback_toast),
                                 android.widget.Toast.LENGTH_LONG
                             ).show()
                         }
@@ -685,7 +699,7 @@ fun MediaInfoContent(
 
             AlertDialog(
                 onDismissRequest = { showEditLocationDialog = false },
-                title = { Text("Add / Edit Location 📍") },
+                title = { Text(stringResource(R.string.info_edit_location_title)) },
                 text = {
                     Column(
                         modifier = Modifier
@@ -694,7 +708,7 @@ fun MediaInfoContent(
                             .imePadding()
                     ) {
                         Text(
-                            text = "Enter any custom location / place description (e.g. \"delhi rohtak madina village raju printing press meham\") or GPS coordinates. Both are fully supported!",
+                            text = stringResource(R.string.info_edit_location_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -703,8 +717,8 @@ fun MediaInfoContent(
                         OutlinedTextField(
                             value = customLocationNameInput,
                             onValueChange = { customLocationNameInput = it },
-                            label = { Text("Place Name / Custom Description") },
-                            placeholder = { Text("e.g. Madina Village, Meham or Eiffel Tower") },
+                            label = { Text(stringResource(R.string.info_place_name_label)) },
+                            placeholder = { Text(stringResource(R.string.info_place_name_hint)) },
                             singleLine = false,
                             maxLines = 3,
                             modifier = Modifier.fillMaxWidth()
@@ -715,8 +729,8 @@ fun MediaInfoContent(
                         OutlinedTextField(
                             value = locationSearchQuery,
                             onValueChange = { locationSearchQuery = it },
-                            label = { Text("Find GPS Coords Online (Optional)") },
-                            placeholder = { Text("Search town, place or coordinates") },
+                            label = { Text(stringResource(R.string.info_find_gps_label)) },
+                            placeholder = { Text(stringResource(R.string.info_find_gps_hint)) },
                             singleLine = true,
                             trailingIcon = {
                                 if (isSearchingLocation) {
@@ -729,7 +743,7 @@ fun MediaInfoContent(
                                         enabled = locationSearchQuery.isNotBlank() || customLocationNameInput.isNotBlank(),
                                         onClick = executeLocationSearch
                                     ) {
-                                        Icon(Icons.Default.Search, contentDescription = "Search GPS")
+                                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.info_search_gps_btn))
                                     }
                                 }
                             },
@@ -757,7 +771,7 @@ fun MediaInfoContent(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "Pinpointed: $resolvedLocationName",
+                                        text = stringResource(R.string.info_pinpointed_fmt, resolvedLocationName ?: ""),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
@@ -770,7 +784,7 @@ fun MediaInfoContent(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
-                            text = "GPS Coordinates (Optional)",
+                            text = stringResource(R.string.info_gps_coords_optional),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -780,7 +794,7 @@ fun MediaInfoContent(
                             OutlinedTextField(
                                 value = newLatInput,
                                 onValueChange = { newLatInput = it },
-                                label = { Text("Lat (-90..90)") },
+                                label = { Text(stringResource(R.string.info_lat_label)) },
                                 placeholder = { Text("28.6139") },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -789,7 +803,7 @@ fun MediaInfoContent(
                             OutlinedTextField(
                                 value = newLngInput,
                                 onValueChange = { newLngInput = it },
-                                label = { Text("Lng (-180..180)") },
+                                label = { Text(stringResource(R.string.info_lng_label)) },
                                 placeholder = { Text("77.2090") },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -820,20 +834,20 @@ fun MediaInfoContent(
                                     displayedPlaceName = locName ?: if (lat != null && lng != null) {
                                         withContext(Dispatchers.IO) { ExifLocationUtil.reverseGeocode(context, lat, lng) }
                                     } else null
-                                    details = withContext(Dispatchers.IO) { readExifDetails(context, item) }
-                                    android.widget.Toast.makeText(context, "Location saved! 📍", android.widget.Toast.LENGTH_SHORT).show()
+                                    details = withContext(Dispatchers.IO) { readExifDetails(context, item, currentLocale) }
+                                    android.widget.Toast.makeText(context, context.getString(R.string.info_location_saved_toast), android.widget.Toast.LENGTH_SHORT).show()
                                 } else {
-                                    android.widget.Toast.makeText(context, "Failed to save location", android.widget.Toast.LENGTH_SHORT).show()
+                                    android.widget.Toast.makeText(context, context.getString(R.string.info_location_save_failed_toast), android.widget.Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
                     ) {
-                        Text("Save")
+                        Text(stringResource(R.string.action_save))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showEditLocationDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -863,8 +877,8 @@ fun InfoRow(
     }
 }
 
-private fun formatDateTaken(rawExifDate: String?, timestampMs: Long): String {
-    val outputFormatter = SimpleDateFormat("dd MMM yyyy · hh:mm a", Locale.getDefault())
+private fun formatDateTaken(rawExifDate: String?, timestampMs: Long, locale: Locale = Locale.getDefault()): String {
+    val outputFormatter = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, locale)
     if (!rawExifDate.isNullOrEmpty()) {
         val formatsToTry = arrayOf(
             "yyyy:MM:dd HH:mm:ss",
@@ -875,7 +889,7 @@ private fun formatDateTaken(rawExifDate: String?, timestampMs: Long): String {
         )
         for (format in formatsToTry) {
             try {
-                val parser = SimpleDateFormat(format, Locale.getDefault())
+                val parser = SimpleDateFormat(format, Locale.US)
                 val parsed = parser.parse(rawExifDate)
                 if (parsed != null) {
                     return outputFormatter.format(parsed)
@@ -887,9 +901,9 @@ private fun formatDateTaken(rawExifDate: String?, timestampMs: Long): String {
     return outputFormatter.format(Date(safeMs))
 }
 
-private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
+private fun readExifDetails(context: Context, item: MediaItem, locale: Locale = Locale.getDefault()): ExifDetails {
     val file = File(item.path)
-    val fileName = file.name.ifEmpty { item.uri.lastPathSegment ?: "Unknown" }
+    val fileName = file.name.ifEmpty { item.uri.lastPathSegment ?: context.getString(R.string.label_unknown) }
     val filePath = if (file.exists()) file.absolutePath else item.path
 
     var exif: ExifInterface? = null
@@ -920,14 +934,14 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
     val lastModMs = if (fileObj.exists()) fileObj.lastModified() else 0L
     val diffFromTaken = if (lastModMs > 0L && item.dateTaken > 0L) kotlin.math.abs(lastModMs - item.dateTaken) else 0L
     val dateModifiedText = if (diffFromTaken > 120_000L) {
-        SimpleDateFormat("dd MMM yyyy · hh:mm a", Locale.getDefault()).format(Date(lastModMs))
+        java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, locale).format(Date(lastModMs))
     } else null
 
     if (exif == null) {
         return ExifDetails(
             fileName = fileName,
             filePath = filePath,
-            dateTaken = formatDateTaken(null, item.dateTaken),
+            dateTaken = formatDateTaken(null, item.dateTaken, locale),
             dateModified = dateModifiedText,
             cameraModel = null,
             resolution = "${item.width} × ${item.height}",
@@ -949,44 +963,44 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
         val resolutionText = "${item.width} × ${item.height}"
         val sizeText = com.hrshd1eux.imava.core.util.FormatUtils.formatFileSize(item.size)
         val rawDate = nonNullExif.getAttribute(ExifInterface.TAG_DATETIME) ?: nonNullExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
-        val formattedDate = formatDateTaken(rawDate, item.dateTaken)
+        val formattedDate = formatDateTaken(rawDate, item.dateTaken, locale)
 
         val fNumber = nonNullExif.getAttribute(ExifInterface.TAG_F_NUMBER)
         val expTime = nonNullExif.getAttribute(ExifInterface.TAG_EXPOSURE_TIME)?.toDoubleOrNull()?.let { sec ->
             if (sec < 1.0 && sec > 0.0) {
                 val denom = Math.round(1.0 / sec)
-                "1/${denom}s"
+                context.getString(R.string.exif_shutter_frac_fmt, denom)
             } else {
-                String.format(Locale.getDefault(), "%.1fs", sec)
+                context.getString(R.string.exif_shutter_sec_fmt, sec)
             }
         }
         val iso = nonNullExif.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY)
             ?: nonNullExif.getAttribute(ExifInterface.TAG_ISO_SPEED_RATINGS)
-        val focalLen = nonNullExif.getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH, 0.0).let { if (it > 0) String.format(Locale.getDefault(), "%.1f", it) else null }
+        val focalLen = nonNullExif.getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH, 0.0).let { if (it > 0) String.format(locale, "%.1f", it) else null }
         val flashVal = nonNullExif.getAttributeInt(ExifInterface.TAG_FLASH, -1).let {
-            if (it == -1) null else if ((it and 1) != 0) "Flash fired" else "Flash off"
+            if (it == -1) null else if ((it and 1) != 0) context.getString(R.string.exif_flash_fired) else context.getString(R.string.exif_flash_off)
         }
         val wbVal = nonNullExif.getAttributeInt(ExifInterface.TAG_WHITE_BALANCE, -1).let {
             when (it) {
-                ExifInterface.WHITE_BALANCE_AUTO.toInt() -> "Auto"
-                ExifInterface.WHITE_BALANCE_MANUAL.toInt() -> "Manual"
+                ExifInterface.WHITE_BALANCE_AUTO.toInt() -> context.getString(R.string.exif_auto)
+                ExifInterface.WHITE_BALANCE_MANUAL.toInt() -> context.getString(R.string.exif_manual)
                 else -> null
             }
         }
         val lensModel = nonNullExif.getAttribute(ExifInterface.TAG_LENS_MODEL)
         val software = nonNullExif.getAttribute(ExifInterface.TAG_SOFTWARE)
-        val altitudeVal = nonNullExif.getAltitude(0.0).let { if (it > 0.0) String.format(Locale.getDefault(), "%.1f m", it) else null }
+        val altitudeVal = nonNullExif.getAltitude(0.0).let { if (it > 0.0) context.getString(R.string.exif_alt_m_fmt, it) else null }
         val expBias = nonNullExif.getAttribute(ExifInterface.TAG_EXPOSURE_BIAS_VALUE)?.toDoubleOrNull()?.let {
-            if (it != 0.0) String.format(Locale.getDefault(), "%+.1f EV", it) else null
+            if (it != 0.0) context.getString(R.string.exif_ev_fmt, it) else null
         }
         val meterVal = nonNullExif.getAttributeInt(ExifInterface.TAG_METERING_MODE, -1).let {
             when (it) {
-                1 -> "Average"
-                2 -> "Center-weighted"
-                3 -> "Spot"
-                4 -> "Multi-spot"
-                5 -> "Pattern/Matrix"
-                6 -> "Partial"
+                1 -> context.getString(R.string.exif_metering_average)
+                2 -> context.getString(R.string.exif_metering_center_weighted)
+                3 -> context.getString(R.string.exif_metering_spot)
+                4 -> context.getString(R.string.exif_metering_multi_spot)
+                5 -> context.getString(R.string.exif_metering_pattern)
+                6 -> context.getString(R.string.exif_metering_partial)
                 else -> null
             }
         }
@@ -998,7 +1012,7 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
             }
         }
         val digitalZoomVal = nonNullExif.getAttributeDouble(ExifInterface.TAG_DIGITAL_ZOOM_RATIO, 0.0).let {
-            if (it > 1.0) String.format(Locale.getDefault(), "%.1fx Zoom", it) else null
+            if (it > 1.0) context.getString(R.string.exif_zoom_fmt, it) else null
         }
 
         ExifDetails(
@@ -1009,7 +1023,7 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
             cameraModel = modelText,
             resolution = resolutionText,
             fileSize = sizeText,
-            location = if (hasGps && latLong != null) String.format(Locale.getDefault(), "%.4f, %.4f", latLong[0], latLong[1]) else null,
+            location = if (hasGps && latLong != null) String.format(locale, "%.4f, %.4f", latLong[0], latLong[1]) else null,
             hasGps = hasGps,
             latitude = if (hasGps && latLong != null) latLong[0] else 0.0,
             longitude = if (hasGps && latLong != null) latLong[1] else 0.0,
@@ -1031,7 +1045,7 @@ private fun readExifDetails(context: Context, item: MediaItem): ExifDetails {
         ExifDetails(
             fileName = fileName,
             filePath = filePath,
-            dateTaken = formatDateTaken(null, item.dateTaken),
+            dateTaken = formatDateTaken(null, item.dateTaken, locale),
             dateModified = dateModifiedText,
             cameraModel = null,
             resolution = "${item.width} × ${item.height}",

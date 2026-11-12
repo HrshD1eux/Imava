@@ -67,7 +67,7 @@ data class OpenSourceLibraryFull(
     val name: String,
     val author: String,
     val licenseType: String,
-    val description: String,
+    @androidx.annotation.StringRes val descriptionRes: Int,
     val url: String,
     val fullLicenseText: String
 )
@@ -113,7 +113,7 @@ fun OpenSourceLicensesScreen(
                 name = "Imava Android Gallery",
                 author = "Harsh Pahal (HrshD1eux)",
                 licenseType = "GNU General Public License v3.0",
-                description = "Modern, high-performance, fully offline private Android gallery app.",
+                descriptionRes = R.string.lic_desc_imava,
                 url = "https://github.com/HrshD1eux/Imava",
                 fullLicenseText = gpl3License
             ),
@@ -122,7 +122,7 @@ fun OpenSourceLicensesScreen(
                 name = "Jetpack Compose",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Modern declarative UI toolkit for native Android development.",
+                descriptionRes = R.string.lic_desc_compose,
                 url = "https://developer.android.com/jetpack/compose",
                 fullLicenseText = apache2License
             ),
@@ -131,7 +131,7 @@ fun OpenSourceLicensesScreen(
                 name = "Kotlin & Coroutines",
                 author = "JetBrains s.r.o. & Contributors",
                 licenseType = "Apache License 2.0",
-                description = "Modern language primitives for asynchronous, non-blocking execution.",
+                descriptionRes = R.string.lic_desc_coroutines,
                 url = "https://github.com/Kotlin/kotlinx.coroutines",
                 fullLicenseText = apache2License
             ),
@@ -140,7 +140,7 @@ fun OpenSourceLicensesScreen(
                 name = "Coil Image Loader",
                 author = "Colin White & Contributors",
                 licenseType = "Apache License 2.0",
-                description = "Fast, lightweight, Kotlin-first image and GIF loading pipeline.",
+                descriptionRes = R.string.lic_desc_coil,
                 url = "https://github.com/coil-kt/coil",
                 fullLicenseText = apache2License
             ),
@@ -149,7 +149,7 @@ fun OpenSourceLicensesScreen(
                 name = "Hilt & Dagger",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Compile-time dependency injection framework for Android.",
+                descriptionRes = R.string.lic_desc_hilt,
                 url = "https://dagger.dev/hilt/",
                 fullLicenseText = apache2License
             ),
@@ -158,7 +158,7 @@ fun OpenSourceLicensesScreen(
                 name = "Room Persistence Library",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Robust SQLite object mapping abstraction with compile-time query verification.",
+                descriptionRes = R.string.lic_desc_room,
                 url = "https://developer.android.com/training/data-storage/room",
                 fullLicenseText = apache2License
             ),
@@ -167,7 +167,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Paging 3",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Memory-efficient incremental media pagination with Flow integration.",
+                descriptionRes = R.string.lic_desc_paging,
                 url = "https://developer.android.com/topic/libraries/architecture/paging/v3-overview",
                 fullLicenseText = apache2License
             ),
@@ -176,7 +176,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Media3 ExoPlayer",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Hardware-accelerated extensible media player engine for videos and audio.",
+                descriptionRes = R.string.lic_desc_media3,
                 url = "https://developer.android.com/media/media3",
                 fullLicenseText = apache2License
             ),
@@ -185,7 +185,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX WorkManager",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Guaranteed background task scheduler with power and battery constraints.",
+                descriptionRes = R.string.lic_desc_workmanager,
                 url = "https://developer.android.com/topic/libraries/architecture/workmanager",
                 fullLicenseText = apache2License
             ),
@@ -194,7 +194,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Biometric",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Biometric prompt dialog and hardware-backed credential authentication.",
+                descriptionRes = R.string.lic_desc_biometric,
                 url = "https://developer.android.com/jetpack/androidx/releases/biometric",
                 fullLicenseText = apache2License
             ),
@@ -203,7 +203,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Security Crypto",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "EncryptedSharedPreferences and MasterKey hardware key wrapper.",
+                descriptionRes = R.string.lic_desc_security,
                 url = "https://developer.android.com/jetpack/androidx/releases/security",
                 fullLicenseText = apache2License
             ),
@@ -212,7 +212,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX ExifInterface",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Metadata reader and writer for EXIF tags, GPS geotags, and camera details.",
+                descriptionRes = R.string.lic_desc_exif,
                 url = "https://developer.android.com/jetpack/androidx/releases/exifinterface",
                 fullLicenseText = apache2License
             ),
@@ -221,7 +221,7 @@ fun OpenSourceLicensesScreen(
                 name = "Material 3 Components",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Next-generation Material You design system components.",
+                descriptionRes = R.string.lic_desc_material3,
                 url = "https://m3.material.io",
                 fullLicenseText = apache2License
             ),
@@ -230,7 +230,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Core KTX",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Kotlin extensions for Android system APIs and backward-compatible core utilities.",
+                descriptionRes = R.string.lic_desc_corektx,
                 url = "https://developer.android.com/jetpack/androidx/releases/core",
                 fullLicenseText = apache2License
             ),
@@ -239,7 +239,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Activity Compose",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "ComponentActivity extensions for Jetpack Compose integration and system back handling.",
+                descriptionRes = R.string.lic_desc_activitycompose,
                 url = "https://developer.android.com/jetpack/androidx/releases/activity",
                 fullLicenseText = apache2License
             ),
@@ -248,7 +248,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Lifecycle Runtime KTX",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Lifecycle-aware components, coroutine scopes, and viewmodel state management.",
+                descriptionRes = R.string.lic_desc_lifecycle,
                 url = "https://developer.android.com/jetpack/androidx/releases/lifecycle",
                 fullLicenseText = apache2License
             ),
@@ -257,7 +257,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Palette KTX",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "Extracts vibrant and muted color profiles from images for adaptive UI rendering.",
+                descriptionRes = R.string.lic_desc_palette,
                 url = "https://developer.android.com/jetpack/androidx/releases/palette",
                 fullLicenseText = apache2License
             ),
@@ -266,7 +266,7 @@ fun OpenSourceLicensesScreen(
                 name = "AndroidX Print & Fragment KTX",
                 author = "Google LLC",
                 licenseType = "Apache License 2.0",
-                description = "System document printing pipeline and Kotlin fragment extensions.",
+                descriptionRes = R.string.lic_desc_print_fragment,
                 url = "https://developer.android.com/jetpack/androidx/releases/print",
                 fullLicenseText = apache2License
             ),
@@ -275,7 +275,7 @@ fun OpenSourceLicensesScreen(
                 name = "OkHttp & Okio",
                 author = "Square, Inc.",
                 licenseType = "Apache License 2.0",
-                description = "High-performance HTTP & WebDAV streaming client for local NAS backup and updates.",
+                descriptionRes = R.string.lic_desc_okhttp,
                 url = "https://square.github.io/okhttp/",
                 fullLicenseText = apache2License
             ),
@@ -284,7 +284,7 @@ fun OpenSourceLicensesScreen(
                 name = "Tesseract 5 & Leptonica (Tesseract4Android)",
                 author = "Adaptech / Tesseract OCR Community",
                 licenseType = "Apache License 2.0",
-                description = "Open-source C++ optical character recognition engine and image processing library.",
+                descriptionRes = R.string.lic_desc_tesseract,
                 url = "https://github.com/adaptech-cz/Tesseract4Android",
                 fullLicenseText = apache2License
             )
@@ -388,7 +388,7 @@ fun OpenSourceLicensesScreen(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = lib.description,
+                            text = stringResource(lib.descriptionRes),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

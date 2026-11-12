@@ -196,14 +196,14 @@ fun AlbumsScreen(
         if (com.hrshd1eux.imava.core.util.AppLockManager.isAlbumLocked(context, bucket.id, bucket.name)) {
             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                 activity = context,
-                title = "Locked Album",
-                subtitle = "Authenticate to open ${bucket.name}",
+                title = context.getString(R.string.album_locked_title),
+                subtitle = context.getString(R.string.album_auth_open_fmt, bucket.name),
                 onSuccess = {
                     com.hrshd1eux.imava.core.util.AppLockManager.markAlbumUnlockedForSession(bucket.id)
                     viewModel.selectBucket(bucket.id, bucket.name, bucket.mergedBucketIds, navigateToPhotos = !isWideScreen)
                 },
                 onError = { err ->
-                    android.widget.Toast.makeText(context, "Album locked: $err", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(context, context.getString(R.string.album_locked_err_fmt, err), android.widget.Toast.LENGTH_SHORT).show()
                 }
             )
         } else {
@@ -252,7 +252,7 @@ fun AlbumsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.action_search),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -493,11 +493,11 @@ fun AlbumsScreen(
                                         }
                                     },
                                     onError = { err ->
-                                        android.widget.Toast.makeText(context, "Trash locked: $err", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.trash_locked_err_fmt, err), android.widget.Toast.LENGTH_SHORT).show()
                                     }
                                 )
                             } else {
-                                android.widget.Toast.makeText(context, "Biometric required to view Trash", android.widget.Toast.LENGTH_SHORT).show()
+                                android.widget.Toast.makeText(context, context.getString(R.string.trash_biometric_required), android.widget.Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             viewModel.currentBucketId = null
@@ -654,7 +654,7 @@ fun AlbumsScreen(
                             IconButton(onClick = { showLayoutMenu = true }) {
                                 Icon(
                                     imageVector = if (numCols == 1) Icons.AutoMirrored.Filled.ViewList else Icons.Default.GridView,
-                                    contentDescription = "Change Layout",
+                                    contentDescription = stringResource(R.string.album_change_layout_cd),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -698,7 +698,7 @@ fun AlbumsScreen(
                             IconButton(onClick = { showSortMenu = true }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Sort,
-                                    contentDescription = "Sort Albums",
+                                    contentDescription = stringResource(R.string.album_sort_cd),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -737,7 +737,7 @@ fun AlbumsScreen(
             if (pinnedBuckets.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Pinned 📌",
+                        text = stringResource(R.string.album_pinned_section),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.secondary,
@@ -755,7 +755,7 @@ fun AlbumsScreen(
                             coverUri = coverUri,
                             title = "${bucket.name} 📌",
                             count = liveCount,
-                            subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
+                            subtitle = if (bucket.paths.size > 1) stringResource(R.string.folder_locations, bucket.paths.size) else null,
                             isSelected = isBucketSelected,
                             onClick = { openBucket(bucket) },
                             onLongClick = { activeOptionsBucket = bucket }
@@ -819,7 +819,7 @@ fun AlbumsScreen(
                             coverUri = coverUri,
                             title = bucket.name,
                             count = liveCount,
-                            subtitle = if (bucket.paths.size > 1) "${bucket.paths.size} folder locations" else null,
+                            subtitle = if (bucket.paths.size > 1) stringResource(R.string.folder_locations, bucket.paths.size) else null,
                             isSelected = isBucketSelected,
                             onClick = { openBucket(bucket) },
                             onLongClick = { activeOptionsBucket = bucket }
@@ -925,7 +925,7 @@ fun AlbumsScreen(
                                         else -> activeBucketId?.let { bId -> visibleBuckets.find { it.id == bId }?.count } ?: 0
                                     }
                                     Text(
-                                        text = "$count items",
+                                        text = stringResource(R.string.items_count_fmt, count),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.primary
                                     )
@@ -1026,7 +1026,7 @@ fun AlbumsScreen(
                                 maxLines = 1
                             )
                             Text(
-                                text = "${bucket.count} items",
+                                text = stringResource(R.string.items_count_fmt, bucket.count),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -1075,7 +1075,7 @@ fun AlbumsScreen(
                                         .clickable {
                                             viewModel.excludeBucket(bucket.id)
                                             activeOptionsBucket = null
-                                            android.widget.Toast.makeText(context, "Album hidden from gallery", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.album_hidden_toast), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                         .padding(horizontal = 12.dp, vertical = 10.dp),
                                     verticalAlignment = Alignment.CenterVertically
@@ -1128,13 +1128,13 @@ fun AlbumsScreen(
                                             if (isAlbumLockedConfigured) {
                                                 com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                                     activity = context,
-                                                    title = "Unlock Album",
-                                                    subtitle = "Verify biometric to unlock ${bucket.name}",
+                                                    title = context.getString(R.string.album_unlock_title),
+                                                    subtitle = context.getString(R.string.album_unlock_subtitle_fmt, bucket.name),
                                                     onSuccess = {
                                                         com.hrshd1eux.imava.core.util.AppLockManager.unlockAlbum(context, bucket.id, bucket.name, bucket.path)
                                                         viewModel.refreshAll()
                                                         activeOptionsBucket = null
-                                                        android.widget.Toast.makeText(context, "Album unlocked", android.widget.Toast.LENGTH_SHORT).show()
+                                                        android.widget.Toast.makeText(context, context.getString(R.string.album_unlocked_toast), android.widget.Toast.LENGTH_SHORT).show()
                                                     },
                                                     onError = { err ->
                                                         android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
@@ -1143,13 +1143,13 @@ fun AlbumsScreen(
                                             } else {
                                                 com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                                     activity = context,
-                                                    title = "Lock Album",
-                                                    subtitle = "Verify biometric to lock ${bucket.name}",
+                                                    title = context.getString(R.string.album_lock_title),
+                                                    subtitle = context.getString(R.string.album_lock_subtitle_fmt, bucket.name),
                                                     onSuccess = {
                                                         com.hrshd1eux.imava.core.util.AppLockManager.lockAlbum(context, bucket.id, bucket.name, bucket.path)
                                                         viewModel.refreshAll()
                                                         activeOptionsBucket = null
-                                                        android.widget.Toast.makeText(context, "Album locked with Biometrics", android.widget.Toast.LENGTH_SHORT).show()
+                                                        android.widget.Toast.makeText(context, context.getString(R.string.album_locked_bio_toast), android.widget.Toast.LENGTH_SHORT).show()
                                                     },
                                                     onError = { err ->
                                                         android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
@@ -1207,7 +1207,7 @@ fun AlbumsScreen(
                                             com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                             android.widget.Toast.makeText(
                                                 context,
-                                                if (newState) "Auto-Scrub enabled for ${bucket.name}" else "Auto-Scrub disabled for ${bucket.name}",
+                                                if (newState) context.getString(R.string.auto_scrub_enabled_toast, bucket.name) else context.getString(R.string.auto_scrub_disabled_toast, bucket.name),
                                                 android.widget.Toast.LENGTH_SHORT
                                             ).show()
                                         }
@@ -1311,7 +1311,7 @@ fun AlbumsScreen(
                         Column {
                             if (bucket.paths.size > 1) {
                                 Text(
-                                    text = "⚠️ This album unifies ${bucket.paths.size} separate folder locations.",
+                                    text = stringResource(R.string.album_unifies_locations_fmt, bucket.paths.size),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -1398,9 +1398,9 @@ fun AlbumsScreen(
                             bucketToScrub = null
                             if (count > 0) {
                                 com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                android.widget.Toast.makeText(context, "Sanitized $count photos in ${b.name}", android.widget.Toast.LENGTH_LONG).show()
+                                android.widget.Toast.makeText(context, context.getString(R.string.toast_sanitized_count_album, count, b.name), android.widget.Toast.LENGTH_LONG).show()
                             } else {
-                                android.widget.Toast.makeText(context, "No photos required sanitization in ${b.name}", android.widget.Toast.LENGTH_SHORT).show()
+                                android.widget.Toast.makeText(context, context.getString(R.string.toast_no_sanitization_needed, b.name), android.widget.Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
@@ -1429,7 +1429,7 @@ fun AlbumsScreen(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
-            Icon(imageVector = Icons.Default.CreateNewFolder, contentDescription = "Create Album")
+            Icon(imageVector = Icons.Default.CreateNewFolder, contentDescription = stringResource(R.string.album_create_cd))
         }
 
         if (showCreateAlbumDialog) {
@@ -1581,7 +1581,7 @@ fun AlbumGridCard(
                             .size(22.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Lock, contentDescription = "Locked", modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onErrorContainer)
+                            Icon(Icons.Default.Lock, contentDescription = stringResource(R.string.label_locked), modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onErrorContainer)
                         }
                     }
                 }
@@ -1619,7 +1619,7 @@ fun AlbumGridCard(
                 val subtitleText = when {
                     layoutMode == MainViewModel.AlbumLayoutMode.GRID_4 -> "${bucket.count}"
                     layoutMode == MainViewModel.AlbumLayoutMode.GRID_3 -> if (bucket.paths.size > 1) "${bucket.count} (${bucket.paths.size})" else "${bucket.count}"
-                    else -> if (bucket.paths.size > 1) "${bucket.count} • ${bucket.paths.size} locations" else "${bucket.count}"
+                    else -> if (bucket.paths.size > 1) stringResource(R.string.album_count_locations_fmt, bucket.count, bucket.paths.size) else "${bucket.count}"
                 }
                 Text(
                     text = subtitleText,
@@ -1726,7 +1726,7 @@ fun AlbumRowItem(
             )
         } else if (count > 0 || subtitle == null) {
             Text(
-                text = if (subtitle != null && count == 0) "Scan" else count.toString(),
+                text = if (subtitle != null && count == 0) stringResource(R.string.album_scan_label) else count.toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

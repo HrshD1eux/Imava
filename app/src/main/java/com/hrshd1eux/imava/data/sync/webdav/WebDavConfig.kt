@@ -47,7 +47,12 @@ object WebDavConfigManager {
             autoBackupEnabled = prefs.getBoolean(KEY_AUTO_BACKUP, false),
             lastBackupTimestamp = prefs.getLong(KEY_LAST_TIMESTAMP, 0L),
             lastBackupCount = prefs.getInt(KEY_LAST_COUNT, 0),
-            lastBackupStatus = prefs.getString(KEY_LAST_STATUS, "Never synced") ?: "Never synced"
+            lastBackupStatus = prefs.getString(KEY_LAST_STATUS, null)
+                ?: com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                    context,
+                    com.hrshd1eux.imava.R.string.webdav_status_never_synced,
+                    "Never synced"
+                )
         )
     }
 

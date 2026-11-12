@@ -1380,7 +1380,7 @@ class MediaRepositoryImpl @Inject constructor(
                 if (file.exists() && file.canWrite()) {
                     try {
                         val exif = androidx.exifinterface.media.ExifInterface(file.absolutePath)
-                        val sdf = java.text.SimpleDateFormat("yyyy:MM:dd HH:mm:ss", java.util.Locale.getDefault())
+                        val sdf = java.text.SimpleDateFormat("yyyy:MM:dd HH:mm:ss", java.util.Locale.US)
                         val formattedDate = sdf.format(java.util.Date(newDateMs))
                         exif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_DATETIME, formattedDate)
                         exif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_DATETIME_ORIGINAL, formattedDate)

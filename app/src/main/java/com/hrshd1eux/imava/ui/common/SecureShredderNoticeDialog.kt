@@ -42,10 +42,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hrshd1eux.imava.R
 import kotlinx.coroutines.delay
 
 object SecureShredderNoticeManager {
@@ -101,12 +103,12 @@ fun SecureShredderNoticeDialog(
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Permanent File Shredder",
+                    text = stringResource(R.string.shredder_notice_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "New Security & Privacy Update",
+                    text = stringResource(R.string.shredder_notice_subtitle),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -139,7 +141,7 @@ fun SecureShredderNoticeDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Warning: Files deleted with the new shredder cannot be recovered by any data recovery tool or forensic software.",
+                            text = stringResource(R.string.shredder_notice_warning),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onErrorContainer
@@ -150,22 +152,22 @@ fun SecureShredderNoticeDialog(
                 if (!showTechnicalDetails) {
                     // Non-technical explanation (Simple View)
                     Text(
-                        text = "Why this matters:",
+                        text = stringResource(R.string.shredder_why_matters),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Normally when you delete a photo on an Android phone, the system only erases the file's name—the photo itself stays on your device's memory chip where recovery apps can easily bring it back.",
+                        text = stringResource(R.string.shredder_explain_1),
                         style = MaterialTheme.typography.bodyMedium,
                         lineHeight = 20.sp
                     )
                     Text(
-                        text = "Imava now includes a Cryptographic Secure Shredder. When you permanently delete photos or empty the trash, Imava physically overwrites your photo's memory blocks with random scrambled data and zeroes before deleting it.",
+                        text = stringResource(R.string.shredder_explain_2),
                         style = MaterialTheme.typography.bodyMedium,
                         lineHeight = 20.sp
                     )
                     Text(
-                        text = "• Impossible to undelete: Photos are destroyed completely.\n• Large files (e.g. 4K videos) may take an extra second to physically wipe.\n• You can toggle this setting anytime under Settings > Privacy & Security.",
+                        text = stringResource(R.string.shredder_explain_bullets),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 18.sp
@@ -173,7 +175,7 @@ fun SecureShredderNoticeDialog(
                 } else {
                     // Technical Deep Dive
                     Text(
-                        text = "Under the Hood (Technical Architecture):",
+                        text = stringResource(R.string.shredder_tech_heading),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -185,32 +187,32 @@ fun SecureShredderNoticeDialog(
                     ) {
                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(
-                                text = "1. CSPRNG Block Overwrite",
+                                text = stringResource(R.string.shredder_step1_title),
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.labelLarge
                             )
                             Text(
-                                text = "Streams cryptographic pseudo-random bytes (via SecureRandom) in 64KB buffers across all allocated clusters in synchronous 'rws' mode.",
+                                text = stringResource(R.string.shredder_step1_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontFamily = FontFamily.Monospace
                             )
                             Text(
-                                text = "2. Header Zeroing (Anti-Carving)",
+                                text = stringResource(R.string.shredder_step2_title),
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.labelLarge
                             )
                             Text(
-                                text = "Obliterates JPEG (FF D8), PNG, MP4 (ftyp), and EXIF headers with 0x00 bytes to defeat raw sector carving tools (DiskDigger, PhotoRec).",
+                                text = stringResource(R.string.shredder_step2_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontFamily = FontFamily.Monospace
                             )
                             Text(
-                                text = "3. Hardware Sync & Dentry Wipe",
+                                text = stringResource(R.string.shredder_step3_title),
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.labelLarge
                             )
                             Text(
-                                text = "Executes FileDescriptor.sync() and FileChannel.force(true) to flush hardware controller caches, truncates file to 0 bytes, scrambles filename to UUID.tmp, and unlinks inode.",
+                                text = stringResource(R.string.shredder_step3_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontFamily = FontFamily.Monospace
                             )
@@ -230,7 +232,7 @@ fun SecureShredderNoticeDialog(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (showTechnicalDetails) "Switch to Simple View 📖" else "View Technical Details 🔬",
+                        text = if (showTechnicalDetails) stringResource(R.string.shredder_switch_simple) else stringResource(R.string.shredder_view_tech),
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
@@ -251,9 +253,9 @@ fun SecureShredderNoticeDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (secondsRemaining > 0) {
-                    Text("Please Read Carefully (${secondsRemaining}s)")
+                    Text(stringResource(R.string.shredder_wait_fmt, secondsRemaining))
                 } else {
-                    Text("I Understand & Continue")
+                    Text(stringResource(R.string.shredder_understand_continue))
                 }
             }
         }

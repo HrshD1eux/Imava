@@ -72,7 +72,7 @@ val MediaItem.formattedDuration: String
         val seconds = durationMs / 1000
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
-        String.format("%d:%02d", minutes, remainingSeconds)
+        String.format(java.util.Locale.getDefault(), "%d:%02d", minutes, remainingSeconds)
     } else {
         ""
     }

@@ -1,38 +1,41 @@
 package com.hrshd1eux.imava.ui.search
 
-enum class ResolutionFilter(val label: String) {
-    ANY("Any Resolution"),
-    UHD_4K("4K UHD"),
-    FULL_HD_1080("1080p FHD"),
-    PANORAMA("Panorama"),
-    PORTRAIT("Portrait"),
-    LANDSCAPE("Landscape")
+import androidx.annotation.StringRes
+import com.hrshd1eux.imava.R
+
+enum class ResolutionFilter(@StringRes val labelRes: Int) {
+    ANY(R.string.filter_res_any),
+    UHD_4K(R.string.filter_res_4k),
+    FULL_HD_1080(R.string.filter_res_1080p),
+    PANORAMA(R.string.filter_res_panorama),
+    PORTRAIT(R.string.filter_res_portrait),
+    LANDSCAPE(R.string.filter_res_landscape)
 }
 
-enum class FileSizeFilter(val label: String, val minBytes: Long? = null, val maxBytes: Long? = null) {
-    ANY("Any Size"),
-    UNDER_1MB("< 1 MB", maxBytes = 1024L * 1024L),
-    OVER_10MB("> 10 MB", minBytes = 10L * 1024L * 1024L),
-    OVER_100MB("> 100 MB", minBytes = 100L * 1024L * 1024L),
-    OVER_500MB("> 500 MB", minBytes = 500L * 1024L * 1024L),
-    OVER_1GB("> 1 GB", minBytes = 1024L * 1024L * 1024L)
+enum class FileSizeFilter(@StringRes val labelRes: Int, val minBytes: Long? = null, val maxBytes: Long? = null) {
+    ANY(R.string.filter_size_any),
+    UNDER_1MB(R.string.filter_size_under_1mb, maxBytes = 1024L * 1024L),
+    OVER_10MB(R.string.filter_size_over_10mb, minBytes = 10L * 1024L * 1024L),
+    OVER_100MB(R.string.filter_size_over_100mb, minBytes = 100L * 1024L * 1024L),
+    OVER_500MB(R.string.filter_size_over_500mb, minBytes = 500L * 1024L * 1024L),
+    OVER_1GB(R.string.filter_size_over_1gb, minBytes = 1024L * 1024L * 1024L)
 }
 
-enum class MediaTypeFilterChoice(val label: String) {
-    ALL("All Types"),
-    PHOTOS_ONLY("Photos"),
-    VIDEOS_ONLY("Videos"),
-    RAW_DNG("RAW (DNG)"),
-    GIFS("GIFs")
+enum class MediaTypeFilterChoice(@StringRes val labelRes: Int) {
+    ALL(R.string.filter_media_all),
+    PHOTOS_ONLY(R.string.filter_media_photos),
+    VIDEOS_ONLY(R.string.filter_media_videos),
+    RAW_DNG(R.string.filter_media_raw),
+    GIFS(R.string.filter_media_gifs)
 }
 
-enum class DatePreset(val label: String) {
-    ANY("Any Date"),
-    THIS_WEEK("This Week"),
-    THIS_MONTH("This Month"),
-    LAST_3_MONTHS("Last 3 Months"),
-    THIS_YEAR("This Year"),
-    CUSTOM("Custom Range")
+enum class DatePreset(@StringRes val labelRes: Int) {
+    ANY(R.string.filter_date_any),
+    THIS_WEEK(R.string.filter_date_this_week),
+    THIS_MONTH(R.string.filter_date_this_month),
+    LAST_3_MONTHS(R.string.filter_date_last_3_months),
+    THIS_YEAR(R.string.filter_date_this_year),
+    CUSTOM(R.string.filter_date_custom)
 }
 
 data class AdvancedFilterState(

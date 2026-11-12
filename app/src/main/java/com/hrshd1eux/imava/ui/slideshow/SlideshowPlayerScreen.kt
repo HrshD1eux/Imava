@@ -55,9 +55,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.data.model.MediaItem
 import kotlinx.coroutines.coroutineScope
@@ -209,7 +211,7 @@ fun SlideshowPlayerScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Exit", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.slideshow_exit_cd), tint = Color.White)
                 }
 
                 Text(
@@ -227,7 +229,7 @@ fun SlideshowPlayerScreen(
                 ) {
                     Icon(
                         Icons.Default.Shuffle,
-                        contentDescription = "Shuffle",
+                        contentDescription = stringResource(R.string.slideshow_shuffle_cd),
                         tint = if (isShuffled) MaterialTheme.colorScheme.primary else Color.White
                     )
                 }
@@ -255,9 +257,9 @@ fun SlideshowPlayerScreen(
                     modifier = Modifier.padding(bottom = 12.dp)
                 ) {
                     listOf(
-                        "Fast (3s)" to 3000L,
-                        "Normal (5s)" to 5000L,
-                        "Cinematic (8s)" to 8000L
+                        stringResource(R.string.slideshow_speed_fast) to 3000L,
+                        stringResource(R.string.slideshow_speed_normal) to 5000L,
+                        stringResource(R.string.slideshow_speed_cinematic) to 8000L
                     ).forEach { (label, dur) ->
                         FilterChip(
                             selected = slideDurationMs == dur,
@@ -281,7 +283,7 @@ fun SlideshowPlayerScreen(
                             HapticUtil.performSelection(context)
                         }
                     ) {
-                        Icon(Icons.Default.SkipPrevious, contentDescription = "Previous", tint = Color.White, modifier = Modifier.size(32.dp))
+                        Icon(Icons.Default.SkipPrevious, contentDescription = stringResource(R.string.slideshow_prev_cd), tint = Color.White, modifier = Modifier.size(32.dp))
                     }
 
                     Surface(
@@ -297,7 +299,7 @@ fun SlideshowPlayerScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = if (isPlaying) "Pause" else "Play",
+                                contentDescription = stringResource(if (isPlaying) R.string.video_pause_cd else R.string.video_play_action_cd),
                                 tint = Color.White,
                                 modifier = Modifier.size(32.dp)
                             )
@@ -310,7 +312,7 @@ fun SlideshowPlayerScreen(
                             HapticUtil.performSelection(context)
                         }
                     ) {
-                        Icon(Icons.Default.SkipNext, contentDescription = "Next", tint = Color.White, modifier = Modifier.size(32.dp))
+                        Icon(Icons.Default.SkipNext, contentDescription = stringResource(R.string.slideshow_next_cd), tint = Color.White, modifier = Modifier.size(32.dp))
                     }
                 }
             }

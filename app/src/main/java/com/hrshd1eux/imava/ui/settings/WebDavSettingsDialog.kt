@@ -51,12 +51,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.os.ConfigurationCompat
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 import com.hrshd1eux.imava.data.sync.webdav.WebDavClient
 import com.hrshd1eux.imava.data.sync.webdav.WebDavConfig
@@ -106,13 +110,13 @@ fun WebDavSettingsDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Local NAS / WebDAV Sync",
+                        text = stringResource(R.string.settings_nas_card_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 IconButton(onClick = onDismiss, enabled = !isSyncing, modifier = Modifier.size(28.dp)) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
                 }
             }
         },
@@ -123,7 +127,7 @@ fun WebDavSettingsDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Direct, zero-cloud backup to your home Synology, Nextcloud, TrueNAS, QNAP, or personal WebDAV server over local Wi-Fi.",
+                    text = stringResource(R.string.webdav_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -138,7 +142,7 @@ fun WebDavSettingsDialog(
                         testStatusMessage = null
                         isTestSuccessful = null
                     },
-                    label = { Text("WebDAV Server URL") },
+                    label = { Text(stringResource(R.string.webdav_server_url)) },
                     placeholder = { Text("http://192.168.1.100:8080/webdav") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -154,7 +158,7 @@ fun WebDavSettingsDialog(
                         testStatusMessage = null
                         isTestSuccessful = null
                     },
-                    label = { Text("Username") },
+                    label = { Text(stringResource(R.string.webdav_username)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -169,7 +173,7 @@ fun WebDavSettingsDialog(
                         testStatusMessage = null
                         isTestSuccessful = null
                     },
-                    label = { Text("Password / App Token") },
+                    label = { Text(stringResource(R.string.webdav_password_token)) },
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -177,7 +181,7 @@ fun WebDavSettingsDialog(
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                contentDescription = if (passwordVisible) stringResource(R.string.action_hide_password) else stringResource(R.string.action_show_password)
                             )
                         }
                     },
@@ -190,7 +194,7 @@ fun WebDavSettingsDialog(
                 OutlinedTextField(
                     value = config.remoteDirectory,
                     onValueChange = { config = config.copy(remoteDirectory = it) },
-                    label = { Text("Remote Destination Folder") },
+                    label = { Text(stringResource(R.string.webdav_remote_folder)) },
                     placeholder = { Text("Imava_Backup") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -210,14 +214,14 @@ fun WebDavSettingsDialog(
                             testStatusMessage = null
                             isTestSuccessful = null
                             scope.launch {
-                                val result = WebDavClient.testConnection(config)
+                                val result = WebDavClient.testConnection(config, context)
                                 isTestingConnection = false
                                 if (result.isSuccess) {
                                     isTestSuccessful = true
-                                    testStatusMessage = result.getOrNull() ?: "Connected successfully"
+                                    testStatusMessage = result.getOrNull() ?: context.getString(R.string.webdav_connected_ok)
                                 } else {
                                     isTestSuccessful = false
-                                    testStatusMessage = result.exceptionOrNull()?.message ?: "Connection failed"
+                                    testStatusMessage = result.exceptionOrNull()?.message ?: context.getString(R.string.webdav_conn_failed)
                                 }
                             }
                         },
@@ -226,11 +230,11 @@ fun WebDavSettingsDialog(
                         if (isTestingConnection) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Testing...")
+                            Text(stringResource(R.string.webdav_testing))
                         } else {
                             Icon(imageVector = Icons.Default.CloudSync, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Test Connection")
+                            Text(stringResource(R.string.webdav_test_conn))
                         }
                     }
                 }
@@ -272,7 +276,7 @@ fun WebDavSettingsDialog(
 
                 // Sync Options
                 Text(
-                    text = "Backup Rules",
+                    text = stringResource(R.string.webdav_backup_rules),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -286,8 +290,8 @@ fun WebDavSettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Wi-Fi Only", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Never use cellular mobile data for NAS backup", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.webdav_wifi_only), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.webdav_wifi_only_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(checked = config.syncWifiOnly, onCheckedChange = { config = config.copy(syncWifiOnly = it) })
                 }
@@ -301,8 +305,8 @@ fun WebDavSettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("While Charging Only", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Sync only when plugged into a power source", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.webdav_charging_only), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.webdav_charging_only_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(checked = config.syncChargingOnly, onCheckedChange = { config = config.copy(syncChargingOnly = it) })
                 }
@@ -316,8 +320,8 @@ fun WebDavSettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Include Videos", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Upload videos in addition to photos", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.webdav_include_videos), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.webdav_include_videos_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(checked = config.includeVideos, onCheckedChange = { config = config.copy(includeVideos = it) })
                 }
@@ -331,8 +335,8 @@ fun WebDavSettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Daily Background Auto-Backup", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Automatically back up new photos once daily", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.webdav_auto_daily), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.webdav_auto_daily_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(
                         checked = config.autoBackupEnabled,
@@ -346,23 +350,35 @@ fun WebDavSettingsDialog(
 
                 // Manual Backup & Live Progress Section
                 Text(
-                    text = "Manual Backup",
+                    text = stringResource(R.string.webdav_manual_backup),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
+                val currentLocale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: Locale.getDefault()
                 val syncedIdsCount = remember(isSyncing) { WebDavConfigManager.getSyncedIds(context).size }
+                val displayStatus = if (config.lastBackupStatus.isBlank() || config.lastBackupStatus == "Never synced") {
+                    stringResource(R.string.webdav_status_never_synced)
+                } else {
+                    config.lastBackupStatus
+                }
                 Text(
-                    text = "Status: ${config.lastBackupStatus} ($syncedIdsCount items tracked)",
+                    text = stringResource(R.string.webdav_status_tracked_fmt, displayStatus, syncedIdsCount),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (config.lastBackupTimestamp > 0L) {
-                    val formattedTime = SimpleDateFormat("MMM d, yyyy HH:mm", Locale.getDefault()).format(Date(config.lastBackupTimestamp))
+                    val formattedTime = remember(config.lastBackupTimestamp, currentLocale) {
+                        java.text.DateFormat.getDateTimeInstance(
+                            java.text.DateFormat.MEDIUM,
+                            java.text.DateFormat.SHORT,
+                            currentLocale
+                        ).format(Date(config.lastBackupTimestamp))
+                    }
                     Text(
-                        text = "Last sync: $formattedTime",
+                        text = stringResource(R.string.webdav_last_sync_fmt, formattedTime),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -400,7 +416,7 @@ fun WebDavSettingsDialog(
                         ) {
                             Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Back Up Now")
+                            Text(stringResource(R.string.webdav_back_up_now))
                         }
 
                         if (syncedIdsCount > 0) {
@@ -410,9 +426,9 @@ fun WebDavSettingsDialog(
                                     com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                                 }
                             ) {
-                                Icon(imageVector = Icons.Default.Refresh, contentDescription = "Reset", modifier = Modifier.size(16.dp))
+                                Icon(imageVector = Icons.Default.Refresh, contentDescription = stringResource(R.string.action_reset), modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Reset History", style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.webdav_reset_history), style = MaterialTheme.typography.labelSmall)
                             }
                         }
                     }
@@ -428,7 +444,7 @@ fun WebDavSettingsDialog(
                 },
                 shape = RoundedCornerShape(10.dp)
             ) {
-                Text("Save & Close")
+                Text(stringResource(R.string.webdav_save_close))
             }
         },
         dismissButton = {
@@ -436,7 +452,7 @@ fun WebDavSettingsDialog(
                 onClick = onDismiss,
                 enabled = !isSyncing
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

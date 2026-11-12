@@ -153,7 +153,7 @@ fun ImavaDropDialog(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Direct Wi-Fi · Zero Cloud",
+                                text = stringResource(R.string.drop_subtitle_direct),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -163,7 +163,7 @@ fun ImavaDropDialog(
                         ImavaDropServer.stop()
                         onDismissRequest()
                     }) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
                     }
                 }
 
@@ -205,9 +205,9 @@ fun ImavaDropDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = if (serverState.isRunning && serverState.ipAddress != null)
-                                "Ready on local network"
+                                stringResource(R.string.drop_status_ready)
                             else
-                                "No local Wi-Fi IP detected",
+                                stringResource(R.string.drop_status_no_ip),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = if (serverState.isRunning && serverState.ipAddress != null)
@@ -300,7 +300,7 @@ fun ImavaDropDialog(
                             ) {
                                 Image(
                                     bitmap = qrBitmap.asImageBitmap(),
-                                    contentDescription = "Scan with phone camera or QR scanner",
+                                    contentDescription = stringResource(R.string.drop_qr_content_desc),
                                     modifier = Modifier.size(145.dp)
                                 )
                             }
@@ -315,7 +315,7 @@ fun ImavaDropDialog(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Connect to Wi-Fi or turn on Hotspot to generate transfer QR code",
+                                text = stringResource(R.string.drop_qr_offline_hint),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
@@ -360,7 +360,7 @@ fun ImavaDropDialog(
                                             cm.setPrimaryClip(ClipData.newPlainText("Imava Drop Link", url))
                                             HapticUtil.performSuccess(context)
                                             isCopied = true
-                                            Toast.makeText(context, "Link copied to clipboard", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, context.getString(R.string.drop_link_copied_toast), Toast.LENGTH_SHORT).show()
                                         },
                                         modifier = Modifier.height(32.dp),
                                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
@@ -374,7 +374,7 @@ fun ImavaDropDialog(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = if (isCopied) "Copied" else "Copy Link",
+                                            text = if (isCopied) stringResource(R.string.drop_copied) else stringResource(R.string.drop_copy_link),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = if (isCopied) Color(0xFF10B981) else MaterialTheme.colorScheme.primary
                                         )
@@ -386,13 +386,13 @@ fun ImavaDropDialog(
                                                 putExtra(Intent.EXTRA_TEXT, url)
                                                 type = "text/plain"
                                             }
-                                            context.startActivity(Intent.createChooser(sendIntent, "Share Imava Drop Link"))
+                                            context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.drop_share_link_chooser)))
                                         },
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Share,
-                                            contentDescription = "Share Link",
+                                            contentDescription = stringResource(R.string.drop_share_link_cd),
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -403,14 +403,14 @@ fun ImavaDropDialog(
                                                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                                 context.startActivity(browserIntent)
                                             } catch (_: Exception) {
-                                                Toast.makeText(context, "Could not open browser", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.drop_open_browser_error), Toast.LENGTH_SHORT).show()
                                             }
                                         },
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.OpenInBrowser,
-                                            contentDescription = "Open in Browser",
+                                            contentDescription = stringResource(R.string.drop_open_browser_cd),
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -509,7 +509,7 @@ fun ImavaDropDialog(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "How to Share & Connect",
+                                    text = stringResource(R.string.drop_how_to_title),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -518,20 +518,20 @@ fun ImavaDropDialog(
                             Spacer(modifier = Modifier.height(8.dp))
                             InstructionRow(
                                 step = "1",
-                                title = "Connect to Same Wi-Fi",
-                                description = "Ensure the receiving PC, Mac, or phone is on the same Wi-Fi router or hotspot."
+                                title = stringResource(R.string.drop_step_1_title),
+                                description = stringResource(R.string.drop_step_1_desc)
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             InstructionRow(
                                 step = "2",
-                                title = "Scan QR or Open Link",
-                                description = "Scan the QR code above with camera, or enter the URL into any web browser."
+                                title = stringResource(R.string.drop_step_2_title),
+                                description = stringResource(R.string.drop_step_2_desc)
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             InstructionRow(
                                 step = "3",
-                                title = "Download or Send Files",
-                                description = "Download lossless originals or drag & drop files in the browser to send to this phone."
+                                title = stringResource(R.string.drop_step_3_title),
+                                description = stringResource(R.string.drop_step_3_desc)
                             )
                         }
                     }
@@ -554,7 +554,11 @@ fun ImavaDropDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (shareCount > 0) "Sharing $shareCount ${if (shareCount == 1) "item" else "items"}" else "No photos selected to send",
+                                    text = when {
+                                        shareCount == 1 -> stringResource(R.string.drop_sharing_one)
+                                        shareCount > 1 -> stringResource(R.string.drop_sharing_many, shareCount)
+                                        else -> stringResource(R.string.drop_sharing_none)
+                                    },
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -570,9 +574,9 @@ fun ImavaDropDialog(
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = if (shareCount > 0)
-                                    "⚡ Full uncompressed originals · 50–100 MB/s speed\n📥 Drag & drop files on PC web page to send back to phone"
+                                    stringResource(R.string.drop_transfer_speed_hint)
                                 else
-                                    "💡 Select photos in gallery before tapping Wi-Fi Drop to share them.\nYou can still drop files onto the browser page to send to this phone.",
+                                    stringResource(R.string.drop_select_before_hint),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 lineHeight = 16.sp
@@ -593,13 +597,13 @@ fun ImavaDropDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (showLogs) "Hide Transfer Activity" else "View Live Activity (${serverState.logs.size})",
+                                text = if (showLogs) stringResource(R.string.drop_hide_activity) else stringResource(R.string.drop_view_activity, serverState.logs.size),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             if (serverState.filesReceivedCount > 0) {
                                 Text(
-                                    text = "Received ${serverState.filesReceivedCount} file(s)",
+                                    text = stringResource(R.string.drop_received_files_count, serverState.filesReceivedCount),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color(0xFF10B981),
                                     fontWeight = FontWeight.Bold
@@ -649,7 +653,7 @@ fun ImavaDropDialog(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Stop Sharing")
+                        Text(stringResource(R.string.drop_stop_sharing))
                     }
                     Button(
                         onClick = {
@@ -660,7 +664,7 @@ fun ImavaDropDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Done")
+                        Text(stringResource(R.string.action_done))
                     }
                 }
             }

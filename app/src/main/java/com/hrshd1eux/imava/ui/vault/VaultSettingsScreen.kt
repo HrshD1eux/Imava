@@ -68,7 +68,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.RootDetectionUtil
 import com.hrshd1eux.imava.core.util.VaultBackupManager
@@ -135,7 +137,7 @@ fun VaultSettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Vault Security & Encryption",
+                        text = stringResource(R.string.vault_set_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -144,7 +146,7 @@ fun VaultSettingsScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
@@ -173,7 +175,7 @@ fun VaultSettingsScreen(
                         Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Root detected: Superuser processes could potentially inspect device memory. Imava hardware AES-256 key protects files at rest.",
+                            text = stringResource(R.string.vault_set_root_banner),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
@@ -189,7 +191,7 @@ fun VaultSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Master Authentication",
+                        text = stringResource(R.string.vault_set_master_auth),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -202,16 +204,16 @@ fun VaultSettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Current Lock Type",
+                                text = stringResource(R.string.vault_set_current_lock_type),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
                                 text = when (lockType) {
-                                    "PASSWORD" -> "Alphanumeric Master Password (AES-256)"
-                                    "PIN" -> "Numeric PIN"
-                                    "PATTERN" -> "Pattern Lock"
-                                    else -> "Protected"
+                                    "PASSWORD" -> stringResource(R.string.vault_set_type_aes256)
+                                    "PIN" -> stringResource(R.string.vault_dlg_numeric_pin)
+                                    "PATTERN" -> stringResource(R.string.vault_set_type_pattern)
+                                    else -> stringResource(R.string.vault_set_type_protected)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -228,7 +230,7 @@ fun VaultSettingsScreen(
                     ) {
                         Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Change Master Password / PIN")
+                        Text(stringResource(R.string.vault_set_change_master_btn))
                     }
                 }
             }
@@ -241,7 +243,7 @@ fun VaultSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Quick Access & Sensors",
+                        text = stringResource(R.string.vault_set_quick_access),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -254,12 +256,12 @@ fun VaultSettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Biometric Quick Unlock",
+                                text = stringResource(R.string.vault_biometric_quick_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "Unlock with fingerprint or face instead of re-entering master password",
+                                text = stringResource(R.string.vault_set_bio_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -282,12 +284,12 @@ fun VaultSettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Emergency Shake-to-Lock",
+                                text = stringResource(R.string.vault_set_shake_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "Instantly lock and exit Hidden Vault when your device is shaken",
+                                text = stringResource(R.string.vault_set_shake_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -312,14 +314,14 @@ fun VaultSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Duress Protection (Decoy Vault)",
+                        text = stringResource(R.string.vault_set_duress_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "If forced to open your vault under duress, enter this separate secondary PIN to display a realistic, empty decoy vault with zero traces of your actual private files.",
+                        text = stringResource(R.string.vault_set_duress_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -331,7 +333,7 @@ fun VaultSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (hasDecoyPin) "✓ Decoy PIN Active" else "Decoy PIN Not Set",
+                            text = if (hasDecoyPin) stringResource(R.string.vault_set_decoy_active) else stringResource(R.string.vault_set_decoy_unset),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color = if (hasDecoyPin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
@@ -341,7 +343,7 @@ fun VaultSettingsScreen(
                             onClick = { showDecoyPinDialog = true },
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Text(if (hasDecoyPin) "Modify Decoy PIN" else "Set Decoy PIN")
+                            Text(if (hasDecoyPin) stringResource(R.string.vault_set_modify_decoy_btn) else stringResource(R.string.vault_set_set_decoy_btn))
                         }
                     }
                 }
@@ -355,7 +357,7 @@ fun VaultSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Stealth Mode",
+                        text = stringResource(R.string.vault_set_stealth_section),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -368,12 +370,12 @@ fun VaultSettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Hide Vault from Albums",
+                                text = stringResource(R.string.vault_set_hide_albums_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "Completely hide the Hidden Vault album tile from the Albums screen",
+                                text = stringResource(R.string.vault_set_hide_albums_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -396,14 +398,14 @@ fun VaultSettingsScreen(
                                 secretTrigger = it
                                 prefs.edit().putString("vault_secret_trigger", it).apply()
                             },
-                            label = { Text("Search Secret Trigger") },
-                            placeholder = { Text("e.g. #vault") },
+                            label = { Text(stringResource(R.string.vault_set_secret_trigger_label)) },
+                            placeholder = { Text(stringResource(R.string.vault_set_secret_trigger_hint)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "To open vault, type this keyword into the search bar.",
+                            text = stringResource(R.string.vault_set_secret_trigger_help),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -419,14 +421,14 @@ fun VaultSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Encrypted Vault Backup",
+                        text = stringResource(R.string.vault_set_backup_section),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Export an encrypted .imava container protected with a custom passphrase to transfer between devices without cloud services.",
+                        text = stringResource(R.string.vault_set_backup_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -446,7 +448,7 @@ fun VaultSettingsScreen(
                         ) {
                             Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Export Backup")
+                            Text(stringResource(R.string.vault_set_export_btn))
                         }
 
                         OutlinedButton(
@@ -458,7 +460,7 @@ fun VaultSettingsScreen(
                         ) {
                             Icon(Icons.Default.CloudDownload, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Import Backup")
+                            Text(stringResource(R.string.vault_set_import_btn))
                         }
                     }
                 }
@@ -472,14 +474,14 @@ fun VaultSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Vault Destruction & Deletion",
+                        text = stringResource(R.string.vault_set_destruction_section),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Permanently remove the vault configuration. You can choose whether to restore private media back to your public gallery or physically shred everything.",
+                        text = stringResource(R.string.vault_set_destruction_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -493,7 +495,7 @@ fun VaultSettingsScreen(
                     ) {
                         Icon(Icons.Default.DeleteForever, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Delete Vault...")
+                        Text(stringResource(R.string.vault_set_delete_ellipsis_btn))
                     }
                 }
             }
@@ -518,16 +520,16 @@ fun VaultSettingsScreen(
         AlertDialog(
             onDismissRequest = { showPasswordChangeDialog = false },
             shape = RoundedCornerShape(20.dp),
-            title = { Text("Change Master Password") },
+            title = { Text(stringResource(R.string.vault_set_change_master_title)) },
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    Text("Verify your current password:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.vault_set_verify_current), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(6.dp))
 
                     OutlinedTextField(
                         value = oldPassword,
                         onValueChange = { oldPassword = it; changeError = null },
-                        label = { Text("Current Password / PIN") },
+                        label = { Text(stringResource(R.string.vault_set_current_pass_pin)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -537,20 +539,20 @@ fun VaultSettingsScreen(
                     HorizontalDivider()
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    Text("Choose new protection type:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.vault_set_choose_new_type), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = newLockType == "PASSWORD", onClick = { newLockType = "PASSWORD"; newPassword = ""; confirmNewPassword = "" })
-                        Text("Alphanumeric Password", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.vault_set_alphanumeric_pass), style = MaterialTheme.typography.bodyMedium)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = newLockType == "PIN", onClick = { newLockType = "PIN"; newPassword = ""; confirmNewPassword = "" })
-                        Text("Numeric PIN (4-8 digits)", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.vault_set_numeric_pin_4_8), style = MaterialTheme.typography.bodyMedium)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = newLockType == "PATTERN", onClick = { newLockType = "PATTERN"; patternStep = 1; patternFirst = ""; patternResult = "" })
-                        Text("Pattern Lock", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.vault_set_type_pattern), style = MaterialTheme.typography.bodyMedium)
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -565,7 +567,7 @@ fun VaultSettingsScreen(
                                 } else newPassword = it
                                 changeError = null
                             },
-                            label = { Text(if (isPin) "New PIN" else "New Password") },
+                            label = { Text(if (isPin) stringResource(R.string.vault_set_new_pin_label) else stringResource(R.string.vault_set_new_pass_label)) },
                             visualTransformation = if (showNewPass) VisualTransformation.None else PasswordVisualTransformation(),
                             trailingIcon = {
                                 IconButton(onClick = { showNewPass = !showNewPass }) {
@@ -586,18 +588,18 @@ fun VaultSettingsScreen(
                                 } else confirmNewPassword = it
                                 changeError = null
                             },
-                            label = { Text("Confirm New Code") },
+                            label = { Text(stringResource(R.string.vault_set_confirm_new_code)) },
                             visualTransformation = if (showNewPass) VisualTransformation.None else PasswordVisualTransformation(),
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
                     } else {
-                        Text(if (patternStep == 1) "Draw new pattern" else "Confirm new pattern", style = MaterialTheme.typography.labelMedium)
+                        Text(if (patternStep == 1) stringResource(R.string.vault_set_draw_new_pattern_hint) else stringResource(R.string.vault_set_confirm_new_pattern_hint), style = MaterialTheme.typography.labelMedium)
                         Spacer(modifier = Modifier.height(6.dp))
                         PatternLockView(
                             modifier = Modifier.size(220.dp),
                             onPatternComplete = { p ->
-                                if (p.split("-").size < 4) changeError = "Min 4 dots"
+                                if (p.split("-").size < 4) changeError = context.getString(R.string.vault_set_min_4_dots)
                                 else if (patternStep == 1) {
                                     patternFirst = p
                                     patternStep = 2
@@ -607,7 +609,7 @@ fun VaultSettingsScreen(
                                         patternResult = p
                                         changeError = null
                                     } else {
-                                        changeError = "Patterns did not match"
+                                        changeError = context.getString(R.string.vault_set_patterns_mismatch)
                                         patternStep = 1
                                     }
                                 }
@@ -636,25 +638,25 @@ fun VaultSettingsScreen(
                         } else true
 
                         if (!isOldValid) {
-                            changeError = "Current password is incorrect"
+                            changeError = context.getString(R.string.vault_set_err_current_wrong)
                             return@Button
                         }
 
                         val codeToSave = if (newLockType == "PATTERN") patternResult else newPassword.trim()
                         if (newLockType == "PIN" && (codeToSave.length < 4 || codeToSave.length > 8)) {
-                            changeError = "PIN must be between 4 and 8 digits"
+                            changeError = context.getString(R.string.vault_set_err_pin_4_8)
                             return@Button
                         }
                         if (newLockType == "PASSWORD" && codeToSave.length < 4) {
-                            changeError = "Password must be at least 4 characters"
+                            changeError = context.getString(R.string.vault_set_err_pass_min4)
                             return@Button
                         }
                         if ((newLockType == "PIN" || newLockType == "PASSWORD") && newPassword != confirmNewPassword) {
-                            changeError = "New passwords do not match"
+                            changeError = context.getString(R.string.vault_set_err_new_pass_mismatch)
                             return@Button
                         }
                         if (newLockType == "PATTERN" && patternResult.isBlank()) {
-                            changeError = "Please draw and confirm pattern"
+                            changeError = context.getString(R.string.vault_set_err_draw_confirm_pattern)
                             return@Button
                         }
 
@@ -673,15 +675,15 @@ fun VaultSettingsScreen(
                         lockType = newLockType
                         showPasswordChangeDialog = false
                         HapticUtil.performSuccess(context)
-                        Toast.makeText(context, "Master password updated", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.vault_set_master_updated_toast), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.action_save))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPasswordChangeDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -696,11 +698,11 @@ fun VaultSettingsScreen(
         AlertDialog(
             onDismissRequest = { showDecoyPinDialog = false },
             shape = RoundedCornerShape(20.dp),
-            title = { Text("Configure Decoy PIN") },
+            title = { Text(stringResource(R.string.vault_set_decoy_title)) },
             text = {
                 Column {
                     Text(
-                        text = "Enter a 4-8 digit numeric PIN different from your real PIN/Password. Entering this code on the unlock screen unlocks an empty decoy vault.",
+                        text = stringResource(R.string.vault_set_decoy_dialog_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -712,7 +714,7 @@ fun VaultSettingsScreen(
                             if (it.length <= 8 && it.all { c -> c.isDigit() }) decoyPinInput = it
                             decoyError = null
                         },
-                        label = { Text("Decoy PIN (4-8 digits)") },
+                        label = { Text(stringResource(R.string.vault_decoy_pin_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
@@ -727,7 +729,7 @@ fun VaultSettingsScreen(
                             if (it.length <= 8 && it.all { c -> c.isDigit() }) confirmDecoyPinInput = it
                             decoyError = null
                         },
-                        label = { Text("Confirm Decoy PIN") },
+                        label = { Text(stringResource(R.string.vault_decoy_pin_confirm_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
@@ -744,11 +746,11 @@ fun VaultSettingsScreen(
                 Button(
                     onClick = {
                         if (decoyPinInput.length < 4 || decoyPinInput.length > 8) {
-                            decoyError = "PIN must be between 4 and 8 digits"
+                            decoyError = context.getString(R.string.vault_set_err_pin_4_8)
                             return@Button
                         }
                         if (decoyPinInput != confirmDecoyPinInput) {
-                            decoyError = "PINs do not match"
+                            decoyError = context.getString(R.string.vault_decoy_err_mismatch)
                             return@Button
                         }
 
@@ -763,10 +765,10 @@ fun VaultSettingsScreen(
                         hasDecoyPin = true
                         showDecoyPinDialog = false
                         HapticUtil.performSuccess(context)
-                        Toast.makeText(context, "Decoy PIN activated", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.vault_set_decoy_activated_toast), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text("Save Decoy")
+                    Text(stringResource(R.string.vault_set_save_decoy_btn))
                 }
             },
             dismissButton = {
@@ -776,14 +778,14 @@ fun VaultSettingsScreen(
                             prefs.edit().remove("vault_decoy_pin_hash").apply()
                             hasDecoyPin = false
                             showDecoyPinDialog = false
-                            Toast.makeText(context, "Decoy PIN removed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.vault_decoy_removed_toast), Toast.LENGTH_SHORT).show()
                         }
                     ) {
-                        Text("Remove Decoy", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.vault_set_remove_decoy_btn), color = MaterialTheme.colorScheme.error)
                     }
                 }
                 TextButton(onClick = { showDecoyPinDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -796,10 +798,10 @@ fun VaultSettingsScreen(
         AlertDialog(
             onDismissRequest = { if (!isProcessingDelete) showDeleteConfirmDialog = false },
             icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text("Delete Private Vault?") },
+            title = { Text(stringResource(R.string.vault_set_delete_confirm_title)) },
             text = {
                 Column {
-                    Text("Select what happens to your private files:")
+                    Text(stringResource(R.string.vault_set_delete_choose))
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
@@ -812,8 +814,8 @@ fun VaultSettingsScreen(
                         RadioButton(selected = restoreMediaOption, onClick = { restoreMediaOption = true })
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("Restore all files to Gallery (Recommended)", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                            Text("Decrypts all photos and videos back to your normal camera/gallery album", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.vault_set_restore_recommended), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.vault_set_restore_recommended_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
 
@@ -827,8 +829,8 @@ fun VaultSettingsScreen(
                         RadioButton(selected = !restoreMediaOption, onClick = { restoreMediaOption = false })
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("Cryptographically Shred All Files", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
-                            Text("Overwrites all files with zeroes and random data. Data will be completely unrecoverable.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.vault_set_shred_all_title), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.vault_set_shred_all_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
@@ -841,7 +843,11 @@ fun VaultSettingsScreen(
                             isProcessingDelete = false
                             showDeleteConfirmDialog = false
                             HapticUtil.performSuccess(context)
-                            Toast.makeText(context, if (restoreMediaOption) "Media restored & Vault removed" else "Vault permanently shredded", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                context,
+                                context.getString(if (restoreMediaOption) R.string.vault_set_media_restored_toast else R.string.vault_set_shredded_toast),
+                                Toast.LENGTH_LONG
+                            ).show()
                             onVaultDeleted()
                         }
                     },
@@ -851,13 +857,13 @@ fun VaultSettingsScreen(
                     if (isProcessingDelete) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onError)
                     } else {
-                        Text(if (restoreMediaOption) "Restore & Delete" else "Permanently Shred")
+                        Text(if (restoreMediaOption) stringResource(R.string.vault_set_restore_delete_btn) else stringResource(R.string.vault_set_perm_shred_btn))
                     }
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }, enabled = !isProcessingDelete) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -873,15 +879,15 @@ fun VaultSettingsScreen(
                     exportPassword = ""
                 }
             },
-            title = { Text("Backup Passphrase") },
+            title = { Text(stringResource(R.string.vault_set_backup_pass_title)) },
             text = {
                 Column {
-                    Text("Enter a passphrase to encrypt your .imava backup container:")
+                    Text(stringResource(R.string.vault_set_backup_pass_desc))
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
                         value = exportPassword,
                         onValueChange = { exportPassword = it },
-                        label = { Text("Passphrase") },
+                        label = { Text(stringResource(R.string.vault_set_passphrase_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -912,10 +918,10 @@ fun VaultSettingsScreen(
                                         pendingExportUri = null
                                     }
                                 } else {
-                                    Toast.makeText(context, "Could not open file for writing", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.vault_set_err_open_write), Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Backup failed: ${e.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.vault_set_backup_failed_fmt, e.message ?: ""), Toast.LENGTH_LONG).show()
                             } finally {
                                 isProcessingBackup = false
                             }
@@ -924,7 +930,7 @@ fun VaultSettingsScreen(
                     enabled = exportPassword.isNotBlank() && !isProcessingBackup
                 ) {
                     if (isProcessingBackup) CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    else Text("Export")
+                    else Text(stringResource(R.string.vault_export_btn))
                 }
             },
             dismissButton = {
@@ -933,7 +939,7 @@ fun VaultSettingsScreen(
                     pendingExportUri = null
                     exportPassword = ""
                 }, enabled = !isProcessingBackup) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -949,15 +955,15 @@ fun VaultSettingsScreen(
                     restorePassword = ""
                 }
             },
-            title = { Text("Enter Backup Passphrase") },
+            title = { Text(stringResource(R.string.vault_set_enter_backup_pass_title)) },
             text = {
                 Column {
-                    Text("Enter the passphrase used when creating this .imava backup:")
+                    Text(stringResource(R.string.vault_set_enter_backup_pass_desc))
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
                         value = restorePassword,
                         onValueChange = { restorePassword = it },
-                        label = { Text("Passphrase") },
+                        label = { Text(stringResource(R.string.vault_set_passphrase_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -989,10 +995,10 @@ fun VaultSettingsScreen(
                                         pendingRestoreUri = null
                                     }
                                 } else {
-                                    Toast.makeText(context, "Could not open backup file", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.vault_set_err_open_read), Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Restore failed: ${e.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.vault_set_restore_failed_fmt, e.message ?: ""), Toast.LENGTH_LONG).show()
                             } finally {
                                 isProcessingBackup = false
                             }
@@ -1001,7 +1007,7 @@ fun VaultSettingsScreen(
                     enabled = restorePassword.isNotBlank() && !isProcessingBackup
                 ) {
                     if (isProcessingBackup) CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    else Text("Restore")
+                    else Text(stringResource(R.string.action_restore))
                 }
             },
             dismissButton = {
@@ -1010,7 +1016,7 @@ fun VaultSettingsScreen(
                     pendingRestoreUri = null
                     restorePassword = ""
                 }, enabled = !isProcessingBackup) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )

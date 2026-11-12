@@ -61,7 +61,13 @@ class WebDavBackupWorker(
             }
 
             val now = System.currentTimeMillis()
-            WebDavConfigManager.updateLastBackup(appContext, now, successCount, "Auto-backup: $successCount items synced")
+            val statusMsg = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                appContext,
+                com.hrshd1eux.imava.R.string.webdav_status_autobackup_fmt,
+                "Auto-backup: $successCount items synced",
+                successCount
+            )
+            WebDavConfigManager.updateLastBackup(appContext, now, successCount, statusMsg)
             Result.success()
         } catch (e: Exception) {
             Result.retry()

@@ -56,16 +56,36 @@ object BiometricAuthHelper {
 
     fun authenticate(
         activity: Context,
-        title: String = "Unlock Hidden Vault",
-        subtitle: String = "Use fingerprint or face unlock to access your hidden photos",
-        negativeButtonText: String = "Cancel",
+        title: String = "",
+        subtitle: String = "",
+        negativeButtonText: String = "",
         allowDeviceCredential: Boolean = true,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        val resolvedTitle = title.ifBlank {
+            LocaleHelper.getString(activity, com.hrshd1eux.imava.R.string.biometric_default_title, "Unlock Hidden Vault")
+        }
+        val resolvedSubtitle = subtitle.ifBlank {
+            LocaleHelper.getString(
+                activity,
+                com.hrshd1eux.imava.R.string.biometric_default_subtitle,
+                "Use fingerprint or face unlock to access your hidden photos"
+            )
+        }
+        val resolvedNegative = negativeButtonText.ifBlank {
+            LocaleHelper.getString(activity, com.hrshd1eux.imava.R.string.action_cancel, "Cancel")
+        }
+
         val fragmentActivity = findFragmentActivity(activity)
         if (fragmentActivity == null) {
-            onError("Biometric authentication requires FragmentActivity context.")
+            onError(
+                LocaleHelper.getString(
+                    activity,
+                    com.hrshd1eux.imava.R.string.biometric_err_activity,
+                    "Biometric authentication requires FragmentActivity context."
+                )
+            )
             return
         }
 
@@ -77,15 +97,21 @@ object BiometricAuthHelper {
         ) == BiometricManager.BIOMETRIC_SUCCESS
 
         if (!canBiometric && (!allowDeviceCredential || !isDeviceSecure)) {
-            onError("No biometric or lock screen security setup on device.")
+            onError(
+                LocaleHelper.getString(
+                    activity,
+                    com.hrshd1eux.imava.R.string.biometric_err_not_setup,
+                    "No biometric or lock screen security setup on device."
+                )
+            )
             return
         }
 
         try {
             val executor = ContextCompat.getMainExecutor(fragmentActivity)
             val promptInfoBuilder = BiometricPrompt.PromptInfo.Builder()
-                .setTitle(title)
-                .setSubtitle(subtitle)
+                .setTitle(resolvedTitle)
+                .setSubtitle(resolvedSubtitle)
 
             if (allowDeviceCredential && isDeviceSecure) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -99,7 +125,7 @@ object BiometricAuthHelper {
                     promptInfoBuilder.setDeviceCredentialAllowed(true)
                 }
             } else {
-                promptInfoBuilder.setNegativeButtonText(negativeButtonText)
+                promptInfoBuilder.setNegativeButtonText(resolvedNegative)
                 promptInfoBuilder.setAllowedAuthenticators(
                     BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
                 )
@@ -118,7 +144,13 @@ object BiometricAuthHelper {
 
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
-                        onError("Biometric authentication failed. Try again.")
+                        onError(
+                            LocaleHelper.getString(
+                                activity,
+                                com.hrshd1eux.imava.R.string.biometric_err_failed,
+                                "Biometric authentication failed. Try again."
+                            )
+                        )
                     }
 
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -131,7 +163,13 @@ object BiometricAuthHelper {
             biometricPrompt.authenticate(promptInfo)
         } catch (e: Exception) {
             e.printStackTrace()
-            onError(e.localizedMessage ?: "Biometric error.")
+            onError(
+                e.localizedMessage ?: LocaleHelper.getString(
+                    activity,
+                    com.hrshd1eux.imava.R.string.biometric_err_generic,
+                    "Biometric error."
+                )
+            )
         }
     }
 }

@@ -121,7 +121,11 @@ object AppUpdateManager {
                 hasUpdate = false,
                 latestVersion = currentVersion,
                 currentVersion = currentVersion,
-                releaseNotes = "Could not check GitHub releases. Please check your internet connection.",
+                releaseNotes = LocaleHelper.getString(
+                    context,
+                    R.string.update_err_github_releases,
+                    "Could not check GitHub releases. Please check your internet connection."
+                ),
                 apkDownloadUrl = null
             )
         }
@@ -130,7 +134,10 @@ object AppUpdateManager {
             val json = JSONObject(jsonResponse)
             val rawTag = json.optString("tag_name", "v1.0.0")
             val latestVersion = rawTag.removePrefix("v").trim()
-            val body = json.optString("body", "No release notes available.")
+            val body = json.optString(
+                "body",
+                LocaleHelper.getString(context, R.string.update_no_release_notes, "No release notes available.")
+            )
 
             var apkUrl: String? = null
             val assets = json.optJSONArray("assets")
@@ -160,7 +167,11 @@ object AppUpdateManager {
                 hasUpdate = false,
                 latestVersion = currentVersion,
                 currentVersion = currentVersion,
-                releaseNotes = "Error parsing release info.",
+                releaseNotes = LocaleHelper.getString(
+                    context,
+                    R.string.update_err_parse_release,
+                    "Error parsing release info."
+                ),
                 apkDownloadUrl = null
             )
         }
@@ -269,9 +280,9 @@ object AppUpdateManager {
 
                     if (responseCode != 200 && responseCode != 206) {
                         val errorDetail = when (responseCode) {
-                            504 -> "Gateway Timeout (504)"
-                            502, 503 -> "Server Unavailable ($responseCode)"
-                            else -> "HTTP Server returned response code $responseCode"
+                            504 -> LocaleHelper.getString(context, R.string.update_err_http_timeout, "Gateway Timeout (504)")
+                            502, 503 -> LocaleHelper.getString(context, R.string.update_err_http_unavailable_fmt, "Server Unavailable ($responseCode)", responseCode)
+                            else -> LocaleHelper.getString(context, R.string.update_err_http_code_fmt, "HTTP Server returned response code $responseCode", responseCode)
                         }
                         throw IOException(errorDetail)
                     }
@@ -358,7 +369,7 @@ object AppUpdateManager {
                         showCompletedNotification(context, completedFile, version)
                         return@launch
                     } else {
-                        throw IOException("Downloaded package is empty")
+                        throw IOException(LocaleHelper.getString(context, R.string.update_err_empty_package, "Downloaded package is empty"))
                     }
                 } catch (e: Exception) {
                     if (isPauseRequested) {
@@ -380,7 +391,7 @@ object AppUpdateManager {
                         }
                         e.printStackTrace()
                         _downloadState.value = AppUpdateDownloadState.Failed(
-                            error = e.localizedMessage ?: "Download failed",
+                            error = e.localizedMessage ?: LocaleHelper.getString(context, R.string.update_err_download_failed, "Download failed"),
                             downloadedBytes = if (partFile.exists()) partFile.length() else 0L,
                             totalBytes = 0L,
                             version = version
@@ -462,20 +473,20 @@ object AppUpdateManager {
 
             val progressChannel = NotificationChannel(
                 CHANNEL_ID,
-                "Imava Gallery Update Progress",
+                LocaleHelper.getString(context, R.string.update_channel_progress_name, "Imava Gallery Update Progress"),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Shows progress when downloading Imava Gallery updates"
+                description = LocaleHelper.getString(context, R.string.update_channel_progress_desc, "Shows progress when downloading Imava Gallery updates")
                 setShowBadge(false)
             }
             manager.createNotificationChannel(progressChannel)
 
             val completeChannel = NotificationChannel(
                 CHANNEL_ID_COMPLETE,
-                "Imava Gallery Update Alerts",
+                LocaleHelper.getString(context, R.string.update_channel_alerts_name, "Imava Gallery Update Alerts"),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Alerts when an Imava Gallery update is ready to install"
+                description = LocaleHelper.getString(context, R.string.update_channel_alerts_desc, "Alerts when an Imava Gallery update is ready to install")
                 setShowBadge(true)
                 enableVibration(true)
             }
@@ -517,7 +528,7 @@ object AppUpdateManager {
             .apply {
                 if (largeIconBitmap != null) setLargeIcon(largeIconBitmap)
             }
-            .setContentTitle("Downloading Imava Gallery v$version")
+            .setContentTitle(LocaleHelper.getString(context, R.string.update_notif_downloading_fmt, "Downloading Imava Gallery v$version", version))
             .setContentText(contentText)
             .setContentIntent(pendingOpen)
             .setOngoing(true)
@@ -561,8 +572,8 @@ object AppUpdateManager {
             .apply {
                 if (largeIconBitmap != null) setLargeIcon(largeIconBitmap)
             }
-            .setContentTitle("Update Download Paused (v$version)")
-            .setContentText("$progress% • $downloadedStr / $totalStr (Paused)")
+            .setContentTitle(LocaleHelper.getString(context, R.string.update_notif_paused_title_fmt, "Update Download Paused (v$version)", version))
+            .setContentText(LocaleHelper.getString(context, R.string.update_notif_paused_text_fmt, "$progress% • $downloadedStr / $totalStr (Paused)", progress, downloadedStr, totalStr))
             .setContentIntent(pendingOpen)
             .setOngoing(false)
             .setAutoCancel(true)
@@ -608,8 +619,8 @@ object AppUpdateManager {
             .apply {
                 if (largeIconBitmap != null) setLargeIcon(largeIconBitmap)
             }
-            .setContentTitle("Imava Gallery v$version Ready to Install")
-            .setContentText("Download complete. Tap to install the update now.")
+            .setContentTitle(LocaleHelper.getString(context, R.string.update_notif_ready_title_fmt, "Imava Gallery v$version Ready to Install", version))
+            .setContentText(LocaleHelper.getString(context, R.string.update_notif_ready_text, "Download complete. Tap to install the update now."))
             .setContentIntent(pendingInstall)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -664,7 +675,7 @@ object AppUpdateManager {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
                 context.startActivity(intent)
-                android.widget.Toast.makeText(context, "Please enable 'Allow from this source' to install the update", android.widget.Toast.LENGTH_LONG).show()
+                android.widget.Toast.makeText(context, LocaleHelper.getString(context, R.string.update_toast_allow_unknown_sources, "Please enable 'Allow from this source' to install the update"), android.widget.Toast.LENGTH_LONG).show()
                 return
             }
 
@@ -681,7 +692,7 @@ object AppUpdateManager {
             context.startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
-            android.widget.Toast.makeText(context, "Could not launch installer: ${e.localizedMessage}", android.widget.Toast.LENGTH_LONG).show()
+            android.widget.Toast.makeText(context, LocaleHelper.getString(context, R.string.update_toast_installer_failed_fmt, "Could not launch installer: ${e.localizedMessage ?: ""}", e.localizedMessage ?: ""), android.widget.Toast.LENGTH_LONG).show()
         }
     }
 

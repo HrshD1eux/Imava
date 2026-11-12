@@ -38,8 +38,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -69,13 +71,13 @@ fun AdvancedFilterDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Advanced Metadata Filters",
+                        text = stringResource(R.string.adv_filter_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
                 }
             }
         },
@@ -86,7 +88,7 @@ fun AdvancedFilterDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Filter media instantly using hardware attributes, resolution, date ranges, and size thresholds.",
+                    text = stringResource(R.string.adv_filter_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -95,7 +97,7 @@ fun AdvancedFilterDialog(
 
                 // 1. Media Type
                 Text(
-                    text = "Media Type",
+                    text = stringResource(R.string.adv_filter_media_type),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -106,7 +108,7 @@ fun AdvancedFilterDialog(
                         FilterChip(
                             selected = workingState.mediaType == choice,
                             onClick = { workingState = workingState.copy(mediaType = choice) },
-                            label = { Text(choice.label, style = MaterialTheme.typography.labelSmall) }
+                            label = { Text(stringResource(choice.labelRes), style = MaterialTheme.typography.labelSmall) }
                         )
                     }
                 }
@@ -115,7 +117,7 @@ fun AdvancedFilterDialog(
 
                 // 2. File Size Thresholds
                 Text(
-                    text = "File Size Threshold",
+                    text = stringResource(R.string.adv_filter_file_size),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -126,7 +128,7 @@ fun AdvancedFilterDialog(
                         FilterChip(
                             selected = workingState.fileSize == sizeChoice,
                             onClick = { workingState = workingState.copy(fileSize = sizeChoice) },
-                            label = { Text(sizeChoice.label, style = MaterialTheme.typography.labelSmall) }
+                            label = { Text(stringResource(sizeChoice.labelRes), style = MaterialTheme.typography.labelSmall) }
                         )
                     }
                 }
@@ -135,7 +137,7 @@ fun AdvancedFilterDialog(
 
                 // 3. Resolution & Orientation
                 Text(
-                    text = "Resolution & Aspect Ratio",
+                    text = stringResource(R.string.adv_filter_resolution),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -146,7 +148,7 @@ fun AdvancedFilterDialog(
                         FilterChip(
                             selected = workingState.resolution == resChoice,
                             onClick = { workingState = workingState.copy(resolution = resChoice) },
-                            label = { Text(resChoice.label, style = MaterialTheme.typography.labelSmall) }
+                            label = { Text(stringResource(resChoice.labelRes), style = MaterialTheme.typography.labelSmall) }
                         )
                     }
                 }
@@ -155,7 +157,7 @@ fun AdvancedFilterDialog(
 
                 // 4. Date Range
                 Text(
-                    text = "Date Taken",
+                    text = stringResource(R.string.adv_filter_date_taken),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -166,7 +168,7 @@ fun AdvancedFilterDialog(
                         FilterChip(
                             selected = workingState.datePreset == dateChoice,
                             onClick = { workingState = workingState.copy(datePreset = dateChoice) },
-                            label = { Text(dateChoice.label, style = MaterialTheme.typography.labelSmall) }
+                            label = { Text(stringResource(dateChoice.labelRes), style = MaterialTheme.typography.labelSmall) }
                         )
                     }
                 }
@@ -175,7 +177,7 @@ fun AdvancedFilterDialog(
 
                 // 5. Camera / Device Model
                 Text(
-                    text = "Camera / Device Model",
+                    text = stringResource(R.string.adv_filter_camera_model),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -184,7 +186,7 @@ fun AdvancedFilterDialog(
                 OutlinedTextField(
                     value = workingState.cameraModelQuery,
                     onValueChange = { workingState = workingState.copy(cameraModelQuery = it) },
-                    placeholder = { Text("e.g. Pixel, Sony, Galaxy, Canon") },
+                    placeholder = { Text(stringResource(R.string.adv_filter_camera_hint)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -195,7 +197,7 @@ fun AdvancedFilterDialog(
                 onClick = { onApply(workingState) },
                 shape = RoundedCornerShape(10.dp)
             ) {
-                Text(if (workingState.isActive) "Apply Filters (${workingState.activeFilterCount})" else "Apply")
+                Text(if (workingState.isActive) stringResource(R.string.adv_filter_apply_count, workingState.activeFilterCount) else stringResource(R.string.action_apply))
             }
         },
         dismissButton = {
@@ -205,12 +207,12 @@ fun AdvancedFilterDialog(
                         workingState = AdvancedFilterState()
                         onReset()
                     }) {
-                        Text("Reset All")
+                        Text(stringResource(R.string.action_reset_all))
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                 }
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         }

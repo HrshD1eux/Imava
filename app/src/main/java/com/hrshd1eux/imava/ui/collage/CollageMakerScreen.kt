@@ -70,10 +70,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.CollageMakerUtil
 import com.hrshd1eux.imava.core.util.HapticUtil
 import kotlinx.coroutines.Dispatchers
@@ -188,10 +190,10 @@ fun CollageMakerScreen(
         ) {
             // Clean Top App Bar
             TopAppBar(
-                title = { Text("Collage Maker (${imageUris.size} Photos)") },
+                title = { Text(stringResource(R.string.collage_maker_title_fmt, imageUris.size)) },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
@@ -218,10 +220,10 @@ fun CollageMakerScreen(
                                 val savedUri = CollageMakerUtil.saveCollage(context, highResBmp)
                                 isSaving = false
                                 if (savedUri != null) {
-                                    Toast.makeText(context, "Collage saved to Pictures/Collages 🎨", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.collage_saved_toast), Toast.LENGTH_SHORT).show()
                                     onCollageSaved(savedUri)
                                 } else {
-                                    Toast.makeText(context, "Failed to save collage", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.collage_save_failed_toast), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
@@ -232,7 +234,7 @@ fun CollageMakerScreen(
                         } else {
                             Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Save")
+                            Text(stringResource(R.string.action_save))
                         }
                     }
                 },
@@ -331,7 +333,7 @@ fun CollageMakerScreen(
                                 HapticUtil.performSelection(context)
                             }
                         ) {
-                            Icon(Icons.Default.Dashboard, contentDescription = "Change Layout Variant")
+                            Icon(Icons.Default.Dashboard, contentDescription = stringResource(R.string.collage_change_layout_cd))
                         }
 
                         Surface(
@@ -358,12 +360,12 @@ fun CollageMakerScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         listOf(
-                            "Rounded" to CollageMakerUtil.CollageShape.ROUNDED,
-                            "Circle" to CollageMakerUtil.CollageShape.CIRCLE,
-                            "Diamond" to CollageMakerUtil.CollageShape.DIAMOND,
-                            "Hexagon" to CollageMakerUtil.CollageShape.HEXAGON,
-                            "Heart" to CollageMakerUtil.CollageShape.HEART,
-                            "Star" to CollageMakerUtil.CollageShape.STAR
+                            stringResource(R.string.collage_shape_rounded) to CollageMakerUtil.CollageShape.ROUNDED,
+                            stringResource(R.string.collage_shape_circle) to CollageMakerUtil.CollageShape.CIRCLE,
+                            stringResource(R.string.collage_shape_diamond) to CollageMakerUtil.CollageShape.DIAMOND,
+                            stringResource(R.string.collage_shape_hexagon) to CollageMakerUtil.CollageShape.HEXAGON,
+                            stringResource(R.string.collage_shape_heart) to CollageMakerUtil.CollageShape.HEART,
+                            stringResource(R.string.collage_shape_star) to CollageMakerUtil.CollageShape.STAR
                         ).forEach { (name, shape) ->
                             FilterChip(
                                 selected = selectedShape == shape,
@@ -393,7 +395,7 @@ fun CollageMakerScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Spacing", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.collage_spacing), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                         Slider(
                             value = spacingDp,
                             onValueChange = { spacingDp = it },
@@ -408,7 +410,7 @@ fun CollageMakerScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Radius", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.collage_radius), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                             Slider(
                                 value = cornerRadiusDp,
                                 onValueChange = { cornerRadiusDp = it },

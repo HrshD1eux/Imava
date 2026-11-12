@@ -141,6 +141,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -275,15 +276,15 @@ fun PhotoViewerScreen(
     fun promptExitGuestMode() {
         com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
             activity = context,
-            title = "Unlock Gallery",
-            subtitle = "Verify fingerprint, face, or device PIN to exit Guest Hand-Off",
+            title = context.getString(R.string.viewer_unlock_gallery_title),
+            subtitle = context.getString(R.string.viewer_guest_bio_subtitle),
             onSuccess = {
                 isGuestModeLocked = false
                 try {
                     activity?.stopLockTask()
                 } catch (_: Exception) {}
                 com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                android.widget.Toast.makeText(context, "Guest Hand-Off Unlocked", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, context.getString(R.string.viewer_guest_unlocked_toast), android.widget.Toast.LENGTH_SHORT).show()
             },
             onError = { err ->
                 com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
@@ -483,7 +484,7 @@ fun PhotoViewerScreen(
                     } else if (isPlayingMotionPhoto && motionVideoFile != null && page == pagerState.currentPage) {
                         VideoPlayerContainer(
                             uri = android.net.Uri.fromFile(motionVideoFile),
-                            title = "Motion Photo",
+                            title = stringResource(R.string.motion_photo),
                             isSelectedPage = true,
                             isScrollInProgress = pagerState.isScrollInProgress,
                             showChrome = showChrome,
@@ -512,7 +513,7 @@ fun PhotoViewerScreen(
                                 )
                                 Spacer(modifier = Modifier.height(14.dp))
                                 Text(
-                                    text = "Saving photo...",
+                                    text = stringResource(R.string.saving_photo),
                                     color = Color.White.copy(alpha = 0.85f),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
@@ -563,11 +564,11 @@ fun PhotoViewerScreen(
                     if (candidate.isNotBlank() && !candidate.startsWith("pending", ignoreCase = true) && !candidate.all { it.isDigit() }) {
                         candidate
                     } else {
-                        "Processing photo..."
+                        stringResource(R.string.processing_photo)
                     }
                 }
                 rawFileName.all { it.isDigit() } || rawFileName.startsWith("media:", ignoreCase = true) -> {
-                    "Photo"
+                    stringResource(R.string.viewer_photo_fallback)
                 }
                 else -> rawFileName
             }
@@ -592,7 +593,7 @@ fun PhotoViewerScreen(
                         }
                     }
                 ) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back), tint = Color.White)
                 }
 
                 if (isGuestModeLocked) {
@@ -615,7 +616,7 @@ fun PhotoViewerScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Pinned (Guest View)",
+                                text = stringResource(R.string.viewer_pinned_guest_badge),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 fontWeight = FontWeight.Bold
@@ -651,12 +652,12 @@ fun PhotoViewerScreen(
                                         motionVideoFile = file
                                         isPlayingMotionPhoto = true
                                     } else {
-                                        android.widget.Toast.makeText(context, "Motion video not available", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.viewer_motion_unavailable), android.widget.Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
                         },
-                        label = { Text(if (isPlayingMotionPhoto) "Playing ⏸️" else "Motion 🎞️", color = Color.White) },
+                        label = { Text(if (isPlayingMotionPhoto) stringResource(R.string.viewer_motion_playing) else stringResource(R.string.viewer_motion_chip), color = Color.White) },
                         modifier = Modifier.padding(end = 4.dp)
                     )
 
@@ -669,37 +670,37 @@ fun PhotoViewerScreen(
                                     motionVideoFile = file
                                     showMotionExportDialog = true
                                 } else {
-                                    android.widget.Toast.makeText(context, "Motion video not available", android.widget.Toast.LENGTH_SHORT).show()
+                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_motion_unavailable), android.widget.Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
                     ) {
-                        Icon(imageVector = Icons.Default.MovieFilter, contentDescription = "Motion Tools", tint = Color.White)
+                        Icon(imageVector = Icons.Default.MovieFilter, contentDescription = stringResource(R.string.viewer_motion_tools_cd), tint = Color.White)
                     }
                 }
 
                 if (currentItem is com.hrshd1eux.imava.data.model.MediaItem.Video) {
                     IconButton(onClick = {
                         scope.launch {
-                            android.widget.Toast.makeText(context, "Muting video losslessly...", android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.viewer_muting_video), android.widget.Toast.LENGTH_SHORT).show()
                             val mutedUri = com.hrshd1eux.imava.core.util.VideoMuterUtil.muteVideo(context, currentItem.uri)
                             if (mutedUri != null) {
                                 com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                android.widget.Toast.makeText(context, "Muted video saved to Movies/Muted! 🔇", android.widget.Toast.LENGTH_LONG).show()
+                                android.widget.Toast.makeText(context, context.getString(R.string.viewer_muted_saved_toast), android.widget.Toast.LENGTH_LONG).show()
                             } else {
                                 com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                                android.widget.Toast.makeText(context, "Could not mute video", android.widget.Toast.LENGTH_SHORT).show()
+                                android.widget.Toast.makeText(context, context.getString(R.string.viewer_mute_failed_toast), android.widget.Toast.LENGTH_SHORT).show()
                             }
                         }
                     }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.VolumeOff, contentDescription = "Mute Video", tint = Color.White)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.VolumeOff, contentDescription = stringResource(R.string.viewer_mute_video_cd), tint = Color.White)
                     }
                 }
 
 
                 if (!currentItem.isVideo) {
                     IconButton(onClick = { showOcrSheet = true }) {
-                        Icon(imageVector = Icons.Default.TextFields, contentDescription = "Scan Text (OCR)", tint = Color.White)
+                        Icon(imageVector = Icons.Default.TextFields, contentDescription = stringResource(R.string.viewer_scan_ocr_cd), tint = Color.White)
                     }
                 }
 
@@ -712,7 +713,7 @@ fun PhotoViewerScreen(
                 }) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Info",
+                        contentDescription = stringResource(R.string.info),
                         tint = if (isWideScreen && showSideInspector) MaterialTheme.colorScheme.primary else Color.White
                     )
                 }
@@ -725,16 +726,16 @@ fun PhotoViewerScreen(
                                 activity?.startLockTask()
                             } catch (_: Exception) {}
                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                            android.widget.Toast.makeText(context, "Guest Hand-Off Active: Screen pinned to this photo 📌", android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.viewer_guest_active_toast), android.widget.Toast.LENGTH_LONG).show()
                         }
                     ) {
-                        Icon(imageVector = Icons.Default.PushPin, contentDescription = "Guest Hand-Off (Pin Photo)", tint = Color.White)
+                        Icon(imageVector = Icons.Default.PushPin, contentDescription = stringResource(R.string.viewer_guest_handoff_cd), tint = Color.White)
                     }
                 }
 
                 Box {
                     IconButton(onClick = { showMoreMenu = true }) {
-                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options", tint = Color.White)
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = stringResource(R.string.viewer_more_options_cd), tint = Color.White)
                     }
 
                     DropdownMenu(
@@ -744,7 +745,7 @@ fun PhotoViewerScreen(
                         val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
 
                         DropdownMenuItem(
-                            text = { Text(if (isGuestModeLocked) "Unlock Guest View 🔓" else "Guest Hand-Off (Pin Photo) 📌") },
+                            text = { Text(if (isGuestModeLocked) stringResource(R.string.viewer_menu_unlock_guest) else stringResource(R.string.viewer_menu_pin_guest)) },
                             leadingIcon = { Icon(Icons.Default.PushPin, contentDescription = null) },
                             onClick = {
                                 showMoreMenu = false
@@ -756,12 +757,12 @@ fun PhotoViewerScreen(
                                         activity?.startLockTask()
                                     } catch (_: Exception) {}
                                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                    android.widget.Toast.makeText(context, "Guest Hand-Off Active: Screen pinned to this photo 📌", android.widget.Toast.LENGTH_LONG).show()
+                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_guest_active_toast), android.widget.Toast.LENGTH_LONG).show()
                                 }
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Rename") },
+                            text = { Text(stringResource(R.string.action_rename)) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
@@ -776,7 +777,7 @@ fun PhotoViewerScreen(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Tags & Hashtags 🏷️") },
+                            text = { Text(stringResource(R.string.viewer_menu_tags)) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Style,
@@ -795,7 +796,7 @@ fun PhotoViewerScreen(
 
                         if (!item.isVideo) {
                             DropdownMenuItem(
-                                text = { Text("Scan Text (OCR) 📝") },
+                                text = { Text(stringResource(R.string.viewer_menu_scan_ocr)) },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.TextFields,
@@ -811,7 +812,7 @@ fun PhotoViewerScreen(
 
                         if (!viewModel.isVaultDisabled || item.isHidden) {
                             DropdownMenuItem(
-                                text = { Text(if (item.isHidden) "Unhide from Vault" else "Move to Vault") },
+                                text = { Text(if (item.isHidden) stringResource(R.string.viewer_menu_unhide_vault) else stringResource(R.string.viewer_menu_move_vault)) },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = if (item.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -834,7 +835,7 @@ fun PhotoViewerScreen(
                         }
 
                         DropdownMenuItem(
-                            text = { Text("Start Slideshow 🎞️") },
+                            text = { Text(stringResource(R.string.viewer_menu_start_slideshow)) },
                             leadingIcon = { Icon(Icons.Default.PlayArrow, contentDescription = null) },
                             onClick = {
                                 showMoreMenu = false
@@ -843,7 +844,7 @@ fun PhotoViewerScreen(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Set as Wallpaper 📱") },
+                            text = { Text(stringResource(R.string.viewer_menu_set_wallpaper)) },
                             leadingIcon = { Icon(Icons.Default.Wallpaper, contentDescription = null) },
                             onClick = {
                                 showMoreMenu = false
@@ -852,7 +853,7 @@ fun PhotoViewerScreen(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Set as Album Cover 🖼️") },
+                            text = { Text(stringResource(R.string.viewer_menu_set_album_cover)) },
                             leadingIcon = { Icon(Icons.Default.Album, contentDescription = null) },
                             onClick = {
                                 showMoreMenu = false
@@ -862,7 +863,7 @@ fun PhotoViewerScreen(
 
                         if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
                             DropdownMenuItem(
-                                text = { Text("Save Clean Copy (No EXIF) 🛡️") },
+                                text = { Text(stringResource(R.string.viewer_menu_save_clean_copy)) },
                                 leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
                                 onClick = {
                                     showMoreMenu = false
@@ -871,7 +872,7 @@ fun PhotoViewerScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Print Photo 🖨️") },
+                                text = { Text(stringResource(R.string.viewer_menu_print_photo)) },
                                 leadingIcon = { Icon(Icons.Default.Print, contentDescription = null) },
                                 onClick = {
                                     showMoreMenu = false
@@ -884,27 +885,27 @@ fun PhotoViewerScreen(
 
                         if (item is com.hrshd1eux.imava.data.model.MediaItem.Video) {
                             DropdownMenuItem(
-                                text = { Text("Extract Audio (.m4a) 🎵") },
+                                text = { Text(stringResource(R.string.viewer_menu_extract_audio)) },
                                 leadingIcon = { Icon(Icons.Default.Audiotrack, contentDescription = null) },
                                 onClick = {
                                     showMoreMenu = false
                                     scope.launch {
-                                        android.widget.Toast.makeText(context, "Extracting audio...", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.viewer_extracting_audio_toast), android.widget.Toast.LENGTH_SHORT).show()
                                         val name = java.io.File(item.path).nameWithoutExtension
                                         val audioUri = com.hrshd1eux.imava.core.util.AudioExtractor.extractAudioFromVideo(context, item.uri, name)
                                         if (audioUri != null) {
                                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                            android.widget.Toast.makeText(context, "Audio saved to Music/Imava_Audio", android.widget.Toast.LENGTH_LONG).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.viewer_audio_saved_toast), android.widget.Toast.LENGTH_LONG).show()
                                         } else {
                                             com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                                            android.widget.Toast.makeText(context, "Could not extract audio", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.viewer_audio_failed_toast), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 }
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Trim Video / Make GIF 🎬") },
+                                text = { Text(stringResource(R.string.viewer_menu_trim_gif)) },
                                 leadingIcon = { Icon(Icons.Default.ContentCut, contentDescription = null) },
                                 onClick = {
                                     showMoreMenu = false
@@ -913,28 +914,28 @@ fun PhotoViewerScreen(
                             )
 
                             DropdownMenuItem(
-                                text = { Text("Mute Audio & Save Copy 🔇") },
+                                text = { Text(stringResource(R.string.viewer_menu_mute_copy)) },
                                 leadingIcon = { Icon(Icons.AutoMirrored.Filled.VolumeOff, contentDescription = null) },
                                 onClick = {
                                     showMoreMenu = false
                                     scope.launch {
-                                        android.widget.Toast.makeText(context, "Muting video losslessly...", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.viewer_muting_video), android.widget.Toast.LENGTH_SHORT).show()
                                         val mutedUri = com.hrshd1eux.imava.core.util.VideoMuterUtil.muteVideo(context, item.uri)
                                         if (mutedUri != null) {
                                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                            android.widget.Toast.makeText(context, "Muted video saved to Movies/Muted! 🔇", android.widget.Toast.LENGTH_LONG).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.viewer_muted_saved_toast), android.widget.Toast.LENGTH_LONG).show()
                                         } else {
                                             com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                                            android.widget.Toast.makeText(context, "Could not mute video", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.viewer_mute_failed_toast), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 }
                             )
 
                             val aspectLabel = when (videoResizeMode) {
-                                AspectRatioFrameLayout.RESIZE_MODE_FIT -> "Aspect Ratio: Fit (Tap to Zoom)"
-                                AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> "Aspect Ratio: Zoom (Tap to Fill)"
-                                else -> "Aspect Ratio: Fill (Tap to Fit)"
+                                AspectRatioFrameLayout.RESIZE_MODE_FIT -> stringResource(R.string.viewer_aspect_fit)
+                                AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> stringResource(R.string.viewer_aspect_zoom)
+                                else -> stringResource(R.string.viewer_aspect_fill)
                             }
                             DropdownMenuItem(
                                 text = { Text(aspectLabel) },
@@ -952,7 +953,7 @@ fun PhotoViewerScreen(
 
                         if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
                             DropdownMenuItem(
-                                text = { Text("Compress Image 📉") },
+                                text = { Text(stringResource(R.string.viewer_menu_compress_image)) },
                                 leadingIcon = { Icon(Icons.Default.Compress, contentDescription = null) },
                                 onClick = {
                                     showMoreMenu = false
@@ -962,7 +963,7 @@ fun PhotoViewerScreen(
 
                             if (isMotionPhoto) {
                                 DropdownMenuItem(
-                                    text = { Text("Motion Photo Tools (Scrub/GIF) 🎞️") },
+                                    text = { Text(stringResource(R.string.viewer_menu_motion_tools)) },
                                     leadingIcon = { Icon(Icons.Default.MovieFilter, contentDescription = null) },
                                     onClick = {
                                         showMoreMenu = false
@@ -973,7 +974,7 @@ fun PhotoViewerScreen(
                                                 motionVideoFile = file
                                                 showMotionExportDialog = true
                                             } else {
-                                                android.widget.Toast.makeText(context, "Motion video not available", android.widget.Toast.LENGTH_SHORT).show()
+                                                android.widget.Toast.makeText(context, context.getString(R.string.viewer_motion_unavailable), android.widget.Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     }
@@ -982,7 +983,7 @@ fun PhotoViewerScreen(
 
                             if (item.mimeType.contains("gif", ignoreCase = true) || item.mimeType.contains("webp", ignoreCase = true)) {
                                 DropdownMenuItem(
-                                    text = { Text("Save Frame as JPEG") },
+                                    text = { Text(stringResource(R.string.viewer_menu_save_frame)) },
                                     leadingIcon = { Icon(Icons.Default.Photo, contentDescription = null) },
                                     onClick = {
                                         showMoreMenu = false
@@ -1006,7 +1007,7 @@ fun PhotoViewerScreen(
                                                     android.media.MediaScannerConnection.scanFile(context, arrayOf(frameFile.absolutePath), null, null)
                                                     withContext(Dispatchers.Main) {
                                                         com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                                        android.widget.Toast.makeText(context, "Frame saved to Pictures/Frames", android.widget.Toast.LENGTH_SHORT).show()
+                                                        android.widget.Toast.makeText(context, context.getString(R.string.viewer_frame_saved_toast), android.widget.Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             } catch (e: Exception) {
@@ -1054,7 +1055,7 @@ fun PhotoViewerScreen(
                             Icon(Icons.Default.PushPin, contentDescription = null, tint = Color.White)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Guest Hand-Off (Pinned) · Tap to Unlock",
+                                text = stringResource(R.string.viewer_pinned_banner_unlock),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold
@@ -1068,7 +1069,7 @@ fun PhotoViewerScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.RestoreFromTrash,
-                                contentDescription = "Restore",
+                                contentDescription = stringResource(R.string.action_restore),
                                 tint = Color.White
                             )
                         }
@@ -1079,7 +1080,7 @@ fun PhotoViewerScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.DeleteForever,
-                                contentDescription = "Delete Permanently",
+                                contentDescription = stringResource(R.string.delete_permanently),
                                 tint = Color.Red
                             )
                         }
@@ -1091,7 +1092,7 @@ fun PhotoViewerScreen(
                         }) {
                             Icon(
                                 imageVector = if (item.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favorite",
+                                contentDescription = stringResource(R.string.action_favorite),
                                 tint = if (item.isFavorite) Color.Red else Color.White
                             )
                         }
@@ -1101,7 +1102,7 @@ fun PhotoViewerScreen(
                                 com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
                                 viewModel.editingMediaItem = item
                             }) {
-                                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
+                                Icon(imageVector = Icons.Default.Edit, contentDescription = stringResource(R.string.action_edit), tint = Color.White)
                             }
                         }
 
@@ -1109,21 +1110,21 @@ fun PhotoViewerScreen(
                             com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
                             showShareDialog = true
                         }) {
-                            Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.White)
+                            Icon(imageVector = Icons.Default.Share, contentDescription = stringResource(R.string.action_share), tint = Color.White)
                         }
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
                             showMoveToAlbumDialog = true
                         }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = "Move to Album", tint = Color.White)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = stringResource(R.string.move_to_album), tint = Color.White)
                         }
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
                             showDeleteConfirmDialog = true
                         }) {
-                            Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.action_delete), tint = Color.White)
                         }
                     }
                 }
@@ -1155,7 +1156,7 @@ fun PhotoViewerScreen(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             IconButton(onClick = { showSideInspector = false }) {
-                                Icon(Icons.Default.Close, contentDescription = "Close Inspector")
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.viewer_close_inspector_cd))
                             }
                         }
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
@@ -1179,11 +1180,11 @@ fun PhotoViewerScreen(
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
             AlertDialog(
                 onDismissRequest = { showShareDialog = false },
-                title = { Text("Share Privately 🛡️") },
+                title = { Text(stringResource(R.string.viewer_share_privately_title)) },
                 text = {
                     Column {
                         Text(
-                            text = "Choose metadata & privacy level before sending:",
+                            text = stringResource(R.string.share_choose_privacy),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(12.dp))
@@ -1201,8 +1202,8 @@ fun PhotoViewerScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Strip All Metadata 🛡️", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                                Text("Remove all GPS coordinates, timestamps, & camera serials", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.share_strip_all), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.share_strip_all_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
@@ -1219,8 +1220,8 @@ fun PhotoViewerScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Fuzz GPS Location (~2 km) 🌐", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                                Text("Obscure exact street with coarse ~2 km radius; keep city area", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.share_fuzz_gps), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.share_fuzz_gps_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
@@ -1237,8 +1238,8 @@ fun PhotoViewerScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Full Metadata 📷", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                                Text("Preserve original EXIF markers and exact GPS position", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.share_full_metadata), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.share_full_metadata_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
@@ -1269,13 +1270,13 @@ fun PhotoViewerScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = "Send via Imava Wi-Fi Drop ⚡",
+                                        text = stringResource(R.string.share_via_wifi_drop_title),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     Text(
-                                        text = "Direct high-speed P2P transfer to PC, Mac or phone (zero cloud)",
+                                        text = stringResource(R.string.share_via_wifi_drop_desc),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -1291,12 +1292,12 @@ fun PhotoViewerScreen(
                             viewModel.shareSingleMedia(context, item, sharePrivacyMode)
                         }
                     ) {
-                        Text("Share")
+                        Text(stringResource(R.string.action_share))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showShareDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1339,8 +1340,8 @@ fun PhotoViewerScreen(
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
             AlertDialog(
                 onDismissRequest = { showDeleteConfirmDialog = false },
-                title = { Text("Move to Trash?") },
-                text = { Text("Are you sure you want to move this photo to Trash?") },
+                title = { Text(stringResource(R.string.trash_items_confirm_title)) },
+                text = { Text(stringResource(R.string.viewer_trash_single_message)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -1360,12 +1361,12 @@ fun PhotoViewerScreen(
                             }
                         }
                     ) {
-                        Text("Move to Trash")
+                        Text(stringResource(R.string.move_to_trash))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1376,8 +1377,8 @@ fun PhotoViewerScreen(
             AlertDialog(
                 onDismissRequest = { showRestoreConfirmDialog = false },
                 icon = { Icon(Icons.Default.RestoreFromTrash, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                title = { Text("Restore from Trash?") },
-                text = { Text("Are you sure you want to restore this item from Trash back to your gallery?") },
+                title = { Text(stringResource(R.string.viewer_restore_single_title)) },
+                text = { Text(stringResource(R.string.viewer_restore_single_message)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -1398,12 +1399,12 @@ fun PhotoViewerScreen(
                             }
                         }
                     ) {
-                        Text("Restore")
+                        Text(stringResource(R.string.action_restore))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showRestoreConfirmDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1413,8 +1414,8 @@ fun PhotoViewerScreen(
             val item = mediaItems.getOrNull(pagerState.currentPage) ?: activeItem
             AlertDialog(
                 onDismissRequest = { showDeletePermanentlyConfirmDialog = false },
-                title = { Text("Delete Permanently?") },
-                text = { Text("Are you sure? This action is irreversible and will erase the file permanently from your device storage.") },
+                title = { Text(stringResource(R.string.delete_permanently_confirm_title)) },
+                text = { Text(stringResource(R.string.viewer_delete_single_message)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -1434,12 +1435,12 @@ fun PhotoViewerScreen(
                             }
                         }
                     ) {
-                        Text("Delete")
+                        Text(stringResource(R.string.action_delete))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeletePermanentlyConfirmDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1465,7 +1466,7 @@ fun PhotoViewerScreen(
                 },
                 title = {
                     Text(
-                        text = "Rename File",
+                        text = stringResource(R.string.rename_file),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -1520,8 +1521,8 @@ fun PhotoViewerScreen(
                         OutlinedTextField(
                             value = customRenameText,
                             onValueChange = { customRenameText = it },
-                            label = { Text("New File Name") },
-                            placeholder = { Text("Enter name") },
+                            label = { Text(stringResource(R.string.new_file_name)) },
+                            placeholder = { Text(stringResource(R.string.enter_name)) },
                             singleLine = true,
                             trailingIcon = {
                                 Row(
@@ -1535,7 +1536,7 @@ fun PhotoViewerScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Clear,
-                                                contentDescription = "Clear",
+                                                contentDescription = stringResource(R.string.viewer_clear_cd),
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
@@ -1561,7 +1562,7 @@ fun PhotoViewerScreen(
                             },
                             supportingText = {
                                 Text(
-                                    text = if (ext.isNotEmpty()) "Extension $ext will be preserved automatically" else "",
+                                    text = if (ext.isNotEmpty()) stringResource(R.string.extension_preserved_format, ext) else "",
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             },
@@ -1581,12 +1582,12 @@ fun PhotoViewerScreen(
                             }
                         }
                     ) {
-                        Text("Rename")
+                        Text(stringResource(R.string.action_rename))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showRenameDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1598,11 +1599,11 @@ fun PhotoViewerScreen(
             AlertDialog(
                 onDismissRequest = { showAlbumCoverChooserDialog = false },
                 icon = { Icon(Icons.Default.Album, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                title = { Text("Set as Album Cover") },
+                title = { Text(stringResource(R.string.viewer_set_album_cover_title)) },
                 text = {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "Select which album you want this photo to represent as its cover:",
+                            text = stringResource(R.string.viewer_set_album_cover_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1621,7 +1622,7 @@ fun PhotoViewerScreen(
                                             viewModel.setCustomAlbumCover(bucket.id, item.id)
                                             showAlbumCoverChooserDialog = false
                                             com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                            android.widget.Toast.makeText(context, "Cover updated for '${bucket.name}'", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, context.getString(R.string.viewer_cover_updated_fmt, bucket.name), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                 ) {
                                     Row(
@@ -1632,10 +1633,10 @@ fun PhotoViewerScreen(
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(bucket.name, style = MaterialTheme.typography.titleSmall)
-                                            Text("${bucket.count} items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            Text(stringResource(R.string.items_count_fmt, bucket.count), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                         if (isCurrent) {
-                                            Text("(Current Album)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                            Text(stringResource(R.string.viewer_current_album_badge), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                         }
                                     }
                                 }
@@ -1646,7 +1647,7 @@ fun PhotoViewerScreen(
                 confirmButton = {},
                 dismissButton = {
                     TextButton(onClick = { showAlbumCoverChooserDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1693,16 +1694,16 @@ fun PhotoViewerScreen(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 },
-                title = { Text("Hide in Private Vault") },
+                title = { Text(stringResource(R.string.vault_hide_dialog_title)) },
                 text = {
                     Column {
                         Text(
-                            text = "This item will be safely locked in your private vault so only you can see it.",
+                            text = stringResource(R.string.viewer_hide_single_message),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "Next, your phone will ask to remove the original from your main gallery. Please tap Allow on the next screen.",
+                            text = stringResource(R.string.viewer_hide_allow_next_single),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1736,12 +1737,12 @@ fun PhotoViewerScreen(
                             }
                         }
                     ) {
-                        Text("Continue")
+                        Text(stringResource(R.string.action_continue))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showVaultConfirmDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1752,9 +1753,9 @@ fun PhotoViewerScreen(
             AlertDialog(
                 onDismissRequest = { showVaultSetupRequiredDialog = false },
                 icon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                title = { Text("Vault Setup Required") },
+                title = { Text(stringResource(R.string.vault_setup_required_title)) },
                 text = {
-                    Text("Private Vault has not been set up yet. Please create your master password, PIN, or pattern first so this item can be securely encrypted.")
+                    Text(stringResource(R.string.viewer_vault_setup_single_message))
                 },
                 confirmButton = {
                     Button(
@@ -1763,12 +1764,12 @@ fun PhotoViewerScreen(
                             showVaultUnlockDialogForSetup = true
                         }
                     ) {
-                        Text("Set Up Vault")
+                        Text(stringResource(R.string.vault_setup_button))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showVaultSetupRequiredDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1785,7 +1786,7 @@ fun PhotoViewerScreen(
                     deletedMediaIds = deletedMediaIds + item.id
                     viewModel.activeMediaItem = nextItem
                     viewModel.toggleHidden(context, item, nextItem)
-                    android.widget.Toast.makeText(context, "Item safely protected in your new Vault!", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_item_protected_vault_toast), android.widget.Toast.LENGTH_SHORT).show()
                 }
             )
         }
@@ -1800,7 +1801,7 @@ fun PhotoViewerScreen(
                     .clickable { isSlideshowActive = false }
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text("Pause Slideshow ⏸️", color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.viewer_pause_slideshow), color = Color.White, style = MaterialTheme.typography.bodyMedium)
             }
         }
 
@@ -1815,7 +1816,7 @@ fun PhotoViewerScreen(
             AlertDialog(
                 onDismissRequest = { if (!isCompressing) showCompressDialog = false },
                 icon = { Icon(Icons.Default.Compress, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                title = { Text("Compress Image", style = MaterialTheme.typography.titleLarge) },
+                title = { Text(stringResource(R.string.viewer_compress_dialog_title), style = MaterialTheme.typography.titleLarge) },
                 text = {
                     Column(
                         modifier = Modifier
@@ -1843,7 +1844,7 @@ fun PhotoViewerScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
-                                        text = "Original Size: $originalFormatted",
+                                        text = stringResource(R.string.viewer_original_size_fmt, originalFormatted),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -1860,14 +1861,14 @@ fun PhotoViewerScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text("Target File Size (in KB):", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.viewer_target_file_size_kb), style = MaterialTheme.typography.bodyMedium)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         OutlinedTextField(
                             value = targetKbInput,
                             onValueChange = { targetKbInput = it.filter { c -> c.isDigit() } },
-                            label = { Text("Target KB") },
-                            placeholder = { Text("e.g. 100") },
+                            label = { Text(stringResource(R.string.viewer_target_kb_label)) },
+                            placeholder = { Text("100") },
                             singleLine = true,
                             enabled = !isCompressing,
                             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
@@ -1878,7 +1879,7 @@ fun PhotoViewerScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Text("Quick Presets:", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.viewer_quick_presets), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(6.dp))
 
                         val presets = listOf(25, 50, 100, 250, 500, 1000, 2000)
@@ -1890,7 +1891,7 @@ fun PhotoViewerScreen(
                         ) {
                             presets.forEach { presetKb ->
                                 val isSelected = targetKbInput == presetKb.toString()
-                                val label = if (presetKb >= 1000) "${presetKb / 1000} MB" else "$presetKb KB"
+                                val label = if (presetKb >= 1000) stringResource(R.string.unit_mb_fmt, presetKb / 1000) else stringResource(R.string.unit_kb_fmt, presetKb)
                                 FilterChip(
                                     selected = isSelected,
                                     onClick = { targetKbInput = presetKb.toString() },
@@ -1905,7 +1906,7 @@ fun PhotoViewerScreen(
                             val savedPercent = (((originalKb - targetKb).toDouble() / originalKb.toDouble()) * 100).toInt()
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Estimated space saved: ~$savedPercent%",
+                                text = stringResource(R.string.viewer_est_space_saved_fmt, savedPercent),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -1920,7 +1921,7 @@ fun PhotoViewerScreen(
                             ) {
                                 CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                                 Spacer(modifier = Modifier.width(12.dp))
-                                Text("Compressing image...", style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.viewer_compressing_image), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
@@ -1938,21 +1939,21 @@ fun PhotoViewerScreen(
                                 if (resultUri != null) {
                                     android.widget.Toast.makeText(
                                         context,
-                                        "Saved to Pictures/Compressed (${kb} KB target)",
+                                        context.getString(R.string.viewer_compressed_saved_fmt, kb),
                                         android.widget.Toast.LENGTH_SHORT
                                     ).show()
                                     viewModel.refreshAll()
                                 } else {
                                     android.widget.Toast.makeText(
                                         context,
-                                        "Failed to compress image",
+                                        context.getString(R.string.viewer_compress_failed_toast),
                                         android.widget.Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             }
                         }
                     ) {
-                        Text("Compress & Save")
+                        Text(stringResource(R.string.viewer_compress_save_btn))
                     }
                 },
                 dismissButton = {
@@ -1960,7 +1961,7 @@ fun PhotoViewerScreen(
                         enabled = !isCompressing,
                         onClick = { showCompressDialog = false }
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1980,7 +1981,7 @@ fun PhotoViewerScreen(
                         modifier = Modifier.size(32.dp)
                     )
                 },
-                title = { Text("Set Image As...") },
+                title = { Text(stringResource(R.string.viewer_set_image_as_title)) },
                 text = {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TextButton(
@@ -1993,7 +1994,7 @@ fun PhotoViewerScreen(
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                 Icon(Icons.Default.Wallpaper, contentDescription = null)
                                 Spacer(modifier = Modifier.width(12.dp))
-                                Text("Wallpaper (Lock / Home Screen)")
+                                Text(stringResource(R.string.viewer_wallpaper_option))
                             }
                         }
 
@@ -2009,7 +2010,7 @@ fun PhotoViewerScreen(
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                 Icon(Icons.Default.Photo, contentDescription = null)
                                 Spacer(modifier = Modifier.width(12.dp))
-                                Text("Contact Photo / Profile")
+                                Text(stringResource(R.string.viewer_contact_photo_option))
                             }
                         }
                     }
@@ -2017,7 +2018,7 @@ fun PhotoViewerScreen(
                 confirmButton = {},
                 dismissButton = {
                     TextButton(onClick = { showSetAsDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -2032,14 +2033,25 @@ fun PhotoViewerScreen(
             var zoomScale by remember { mutableFloatStateOf(1f) }
             var panOffset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
 
-            val currentTimeStr = remember {
-                java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+            val previewConfig = LocalConfiguration.current
+            val previewLocale = remember(previewConfig) {
+                androidx.core.os.ConfigurationCompat.getLocales(previewConfig).get(0) ?: java.util.Locale.getDefault()
             }
-            val currentDateStr = remember {
-                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("EEEE, MMMM d"))
+            val is24Hour = android.text.format.DateFormat.is24HourFormat(LocalContext.current)
+            val currentTimeStr = remember(previewLocale, is24Hour) {
+                val pattern = android.text.format.DateFormat.getBestDateTimePattern(
+                    previewLocale,
+                    if (is24Hour) "Hm" else "hm"
+                )
+                java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern(pattern, previewLocale))
             }
-            val currentShortDateStr = remember {
-                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("EEE, MMM d"))
+            val currentDateStr = remember(previewLocale) {
+                val pattern = android.text.format.DateFormat.getBestDateTimePattern(previewLocale, "EEEEMMMMd")
+                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern(pattern, previewLocale))
+            }
+            val currentShortDateStr = remember(previewLocale) {
+                val pattern = android.text.format.DateFormat.getBestDateTimePattern(previewLocale, "EEEMMMd")
+                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern(pattern, previewLocale))
             }
 
             androidx.compose.ui.window.Dialog(
@@ -2194,9 +2206,9 @@ fun PhotoViewerScreen(
                                         verticalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
                                         val mockApps = listOf(
-                                            listOf("📞" to "Phone", "💬" to "Messages", "🌐" to "Chrome", "📷" to "Camera"),
-                                            listOf("🖼️" to "Photos", "⚙️" to "Settings", "🎵" to "Music", "📁" to "Files"),
-                                            listOf("⏰" to "Clock", "🗺️" to "Maps", "📝" to "Notes", "🛍️" to "Store")
+                                            listOf("📞" to stringResource(R.string.viewer_mock_phone), "💬" to stringResource(R.string.viewer_mock_messages), "🌐" to "Chrome", "📷" to stringResource(R.string.viewer_mock_camera)),
+                                            listOf("🖼️" to stringResource(R.string.nav_photos), "⚙️" to stringResource(R.string.nav_settings), "🎵" to stringResource(R.string.viewer_mock_music), "📁" to stringResource(R.string.viewer_mock_files)),
+                                            listOf("⏰" to stringResource(R.string.viewer_mock_clock), "🗺️" to stringResource(R.string.viewer_mock_maps), "📝" to stringResource(R.string.viewer_mock_notes), "🛍️" to stringResource(R.string.viewer_mock_store))
                                         )
                                         mockApps.forEach { rowApps ->
                                             Row(
@@ -2246,7 +2258,7 @@ fun PhotoViewerScreen(
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Text("G", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 18.sp)
                                                 Spacer(modifier = Modifier.width(8.dp))
-                                                Text("Search...", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)
+                                                Text(stringResource(R.string.viewer_mock_search), color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)
                                             }
                                             Text("🎤  📷", fontSize = 14.sp)
                                         }
@@ -2297,7 +2309,7 @@ fun PhotoViewerScreen(
                                 .clip(CircleShape)
                                 .background(Color.Black.copy(alpha = 0.5f))
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close), tint = Color.White)
                         }
 
                         IconButton(
@@ -2311,7 +2323,7 @@ fun PhotoViewerScreen(
                                 .clip(CircleShape)
                                 .background(Color.Black.copy(alpha = 0.5f))
                         ) {
-                            Icon(Icons.Default.Tune, contentDescription = "System Wallpaper Settings", tint = Color.White)
+                            Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.viewer_wallpaper_settings_cd), tint = Color.White)
                         }
                     }
 
@@ -2349,7 +2361,7 @@ fun PhotoViewerScreen(
                                     },
                                     label = {
                                         Text(
-                                            if (lockHorizontalAxis) "Horizontal Locked 🔒" else "Free Pan 🖐️",
+                                            if (lockHorizontalAxis) stringResource(R.string.viewer_wallpaper_h_locked) else stringResource(R.string.viewer_wallpaper_free_pan),
                                             style = MaterialTheme.typography.labelSmall
                                         )
                                     },
@@ -2370,9 +2382,9 @@ fun PhotoViewerScreen(
                                     label = {
                                         Text(
                                             when (previewMode) {
-                                                0 -> "Preview: Lock 🔒"
-                                                1 -> "Preview: Home 🏠"
-                                                else -> "Preview: Clean 🖼️"
+                                                0 -> stringResource(R.string.viewer_wallpaper_preview_lock)
+                                                1 -> stringResource(R.string.viewer_wallpaper_preview_home)
+                                                else -> stringResource(R.string.viewer_wallpaper_preview_clean)
                                             },
                                             style = MaterialTheme.typography.labelSmall
                                         )
@@ -2420,9 +2432,9 @@ fun PhotoViewerScreen(
                                                 showWallpaperDialog = false
                                                 if (success) {
                                                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                                    android.widget.Toast.makeText(context, "Home wallpaper applied! 🏠", android.widget.Toast.LENGTH_SHORT).show()
+                                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_wallpaper_home_applied), android.widget.Toast.LENGTH_SHORT).show()
                                                 } else {
-                                                    android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_wallpaper_apply_failed), android.widget.Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         },
@@ -2431,7 +2443,7 @@ fun PhotoViewerScreen(
                                         shape = RoundedCornerShape(10.dp)
                                     ) {
                                         Text(
-                                            "Home 🏠",
+                                            stringResource(R.string.viewer_wallpaper_home_btn),
                                             style = MaterialTheme.typography.labelMedium,
                                             maxLines = 2,
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -2457,9 +2469,9 @@ fun PhotoViewerScreen(
                                                 showWallpaperDialog = false
                                                 if (success) {
                                                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                                    android.widget.Toast.makeText(context, "Lock wallpaper applied! 🔒", android.widget.Toast.LENGTH_SHORT).show()
+                                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_wallpaper_lock_applied), android.widget.Toast.LENGTH_SHORT).show()
                                                 } else {
-                                                    android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_wallpaper_apply_failed), android.widget.Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         },
@@ -2468,7 +2480,7 @@ fun PhotoViewerScreen(
                                         shape = RoundedCornerShape(10.dp)
                                     ) {
                                         Text(
-                                            "Lock 🔒",
+                                            stringResource(R.string.viewer_wallpaper_lock_btn),
                                             style = MaterialTheme.typography.labelMedium,
                                             maxLines = 2,
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -2494,9 +2506,9 @@ fun PhotoViewerScreen(
                                                 showWallpaperDialog = false
                                                 if (success) {
                                                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                                                    android.widget.Toast.makeText(context, "Both wallpapers applied! 📱", android.widget.Toast.LENGTH_SHORT).show()
+                                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_wallpaper_both_applied), android.widget.Toast.LENGTH_SHORT).show()
                                                 } else {
-                                                    android.widget.Toast.makeText(context, "Failed to apply wallpaper", android.widget.Toast.LENGTH_SHORT).show()
+                                                    android.widget.Toast.makeText(context, context.getString(R.string.viewer_wallpaper_apply_failed), android.widget.Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         },
@@ -2505,7 +2517,7 @@ fun PhotoViewerScreen(
                                         shape = RoundedCornerShape(10.dp)
                                     ) {
                                         Text(
-                                            "Both 📱",
+                                            stringResource(R.string.viewer_wallpaper_both_btn),
                                             style = MaterialTheme.typography.labelMedium,
                                             maxLines = 2,
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,

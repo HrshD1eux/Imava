@@ -206,4 +206,58 @@ class StringLocalizationVerificationTest {
             }
         }
     }
+
+    private fun parseStringEntries(file: File): Map<String, String> {
+        val entries = linkedMapOf<String, String>()
+        val factory = DocumentBuilderFactory.newInstance()
+        val builder = factory.newDocumentBuilder()
+        val doc = builder.parse(file)
+        val stringNodes = doc.getElementsByTagName("string")
+        for (i in 0 until stringNodes.length) {
+            val node = stringNodes.item(i)
+            val nameAttr = node.attributes.getNamedItem("name")?.nodeValue
+            if (!nameAttr.isNullOrBlank()) {
+                entries[nameAttr] = node.textContent.orEmpty()
+            }
+        }
+        return entries
+    }
+
+    private fun countPlaceholders(text: String): Map<String, Int> {
+        val regex = Regex("""%(?:\d+\$)?[-+# 0,(]*(?:\d+)?(?:\.\d+)?[sdfcboxXeEgGaAtT%]""")
+        return regex.findAll(text)
+            .map { it.value }
+            .filter { it != "%%" }
+            .groupingBy { it }
+            .eachCount()
+    }
+
+    @Test
+    fun testAllStringKeysExistAndMatchPlaceholdersAcrossAllLocales() {
+        val resDir = getResDir()
+        val baseEntries = parseStringEntries(File(resDir, "values/strings.xml"))
+        assertTrue("Expected base strings.xml to be populated", baseEntries.isNotEmpty())
+
+        for ((key, value) in baseEntries) {
+            assertTrue("Base key '$key' must not be blank", value.isNotBlank())
+        }
+
+        for (folder in expectedLocaleFolders.drop(1)) {
+            val localeEntries = parseStringEntries(File(resDir, "$folder/strings.xml"))
+            val missing = baseEntries.keys - localeEntries.keys
+            val extra = localeEntries.keys - baseEntries.keys
+            assertTrue("Missing keys in $folder/strings.xml: $missing", missing.isEmpty())
+            assertTrue("Unexpected extra keys in $folder/strings.xml: $extra", extra.isEmpty())
+
+            for ((key, baseValue) in baseEntries) {
+                val locValue = localeEntries.getValue(key)
+                assertTrue("Blank translation for '$key' in $folder/strings.xml", locValue.isNotBlank())
+                assertEquals(
+                    "Format placeholder mismatch for '$key' in $folder/strings.xml",
+                    countPlaceholders(baseValue),
+                    countPlaceholders(locValue)
+                )
+            }
+        }
+    }
 }

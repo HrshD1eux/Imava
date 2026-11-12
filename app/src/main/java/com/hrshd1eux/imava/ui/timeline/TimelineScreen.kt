@@ -111,15 +111,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 import com.hrshd1eux.imava.data.model.formattedDuration
 import com.hrshd1eux.imava.data.model.isVideo
 import com.hrshd1eux.imava.data.model.TimelineItem
 import com.hrshd1eux.imava.ui.MainViewModel
-import androidx.compose.ui.res.stringResource
-import com.hrshd1eux.imava.R
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
@@ -387,13 +387,13 @@ fun TimelineScreen(
                                     )
                                     Spacer(modifier = Modifier.height(14.dp))
                                     Text(
-                                        text = "Trash is Locked 🔒",
+                                        text = stringResource(R.string.timeline_trash_locked_title),
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
-                                        text = "Biometric authentication required to inspect deleted media",
+                                        text = stringResource(R.string.timeline_trash_locked_desc),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -403,8 +403,8 @@ fun TimelineScreen(
                                         onClick = {
                                             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                                 activity = context,
-                                                title = "Unlock Trash",
-                                                subtitle = "Verify identity to view deleted photos",
+                                                title = context.getString(R.string.timeline_unlock_trash_btn),
+                                                subtitle = context.getString(R.string.timeline_unlock_trash_bio_sub),
                                                 onSuccess = {
                                                     com.hrshd1eux.imava.core.util.AppLockManager.markTrashUnlockedForSession()
                                                     com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
@@ -418,16 +418,16 @@ fun TimelineScreen(
                                     ) {
                                         Icon(Icons.Default.Fingerprint, contentDescription = null, modifier = Modifier.size(18.dp))
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Unlock Trash")
+                                        Text(stringResource(R.string.timeline_unlock_trash_btn))
                                     }
                                 }
                             } else {
                                 val emptyMessage = when (viewModel.currentCategoryName) {
-                                    "Favorites" -> "No favorite items yet"
-                                    "Videos" -> "No videos found on device"
-                                    "Trash" -> "Trash is empty"
-                                    "Hidden Vault" -> "Vault is empty"
-                                    else -> if (currentFilter != MediaFilterType.ALL || selectedCustomTag != null) "No media matches the selected filter" else "No media found on device"
+                                    "Favorites" -> stringResource(R.string.favorites_empty)
+                                    "Videos" -> stringResource(R.string.timeline_videos_empty)
+                                    "Trash" -> stringResource(R.string.trash_empty)
+                                    "Hidden Vault" -> stringResource(R.string.timeline_vault_empty)
+                                    else -> if (currentFilter != MediaFilterType.ALL || selectedCustomTag != null) stringResource(R.string.timeline_filter_empty) else stringResource(R.string.no_media_found)
                                 }
                                 Text(
                                     text = emptyMessage,
@@ -695,6 +695,18 @@ private val DEFAULT_TIMELINE_FILTER_CHIPS = listOf(
 )
 
 @Composable
+private fun TimelineFilterChipModel.localizedLabel(): String = when (id) {
+    "ALL" -> stringResource(R.string.timeline_chip_all)
+    "PHOTOS" -> stringResource(R.string.filter_media_photos)
+    "VIDEOS" -> stringResource(R.string.category_videos)
+    "SCREENSHOTS" -> stringResource(R.string.smart_album_screenshots)
+    "FAVORITES" -> stringResource(R.string.category_favorites)
+    "GIFS" -> stringResource(R.string.filter_media_gifs)
+    "RAW" -> "RAW"
+    else -> label
+}
+
+@Composable
 fun TimelineFilterChips(
     selectedFilter: MediaFilterType,
     selectedCustomTag: String?,
@@ -802,7 +814,7 @@ fun TimelineFilterChips(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Manage Filters & Tags")
+                    Text(stringResource(R.string.timeline_manage_filters_title))
                 }
             },
             text = {
@@ -812,7 +824,7 @@ fun TimelineFilterChips(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "Long-press and drag any item to reorder it. Tap Delete to hide any filter (including RAW, GIFs, and defaults), or tap '+ Add Tag' to add custom tag filters.",
+                        text = stringResource(R.string.timeline_manage_filters_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -820,7 +832,7 @@ fun TimelineFilterChips(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Horizontal Preview:",
+                        text = stringResource(R.string.timeline_horizontal_preview),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold
@@ -843,7 +855,7 @@ fun TimelineFilterChips(
                                 color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.85f)
                             ) {
                                 Text(
-                                    text = "${idx + 1}. ${chip.label}",
+                                    text = "${idx + 1}. ${chip.localizedLabel()}",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
@@ -860,7 +872,7 @@ fun TimelineFilterChips(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Active Filters (${workingActive.size})",
+                            text = stringResource(R.string.timeline_active_filters_fmt, workingActive.size),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -880,7 +892,7 @@ fun TimelineFilterChips(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = if (isAddingTag) "Close" else "Add Tag",
+                                text = if (isAddingTag) stringResource(R.string.action_close) else stringResource(R.string.timeline_add_tag),
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
@@ -895,7 +907,7 @@ fun TimelineFilterChips(
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
-                                    text = "Add Tag Filter",
+                                    text = stringResource(R.string.timeline_add_tag_filter),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary
@@ -904,7 +916,7 @@ fun TimelineFilterChips(
                                 OutlinedTextField(
                                     value = newTagInput,
                                     onValueChange = { newTagInput = it },
-                                    placeholder = { Text("e.g. Vacation, Receipts, Work") },
+                                    placeholder = { Text(stringResource(R.string.timeline_tag_hint)) },
                                     singleLine = true,
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -915,7 +927,7 @@ fun TimelineFilterChips(
                                 if (availableSuggestions.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Suggestions from media:",
+                                        text = stringResource(R.string.timeline_tag_suggestions),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -960,7 +972,7 @@ fun TimelineFilterChips(
                                         isAddingTag = false
                                         newTagInput = ""
                                     }) {
-                                        Text("Cancel")
+                                        Text(stringResource(R.string.action_cancel))
                                     }
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Button(
@@ -989,7 +1001,7 @@ fun TimelineFilterChips(
                                         },
                                         enabled = newTagInput.trim().removePrefix("#").isNotBlank()
                                     ) {
-                                        Text("Add")
+                                        Text(stringResource(R.string.timeline_add_btn))
                                     }
                                 }
                             }
@@ -1071,7 +1083,7 @@ fun TimelineFilterChips(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.DragHandle,
-                                        contentDescription = "Long press and drag to reorder",
+                                        contentDescription = stringResource(R.string.timeline_drag_reorder_cd),
                                         tint = if (isDragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -1101,7 +1113,7 @@ fun TimelineFilterChips(
                                         Spacer(modifier = Modifier.width(4.dp))
                                     }
                                     Text(
-                                        text = chip.label,
+                                        text = chip.localizedLabel(),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.SemiBold
                                     )
@@ -1118,7 +1130,7 @@ fun TimelineFilterChips(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Edit,
-                                                contentDescription = "Edit tag",
+                                                contentDescription = stringResource(R.string.timeline_edit_tag_cd),
                                                 tint = MaterialTheme.colorScheme.primary,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -1145,7 +1157,7 @@ fun TimelineFilterChips(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Hide or Delete filter",
+                                            contentDescription = stringResource(R.string.timeline_hide_filter_cd),
                                             tint = if (workingActive.size > 1) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -1158,13 +1170,13 @@ fun TimelineFilterChips(
                     if (workingHidden.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Hidden / Deleted Filters (${workingHidden.size})",
+                            text = stringResource(R.string.timeline_hidden_filters_fmt, workingHidden.size),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error
                         )
                         Text(
-                            text = "Tap any filter or '+' to restore it to the timeline:",
+                            text = stringResource(R.string.timeline_hidden_filters_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1189,12 +1201,12 @@ fun TimelineFilterChips(
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = "Restore",
+                                            contentDescription = stringResource(R.string.action_restore),
                                             modifier = Modifier.size(14.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     },
-                                    label = { Text(hiddenChip.label, style = MaterialTheme.typography.labelSmall) }
+                                    label = { Text(hiddenChip.localizedLabel(), style = MaterialTheme.typography.labelSmall) }
                                 )
                             }
                         }
@@ -1225,7 +1237,7 @@ fun TimelineFilterChips(
                         com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
                     }
                 ) {
-                    Text("Save & Apply")
+                    Text(stringResource(R.string.timeline_save_apply))
                 }
             },
             dismissButton = {
@@ -1240,11 +1252,11 @@ fun TimelineFilterChips(
                             com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
                         }
                     ) {
-                        Text("Reset Defaults")
+                        Text(stringResource(R.string.timeline_reset_defaults))
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     TextButton(onClick = { showManageDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             }
@@ -1264,13 +1276,13 @@ fun TimelineFilterChips(
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Edit Tag")
+                        Text(stringResource(R.string.timeline_edit_tag_title))
                     }
                 },
                 text = {
                     Column {
                         Text(
-                            text = "Rename tag '${chipToEdit.label}':",
+                            text = stringResource(R.string.timeline_rename_tag_prompt_fmt, chipToEdit.localizedLabel()),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1278,7 +1290,7 @@ fun TimelineFilterChips(
                         OutlinedTextField(
                             value = editTagInput,
                             onValueChange = { editTagInput = it },
-                            placeholder = { Text("Tag name") },
+                            placeholder = { Text(stringResource(R.string.timeline_tag_name_label)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -1310,12 +1322,12 @@ fun TimelineFilterChips(
                         },
                         enabled = editTagInput.trim().removePrefix("#").isNotBlank()
                     ) {
-                        Text("Save")
+                        Text(stringResource(R.string.action_save))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { editingChip = null }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -1397,7 +1409,7 @@ fun TimelineFilterChips(
                 } else null,
                 label = {
                     Text(
-                        text = chip.label,
+                        text = chip.localizedLabel(),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                     )
@@ -1411,7 +1423,7 @@ fun TimelineFilterChips(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Clear tag filter",
+                                contentDescription = stringResource(R.string.timeline_clear_tag_cd),
                                 modifier = Modifier.size(14.dp)
                             )
                         }
@@ -1439,7 +1451,7 @@ fun TimelineFilterChips(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 },
-                label = { Text("Manage", style = MaterialTheme.typography.labelMedium) }
+                label = { Text(stringResource(R.string.timeline_manage_chip), style = MaterialTheme.typography.labelMedium) }
             )
         }
     }
@@ -1472,13 +1484,13 @@ fun TimelineHeader(
             ) {
                 Icon(
                     imageVector = if (isAllSelected) Icons.Default.CheckCircle else Icons.Outlined.CheckCircle,
-                    contentDescription = if (isAllSelected) "Deselect date" else "Select date",
+                    contentDescription = if (isAllSelected) stringResource(R.string.timeline_deselect_date_cd) else stringResource(R.string.timeline_select_date_cd),
                     tint = if (isAllSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = if (isAllSelected) "Deselect" else "Select",
+                    text = if (isAllSelected) stringResource(R.string.timeline_deselect_btn) else stringResource(R.string.action_select),
                     style = MaterialTheme.typography.labelMedium,
                     color = if (isAllSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1577,7 +1589,7 @@ fun MediaGridCell(
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "${daysRemaining}d left",
+                    text = stringResource(R.string.timeline_days_left_fmt, daysRemaining),
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White
                 )

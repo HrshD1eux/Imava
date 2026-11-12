@@ -51,11 +51,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.VaultCrypto
 
@@ -89,7 +91,7 @@ fun VaultSetupScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Set Up Private Vault",
+                        text = stringResource(R.string.vault_setup_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -98,7 +100,7 @@ fun VaultSetupScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
@@ -130,7 +132,7 @@ fun VaultSetupScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,
-                        contentDescription = "Warning",
+                        contentDescription = stringResource(R.string.warning_cd),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier
                             .size(28.dp)
@@ -141,7 +143,7 @@ fun VaultSetupScreen(
 
                     Column {
                         Text(
-                            text = "Zero-Knowledge Encryption Warning",
+                            text = stringResource(R.string.vault_warning_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error
@@ -150,7 +152,7 @@ fun VaultSetupScreen(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = "Private Vault is completely local-first with zero tracking. There is NO password reset, NO backdoor, and NO cloud recovery. If you forget this password, all files inside the vault are permanently lost.",
+                            text = stringResource(R.string.vault_warning_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -168,7 +170,7 @@ fun VaultSetupScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Choose Protection Type",
+                        text = stringResource(R.string.vault_choose_protection),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -199,12 +201,12 @@ fun VaultSetupScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = "Alphanumeric Master Password (Recommended)",
+                                text = stringResource(R.string.vault_type_password_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = "Set a master password to encrypt your private files with AES-256 (supports letters, numbers, and symbols).",
+                                text = stringResource(R.string.vault_type_password_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -238,12 +240,12 @@ fun VaultSetupScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = "Numeric PIN",
+                                text = stringResource(R.string.vault_type_pin_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = "4 to 8 digit quick unlock PIN.",
+                                text = stringResource(R.string.vault_type_pin_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -279,12 +281,12 @@ fun VaultSetupScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = "Pattern Lock",
+                                text = stringResource(R.string.vault_type_pattern_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = "Connect at least 4 dots on a 3x3 grid.",
+                                text = stringResource(R.string.vault_type_pattern_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -305,7 +307,7 @@ fun VaultSetupScreen(
                     if (lockType == "PASSWORD" || lockType == "PIN") {
                         val isPin = lockType == "PIN"
                         Text(
-                            text = if (isPin) "Set Numeric PIN" else "Set Master Password",
+                            text = if (isPin) stringResource(R.string.vault_set_pin_header) else stringResource(R.string.vault_set_password_header),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -324,7 +326,7 @@ fun VaultSetupScreen(
                                     errorMessage = null
                                 }
                             },
-                            label = { Text(if (isPin) "Enter PIN (4-8 digits)" else "Master Password (min 4 chars)") },
+                            label = { Text(if (isPin) stringResource(R.string.vault_enter_pin_label) else stringResource(R.string.vault_enter_password_label)) },
                             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = if (isPin) KeyboardType.NumberPassword else KeyboardType.Password
@@ -333,7 +335,7 @@ fun VaultSetupScreen(
                                 IconButton(onClick = { showPassword = !showPassword }) {
                                     Icon(
                                         imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                        contentDescription = if (showPassword) "Hide password" else "Show password"
+                                        contentDescription = if (showPassword) stringResource(R.string.action_hide_password) else stringResource(R.string.action_show_password)
                                     )
                                 }
                             },
@@ -356,7 +358,7 @@ fun VaultSetupScreen(
                                     errorMessage = null
                                 }
                             },
-                            label = { Text(if (isPin) "Confirm PIN" else "Confirm Master Password") },
+                            label = { Text(if (isPin) stringResource(R.string.vault_confirm_pin_label) else stringResource(R.string.vault_confirm_password_label)) },
                             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = if (isPin) KeyboardType.NumberPassword else KeyboardType.Password
@@ -367,7 +369,7 @@ fun VaultSetupScreen(
                     } else {
                         // Pattern mode
                         Text(
-                            text = if (patternSetupStep == 1) "Draw your unlock pattern (min 4 dots)" else "Draw pattern again to confirm",
+                            text = if (patternSetupStep == 1) stringResource(R.string.vault_draw_pattern_prompt) else stringResource(R.string.vault_confirm_pattern_prompt),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -381,7 +383,7 @@ fun VaultSetupScreen(
                                 modifier = Modifier.size(260.dp),
                                 onPatternComplete = { patternStr ->
                                     if (patternStr.split("-").size < 4) {
-                                        errorMessage = "Connect at least 4 dots"
+                                        errorMessage = context.getString(R.string.vault_err_pattern_min)
                                     } else if (patternSetupStep == 1) {
                                         firstPattern = patternStr
                                         patternSetupStep = 2
@@ -393,7 +395,7 @@ fun VaultSetupScreen(
                                             errorMessage = null
                                             HapticUtil.performSuccess(context)
                                         } else {
-                                            errorMessage = "Patterns did not match. Try again."
+                                            errorMessage = context.getString(R.string.vault_err_pattern_mismatch)
                                             patternSetupStep = 1
                                             firstPattern = ""
                                         }
@@ -404,7 +406,7 @@ fun VaultSetupScreen(
                             if (patternSetupStep == 2 && patternInput.isNotBlank()) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "✓ Pattern confirmed",
+                                    text = stringResource(R.string.vault_pattern_confirmed),
                                     color = MaterialTheme.colorScheme.primary,
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold
@@ -434,7 +436,7 @@ fun VaultSetupScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Access & Stealth Settings",
+                        text = stringResource(R.string.vault_access_stealth_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -446,12 +448,12 @@ fun VaultSetupScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Biometric Quick Unlock",
+                                text = stringResource(R.string.vault_biometric_quick_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "Use fingerprint or face recognition for fast unlock without entering password every time",
+                                text = stringResource(R.string.vault_biometric_quick_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -470,12 +472,12 @@ fun VaultSetupScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Stealth Mode",
+                                text = stringResource(R.string.vault_stealth_mode_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "Completely hide Hidden Vault from Albums screen. Access only by typing secret code in search.",
+                                text = stringResource(R.string.vault_stealth_mode_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -491,8 +493,8 @@ fun VaultSetupScreen(
                         OutlinedTextField(
                             value = secretTrigger,
                             onValueChange = { secretTrigger = it },
-                            label = { Text("Search Secret Trigger") },
-                            placeholder = { Text("e.g. #vault") },
+                            label = { Text(stringResource(R.string.vault_search_trigger_label)) },
+                            placeholder = { Text(stringResource(R.string.vault_search_trigger_hint)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -508,19 +510,19 @@ fun VaultSetupScreen(
                     val codeToSave = if (lockType == "PATTERN") patternInput else passwordInput.trim()
 
                     if (lockType == "PIN" && (codeToSave.length < 4 || codeToSave.length > 8)) {
-                        errorMessage = "PIN must be between 4 and 8 digits"
+                        errorMessage = context.getString(R.string.vault_err_pin_length)
                         return@Button
                     }
                     if (lockType == "PASSWORD" && codeToSave.length < 4) {
-                        errorMessage = "Password must be at least 4 characters"
+                        errorMessage = context.getString(R.string.vault_err_password_length)
                         return@Button
                     }
                     if ((lockType == "PIN" || lockType == "PASSWORD") && passwordInput != confirmPasswordInput) {
-                        errorMessage = "Passwords do not match"
+                        errorMessage = context.getString(R.string.vault_err_passwords_mismatch)
                         return@Button
                     }
                     if (lockType == "PATTERN" && patternInput.isBlank()) {
-                        errorMessage = "Please draw and confirm a pattern"
+                        errorMessage = context.getString(R.string.vault_err_pattern_required)
                         return@Button
                     }
 
@@ -543,7 +545,7 @@ fun VaultSetupScreen(
                         .apply()
 
                     HapticUtil.performSuccess(context)
-                    android.widget.Toast.makeText(context, "Private Vault secured with AES-256", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(context, context.getString(R.string.vault_secured_toast), android.widget.Toast.LENGTH_SHORT).show()
                     onSetupComplete()
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -553,7 +555,7 @@ fun VaultSetupScreen(
             ) {
                 Icon(Icons.Default.Security, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Create & Secure Vault", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.vault_create_secure_btn), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(24.dp))

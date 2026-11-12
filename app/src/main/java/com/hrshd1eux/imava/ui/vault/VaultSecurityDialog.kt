@@ -55,8 +55,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.VaultCrypto
 import com.hrshd1eux.imava.ui.MainViewModel
 import kotlinx.coroutines.launch
@@ -115,7 +117,7 @@ fun VaultSecurityDialog(
     AlertDialog(
         onDismissRequest = { if (!isProcessingDelete) onDismiss() },
         title = {
-            Text(text = "Vault Security Settings", style = MaterialTheme.typography.titleLarge)
+            Text(text = stringResource(R.string.vault_security_settings), style = MaterialTheme.typography.titleLarge)
         },
         text = {
             Column(
@@ -134,7 +136,7 @@ fun VaultSecurityDialog(
                             Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
-                                text = "Device Root Detected: Superuser apps on this phone could bypass security protections.",
+                                text = stringResource(R.string.vault_dlg_root_warning),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer
                             )
@@ -143,7 +145,7 @@ fun VaultSecurityDialog(
                 }
 
                 Text(
-                    text = "Protection Type",
+                    text = stringResource(R.string.vault_dlg_protection_type),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -168,7 +170,7 @@ fun VaultSecurityDialog(
                         }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Numeric PIN", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = stringResource(R.string.vault_dlg_numeric_pin), style = MaterialTheme.typography.bodyMedium)
                 }
 
                 Row(
@@ -190,7 +192,7 @@ fun VaultSecurityDialog(
                         }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Pattern Lock (3x3 Gesture)", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = stringResource(R.string.vault_dlg_pattern_3x3), style = MaterialTheme.typography.bodyMedium)
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -213,11 +215,11 @@ fun VaultSecurityDialog(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = if (lockType == "PATTERN") "Set / Change Pattern" else "Change Vault PIN",
+                            text = if (lockType == "PATTERN") stringResource(R.string.vault_dlg_set_change_pattern) else stringResource(R.string.vault_dlg_change_pin),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Set or change lock code",
+                            text = stringResource(R.string.vault_dlg_set_change_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -236,9 +238,9 @@ fun VaultSecurityDialog(
                     Icon(imageVector = Icons.Default.Fingerprint, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "Biometric Unlock", style = MaterialTheme.typography.titleMedium)
+                        Text(text = stringResource(R.string.vault_dlg_biometric_title), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            text = "Fingerprint or face unlock",
+                            text = stringResource(R.string.vault_dlg_biometric_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -250,8 +252,8 @@ fun VaultSecurityDialog(
                             if (enabled && activity != null) {
                                 com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                     activity = activity,
-                                    title = "Confirm Biometric",
-                                    subtitle = "Authenticate fingerprint to enable",
+                                    title = context.getString(R.string.vault_dlg_confirm_bio),
+                                    subtitle = context.getString(R.string.vault_dlg_auth_fingerprint_enable),
                                     onSuccess = {
                                         isBiometricEnabled = true
                                         prefs.edit().putBoolean("vault_biometric_enabled", true).apply()
@@ -284,13 +286,13 @@ fun VaultSecurityDialog(
                     Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "Auto-Lock Timeout", style = MaterialTheme.typography.titleMedium)
+                        Text(text = stringResource(R.string.vault_dlg_autolock_title), style = MaterialTheme.typography.titleMedium)
                         val timeoutLabel = when (autoLockTimeout) {
-                            0L -> "Immediately on background"
-                            30000L -> "30 seconds"
-                            60000L -> "1 minute"
-                            300000L -> "5 minutes"
-                            else -> "Never"
+                            0L -> stringResource(R.string.vault_timeout_immediate)
+                            30000L -> stringResource(R.string.vault_timeout_30s)
+                            60000L -> stringResource(R.string.vault_timeout_1m)
+                            300000L -> stringResource(R.string.vault_timeout_5m)
+                            else -> stringResource(R.string.vault_timeout_never)
                         }
                         Text(
                             text = timeoutLabel,
@@ -303,15 +305,15 @@ fun VaultSecurityDialog(
                 if (showTimeoutDialog) {
                     AlertDialog(
                         onDismissRequest = { showTimeoutDialog = false },
-                        title = { Text("Auto-Lock Timeout") },
+                        title = { Text(stringResource(R.string.vault_dlg_autolock_title)) },
                         text = {
                             Column {
                                 val options = listOf(
-                                    0L to "Immediately on background",
-                                    30000L to "30 seconds",
-                                    60000L to "1 minute",
-                                    300000L to "5 minutes",
-                                    -1L to "Never"
+                                    0L to stringResource(R.string.vault_timeout_immediate),
+                                    30000L to stringResource(R.string.vault_timeout_30s),
+                                    60000L to stringResource(R.string.vault_timeout_1m),
+                                    300000L to stringResource(R.string.vault_timeout_5m),
+                                    -1L to stringResource(R.string.vault_timeout_never)
                                 )
                                 options.forEach { (timeMs, label) ->
                                     Row(
@@ -341,7 +343,7 @@ fun VaultSecurityDialog(
                         },
                         confirmButton = {
                             TextButton(onClick = { showTimeoutDialog = false }) {
-                                Text("Close")
+                                Text(stringResource(R.string.action_close))
                             }
                         }
                     )
@@ -359,9 +361,9 @@ fun VaultSecurityDialog(
                     Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "Stealth Vault Mode", style = MaterialTheme.typography.titleMedium)
+                        Text(text = stringResource(R.string.vault_stealth_mode_title), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            text = "Hide Vault from Albums. Access via search phrase.",
+                            text = stringResource(R.string.vault_dlg_stealth_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -384,7 +386,7 @@ fun VaultSecurityDialog(
                             secretTrigger = it
                             prefs.edit().putString("vault_secret_trigger", it.trim()).apply()
                         },
-                        label = { Text("Secret Search Phrase") },
+                        label = { Text(stringResource(R.string.vault_dlg_secret_search_phrase)) },
                         placeholder = { Text("#vault") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -409,11 +411,11 @@ fun VaultSecurityDialog(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Configure Decoy PIN 🎭",
+                            text = stringResource(R.string.vault_dlg_decoy_title),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = if (hasDecoyPin) "Decoy PIN active (opens empty fake vault)" else "Set a decoy PIN for plausible deniability",
+                            text = if (hasDecoyPin) stringResource(R.string.vault_dlg_decoy_active_desc) else stringResource(R.string.vault_dlg_decoy_unset_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -441,11 +443,11 @@ fun VaultSecurityDialog(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Export Encrypted Backup 💾",
+                            text = stringResource(R.string.vault_dlg_export_title),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Save all vault media & metadata as a secure .imava archive",
+                            text = stringResource(R.string.vault_dlg_export_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -472,11 +474,11 @@ fun VaultSecurityDialog(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Restore Vault Backup 📥",
+                            text = stringResource(R.string.vault_dlg_restore_title),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Import and restore an encrypted .imava container",
+                            text = stringResource(R.string.vault_dlg_restore_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -501,11 +503,11 @@ fun VaultSecurityDialog(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Disable Vault Lock",
+                            text = stringResource(R.string.vault_dlg_disable_lock_title),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Remove PIN/Pattern lock to open Vault directly",
+                            text = stringResource(R.string.vault_dlg_disable_lock_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -530,12 +532,12 @@ fun VaultSecurityDialog(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Delete Vault",
+                            text = stringResource(R.string.vault_dlg_delete_vault_title),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.error
                         )
                         Text(
-                            text = "Restore or wipe all hidden photos and delete Vault",
+                            text = stringResource(R.string.vault_dlg_delete_vault_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
                         )
@@ -545,7 +547,7 @@ fun VaultSecurityDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("Done")
+                Text(stringResource(R.string.action_done))
             }
         }
     )
@@ -559,11 +561,11 @@ fun VaultSecurityDialog(
         AlertDialog(
             onDismissRequest = { showDecoyPinDialog = false },
             icon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text("Decoy PIN 🎭") },
+            title = { Text(stringResource(R.string.vault_decoy_modal_title)) },
             text = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "A decoy PIN provides plausible deniability. When typed at unlock, Imava unlocks an empty fake vault instead of revealing your private items.",
+                        text = stringResource(R.string.vault_decoy_modal_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -573,7 +575,7 @@ fun VaultSecurityDialog(
                         onValueChange = {
                             if (it.length <= 8 && it.all { c -> c.isDigit() }) decoyInput = it
                         },
-                        label = { Text("Decoy PIN (4-8 digits)") },
+                        label = { Text(stringResource(R.string.vault_decoy_pin_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -584,7 +586,7 @@ fun VaultSecurityDialog(
                         onValueChange = {
                             if (it.length <= 8 && it.all { c -> c.isDigit() }) confirmDecoyInput = it
                         },
-                        label = { Text("Confirm Decoy PIN") },
+                        label = { Text(stringResource(R.string.vault_decoy_pin_confirm_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -599,11 +601,11 @@ fun VaultSecurityDialog(
                 Button(
                     onClick = {
                         if (decoyInput.length < 4) {
-                            decoyError = "Decoy PIN must be at least 4 digits"
+                            decoyError = context.getString(R.string.vault_decoy_err_min4)
                             return@Button
                         }
                         if (decoyInput != confirmDecoyInput) {
-                            decoyError = "PINs do not match"
+                            decoyError = context.getString(R.string.vault_decoy_err_mismatch)
                             return@Button
                         }
                         val saltBase64 = prefs.getString("vault_salt", null)
@@ -617,10 +619,10 @@ fun VaultSecurityDialog(
                         prefs.edit().putString("vault_decoy_pin_hash", encHash).apply()
                         hasDecoyPin = true
                         showDecoyPinDialog = false
-                        Toast.makeText(context, "Decoy PIN configured!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.vault_decoy_configured_toast), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text("Save Decoy PIN")
+                    Text(stringResource(R.string.vault_decoy_save_btn))
                 }
             },
             dismissButton = {
@@ -631,15 +633,15 @@ fun VaultSecurityDialog(
                                 prefs.edit().remove("vault_decoy_pin_hash").apply()
                                 hasDecoyPin = false
                                 showDecoyPinDialog = false
-                                Toast.makeText(context, "Decoy PIN removed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.vault_decoy_removed_toast), Toast.LENGTH_SHORT).show()
                             }
                         ) {
-                            Text("Remove", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.action_remove), color = MaterialTheme.colorScheme.error)
                         }
                         Spacer(modifier = Modifier.width(4.dp))
                     }
                     TextButton(onClick = { showDecoyPinDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             }
@@ -651,9 +653,9 @@ fun VaultSecurityDialog(
         AlertDialog(
             onDismissRequest = { showDisableConfirmDialog = false },
             icon = { Icon(Icons.Default.LockOpen, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text("Disable Vault Lock?") },
+            title = { Text(stringResource(R.string.vault_disable_confirm_title)) },
             text = {
-                Text("Disabling the lock will remove PIN, Pattern, and Biometric protection. Anyone with access to this device will be able to view hidden files in the Vault.")
+                Text(stringResource(R.string.vault_disable_confirm_desc))
             },
             confirmButton = {
                 Button(
@@ -670,15 +672,15 @@ fun VaultSecurityDialog(
                                 .apply()
                         }
                         isVaultDisabled = true
-                        Toast.makeText(context, "Vault lock disabled", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.vault_disabled_toast), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text("Disable Lock")
+                    Text(stringResource(R.string.vault_disable_lock_btn))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDisableConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -689,7 +691,7 @@ fun VaultSecurityDialog(
         AlertDialog(
             onDismissRequest = { if (!isProcessingDelete) showDeleteConfirmDialog = false },
             icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text("Delete Vault") },
+            title = { Text(stringResource(R.string.vault_dlg_delete_vault_title)) },
             text = {
                 if (isProcessingDelete) {
                     Row(
@@ -699,11 +701,11 @@ fun VaultSecurityDialog(
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Deleting vault...")
+                        Text(stringResource(R.string.vault_deleting_progress))
                     }
                 } else {
                     Column {
-                        Text("Choose what to do with the files currently stored in the Vault:")
+                        Text(stringResource(R.string.vault_delete_choose_files))
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = {
@@ -713,7 +715,7 @@ fun VaultSecurityDialog(
                                     showDeleteConfirmDialog = false
                                     onVaultDeleted()
                                     onDismiss()
-                                    Toast.makeText(context, "All media restored & Vault deleted", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.vault_deleted_restored_toast), Toast.LENGTH_LONG).show()
                                 } ?: run {
                                     isProcessingDelete = false
                                     showDeleteConfirmDialog = false
@@ -721,7 +723,7 @@ fun VaultSecurityDialog(
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Restore All Media & Delete Vault")
+                            Text(stringResource(R.string.vault_restore_all_delete_btn))
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
@@ -732,7 +734,7 @@ fun VaultSecurityDialog(
                                     showDeleteConfirmDialog = false
                                     onVaultDeleted()
                                     onDismiss()
-                                    Toast.makeText(context, "Vault and files permanently deleted", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.vault_deleted_wiped_toast), Toast.LENGTH_LONG).show()
                                 } ?: run {
                                     isProcessingDelete = false
                                     showDeleteConfirmDialog = false
@@ -741,7 +743,7 @@ fun VaultSecurityDialog(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Permanently Delete Vault & All Files")
+                            Text(stringResource(R.string.vault_wipe_all_delete_btn))
                         }
                     }
                 }
@@ -750,7 +752,7 @@ fun VaultSecurityDialog(
             dismissButton = {
                 if (!isProcessingDelete) {
                     TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             }
@@ -766,13 +768,13 @@ fun VaultSecurityDialog(
 
         AlertDialog(
             onDismissRequest = { showPinChangeDialog = false },
-            title = { Text("Change Vault PIN") },
+            title = { Text(stringResource(R.string.vault_dlg_change_pin)) },
             text = {
                 Column {
                     OutlinedTextField(
                         value = currentPinInput,
                         onValueChange = { if (it.length <= 6 && it.all { char -> char.isDigit() }) currentPinInput = it },
-                        label = { Text("Current PIN") },
+                        label = { Text(stringResource(R.string.vault_current_pin_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -781,7 +783,7 @@ fun VaultSecurityDialog(
                     OutlinedTextField(
                         value = newPinInput,
                         onValueChange = { if (it.length <= 6 && it.all { char -> char.isDigit() }) newPinInput = it },
-                        label = { Text("New 4-6 Digit PIN") },
+                        label = { Text(stringResource(R.string.vault_new_pin_4_6_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -790,7 +792,7 @@ fun VaultSecurityDialog(
                     OutlinedTextField(
                         value = confirmPinInput,
                         onValueChange = { if (it.length <= 6 && it.all { char -> char.isDigit() }) confirmPinInput = it },
-                        label = { Text("Confirm New PIN") },
+                        label = { Text(stringResource(R.string.vault_confirm_new_pin_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -820,16 +822,16 @@ fun VaultSecurityDialog(
                         }
 
                         if (!currentValid) {
-                            pinError = "Current PIN is incorrect."
+                            pinError = context.getString(R.string.vault_err_current_pin_wrong)
                             return@Button
                         }
 
                         if (newPinInput.length < 4) {
-                            pinError = "PIN must be at least 4 digits."
+                            pinError = context.getString(R.string.vault_err_pin_min_4_dot)
                             return@Button
                         }
                         if (newPinInput != confirmPinInput) {
-                            pinError = "New PINs do not match."
+                            pinError = context.getString(R.string.vault_err_new_pins_mismatch)
                             return@Button
                         }
 
@@ -851,12 +853,12 @@ fun VaultSecurityDialog(
                         showPinChangeDialog = false
                     }
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.action_save))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPinChangeDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -870,11 +872,11 @@ fun VaultSecurityDialog(
 
         AlertDialog(
             onDismissRequest = { showPatternSetupDialog = false },
-            title = { Text(if (setupStep == 1) "Draw New Pattern" else "Confirm Pattern") },
+            title = { Text(if (setupStep == 1) stringResource(R.string.vault_draw_new_pattern) else stringResource(R.string.vault_confirm_pattern_title)) },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = if (setupStep == 1) "Draw a pattern connecting at least 4 dots" else "Draw the pattern again to confirm",
+                        text = if (setupStep == 1) stringResource(R.string.vault_draw_pattern_min4) else stringResource(R.string.vault_draw_pattern_again),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     patternError?.let { err ->
@@ -885,7 +887,7 @@ fun VaultSecurityDialog(
                         onPatternComplete = { drawn ->
                             if (setupStep == 1) {
                                 if (drawn.split("-").size < 4) {
-                                    patternError = "Connect at least 4 dots"
+                                    patternError = context.getString(R.string.vault_connect_min4_dots)
                                 } else {
                                     firstPattern = drawn
                                     setupStep = 2
@@ -910,7 +912,7 @@ fun VaultSecurityDialog(
                                     isVaultDisabled = false
                                     showPatternSetupDialog = false
                                 } else {
-                                    patternError = "Patterns do not match. Try again."
+                                    patternError = context.getString(R.string.vault_err_patterns_mismatch_retry)
                                     setupStep = 1
                                 }
                             }
@@ -923,7 +925,7 @@ fun VaultSecurityDialog(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showPatternSetupDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -933,25 +935,25 @@ fun VaultSecurityDialog(
     if (showExportPasswordDialog) {
         AlertDialog(
             onDismissRequest = { if (!isProcessingBackup) showExportPasswordDialog = false },
-            title = { Text("Export Vault Backup 💾") },
+            title = { Text(stringResource(R.string.vault_export_modal_title)) },
             text = {
                 Column {
                     Text(
-                        text = "Set a strong passphrase to encrypt your backup container. You will need this passphrase to restore your vault on any device.",
+                        text = stringResource(R.string.vault_export_modal_desc),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = exportPassword,
                         onValueChange = { exportPassword = it },
-                        label = { Text("Backup Passphrase (min 6 chars)") },
+                        label = { Text(stringResource(R.string.vault_backup_pass_min6)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "🔒 Security Tip: Avoid simple 4-digit PINs. A strong alphanumeric passphrase protects against offline brute-force attacks if the backup file is leaked.",
+                        text = stringResource(R.string.vault_backup_security_tip),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -960,7 +962,7 @@ fun VaultSecurityDialog(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Encrypting & exporting...", style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.vault_encrypting_exporting), style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }
@@ -989,17 +991,17 @@ fun VaultSecurityDialog(
                                         pendingExportUri = null
                                     }
                                 } else {
-                                    Toast.makeText(context, "Could not open target file.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.vault_err_open_target), Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Export error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.vault_export_err_fmt, e.localizedMessage ?: ""), Toast.LENGTH_LONG).show()
                             } finally {
                                 isProcessingBackup = false
                             }
                         }
                     }
                 ) {
-                    Text("Export")
+                    Text(stringResource(R.string.vault_export_btn))
                 }
             },
             dismissButton = {
@@ -1011,7 +1013,7 @@ fun VaultSecurityDialog(
                         pendingExportUri = null
                     }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -1021,18 +1023,18 @@ fun VaultSecurityDialog(
     if (showRestorePasswordDialog) {
         AlertDialog(
             onDismissRequest = { if (!isProcessingBackup) showRestorePasswordDialog = false },
-            title = { Text("Restore Vault Backup 📥") },
+            title = { Text(stringResource(R.string.vault_dlg_restore_title)) },
             text = {
                 Column {
                     Text(
-                        text = "Enter the passphrase used when creating this .imava backup container.",
+                        text = stringResource(R.string.vault_restore_modal_desc),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = restorePassword,
                         onValueChange = { restorePassword = it },
-                        label = { Text("Backup Passphrase") },
+                        label = { Text(stringResource(R.string.vault_backup_pass_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -1042,7 +1044,7 @@ fun VaultSecurityDialog(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Decrypting & restoring vault...", style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.vault_decrypting_restoring), style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }
@@ -1072,17 +1074,17 @@ fun VaultSecurityDialog(
                                         pendingRestoreUri = null
                                     }
                                 } else {
-                                    Toast.makeText(context, "Could not open source file.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.vault_err_open_source), Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Restore error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.vault_restore_err_fmt, e.localizedMessage ?: ""), Toast.LENGTH_LONG).show()
                             } finally {
                                 isProcessingBackup = false
                             }
                         }
                     }
                 ) {
-                    Text("Restore")
+                    Text(stringResource(R.string.action_restore))
                 }
             },
             dismissButton = {
@@ -1094,7 +1096,7 @@ fun VaultSecurityDialog(
                         pendingRestoreUri = null
                     }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )

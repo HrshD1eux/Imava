@@ -51,10 +51,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.ConfigurationCompat
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.SharingUtils
 import com.hrshd1eux.imava.data.model.MediaItem
@@ -63,6 +66,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 @Composable
@@ -277,17 +281,18 @@ fun MemoryStoryPlayerScreen(
                                 color = Color.White,
                                 fontSize = 15.sp
                             )
-                            val formattedDate = remember(currentItem.dateTaken) {
+                            val currentLocale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: Locale.getDefault()
+                            val formattedDate = remember(currentItem.dateTaken, currentLocale) {
                                 if (currentItem.dateTaken > 0) {
                                     val zoneId = ZoneId.systemDefault()
                                     val localDate = Instant.ofEpochMilli(currentItem.dateTaken).atZone(zoneId).toLocalDate()
-                                    localDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.getDefault()))
+                                    localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(currentLocale))
                                 } else {
                                     story.dateSubtitle
                                 }
                             }
                             Text(
-                                text = "$formattedDate  ·  ${currentIndex + 1} of ${story.items.size}",
+                                text = stringResource(R.string.memory_story_counter_format, formattedDate, currentIndex + 1, story.items.size),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.White.copy(alpha = 0.8f),
                                 fontSize = 12.sp
@@ -307,7 +312,7 @@ fun MemoryStoryPlayerScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close Story",
+                            contentDescription = stringResource(R.string.memory_close_story),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
@@ -348,13 +353,13 @@ fun MemoryStoryPlayerScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Fullscreen,
-                            contentDescription = "Open in Viewer",
+                            contentDescription = stringResource(R.string.memory_open_in_viewer),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "View Photo",
+                            text = stringResource(R.string.memory_view_photo),
                             color = Color.White,
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold
@@ -375,7 +380,7 @@ fun MemoryStoryPlayerScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "Share",
+                        contentDescription = stringResource(R.string.action_share),
                         tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )

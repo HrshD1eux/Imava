@@ -71,8 +71,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.hrshd1eux.imava.R
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem as Media3Item
 import androidx.media3.common.Player
@@ -89,16 +91,17 @@ import java.util.Locale
 import kotlin.math.abs
 
 fun formatVideoTime(ms: Long): String {
-    if (ms <= 0L) return "00:00"
+    val locale = Locale.getDefault()
+    if (ms <= 0L) return String.format(locale, "%02d:%02d", 0, 0)
     val totalSeconds = ms / 1000
     val seconds = totalSeconds % 60
     val minutes = (totalSeconds / 60) % 60
     val hours = totalSeconds / 3600
 
     return if (hours > 0) {
-        String.format(Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
+        String.format(locale, "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format(Locale.US, "%02d:%02d", minutes, seconds)
+        String.format(locale, "%02d:%02d", minutes, seconds)
     }
 }
 
@@ -327,7 +330,7 @@ fun VideoPlayerContainer(
                             delay(400)
                             isHolding2x = true
                             exoPlayer?.setPlaybackSpeed(2.0f)
-                            gestureOverlayText = "2x Speed ⏩"
+                            gestureOverlayText = context.getString(R.string.video_gesture_speed_2x)
                         }
                         try {
                             awaitRelease()
@@ -357,7 +360,7 @@ fun VideoPlayerContainer(
                             lp.screenBrightness = newBrightness
                             window.attributes = lp
                         }
-                        gestureOverlayText = "☀️ Brightness: ${(newBrightness * 100).toInt()}%"
+                        gestureOverlayText = context.getString(R.string.video_gesture_brightness_fmt, (newBrightness * 100).toInt())
                     } else {
                         // Right side vertical drag: Adjust Media Volume
                         if (dragAmount < -10f) {
@@ -367,7 +370,7 @@ fun VideoPlayerContainer(
                         }
                         val updatedVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                         val volPct = (updatedVol.toFloat() / maxVolume * 100).toInt()
-                        gestureOverlayText = if (updatedVol == 0) "🔇 Volume: 0%" else "🔊 Volume: $volPct%"
+                        gestureOverlayText = if (updatedVol == 0) context.getString(R.string.video_gesture_volume_muted) else context.getString(R.string.video_gesture_volume_fmt, volPct)
                     }
                 }
             }
@@ -419,7 +422,7 @@ fun VideoPlayerContainer(
             ) {
                 Icon(
                     imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play Video",
+                    contentDescription = stringResource(R.string.video_play_cd),
                     tint = Color.White,
                     modifier = Modifier.size(44.dp)
                 )
@@ -487,7 +490,7 @@ fun VideoPlayerContainer(
                         ) {
                             Icon(
                                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = if (isPlaying) "Pause" else "Play",
+                                contentDescription = if (isPlaying) stringResource(R.string.video_pause_cd) else stringResource(R.string.video_play_action_cd),
                                 tint = Color.White,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -507,7 +510,7 @@ fun VideoPlayerContainer(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.SkipPrevious,
-                                    contentDescription = "Previous Frame (33ms)",
+                                    contentDescription = stringResource(R.string.video_prev_frame_cd),
                                     tint = Color.White.copy(alpha = 0.9f),
                                     modifier = Modifier.size(16.dp)
                                 )
@@ -526,7 +529,7 @@ fun VideoPlayerContainer(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.SkipNext,
-                                    contentDescription = "Next Frame (33ms)",
+                                    contentDescription = stringResource(R.string.video_next_frame_cd),
                                     tint = Color.White.copy(alpha = 0.9f),
                                     modifier = Modifier.size(16.dp)
                                 )
@@ -549,13 +552,13 @@ fun VideoPlayerContainer(
                                 isLooping = nextLoop
                                 exoPlayer?.repeatMode = if (nextLoop) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
                                 HapticUtil.performSelection(context)
-                                gestureOverlayText = if (nextLoop) "Repeat: On 🔂" else "Repeat: Off ➡️"
+                                gestureOverlayText = if (nextLoop) context.getString(R.string.video_repeat_on) else context.getString(R.string.video_repeat_off)
                             },
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
                                 imageVector = if (isLooping) Icons.Default.RepeatOne else Icons.Default.Repeat,
-                                contentDescription = "Toggle Repeat Loop",
+                                contentDescription = stringResource(R.string.video_toggle_repeat_cd),
                                 tint = if (isLooping) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
                                 modifier = Modifier.size(18.dp)
                             )
@@ -581,7 +584,7 @@ fun VideoPlayerContainer(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Subtitles,
-                                contentDescription = "Audio & Subtitle Tracks",
+                                contentDescription = stringResource(R.string.video_tracks_cd),
                                 tint = Color.White,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -598,9 +601,9 @@ fun VideoPlayerContainer(
                                         positionMs = pos
                                     )
                                     if (savedUri != null) {
-                                        android.widget.Toast.makeText(context, "Frame saved to Pictures/Video_Captures 📸", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.video_frame_saved_toast), android.widget.Toast.LENGTH_SHORT).show()
                                     } else {
-                                        android.widget.Toast.makeText(context, "Failed to capture frame", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(context, context.getString(R.string.video_frame_failed_toast), android.widget.Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             },
@@ -608,7 +611,7 @@ fun VideoPlayerContainer(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CameraAlt,
-                                contentDescription = "Capture High-Res Frame",
+                                contentDescription = stringResource(R.string.video_capture_frame_cd),
                                 tint = Color.White,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -663,7 +666,7 @@ fun VideoPlayerContainer(
         val speeds = listOf(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.5f, 3.0f)
         AlertDialog(
             onDismissRequest = { showSpeedDialog = false },
-            title = { Text("Playback Speed ⚡") },
+            title = { Text(stringResource(R.string.video_playback_speed_title)) },
             text = {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     items(speeds) { sp ->
@@ -684,7 +687,7 @@ fun VideoPlayerContainer(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (sp == 1.0f) "1.0x (Normal)" else "${sp}x",
+                                    text = if (sp == 1.0f) stringResource(R.string.video_speed_normal) else "${sp}x",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 if (isSel) {
@@ -698,7 +701,7 @@ fun VideoPlayerContainer(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showSpeedDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -713,7 +716,7 @@ fun VideoPlayerContainer(
             onDismissRequest = { showTrackDialog = false },
             title = {
                 Text(
-                    text = "Audio & Subtitles 🎧",
+                    text = stringResource(R.string.video_audio_subtitles_title),
                     style = MaterialTheme.typography.titleMedium
                 )
             },
@@ -725,7 +728,7 @@ fun VideoPlayerContainer(
                     if (audioGroups.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Audio Tracks",
+                                text = stringResource(R.string.video_audio_tracks_header),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(vertical = 8.dp)
@@ -736,7 +739,7 @@ fun VideoPlayerContainer(
                             for (i in 0 until group.length) {
                                 val format = group.getTrackFormat(i)
                                 val isSelected = group.isTrackSelected(i)
-                                val trackName = format.label ?: format.language ?: "Audio Track ${i + 1}"
+                                val trackName = format.label ?: format.language ?: stringResource(R.string.video_audio_track_fmt, i + 1)
 
                                 Surface(
                                     onClick = {
@@ -769,7 +772,7 @@ fun VideoPlayerContainer(
 
                     item {
                         Text(
-                            text = "Subtitles / Captions",
+                            text = stringResource(R.string.video_subtitles_header),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
@@ -796,7 +799,7 @@ fun VideoPlayerContainer(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(text = "Off (Disabled)", style = MaterialTheme.typography.bodyMedium)
+                                Text(text = stringResource(R.string.video_off_disabled), style = MaterialTheme.typography.bodyMedium)
                                 if (isNoneSelected) {
                                     Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 }
@@ -809,7 +812,7 @@ fun VideoPlayerContainer(
                         for (i in 0 until group.length) {
                             val format = group.getTrackFormat(i)
                             val isSelected = group.isTrackSelected(i)
-                            val trackName = format.label ?: format.language ?: "Subtitle Track ${i + 1}"
+                            val trackName = format.label ?: format.language ?: stringResource(R.string.video_subtitle_track_fmt, i + 1)
 
                             Surface(
                                 onClick = {
@@ -842,7 +845,7 @@ fun VideoPlayerContainer(
             },
             confirmButton = {
                 TextButton(onClick = { showTrackDialog = false }) {
-                    Text("Close")
+                    Text(stringResource(R.string.action_close))
                 }
             }
         )

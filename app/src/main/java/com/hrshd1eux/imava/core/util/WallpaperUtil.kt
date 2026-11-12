@@ -194,7 +194,12 @@ object WallpaperUtil {
                 putExtra("mimeType", "image/*")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            activity.startActivity(Intent.createChooser(intent, "Set as Contact Photo"))
+            activity.startActivity(
+                Intent.createChooser(
+                    intent,
+                    LocaleHelper.getString(activity, com.hrshd1eux.imava.R.string.chooser_set_contact_photo, "Set as Contact Photo")
+                )
+            )
             true
         } catch (e: Exception) {
             e.printStackTrace()

@@ -66,15 +66,37 @@ class AppUpdateCheckWorker(
 
         val showMigration = AppUpdateManager.isVersionOlderThan(currentVersion, "1.1.8")
         val message = if (showMigration) {
-            "Imava v$latestVersion is available.\n\n⚠️ Migration Note: Because of our transition to the new package ID (com.hrshd1eux.imava), please download the APK, install it, and delete the older version manually."
+            com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                context,
+                R.string.update_worker_migration_fmt,
+                "Imava v$latestVersion is available.\n\n⚠️ Migration Note: Because of our transition to the new package ID (com.hrshd1eux.imava), please download the APK, install it, and delete the older version manually.",
+                latestVersion
+            )
         } else {
-            "Imava Gallery v$latestVersion is available. Tap to download and install."
+            com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                context,
+                R.string.update_worker_available_fmt,
+                "Imava Gallery v$latestVersion is available. Tap to download and install.",
+                latestVersion
+            )
         }
+
+        val notifTitle = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+            context,
+            R.string.update_worker_notif_title_fmt,
+            "Imava Gallery Update Available: v$latestVersion",
+            latestVersion
+        )
+        val notifText = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+            context,
+            R.string.update_worker_notif_text,
+            "A new version is available. Tap to download and install."
+        )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentTitle("Imava Gallery Update Available: v$latestVersion")
-            .setContentText("A new version is available. Tap to download and install.")
+            .setContentTitle(notifTitle)
+            .setContentText(notifText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
@@ -96,8 +118,16 @@ class AppUpdateCheckWorker(
 
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Imava Gallery Updates"
-            val descriptionText = "Notifications for new Imava Gallery app releases"
+            val name = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                context,
+                R.string.update_worker_channel_name,
+                "Imava Gallery Updates"
+            )
+            val descriptionText = com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+                context,
+                R.string.update_worker_channel_desc,
+                "Notifications for new Imava Gallery app releases"
+            )
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText

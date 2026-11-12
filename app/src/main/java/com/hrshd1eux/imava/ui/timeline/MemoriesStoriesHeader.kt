@@ -42,9 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
 
 data class MemoryStory(
@@ -89,7 +91,7 @@ fun MemoriesStoriesHeader(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "On This Day",
+                        text = stringResource(R.string.memories_on_this_day),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -102,7 +104,7 @@ fun MemoriesStoriesHeader(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Dismiss Memories for 24h",
+                        contentDescription = stringResource(R.string.memories_dismiss_24h),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )

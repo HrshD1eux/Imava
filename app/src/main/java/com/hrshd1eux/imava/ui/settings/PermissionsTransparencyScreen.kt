@@ -58,12 +58,14 @@ import androidx.core.content.ContextCompat
 import com.hrshd1eux.imava.R
 
 data class PermissionDetail(
-    val friendlyName: String,
+    @androidx.annotation.StringRes val friendlyNameRes: Int? = null,
+    val fallbackFriendlyName: String = "",
     val technicalName: String,
-    val category: String,
-    val userFriendlyReason: String,
-    val technicalExplanation: String,
-    val introducedApi: String
+    @androidx.annotation.StringRes val categoryRes: Int,
+    @androidx.annotation.StringRes val userFriendlyReasonRes: Int,
+    @androidx.annotation.StringRes val technicalExplanationRes: Int? = null,
+    val introducedApi: String = "",
+    @androidx.annotation.StringRes val introducedApiRes: Int? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,187 +80,187 @@ fun PermissionsTransparencyScreen(
     val detailedKnownPermissions = remember {
         mapOf(
             "android.permission.READ_EXTERNAL_STORAGE" to PermissionDetail(
-                friendlyName = "Legacy Storage Read Access",
+                friendlyNameRes = R.string.perm_name_read_ext,
                 technicalName = "android.permission.READ_EXTERNAL_STORAGE",
-                category = "Media Access",
-                userFriendlyReason = "Required on Android 12 and below (API <= 32) to query and display device photos and videos in the timeline.",
-                technicalExplanation = "Legacy external storage read permission for Android 12 and earlier before granular media permissions (API 33).",
+                categoryRes = R.string.perm_cat_media,
+                userFriendlyReasonRes = R.string.perm_reason_read_ext,
+                technicalExplanationRes = R.string.perm_tech_read_ext,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.WRITE_EXTERNAL_STORAGE" to PermissionDetail(
-                friendlyName = "Legacy Storage Write Access",
+                friendlyNameRes = R.string.perm_name_write_ext,
                 technicalName = "android.permission.WRITE_EXTERNAL_STORAGE",
-                category = "Media Access",
-                userFriendlyReason = "Required on Android 10 and below (API <= 29) to save edits, create albums, and export media.",
-                technicalExplanation = "Legacy external storage write permission deprecated in API 29 and superseded by MediaStore/SAF.",
+                categoryRes = R.string.perm_cat_media,
+                userFriendlyReasonRes = R.string.perm_reason_write_ext,
+                technicalExplanationRes = R.string.perm_tech_write_ext,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.MANAGE_EXTERNAL_STORAGE" to PermissionDetail(
-                friendlyName = "Full Device Storage Access",
+                friendlyNameRes = R.string.perm_name_manage_storage,
                 technicalName = "android.permission.MANAGE_EXTERNAL_STORAGE",
-                category = "Storage & Files",
-                userFriendlyReason = "Required on Android 11+ to browse, move, rename, delete, and organize photos in all folders (DCIM, Pictures, Downloads) without Scoped Storage restrictions.",
-                technicalExplanation = "All Files Access (API 30+). Provides native filesystem access for album creation, lossless rotation, and batch renaming.",
+                categoryRes = R.string.perm_cat_storage,
+                userFriendlyReasonRes = R.string.perm_reason_manage_storage,
+                technicalExplanationRes = R.string.perm_tech_manage_storage,
                 introducedApi = "API 30 (Android 11)"
             ),
             "android.permission.READ_MEDIA_IMAGES" to PermissionDetail(
-                friendlyName = "Read Photo Library",
+                friendlyNameRes = R.string.perm_name_read_images,
                 technicalName = "android.permission.READ_MEDIA_IMAGES",
-                category = "Media Access",
-                userFriendlyReason = "Allows loading and viewing all photos on your device in the gallery timeline and albums.",
-                technicalExplanation = "Granular Media Permission (API 33+). Required to query MediaStore.Images.Media table.",
+                categoryRes = R.string.perm_cat_media,
+                userFriendlyReasonRes = R.string.perm_reason_read_images,
+                technicalExplanationRes = R.string.perm_tech_read_images,
                 introducedApi = "API 33 (Android 13)"
             ),
             "android.permission.READ_MEDIA_VIDEO" to PermissionDetail(
-                friendlyName = "Read Video Library",
+                friendlyNameRes = R.string.perm_name_read_video,
                 technicalName = "android.permission.READ_MEDIA_VIDEO",
-                category = "Media Access",
-                userFriendlyReason = "Allows displaying, streaming, and playing video files in the gallery video player.",
-                technicalExplanation = "Granular Media Permission (API 33+). Required to query MediaStore.Video.Media table.",
+                categoryRes = R.string.perm_cat_media,
+                userFriendlyReasonRes = R.string.perm_reason_read_video,
+                technicalExplanationRes = R.string.perm_tech_read_video,
                 introducedApi = "API 33 (Android 13)"
             ),
             "android.permission.READ_MEDIA_VISUAL_USER_SELECTED" to PermissionDetail(
-                friendlyName = "Partial Photo Selection",
+                friendlyNameRes = R.string.perm_name_visual_selected,
                 technicalName = "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-                category = "Media Access",
-                userFriendlyReason = "Supports Android 14's partial photo picker if you choose to grant Imava access only to selected images.",
-                technicalExplanation = "User-selected visual media permission (API 34+). Allows functioning seamlessly under restricted photo picker grants.",
+                categoryRes = R.string.perm_cat_media,
+                userFriendlyReasonRes = R.string.perm_reason_visual_selected,
+                technicalExplanationRes = R.string.perm_tech_visual_selected,
                 introducedApi = "API 34 (Android 14)"
             ),
             "android.permission.ACCESS_MEDIA_LOCATION" to PermissionDetail(
-                friendlyName = "Photo Location & EXIF Geotags",
+                friendlyNameRes = R.string.perm_name_media_location,
                 technicalName = "android.permission.ACCESS_MEDIA_LOCATION",
-                category = "Privacy & Location",
-                userFriendlyReason = "Allows reading GPS coordinates embedded in your photos so you can view geotags in the photo information sheet.",
-                technicalExplanation = "Runtime permission required on Android 10+ (API 29+) to access unredacted GPS EXIF metadata in MediaStore.",
+                categoryRes = R.string.perm_cat_privacy,
+                userFriendlyReasonRes = R.string.perm_reason_media_location,
+                technicalExplanationRes = R.string.perm_tech_media_location,
                 introducedApi = "API 29 (Android 10)"
             ),
             "android.permission.USE_BIOMETRIC" to PermissionDetail(
-                friendlyName = "Biometric Authentication",
+                friendlyNameRes = R.string.perm_name_biometric,
                 technicalName = "android.permission.USE_BIOMETRIC",
-                category = "Security & Vault",
-                userFriendlyReason = "Allows using your device's fingerprint or face unlock to access your Private Vault, Biometric Trash Lock, and concealed albums.",
-                technicalExplanation = "AndroidX BiometricPrompt API wrapper for hardware-backed KeyStore authentication.",
+                categoryRes = R.string.perm_cat_security,
+                userFriendlyReasonRes = R.string.perm_reason_biometric,
+                technicalExplanationRes = R.string.perm_tech_biometric,
                 introducedApi = "API 28 (Android 9)"
             ),
             "android.permission.USE_FINGERPRINT" to PermissionDetail(
-                friendlyName = "Legacy Fingerprint Support",
+                friendlyNameRes = R.string.perm_name_fingerprint,
                 technicalName = "android.permission.USE_FINGERPRINT",
-                category = "Security & Vault",
-                userFriendlyReason = "Backward-compatibility fallback for unlocking the vault or trash via fingerprint on older devices.",
-                technicalExplanation = "Deprecated fingerprint hardware API fallback for Android 9 and lower.",
+                categoryRes = R.string.perm_cat_security,
+                userFriendlyReasonRes = R.string.perm_reason_fingerprint,
+                technicalExplanationRes = R.string.perm_tech_fingerprint,
                 introducedApi = "API 23 (Android 6)"
             ),
             "android.permission.INTERNET" to PermissionDetail(
-                friendlyName = "Internet & Local LAN Access",
+                friendlyNameRes = R.string.perm_name_internet,
                 technicalName = "android.permission.INTERNET",
-                category = "Network & Sync",
-                userFriendlyReason = "Used solely for local home NAS / WebDAV media backup, Imava Drop local Wi-Fi transfer, and checking GitHub for app updates. Imava has zero tracking, zero analytics, zero advertising, and zero third-party cloud servers.",
-                technicalExplanation = "Normal permission for network socket creation. Used by ImavaDropServer for embedded local HTTP P2P streaming, WebDavClient for local LAN media synchronization, and AppUpdateManager for GitHub Releases API.",
+                categoryRes = R.string.perm_cat_network,
+                userFriendlyReasonRes = R.string.perm_reason_internet,
+                technicalExplanationRes = R.string.perm_tech_internet,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.ACCESS_NETWORK_STATE" to PermissionDetail(
-                friendlyName = "Network State & Wi-Fi Check",
+                friendlyNameRes = R.string.perm_name_network_state,
                 technicalName = "android.permission.ACCESS_NETWORK_STATE",
-                category = "Network & Sync",
-                userFriendlyReason = "Checks whether your device is connected to Wi-Fi before performing local NAS backups (enforcing 'Wi-Fi Only' mode), running Imava Drop, and checking GitHub for updates.",
-                technicalExplanation = "Normal permission used by ConnectivityManager and WorkManager network constraints to prevent cellular data consumption.",
+                categoryRes = R.string.perm_cat_network,
+                userFriendlyReasonRes = R.string.perm_reason_network_state,
+                technicalExplanationRes = R.string.perm_tech_network_state,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.ACCESS_WIFI_STATE" to PermissionDetail(
-                friendlyName = "Wi-Fi State & Local IP",
+                friendlyNameRes = R.string.perm_name_wifi_state,
                 technicalName = "android.permission.ACCESS_WIFI_STATE",
-                category = "Network & Sync",
-                userFriendlyReason = "Used by Imava Drop to discover your phone's local IPv4 address and Wi-Fi state for direct high-speed P2P transfer to PC, Mac, or secondary phones.",
-                technicalExplanation = "Normal permission required to query WifiManager for local network connection info without cellular leakage.",
+                categoryRes = R.string.perm_cat_network,
+                userFriendlyReasonRes = R.string.perm_reason_wifi_state,
+                technicalExplanationRes = R.string.perm_tech_wifi_state,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.CHANGE_WIFI_MULTICAST_STATE" to PermissionDetail(
-                friendlyName = "Wi-Fi High-Performance Mode",
+                friendlyNameRes = R.string.perm_name_wifi_multicast,
                 technicalName = "android.permission.CHANGE_WIFI_MULTICAST_STATE",
-                category = "Network & Sync",
-                userFriendlyReason = "Used by Imava Drop to acquire a high-performance Wi-Fi lock during large transfers, preventing Android from throttling transfer speeds.",
-                technicalExplanation = "Permits high-performance Wi-Fi lock acquisition during direct peer-to-peer HTTP socket streaming.",
+                categoryRes = R.string.perm_cat_network,
+                userFriendlyReasonRes = R.string.perm_reason_wifi_multicast,
+                technicalExplanationRes = R.string.perm_tech_wifi_multicast,
                 introducedApi = "API 4 (Android 1.6)"
             ),
             "android.permission.ACCESS_LOCAL_NETWORK" to PermissionDetail(
-                friendlyName = "Local Network Discovery",
+                friendlyNameRes = R.string.perm_name_local_network,
                 technicalName = "android.permission.ACCESS_LOCAL_NETWORK",
-                category = "Network & Cast",
-                userFriendlyReason = "Permits casting or discovering local devices on your home Wi-Fi network.",
-                technicalExplanation = "Local network communication permission for LAN discovery protocols.",
+                categoryRes = R.string.perm_cat_cast,
+                userFriendlyReasonRes = R.string.perm_reason_local_network,
+                technicalExplanationRes = R.string.perm_tech_local_network,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.FOREGROUND_SERVICE" to PermissionDetail(
-                friendlyName = "Foreground Background Processing",
+                friendlyNameRes = R.string.perm_name_fg_service,
                 technicalName = "android.permission.FOREGROUND_SERVICE",
-                category = "System & Services",
-                userFriendlyReason = "Keeps long-running batch operations (like shredding ghost thumbnails or bulk photo compression) active without the system killing the process.",
-                technicalExplanation = "Required to run Android Foreground Services with a visible notification indicator.",
+                categoryRes = R.string.perm_cat_system,
+                userFriendlyReasonRes = R.string.perm_reason_fg_service,
+                technicalExplanationRes = R.string.perm_tech_fg_service,
                 introducedApi = "API 28 (Android 9)"
             ),
             "android.permission.FOREGROUND_SERVICE_DATA_SYNC" to PermissionDetail(
-                friendlyName = "Foreground Data Sync",
+                friendlyNameRes = R.string.perm_name_fg_data_sync,
                 technicalName = "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
-                category = "System & Services",
-                userFriendlyReason = "Required on Android 14+ to keep Imava Drop Wi-Fi P2P file transfers and local WebDAV NAS synchronization running reliably while the app is minimized.",
-                technicalExplanation = "Specific foreground service type permission required on API 34+ for data transfer foreground services.",
+                categoryRes = R.string.perm_cat_system,
+                userFriendlyReasonRes = R.string.perm_reason_fg_data_sync,
+                technicalExplanationRes = R.string.perm_tech_fg_data_sync,
                 introducedApi = "API 34 (Android 14)"
             ),
             "android.permission.POST_NOTIFICATIONS" to PermissionDetail(
-                friendlyName = "Post Notifications",
+                friendlyNameRes = R.string.perm_name_notifications,
                 technicalName = "android.permission.POST_NOTIFICATIONS",
-                category = "System & Services",
-                userFriendlyReason = "Displays progress notifications for active background operations such as Imava Drop Wi-Fi transfers, trash auto-purge, and available app updates.",
-                technicalExplanation = "Runtime notification permission introduced in Android 13 (API 33) required to post notifications.",
+                categoryRes = R.string.perm_cat_system,
+                userFriendlyReasonRes = R.string.perm_reason_notifications,
+                technicalExplanationRes = R.string.perm_tech_notifications,
                 introducedApi = "API 33 (Android 13)"
             ),
             "android.permission.WAKE_LOCK" to PermissionDetail(
-                friendlyName = "Prevent Sleep During Tasks",
+                friendlyNameRes = R.string.perm_name_wake_lock,
                 technicalName = "android.permission.WAKE_LOCK",
-                category = "System & Services",
-                userFriendlyReason = "Prevents the device processor from sleeping during active slideshow playback, video playback, or bulk media export.",
-                technicalExplanation = "PowerManager.WakeLock primitive used by WorkManager and ExoPlayer during active processing.",
+                categoryRes = R.string.perm_cat_system,
+                userFriendlyReasonRes = R.string.perm_reason_wake_lock,
+                technicalExplanationRes = R.string.perm_tech_wake_lock,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.VIBRATE" to PermissionDetail(
-                friendlyName = "Haptic Vibration Feedback",
+                friendlyNameRes = R.string.perm_name_vibrate,
                 technicalName = "android.permission.VIBRATE",
-                category = "User Interface",
-                userFriendlyReason = "Provides tactile haptic clicks when selecting photos, unlocking the vault, or dragging items.",
-                technicalExplanation = "Vibrator / CombinedVibrator system service invocation.",
+                categoryRes = R.string.perm_cat_ui,
+                userFriendlyReasonRes = R.string.perm_reason_vibrate,
+                technicalExplanationRes = R.string.perm_tech_vibrate,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.SET_WALLPAPER" to PermissionDetail(
-                friendlyName = "Set as Device Wallpaper",
+                friendlyNameRes = R.string.perm_name_wallpaper,
                 technicalName = "android.permission.SET_WALLPAPER",
-                category = "Customization",
-                userFriendlyReason = "Allows applying any photo in your gallery directly as your Home or Lock screen wallpaper.",
-                technicalExplanation = "WallpaperManager system service invocation.",
+                categoryRes = R.string.perm_cat_customization,
+                userFriendlyReasonRes = R.string.perm_reason_wallpaper,
+                technicalExplanationRes = R.string.perm_tech_wallpaper,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.SET_WALLPAPER_HINTS" to PermissionDetail(
-                friendlyName = "Wallpaper Alignment & Hints",
+                friendlyNameRes = R.string.perm_name_wallpaper_hints,
                 technicalName = "android.permission.SET_WALLPAPER_HINTS",
-                category = "Customization",
-                userFriendlyReason = "Ensures wallpaper cropping and dimensions fit your screen correctly.",
-                technicalExplanation = "WallpaperManager crop hints configuration.",
+                categoryRes = R.string.perm_cat_customization,
+                userFriendlyReasonRes = R.string.perm_reason_wallpaper_hints,
+                technicalExplanationRes = R.string.perm_tech_wallpaper_hints,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.RECEIVE_BOOT_COMPLETED" to PermissionDetail(
-                friendlyName = "Start Scheduled Tasks on Boot",
+                friendlyNameRes = R.string.perm_name_boot,
                 technicalName = "android.permission.RECEIVE_BOOT_COMPLETED",
-                category = "System & Services",
-                userFriendlyReason = "Re-schedules background periodic maintenance (such as trash auto-cleanup and update checks) after your phone restarts.",
-                technicalExplanation = "BroadcastReceiver for android.intent.action.BOOT_COMPLETED used by AndroidX WorkManager.",
+                categoryRes = R.string.perm_cat_system,
+                userFriendlyReasonRes = R.string.perm_reason_boot,
+                technicalExplanationRes = R.string.perm_tech_boot,
                 introducedApi = "API 1 (Android 1)"
             ),
             "android.permission.REQUEST_INSTALL_PACKAGES" to PermissionDetail(
-                friendlyName = "Direct App Update Installation",
+                friendlyNameRes = R.string.perm_name_install_apk,
                 technicalName = "android.permission.REQUEST_INSTALL_PACKAGES",
-                category = "Network & Updates",
-                userFriendlyReason = "Allows installing updated versions of Imava downloaded from official GitHub Releases without requiring manual file browsing.",
-                technicalExplanation = "Package installer intent invocation for user-approved in-place APK updates.",
+                categoryRes = R.string.perm_cat_updates,
+                userFriendlyReasonRes = R.string.perm_reason_install_apk,
+                technicalExplanationRes = R.string.perm_tech_install_apk,
                 introducedApi = "API 26 (Android 8)"
             )
         )
@@ -281,12 +283,11 @@ fun PermissionsTransparencyScreen(
 
             declared.map { permName ->
                 detailedKnownPermissions[permName] ?: PermissionDetail(
-                    friendlyName = permName.substringAfterLast("."),
+                    fallbackFriendlyName = permName.substringAfterLast("."),
                     technicalName = permName,
-                    category = "System Permission",
-                    userFriendlyReason = "Declared by Android system or supporting library.",
-                    technicalExplanation = "Registered in AndroidManifest.xml: $permName",
-                    introducedApi = "Standard Android API"
+                    categoryRes = R.string.perm_cat_fallback,
+                    userFriendlyReasonRes = R.string.perm_fallback_reason,
+                    introducedApiRes = R.string.perm_fallback_api
                 )
             }
         } catch (_: Exception) {
@@ -435,7 +436,8 @@ fun PermissionsTransparencyScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isTechnicalMode) perm.technicalName.substringAfterLast(".") else perm.friendlyName,
+                                    text = if (isTechnicalMode) perm.technicalName.substringAfterLast(".")
+                                    else perm.friendlyNameRes?.let { stringResource(it) } ?: perm.fallbackFriendlyName,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.weight(1f)
@@ -471,7 +473,7 @@ fun PermissionsTransparencyScreen(
                             Spacer(modifier = Modifier.height(4.dp))
 
                             Text(
-                                text = perm.category,
+                                text = stringResource(perm.categoryRes),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -496,21 +498,23 @@ fun PermissionsTransparencyScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Text(
-                                    text = perm.technicalExplanation,
+                                    text = perm.technicalExplanationRes?.let { stringResource(it) }
+                                        ?: stringResource(R.string.perm_fallback_tech, perm.technicalName),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
 
                                 Spacer(modifier = Modifier.height(6.dp))
 
+                                val apiLabel = perm.introducedApiRes?.let { stringResource(it) } ?: perm.introducedApi
                                 Text(
-                                    text = stringResource(R.string.perm_target_scope, perm.introducedApi),
+                                    text = stringResource(R.string.perm_target_scope, apiLabel),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.outline
                                 )
                             } else {
                                 Text(
-                                    text = perm.userFriendlyReason,
+                                    text = stringResource(perm.userFriendlyReasonRes),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )

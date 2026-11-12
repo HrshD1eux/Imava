@@ -33,21 +33,56 @@ object VaultBackupManager {
 
     data class BackupResult(val success: Boolean, val itemsCount: Int, val message: String)
 
+    private fun localizedContext(context: Context): Context {
+        return try {
+            LocaleHelper.localizedContext(context)
+        } catch (_: Exception) {
+            context
+        }
+    }
+
+    private fun localizedMessage(
+        locCtx: Context,
+        resId: Int,
+        fallback: String,
+        vararg formatArgs: Any
+    ): String {
+        return try {
+            val resolved = if (formatArgs.isEmpty()) {
+                locCtx.getString(resId)
+            } else {
+                locCtx.getString(resId, *formatArgs)
+            }
+            resolved.takeIf { it.isNotBlank() } ?: fallback
+        } catch (_: Exception) {
+            fallback
+        }
+    }
+
     suspend fun exportVaultBackup(
         context: Context,
         database: GalleryDatabase,
         targetOutputStream: OutputStream,
         passphrase: CharArray
     ): BackupResult = withContext(Dispatchers.IO) {
+        val locCtx = localizedContext(context)
         try {
             val vaultDir = File(context.filesDir, "vault")
             if (!vaultDir.exists()) {
-                return@withContext BackupResult(false, 0, "No vault directory found on this device.")
+                return@withContext BackupResult(
+                    false,
+                    0,
+                    localizedMessage(locCtx, com.hrshd1eux.imava.R.string.vault_backup_no_dir, "No vault directory found on this device.")
+                )
             }
 
             val hiddenEntities = database.metadataDao().getHiddenMetadata()
             if (hiddenEntities.isEmpty()) {
-                return@withContext BackupResult(false, 0, "Vault is empty. Nothing to export.")
+                return@withContext BackupResult(
+                    false,
+                    0,
+                    localizedMessage(locCtx, com.hrshd1eux.imava.R.string.vault_backup_empty, "Vault is empty. Nothing to export.")
+                )
             }
 
             // zip package
@@ -126,10 +161,29 @@ object VaultBackupManager {
                 out.flush()
             }
 
-            BackupResult(true, hiddenEntities.size, "Successfully exported " + hiddenEntities.size + " vault items.")
+            BackupResult(
+                true,
+                hiddenEntities.size,
+                localizedMessage(
+                    locCtx,
+                    com.hrshd1eux.imava.R.string.vault_backup_exported_fmt,
+                    "Successfully exported ${hiddenEntities.size} vault items.",
+                    hiddenEntities.size
+                )
+            )
         } catch (e: Exception) {
             e.printStackTrace()
-            BackupResult(false, 0, "Export failed: " + e.localizedMessage)
+            val errMsg = e.localizedMessage ?: ""
+            BackupResult(
+                false,
+                0,
+                localizedMessage(
+                    locCtx,
+                    com.hrshd1eux.imava.R.string.vault_backup_export_failed_fmt,
+                    "Export failed: $errMsg",
+                    errMsg
+                )
+            )
         }
     }
 
@@ -139,17 +193,26 @@ object VaultBackupManager {
         inputStream: InputStream,
         passphrase: CharArray
     ): BackupResult = withContext(Dispatchers.IO) {
+        val locCtx = localizedContext(context)
         try {
             val allBytes = inputStream.use { it.readBytes() }
             val headerLen = MAGIC_HEADER.size
             if (allBytes.size < headerLen + SALT_LENGTH_BYTES + IV_LENGTH_BYTES + 16) {
-                return@withContext BackupResult(false, 0, "Invalid or corrupted backup file.")
+                return@withContext BackupResult(
+                    false,
+                    0,
+                    localizedMessage(locCtx, com.hrshd1eux.imava.R.string.vault_backup_corrupt_file, "Invalid or corrupted backup file.")
+                )
             }
 
             // Verify Magic Header
             for (i in MAGIC_HEADER.indices) {
                 if (allBytes[i] != MAGIC_HEADER[i]) {
-                    return@withContext BackupResult(false, 0, "Not a valid .imava backup container.")
+                    return@withContext BackupResult(
+                        false,
+                        0,
+                        localizedMessage(locCtx, com.hrshd1eux.imava.R.string.vault_backup_invalid_container, "Not a valid .imava backup container.")
+                    )
                 }
             }
 
@@ -174,7 +237,11 @@ object VaultBackupManager {
             val decryptedZipBytes = try {
                 cipher.doFinal(ciphertext)
             } catch (e: Exception) {
-                return@withContext BackupResult(false, 0, "Incorrect password or corrupt backup file.")
+                return@withContext BackupResult(
+                    false,
+                    0,
+                    localizedMessage(locCtx, com.hrshd1eux.imava.R.string.vault_backup_wrong_pass, "Incorrect password or corrupt backup file.")
+                )
             }
 
             val vaultDir = File(context.filesDir, "vault").apply { mkdirs() }
@@ -249,10 +316,29 @@ object VaultBackupManager {
                 }
             }
 
-            BackupResult(true, restoredFilesCount, "Successfully restored " + restoredFilesCount + " items into Vault.")
+            BackupResult(
+                true,
+                restoredFilesCount,
+                localizedMessage(
+                    locCtx,
+                    com.hrshd1eux.imava.R.string.vault_backup_restored_fmt,
+                    "Successfully restored $restoredFilesCount items into Vault.",
+                    restoredFilesCount
+                )
+            )
         } catch (e: Exception) {
             e.printStackTrace()
-            BackupResult(false, 0, "Restore failed: " + e.localizedMessage)
+            val errMsg = e.localizedMessage ?: ""
+            BackupResult(
+                false,
+                0,
+                localizedMessage(
+                    locCtx,
+                    com.hrshd1eux.imava.R.string.vault_backup_restore_failed_fmt,
+                    "Restore failed: $errMsg",
+                    errMsg
+                )
+            )
         }
     }
 }

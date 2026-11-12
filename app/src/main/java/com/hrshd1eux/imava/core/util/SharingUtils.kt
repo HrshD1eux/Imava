@@ -87,7 +87,10 @@ object SharingUtils {
             }
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             
-            val chooser = Intent.createChooser(shareIntent, "Share media").apply {
+            val chooser = Intent.createChooser(
+                shareIntent,
+                LocaleHelper.getString(context, com.hrshd1eux.imava.R.string.chooser_share_media, "Share media")
+            ).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(chooser)

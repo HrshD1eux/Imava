@@ -43,9 +43,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.VaultCrypto
 import kotlinx.coroutines.delay
@@ -195,11 +197,11 @@ fun VaultUnlockDialog(
                     .apply()
                 lockoutRemainingSeconds = 30
                 failedAttempts = 0
-                errorMessage = "Too many failed attempts. Try again in 30s."
+                errorMessage = context.getString(R.string.vault_unlock_err_lockout_30s)
             } else {
                 failedAttempts = newAttempts
                 prefs.edit().putInt("vault_failed_attempts", newAttempts).apply()
-                errorMessage = "Incorrect code. Attempt $newAttempts of 3."
+                errorMessage = context.getString(R.string.vault_unlock_err_attempt_fmt, newAttempts)
             }
             isPatternError = true
             pinInput = ""
@@ -211,9 +213,9 @@ fun VaultUnlockDialog(
         title = {
             Text(
                 text = if (!isPinConfigured) {
-                    if (setupStage == 1) "Set Up Vault Lock (1/2)" else "Vault Security Setup (2/2)"
+                    if (setupStage == 1) stringResource(R.string.vault_unlock_setup_step1) else stringResource(R.string.vault_unlock_setup_step2)
                 } else {
-                    "Unlock Hidden Vault"
+                    stringResource(R.string.unlock_vault_title)
                 },
                 style = MaterialTheme.typography.titleMedium
             )
@@ -227,7 +229,7 @@ fun VaultUnlockDialog(
             ) {
                 if (lockoutRemainingSeconds > 0) {
                     Text(
-                        text = "Too many incorrect attempts.\nTry again in ${lockoutRemainingSeconds}s",
+                        text = stringResource(R.string.vault_unlock_lockout_fmt, lockoutRemainingSeconds),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 12.dp)
@@ -263,14 +265,14 @@ fun VaultUnlockDialog(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Zero-Knowledge & Local-First",
+                                        text = stringResource(R.string.vault_unlock_zero_knowledge_title),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Private Vault is completely local-first with zero tracking. There is NO password reset, NO backdoor, and NO cloud recovery. If you forget this password, all files inside the vault are permanently lost.\n\nSet a master password to encrypt your private files with AES-256.",
+                                    text = stringResource(R.string.vault_unlock_zero_knowledge_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -279,7 +281,7 @@ fun VaultUnlockDialog(
 
                         // Stage 1: Choose Type & Code
                         Text(
-                            text = "Choose how to protect your Hidden Vault:",
+                            text = stringResource(R.string.vault_unlock_choose_protect),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -297,7 +299,7 @@ fun VaultUnlockDialog(
                                     selected = setupLockType == "PIN",
                                     onClick = { setupLockType = "PIN"; errorMessage = null }
                                 )
-                                Text("PIN", style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.vault_type_pin_chip), style = MaterialTheme.typography.bodySmall)
                             }
 
                             Row(
@@ -308,7 +310,7 @@ fun VaultUnlockDialog(
                                     selected = setupLockType == "PATTERN",
                                     onClick = { setupLockType = "PATTERN"; errorMessage = null }
                                 )
-                                Text("Pattern", style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.vault_unlock_type_pattern), style = MaterialTheme.typography.bodySmall)
                             }
 
                             Row(
@@ -319,7 +321,7 @@ fun VaultUnlockDialog(
                                     selected = setupLockType == "PASSWORD",
                                     onClick = { setupLockType = "PASSWORD"; errorMessage = null }
                                 )
-                                Text("Password", style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.vault_unlock_type_password), style = MaterialTheme.typography.bodySmall)
                             }
                         }
 
@@ -327,7 +329,7 @@ fun VaultUnlockDialog(
 
                         if (setupLockType == "PIN") {
                             Text(
-                                text = "Create a 4-6 digit PIN:",
+                                text = stringResource(R.string.vault_unlock_create_pin_prompt),
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
@@ -339,7 +341,7 @@ fun VaultUnlockDialog(
                                         errorMessage = null
                                     }
                                 },
-                                label = { Text("4-6 Digit PIN") },
+                                label = { Text(stringResource(R.string.vault_unlock_pin_4_6_label)) },
                                 singleLine = true,
                                 visualTransformation = PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
@@ -354,7 +356,7 @@ fun VaultUnlockDialog(
                                         errorMessage = null
                                     }
                                 },
-                                label = { Text("Confirm PIN") },
+                                label = { Text(stringResource(R.string.vault_confirm_pin_label)) },
                                 singleLine = true,
                                 visualTransformation = PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
@@ -362,7 +364,7 @@ fun VaultUnlockDialog(
                             )
                         } else if (setupLockType == "PASSWORD") {
                             Text(
-                                text = "Create an alphanumeric master password (min 6 chars):",
+                                text = stringResource(R.string.vault_unlock_create_pass_prompt),
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
@@ -372,7 +374,7 @@ fun VaultUnlockDialog(
                                     setupPinInput = it
                                     errorMessage = null
                                 },
-                                label = { Text("Master Password") },
+                                label = { Text(stringResource(R.string.vault_unlock_master_pass_label)) },
                                 singleLine = true,
                                 visualTransformation = PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -385,7 +387,7 @@ fun VaultUnlockDialog(
                                     confirmPinInput = it
                                     errorMessage = null
                                 },
-                                label = { Text("Confirm Master Password") },
+                                label = { Text(stringResource(R.string.vault_unlock_confirm_master_pass_label)) },
                                 singleLine = true,
                                 visualTransformation = PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -393,7 +395,7 @@ fun VaultUnlockDialog(
                             )
                         } else {
                             Text(
-                                text = if (patternSetupStep == 1) "Draw a pattern connecting at least 4 dots" else "Draw pattern again to confirm",
+                                text = if (patternSetupStep == 1) stringResource(R.string.vault_draw_pattern_min4) else stringResource(R.string.vault_unlock_draw_pattern_again),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -402,7 +404,7 @@ fun VaultUnlockDialog(
                                 onPatternComplete = { drawn ->
                                     if (patternSetupStep == 1) {
                                         if (drawn.split("-").size < 4) {
-                                            errorMessage = "Connect at least 4 dots"
+                                            errorMessage = context.getString(R.string.vault_connect_min4_dots)
                                             isPatternError = true
                                         } else {
                                             firstDrawnPattern = drawn
@@ -417,7 +419,7 @@ fun VaultUnlockDialog(
                                             errorMessage = null
                                             isPatternError = false
                                         } else {
-                                            errorMessage = "Patterns do not match. Try again."
+                                            errorMessage = context.getString(R.string.vault_err_patterns_mismatch_retry)
                                             patternSetupStep = 1
                                             isPatternError = true
                                         }
@@ -430,7 +432,7 @@ fun VaultUnlockDialog(
                     } else {
                         // Stage 2: Biometrics & Stealth Mode
                         Text(
-                            text = "Configure optional security features:",
+                            text = stringResource(R.string.vault_unlock_config_optional),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -450,9 +452,9 @@ fun VaultUnlockDialog(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Biometric Unlock", style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(R.string.vault_dlg_biometric_title), style = MaterialTheme.typography.titleSmall)
                                 Text(
-                                    "Unlock vault using fingerprint or face",
+                                    stringResource(R.string.vault_unlock_bio_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -464,8 +466,8 @@ fun VaultUnlockDialog(
                                     if (enabled && activity != null) {
                                         com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                             activity = activity,
-                                            title = "Confirm Biometric",
-                                            subtitle = "Verify fingerprint to enable",
+                                            title = context.getString(R.string.vault_dlg_confirm_bio),
+                                            subtitle = context.getString(R.string.vault_unlock_verify_fingerprint_enable),
                                             onSuccess = { setupBiometrics = true },
                                             onError = { setupBiometrics = false }
                                         )
@@ -492,9 +494,9 @@ fun VaultUnlockDialog(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Stealth Vault Mode", style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(R.string.vault_stealth_mode_title), style = MaterialTheme.typography.titleSmall)
                                 Text(
-                                    "Hide Vault from Albums list. Access via search phrase.",
+                                    stringResource(R.string.vault_unlock_stealth_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -510,7 +512,7 @@ fun VaultUnlockDialog(
                             OutlinedTextField(
                                 value = setupSecretTrigger,
                                 onValueChange = { setupSecretTrigger = it },
-                                label = { Text("Secret Search Phrase") },
+                                label = { Text(stringResource(R.string.vault_dlg_secret_search_phrase)) },
                                 placeholder = { Text("#vault") },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()
@@ -521,7 +523,7 @@ fun VaultUnlockDialog(
                     // --- NORMAL UNLOCK FLOW ---
                     if (storedLockType == "PATTERN") {
                         Text(
-                            text = if (lockoutRemainingSeconds > 0) "Locked out temporarily" else "Draw your secret pattern to unlock",
+                            text = if (lockoutRemainingSeconds > 0) stringResource(R.string.vault_unlock_temp_locked) else stringResource(R.string.vault_unlock_draw_unlock),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -544,7 +546,7 @@ fun VaultUnlockDialog(
                                 pinInput = it
                                 errorMessage = null
                             },
-                            label = { Text(if (storedLockType == "PASSWORD") "Enter Master Password" else "Enter Vault PIN") },
+                            label = { Text(if (storedLockType == "PASSWORD") stringResource(R.string.vault_unlock_enter_master_pass) else stringResource(R.string.vault_enter_pin_label)) },
                             singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(
@@ -563,13 +565,17 @@ fun VaultUnlockDialog(
                         Button(
                             onClick = {
                                 val minLen = if (setupLockType == "PIN") 4 else 6
-                                val label = if (setupLockType == "PIN") "PIN" else "Password"
                                 if (setupPinInput.length < minLen) {
-                                    errorMessage = "$label must be at least $minLen characters."
+                                    errorMessage = context.getString(
+                                        if (setupLockType == "PIN") R.string.vault_unlock_err_pin_min_chars_fmt else R.string.vault_unlock_err_pass_min_chars_fmt,
+                                        minLen
+                                    )
                                     return@Button
                                 }
                                 if (setupPinInput != confirmPinInput) {
-                                    errorMessage = "${label}s do not match."
+                                    errorMessage = context.getString(
+                                        if (setupLockType == "PIN") R.string.vault_unlock_err_pins_mismatch else R.string.vault_unlock_err_passwords_mismatch
+                                    )
                                     return@Button
                                 }
                                 chosenCodeToSave = setupPinInput
@@ -577,14 +583,14 @@ fun VaultUnlockDialog(
                                 errorMessage = null
                             }
                         ) {
-                            Text("Next")
+                            Text(stringResource(R.string.action_next))
                         }
                     }
                 } else {
                     Button(
                         onClick = { finalizeSetup() }
                     ) {
-                        Text("Finish & Unlock")
+                        Text(stringResource(R.string.vault_unlock_finish_btn))
                     }
                 }
             } else {
@@ -596,7 +602,7 @@ fun VaultUnlockDialog(
                             }
                         }
                     ) {
-                        Text("Unlock")
+                        Text(stringResource(R.string.action_unlock))
                     }
                 }
             }
@@ -610,23 +616,23 @@ fun VaultUnlockDialog(
                         onClick = {
                             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
                                 activity = activity,
-                                title = "Unlock Hidden Vault",
-                                subtitle = "Authenticate biometric sensor",
+                                title = context.getString(R.string.unlock_vault_title),
+                                subtitle = context.getString(R.string.vault_unlock_bio_subtitle),
                                 onSuccess = { onUnlockSuccess() },
                                 onError = { _ -> }
                             )
                         }
                     ) {
-                        Text("Use Biometric")
+                        Text(stringResource(R.string.vault_unlock_use_bio_btn))
                     }
                 }
                 if (!isPinConfigured && setupStage == 2) {
                     TextButton(onClick = { setupStage = 1 }) {
-                        Text("Back")
+                        Text(stringResource(R.string.action_back))
                     }
                 } else {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             }

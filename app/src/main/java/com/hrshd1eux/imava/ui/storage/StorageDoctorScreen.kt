@@ -127,7 +127,7 @@ fun StorageDoctorScreen(
                 title = { Text(stringResource(R.string.doctor_title)) },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
@@ -140,11 +140,11 @@ fun StorageDoctorScreen(
                                     val itemsToDelete = allMediaItems.filter { it.id in ids }
                                     viewModel.deleteMediaItems(context, itemsToDelete)
                                     selectedItemIds.value = emptySet()
-                                    Toast.makeText(context, "Moved ${itemsToDelete.size} items to Trash", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.doctor_moved_trash_toast_fmt, itemsToDelete.size), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Trash Selected", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.doctor_trash_selected_cd), tint = MaterialTheme.colorScheme.error)
                         }
                     }
                 },
@@ -242,8 +242,8 @@ fun StorageDoctorScreen(
                                     scope.launch {
                                         HapticUtil.performClick(context)
                                         val res = com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.purgeAndShredGhostThumbnails(context)
-                                        val mb = String.format("%.1f MB", res.bytesReclaimed / (1024.0 * 1024.0))
-                                        Toast.makeText(context, "Shredded ${res.filesPurged} ghost thumbnails ($mb freed)!", Toast.LENGTH_SHORT).show()
+                                        val freedStr = StorageDoctorUtils.formatBytes(res.bytesReclaimed)
+                                        Toast.makeText(context, context.getString(R.string.doctor_shredded_thumbs_toast_fmt, res.filesPurged, freedStr), Toast.LENGTH_SHORT).show()
                                         HapticUtil.performSuccess(context)
                                         isPurgingGhostThumbs = false
                                     }
@@ -382,7 +382,7 @@ fun StorageDoctorScreen(
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
-                                                "${StorageDoctorUtils.formatBytes(video.size)} · ${video.durationMs / 1000}s",
+                                                stringResource(R.string.doctor_video_meta_fmt, StorageDoctorUtils.formatBytes(video.size), video.durationMs / 1000),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
@@ -488,7 +488,7 @@ fun StorageDoctorScreen(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    "${group.burstItems.size} Similar Shots (${StorageDoctorUtils.formatBytes(group.totalSizeBytes)})",
+                                                    stringResource(R.string.doctor_burst_shots_size_fmt, group.burstItems.size, StorageDoctorUtils.formatBytes(group.totalSizeBytes)),
                                                     style = MaterialTheme.typography.titleSmall,
                                                     fontWeight = FontWeight.SemiBold
                                                 )
@@ -499,7 +499,7 @@ fun StorageDoctorScreen(
                                                         val redundantIds = group.burstItems.drop(1).map { it.id }.toSet()
                                                         selectedItemIds.value = selectedItemIds.value + redundantIds
                                                         HapticUtil.performClick(context)
-                                                        Toast.makeText(context, "Selected ${redundantIds.size} redundant shots for cleanup", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(context, context.getString(R.string.doctor_selected_redundant_toast_fmt, redundantIds.size), Toast.LENGTH_SHORT).show()
                                                     }
                                                 ) {
                                                     Row(
@@ -650,7 +650,7 @@ fun StorageDoctorScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "${blurryPhotosList.size} blurry shots found",
+                                            text = stringResource(R.string.doctor_blurry_found_fmt, blurryPhotosList.size),
                                             style = MaterialTheme.typography.labelLarge,
                                             color = MaterialTheme.colorScheme.primary,
                                             fontWeight = FontWeight.SemiBold
@@ -712,7 +712,7 @@ fun StorageDoctorScreen(
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
-                                                "${StorageDoctorUtils.formatBytes(photo.size)} · Score: ${String.format("%.1f", item.variance)}",
+                                                stringResource(R.string.doctor_blur_score_fmt, StorageDoctorUtils.formatBytes(photo.size), String.format(java.util.Locale.getDefault(), "%.1f", item.variance)),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )

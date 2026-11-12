@@ -748,6 +748,15 @@ class MainViewModel @Inject constructor(
         prefs.edit().putString("album_layout_mode", mode.name).apply()
     }
 
+    private fun localizedString(context: Context?, resId: Int, vararg args: Any): String {
+        return com.hrshd1eux.imava.core.util.LocaleHelper.getString(
+            context = context ?: application,
+            resId = resId,
+            fallback = "",
+            formatArgs = args
+        )
+    }
+
     fun safeToast(context: Context?, message: String, duration: Int = android.widget.Toast.LENGTH_SHORT) {
         if (context == null) return
         try {
@@ -1166,13 +1175,15 @@ class MainViewModel @Inject constructor(
 
     val throwbackMemories: StateFlow<List<com.hrshd1eux.imava.ui.timeline.MemoryStory>> = combine(
         visibleMediaItems,
-        _memoriesDismissedTimestamp
-    ) { items, dismissedTimestamp ->
+        _memoriesDismissedTimestamp,
+        refreshTrigger
+    ) { items, dismissedTimestamp, _ ->
         val now = System.currentTimeMillis()
         if (dismissedTimestamp > 0L && (now - dismissedTimestamp) < 24 * 60 * 60 * 1000L) {
             emptyList()
         } else {
-            com.hrshd1eux.imava.ui.timeline.MemoryStoryCalculator.generateStories(items)
+            val localizedCtx = com.hrshd1eux.imava.core.util.LocaleHelper.localizedContext(application)
+            com.hrshd1eux.imava.ui.timeline.MemoryStoryCalculator.generateStories(items, localizedCtx)
         }
     }
     .flowOn(Dispatchers.Default)
@@ -1480,29 +1491,57 @@ class MainViewModel @Inject constructor(
     }
 
     private val headerZoneId: ZoneId = ZoneId.systemDefault()
-    private val sameYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())
-    private val otherYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
+    @Volatile private var sameYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())
+    @Volatile private var otherYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
     private val headerTitleCache = java.util.concurrent.ConcurrentHashMap<Long, String>()
-    private var cachedTodayEpochDay: Long = -1L
-    private var cachedYesterdayEpochDay: Long = -1L
-    private var cachedCurrentYear: Int = -1
+    @Volatile private var cachedTodayEpochDay: Long = -1L
+    @Volatile private var cachedYesterdayEpochDay: Long = -1L
+    @Volatile private var cachedCurrentYear: Int = -1
+    @Volatile private var cachedLocaleTag: String = ""
+    @Volatile private var cachedTodayLabel: String = "Today"
+    @Volatile private var cachedYesterdayLabel: String = "Yesterday"
+    @Volatile private var cachedUndatedLabel: String = "Undated"
 
-    private fun updateCachedDays() {
+    private fun updateCachedDaysAndLocale() {
+        val activeLocale = Locale.getDefault()
+        val activeTag = activeLocale.toLanguageTag()
         val today = LocalDate.now(headerZoneId)
-        cachedTodayEpochDay = today.toEpochDay()
-        cachedYesterdayEpochDay = today.minusDays(1).toEpochDay()
-        cachedCurrentYear = today.year
+        val todayEpoch = today.toEpochDay()
+        if (cachedTodayEpochDay != todayEpoch || cachedLocaleTag != activeTag) {
+            cachedTodayEpochDay = todayEpoch
+            cachedYesterdayEpochDay = today.minusDays(1).toEpochDay()
+            cachedCurrentYear = today.year
+            cachedLocaleTag = activeTag
+            sameYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", activeLocale)
+            otherYearFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", activeLocale)
+            try {
+                val localizedCtx = com.hrshd1eux.imava.core.util.LocaleHelper.localizedContext(application)
+                cachedTodayLabel = localizedCtx.getString(com.hrshd1eux.imava.R.string.date_today)
+                cachedYesterdayLabel = localizedCtx.getString(com.hrshd1eux.imava.R.string.date_yesterday)
+                cachedUndatedLabel = localizedCtx.getString(com.hrshd1eux.imava.R.string.date_undated)
+            } catch (_: Exception) {}
+            headerTitleCache.clear()
+        }
+    }
+
+    /** Clears cached formatted headers & stories when the active locale changes across Activity recreation. */
+    fun syncLocaleState() {
+        val activeTag = Locale.getDefault().toLanguageTag()
+        if (cachedLocaleTag.isNotEmpty() && cachedLocaleTag != activeTag) {
+            cachedLocaleTag = ""
+            headerTitleCache.clear()
+            updateCachedDaysAndLocale()
+            refreshTrigger.value++
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getHeaderTitleForMedia(media: MediaItem, category: String? = null): String {
-        if (cachedTodayEpochDay == -1L) {
-            updateCachedDays()
-        }
+        updateCachedDaysAndLocale()
         val isTrash = category == "Trash"
         val dateMs = if (isTrash && media.trashTime > 0L) media.trashTime else media.dateTaken
         if (dateMs <= 0L) {
-            return try { application.getString(com.hrshd1eux.imava.R.string.date_undated) } catch (_: Exception) { "Undated" }
+            return cachedUndatedLabel
         }
         val ms = dateMs
         val localDate = Instant.ofEpochMilli(ms).atZone(headerZoneId).toLocalDate()
@@ -1513,8 +1552,8 @@ class MainViewModel @Inject constructor(
         if (cached != null) return cached
 
         val title = when (epochDay) {
-            cachedTodayEpochDay -> "Today"
-            cachedYesterdayEpochDay -> "Yesterday"
+            cachedTodayEpochDay -> cachedTodayLabel
+            cachedYesterdayEpochDay -> cachedYesterdayLabel
             else -> if (localDate.year == cachedCurrentYear) {
                 localDate.format(sameYearFormatter)
             } else {
@@ -2132,7 +2171,7 @@ class MainViewModel @Inject constructor(
                         refreshAll()
                         if (count > 0) {
                             try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                            safeToast(context, "Renamed $count items")
+                            safeToast(context, localizedString(context, R.string.vm_renamed_items_toast_fmt, count))
                         }
                     }
                 } else {
@@ -2141,7 +2180,7 @@ class MainViewModel @Inject constructor(
                     refreshAll()
                     if (count > 0) {
                         try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                        safeToast(context, "Renamed $count items")
+                        safeToast(context, localizedString(context, R.string.vm_renamed_items_toast_fmt, count))
                     }
                 }
             } else {
@@ -2150,7 +2189,7 @@ class MainViewModel @Inject constructor(
                 refreshAll()
                 if (count > 0) {
                     try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                    safeToast(context, "Renamed $count items")
+                    safeToast(context, localizedString(context, R.string.vm_renamed_items_toast_fmt, count))
                 }
             }
         }
@@ -2210,7 +2249,7 @@ class MainViewModel @Inject constructor(
                                 pendingMoveSourceItems = null
                                 pendingMoveRollbackTargets = null
                                 pendingMoveOnComplete = null
-                                safeToast(context, "Move failed: ${e.message}")
+                                safeToast(context, localizedString(context, R.string.vm_move_failed_fmt, e.message ?: ""))
                             }
                         } else if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.Q) {
                             try {
@@ -2243,17 +2282,17 @@ class MainViewModel @Inject constructor(
                         pendingMoveSourceItems = null
                         pendingMoveRollbackTargets = null
                         pendingMoveOnComplete = null
-                        safeToast(context, "Move failed: Activity context not found")
+                        safeToast(context, localizedString(context, R.string.vm_move_failed_no_activity))
                     }
                 } else {
                     loadBuckets()
                     refreshAll()
                     if (count > 0) {
                         try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                        val actionName = if (isCopy) "Copied" else "Moved"
-                        safeToast(context, "$actionName $count items to ${targetDirectory.name}")
+                        val resId = if (isCopy) R.string.vm_copied_to_album_fmt else R.string.vm_moved_to_album_fmt
+                        safeToast(context, localizedString(context, resId, count, targetDirectory.name))
                     } else if (items.isNotEmpty()) {
-                        safeToast(context, "Items are already in this album")
+                        safeToast(context, localizedString(context, R.string.vm_items_already_in_album))
                     }
                     onComplete(count)
                 }
@@ -2296,7 +2335,7 @@ class MainViewModel @Inject constructor(
             refreshAll()
             if (count > 0) {
                 try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                safeToast(context, "Adjusted date/time for $count items")
+                safeToast(context, localizedString(context, R.string.vm_adjusted_datetime_fmt, count))
             }
             onComplete(count)
         }
@@ -2662,8 +2701,12 @@ class MainViewModel @Inject constructor(
                 sortOrder = SortOrder.NEWEST_FIRST
             )
             if (albumMedia.isEmpty()) {
-                val label = if (!bucketName.isNullOrBlank()) "in '$bucketName'" else "in this album"
-                safeToast(context, "No photos to share $label")
+                val msg = if (!bucketName.isNullOrBlank()) {
+                    localizedString(context, R.string.vm_no_photos_share_named_fmt, bucketName)
+                } else {
+                    localizedString(context, R.string.vm_no_photos_share_album)
+                }
+                safeToast(context, msg)
                 return@launch
             }
             SharingUtils.shareMedia(
@@ -2874,7 +2917,7 @@ class MainViewModel @Inject constructor(
 
             if (validItems.isEmpty()) {
                 refreshAll()
-                safeToast(context, "Moved ${brokenOrphanItems.size} broken item(s) to Trash")
+                safeToast(context, localizedString(context, R.string.vm_moved_broken_trash_fmt, brokenOrphanItems.size))
                 return@launch
             }
 
@@ -3136,7 +3179,7 @@ class MainViewModel @Inject constructor(
                 selectionState.clear()
                 refreshAll()
                 try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                safeToast(context, "Restored ${trashedItems.size} items")
+                safeToast(context, localizedString(context, R.string.vm_restored_items_toast_fmt, trashedItems.size))
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -3216,7 +3259,7 @@ class MainViewModel @Inject constructor(
                     selectionState.clear()
                     refreshAll()
                     try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                    safeToast(context, "Permanently removed ${brokenOrphans.size} item(s)")
+                    safeToast(context, localizedString(context, R.string.vm_removed_broken_perm_fmt, brokenOrphans.size))
                     return@launch
                 }
 
@@ -3305,11 +3348,10 @@ class MainViewModel @Inject constructor(
                         val trashDir = context?.let { java.io.File(it.filesDir, "imava_trash") }
                         val secureShred = context?.let { com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(it) } == true
                         val targets = if (batchItems != null) batchItems else if (item != null) listOf(item) else emptyList()
-                        val title = if (requestCode == 1003) {
-                            context?.getString(R.string.emptying_trash) ?: "Emptying Trash…"
-                        } else {
-                            context?.getString(R.string.deleting_media) ?: "Deleting media…"
-                        }
+                        val title = localizedString(
+                            context,
+                            if (requestCode == 1003) R.string.emptying_trash else R.string.deleting_media
+                        )
                         if (targets.size > 1) {
                             _batchOperationProgress.value = BatchProgress(title = title, current = 0, total = targets.size)
                         }
@@ -3422,7 +3464,7 @@ class MainViewModel @Inject constructor(
                         viewModelScope.launch {
                             val count = batchItems.size
                             val isCurrentlyTrashed = batchItems.firstOrNull()?.isTrashed == true
-                            val title = if (isCurrentlyTrashed) "Restoring media…" else (context?.getString(R.string.deleting_media) ?: "Deleting media…")
+                            val title = localizedString(context, if (isCurrentlyTrashed) R.string.vm_restoring_media else R.string.deleting_media)
                             if (count > 1) {
                                 _batchOperationProgress.value = BatchProgress(title = title, current = 0, total = count)
                             }
@@ -3476,7 +3518,11 @@ class MainViewModel @Inject constructor(
                                 refreshAll()
                                 if (context != null) {
                                     try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                                    val msg = if (isCurrentlyTrashed) "Restored $count items" else "Moved $count items to Trash"
+                                    val msg = localizedString(
+                                        context,
+                                        if (isCurrentlyTrashed) R.string.vm_restored_items_toast_fmt else R.string.doctor_moved_trash_toast_fmt,
+                                        count
+                                    )
                                     safeToast(context, msg)
                                 }
                             } finally {
@@ -3544,7 +3590,7 @@ class MainViewModel @Inject constructor(
                             refreshAll()
                             if (context != null) {
                                 try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                                safeToast(context, "Moved ${sourceItems.size} items successfully")
+                                safeToast(context, localizedString(context, R.string.vm_moved_success_fmt, sourceItems.size))
                             }
                             onCompleteCallback?.invoke(sourceItems.size)
                         }
@@ -3560,7 +3606,7 @@ class MainViewModel @Inject constructor(
                             refreshAll()
                             if (count > 0) {
                                 try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                                safeToast(context, "Renamed $count items")
+                                safeToast(context, localizedString(context, R.string.vm_renamed_items_toast_fmt, count))
                             }
                         }
                     } else {
@@ -3599,7 +3645,7 @@ class MainViewModel @Inject constructor(
                     loadBuckets()
                     refreshAll()
                     if (context != null) {
-                        safeToast(context, "Move cancelled: Permission to remove original was denied")
+                        safeToast(context, localizedString(context, R.string.vm_move_cancelled_perm_denied))
                     }
                 }
             } else {
@@ -3646,7 +3692,7 @@ class MainViewModel @Inject constructor(
                     }
                 } else {
                     try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
-                    safeToast(context, "Could not rotate photo")
+                    safeToast(context, localizedString(context, R.string.vm_could_not_rotate))
                 }
             } catch (e: Exception) {
                 val recoverable = e as? android.app.RecoverableSecurityException
@@ -3686,7 +3732,7 @@ class MainViewModel @Inject constructor(
                     }
                 } else {
                     try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
-                    safeToast(context, "Could not rotate: ${e.localizedMessage}")
+                    safeToast(context, localizedString(context, R.string.vm_could_not_rotate_fmt, e.localizedMessage ?: ""))
                 }
             }
         }
@@ -3694,22 +3740,22 @@ class MainViewModel @Inject constructor(
 
     fun exportCleanCopy(context: Context, item: MediaItem) {
         viewModelScope.launch {
-            safeToast(context, "Sanitizing & exporting clean copy...")
+            safeToast(context, localizedString(context, R.string.vm_sanitizing_single))
             val file = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
             if (file != null) {
                 try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                safeToast(context, "Saved clean copy to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG)
+                safeToast(context, localizedString(context, R.string.vm_saved_clean_single), android.widget.Toast.LENGTH_LONG)
                 refreshAll()
             } else {
                 try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
-                safeToast(context, "Failed to export clean copy")
+                safeToast(context, localizedString(context, R.string.vm_failed_clean_single))
             }
         }
     }
 
     fun exportCleanCopies(context: Context, items: List<MediaItem>) {
         viewModelScope.launch {
-            safeToast(context, "Sanitizing ${items.size} photos...")
+            safeToast(context, localizedString(context, R.string.vm_sanitizing_many_fmt, items.size))
             var count = 0
             for (item in items) {
                 val f = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
@@ -3717,12 +3763,12 @@ class MainViewModel @Inject constructor(
             }
             if (count > 0) {
                 try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
-                safeToast(context, "Saved $count clean photos to Pictures/Cleaned", android.widget.Toast.LENGTH_LONG)
+                safeToast(context, localizedString(context, R.string.vm_saved_clean_many_fmt, count), android.widget.Toast.LENGTH_LONG)
                 selectionState.clear()
                 refreshAll()
             } else {
                 try { com.hrshd1eux.imava.core.util.HapticUtil.performError(context) } catch (_: Exception) {}
-                safeToast(context, "Failed to export clean photos")
+                safeToast(context, localizedString(context, R.string.vm_failed_clean_many))
             }
         }
     }

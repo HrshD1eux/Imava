@@ -1113,7 +1113,7 @@ object ImavaDropServer {
     private fun serveZipArchive(output: OutputStream) {
         val ctx = appContext ?: return send404(output)
         val items = _state.value.sharedItems
-        val dateStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val dateStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val zipFilename = "Imava_Drop_$dateStamp.zip"
 
         val headerStr = "HTTP/1.1 200 OK\r\n" +

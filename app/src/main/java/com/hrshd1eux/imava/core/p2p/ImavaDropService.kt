@@ -80,13 +80,14 @@ class ImavaDropService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val url = ImavaDropServer.state.value.url ?: "Local Wi-Fi"
+        val locCtx = com.hrshd1eux.imava.core.util.LocaleHelper.localizedContext(this)
+        val url = ImavaDropServer.state.value.url ?: locCtx.getString(com.hrshd1eux.imava.R.string.drop_notif_fallback_wifi)
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_upload)
-            .setContentTitle("Imava Drop Active")
-            .setContentText("Sharing on $url • Tap to open")
+            .setContentTitle(locCtx.getString(com.hrshd1eux.imava.R.string.drop_notif_title))
+            .setContentText(locCtx.getString(com.hrshd1eux.imava.R.string.drop_notif_text_fmt, url))
             .setContentIntent(openAppPendingIntent)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop Sharing", stopPendingIntent)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, locCtx.getString(com.hrshd1eux.imava.R.string.drop_stop_sharing), stopPendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -112,12 +113,13 @@ class ImavaDropService : Service() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val locCtx = com.hrshd1eux.imava.core.util.LocaleHelper.localizedContext(this)
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Local Wi-Fi Drop",
+                locCtx.getString(com.hrshd1eux.imava.R.string.drop_channel_name),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Shows status while direct local Wi-Fi file sharing is active"
+                description = locCtx.getString(com.hrshd1eux.imava.R.string.drop_channel_desc)
                 setShowBadge(false)
             }
             val manager = getSystemService(NotificationManager::class.java)
