@@ -1449,4 +1449,9 @@
     <string name="webdav_test_auth_failed">ధృవీకరణ విఫలమైంది (401). వినియోగదారు పేరు మరియు పాస్‌వర్డ్‌ను తనిఖీ చేయండి.</string>
     <string name="webdav_test_connected_host_fmt">హోస్ట్‌కు విజయవంతంగా కనెక్ట్ చేయబడింది (కోడ్ %1$d)</string>
     <string name="webdav_test_http_err_fmt">సర్వర్ HTTP %1$d ను పంపింది: %2$s</string>
+    <string name="imava_drop_share_title">Imava Drop</string>
+    <string name="drop_share_preparing">Imava Drop కోసం మీడియాను సిద్ధం చేస్తోంది…</string>
+    <string name="drop_share_preparing_count_fmt">%2$d లో %1$d ఫైల్‌లు సిద్ధమవుతున్నాయి…</string>
+    <string name="drop_share_no_supported_media">షేర్ చేయడానికి మద్దతు ఉన్న ఫోటోలు లేదా వీడియోలు ఏవీ కనుగొనబడలేదు.</string>
+    <string name="drop_share_failed">బదిలీ కోసం షేర్ చేసిన మీడియాను సిద్ధం చేయడం సాధ్యం కాలేదు.</string>
 </resources>

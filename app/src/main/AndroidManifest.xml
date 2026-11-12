@@ -91,6 +91,30 @@
             </intent-filter>
         </activity>
 
+        <!-- Lightweight System Share Sheet target for quick Wi-Fi transfer via Imava Drop -->
+        <activity
+            android:name=".ui.p2p.ImavaDropShareActivity"
+            android:exported="true"
+            android:label="@string/imava_drop_share_title"
+            android:theme="@style/Theme.Imava.Translucent"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

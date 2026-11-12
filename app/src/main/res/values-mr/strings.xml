@@ -1449,4 +1449,9 @@
     <string name="webdav_test_auth_failed">प्रमाणीकरण अयशस्वी (401). वापरकर्तानाव आणि पासवर्ड तपासा.</string>
     <string name="webdav_test_connected_host_fmt">होस्टशी यशस्वीरित्या कनेक्ट झाले (कोड %1$d)</string>
     <string name="webdav_test_http_err_fmt">सर्व्हरने HTTP %1$d परत केले: %2$s</string>
+    <string name="imava_drop_share_title">Imava Drop</string>
+    <string name="drop_share_preparing">Imava Drop साठी मीडिया तयार करत आहे…</string>
+    <string name="drop_share_preparing_count_fmt">%2$d पैकी %1$d फाइल्स तयार करत आहे…</string>
+    <string name="drop_share_no_supported_media">शेअर करण्यासाठी कोणतेही समर्थित फोटो किंवा व्हिडिओ सापडले नाहीत.</string>
+    <string name="drop_share_failed">हस्तांतरणासाठी शेअर केलेला मीडिया तयार करता आला नाही.</string>
 </resources>

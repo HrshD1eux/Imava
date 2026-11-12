@@ -1449,4 +1449,9 @@
     <string name="webdav_test_auth_failed">அங்கீகாரம் தோல்வி (401). பயனர்பெயர் மற்றும் கடவுச்சொல்லைச் சரிபார்க்கவும்.</string>
     <string name="webdav_test_connected_host_fmt">ஹோஸ்டுடன் வெற்றிகரமாக இணைக்கப்பட்டது (குறியீடு %1$d)</string>
     <string name="webdav_test_http_err_fmt">சர்வர் HTTP %1$d ஐத் திருப்பியது: %2$s</string>
+    <string name="imava_drop_share_title">Imava Drop</string>
+    <string name="drop_share_preparing">Imava Drop-க்காக மீடியா தயாராகிறது…</string>
+    <string name="drop_share_preparing_count_fmt">%2$d இல் %1$d கோப்புகள் தயாராகின்றன…</string>
+    <string name="drop_share_no_supported_media">பகிர ஆதரிக்கப்படும் புகைப்படங்கள் அல்லது வீடியோக்கள் எதுவும் இல்லை.</string>
+    <string name="drop_share_failed">பரிமாற்றத்திற்கு பகிரப்பட்ட மீடியாவைத் தயாரிக்க முடியவில்லை.</string>
 </resources>

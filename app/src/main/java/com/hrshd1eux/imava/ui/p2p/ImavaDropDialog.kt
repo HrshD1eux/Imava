@@ -51,6 +51,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +81,7 @@ import com.hrshd1eux.imava.data.model.MediaItem
 @Composable
 fun ImavaDropDialog(
     itemsToShare: List<MediaItem>,
+    fromExternalShare: Boolean = false,
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
@@ -89,9 +91,15 @@ fun ImavaDropDialog(
 
     // Start server on entry if not running, update items if already running
     DisposableEffect(Unit) {
-        ImavaDropServer.start(context, itemsToShare)
+        ImavaDropServer.start(context, itemsToShare, fromExternalShare = fromExternalShare)
         onDispose {
             ImavaDropServer.stop()
+        }
+    }
+
+    LaunchedEffect(itemsToShare, fromExternalShare) {
+        if (ImavaDropServer.isRunning() && ImavaDropServer.state.value.sharedItems != itemsToShare) {
+            ImavaDropServer.start(context, itemsToShare, fromExternalShare = fromExternalShare)
         }
     }
 

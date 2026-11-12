@@ -1449,4 +1449,9 @@
     <string name="webdav_test_auth_failed">Error de autenticación (401). Verifica el usuario y la contraseña.</string>
     <string name="webdav_test_connected_host_fmt">Conectado correctamente al host (código %1$d)</string>
     <string name="webdav_test_http_err_fmt">El servidor devolvió HTTP %1$d: %2$s</string>
+    <string name="imava_drop_share_title">Imava Drop</string>
+    <string name="drop_share_preparing">Preparando archivos para Imava Drop…</string>
+    <string name="drop_share_preparing_count_fmt">Preparando %1$d de %2$d archivos…</string>
+    <string name="drop_share_no_supported_media">No se encontraron fotos ni videos compatibles para compartir.</string>
+    <string name="drop_share_failed">No se pudieron preparar los archivos compartidos para la transferencia.</string>
 </resources>

@@ -1449,4 +1449,9 @@
     <string name="webdav_test_auth_failed">প্রমাণীকরণ ব্যর্থ (401)। ব্যবহারকারীর নাম এবং পাসওয়ার্ড যাচাই করুন।</string>
     <string name="webdav_test_connected_host_fmt">হোস্টের সাথে সফলভাবে সংযুক্ত হয়েছে (কোড %1$d)</string>
     <string name="webdav_test_http_err_fmt">সার্ভার HTTP %1$d ফেরত দিয়েছে: %2$s</string>
+    <string name="imava_drop_share_title">Imava Drop</string>
+    <string name="drop_share_preparing">Imava Drop-এর জন্য মিডিয়া প্রস্তুত করা হচ্ছে…</string>
+    <string name="drop_share_preparing_count_fmt">%2$dটির মধ্যে %1$dটি ফাইল প্রস্তুত করা হচ্ছে…</string>
+    <string name="drop_share_no_supported_media">শেয়ার করার জন্য কোনো সমর্থিত ফটো বা ভিডিও পাওয়া যায়নি।</string>
+    <string name="drop_share_failed">স্থানান্তরের জন্য শেয়ার করা মিডিয়া প্রস্তুত করা যায়নি।</string>
 </resources>

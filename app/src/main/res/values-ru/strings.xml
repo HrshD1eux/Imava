@@ -1449,4 +1449,9 @@
     <string name="webdav_test_auth_failed">Ошибка аутентификации (401). Проверьте имя пользователя и пароль.</string>
     <string name="webdav_test_connected_host_fmt">Успешно подключено к хосту (код %1$d)</string>
     <string name="webdav_test_http_err_fmt">Сервер вернул HTTP %1$d: %2$s</string>
+    <string name="imava_drop_share_title">Imava Drop</string>
+    <string name="drop_share_preparing">Подготовка медиафайлов для Imava Drop…</string>
+    <string name="drop_share_preparing_count_fmt">Подготовка %1$d из %2$d файлов…</string>
+    <string name="drop_share_no_supported_media">Не найдено поддерживаемых фото или видео для отправки.</string>
+    <string name="drop_share_failed">Не удалось подготовить файлы для передачи.</string>
 </resources>

@@ -1449,4 +1449,9 @@
     <string name="webdav_test_auth_failed">પ્રમાણીકરણ નિષ્ફળ (401). વપરાશકર્તા નામ અને પાસવર્ડ ચકાસો.</string>
     <string name="webdav_test_connected_host_fmt">હોસ્ટ સાથે સફળતાપૂર્વક કનેક્ટ થયું (કોડ %1$d)</string>
     <string name="webdav_test_http_err_fmt">સર્વરે HTTP %1$d આપ્યું: %2$s</string>
+    <string name="imava_drop_share_title">Imava Drop</string>
+    <string name="drop_share_preparing">Imava Drop માટે મીડિયા તૈયાર થઈ રહ્યું છે…</string>
+    <string name="drop_share_preparing_count_fmt">%2$d માંથી %1$d ફાઇલો તૈયાર થઈ રહી છે…</string>
+    <string name="drop_share_no_supported_media">શેર કરવા માટે કોઈ સમર્થિત ફોટા અથવા વિડિઓ મળ્યા નથી.</string>
+    <string name="drop_share_failed">ટ્રાન્સફર માટે શેર કરેલ મીડિયા તૈયાર કરી શકાયું નથી.</string>
 </resources>

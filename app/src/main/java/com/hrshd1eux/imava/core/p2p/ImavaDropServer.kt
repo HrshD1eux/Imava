@@ -77,6 +77,9 @@ object ImavaDropServer {
     val state: StateFlow<ImavaDropState> = _state.asStateFlow()
 
     private var appContext: Context? = null
+    @Volatile
+    var launchedFromExternalShare: Boolean = false
+        private set
     private val scope = CoroutineScope(Dispatchers.IO)
     var onFileReceived: (() -> Unit)? = null
 
@@ -87,12 +90,19 @@ object ImavaDropServer {
     }
 
     @Synchronized
-    fun start(context: Context, items: List<MediaItem>, preferredPort: Int = 8765): Boolean {
+    fun start(
+        context: Context,
+        items: List<MediaItem>,
+        preferredPort: Int = 8765,
+        fromExternalShare: Boolean = false
+    ): Boolean {
         if (_state.value.isRunning) {
+            launchedFromExternalShare = fromExternalShare
             updateItems(items)
             return true
         }
 
+        launchedFromExternalShare = fromExternalShare
         appContext = context.applicationContext
         val ip = getLocalIpAddress()
         if (ip == null) {
@@ -242,6 +252,8 @@ object ImavaDropServer {
 
         cachedFaviconBytes = null
         cachedFaviconBase64 = null
+        launchedFromExternalShare = false
+        ImavaDropShareHelper.clearStagedFiles(appContext)
 
         _state.value = _state.value.copy(
             isRunning = false,

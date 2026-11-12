@@ -121,6 +121,7 @@
 | **Pairing PIN Authentication & CORS Hardening** | `ImavaDropServer.kt`, `isAuthorized()` | Cryptographically secure 6-digit pairing PIN, automatic session cookies, DNS rebinding Host verification, strict CORS isolation, and 15-minute idle shutdown timer. |
 | **Background Service & Wi-Fi Lock** | `ImavaDropService.kt`, `WifiManager.WifiLock` | Runs as a foreground service with high-performance Wi-Fi lock. Minimizing the app or turning off the screen does **not** terminate transfers. |
 | **Offline Hotspot Fallback Guidance** | `ImavaDropDialog.kt` | Automatically detects when no Wi-Fi router is present and displays a 1-tap responsive guidance banner routing the user to Android Hotspot settings, enabling offline 80–100 MB/s transfers anywhere without internet or permissions. |
+| **System Share Sheet Entry ("Imava Drop")** | `ImavaDropShareActivity.kt`, `ImavaDropShareHelper.kt` | Appears directly in Android's System Share Sheet (`ACTION_SEND` / `ACTION_SEND_MULTIPLE` for `image/*` and `video/*`). Stages external `content://` FileProvider URIs cleanly so you can drop photos or videos straight from WhatsApp, Chrome, or Telegram onto your PC without unlocking the main gallery. |
 
 ---
 

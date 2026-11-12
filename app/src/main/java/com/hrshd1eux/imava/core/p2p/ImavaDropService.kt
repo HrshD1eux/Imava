@@ -60,8 +60,17 @@ class ImavaDropService : Service() {
 
         createNotificationChannel()
 
-        val openAppIntent = Intent(this, MainActivity::class.java).apply {
-            setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val targetActivity = if (ImavaDropServer.launchedFromExternalShare) {
+            com.hrshd1eux.imava.ui.p2p.ImavaDropShareActivity::class.java
+        } else {
+            MainActivity::class.java
+        }
+        val openAppIntent = Intent(this, targetActivity).apply {
+            setFlags(
+                Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+            )
         }
         val openAppPendingIntent = PendingIntent.getActivity(
             this,
