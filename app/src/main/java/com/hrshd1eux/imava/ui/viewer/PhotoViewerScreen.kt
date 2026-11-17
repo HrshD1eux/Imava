@@ -843,25 +843,27 @@ fun PhotoViewerScreen(
                             }
                         )
 
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.viewer_menu_set_wallpaper)) },
-                            leadingIcon = { Icon(Icons.Default.Wallpaper, contentDescription = null) },
-                            onClick = {
-                                showMoreMenu = false
-                                showWallpaperDialog = true
-                            }
-                        )
+                        if (!item.isHidden) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.viewer_menu_set_wallpaper)) },
+                                leadingIcon = { Icon(Icons.Default.Wallpaper, contentDescription = null) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    showWallpaperDialog = true
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.viewer_menu_set_album_cover)) },
-                            leadingIcon = { Icon(Icons.Default.Album, contentDescription = null) },
-                            onClick = {
-                                showMoreMenu = false
-                                showAlbumCoverChooserDialog = true
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.viewer_menu_set_album_cover)) },
+                                leadingIcon = { Icon(Icons.Default.Album, contentDescription = null) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    showAlbumCoverChooserDialog = true
+                                }
+                            )
+                        }
 
-                        if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo) {
+                        if (item is com.hrshd1eux.imava.data.model.MediaItem.Photo && !item.isHidden) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.viewer_menu_save_clean_copy)) },
                                 leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
@@ -1113,16 +1115,33 @@ fun PhotoViewerScreen(
                             Icon(imageVector = Icons.Default.Share, contentDescription = stringResource(R.string.action_share), tint = Color.White)
                         }
 
-                        IconButton(onClick = {
-                            com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
-                            showMoveToAlbumDialog = true
-                        }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = stringResource(R.string.move_to_album), tint = Color.White)
+                        if (item.isHidden) {
+                            IconButton(onClick = {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                                val currentIndex = pagerState.currentPage
+                                val nextItem = if (currentIndex + 1 < mediaItems.size) mediaItems[currentIndex + 1] else if (currentIndex - 1 >= 0) mediaItems[currentIndex - 1] else null
+                                deletedMediaIds = deletedMediaIds + item.id
+                                viewModel.activeMediaItem = nextItem
+                                viewModel.toggleHidden(context, item, nextItem)
+                            }) {
+                                Icon(imageVector = Icons.Default.Visibility, contentDescription = stringResource(R.string.action_unhide), tint = Color.White)
+                            }
+                        } else {
+                            IconButton(onClick = {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                                showMoveToAlbumDialog = true
+                            }) {
+                                Icon(imageVector = Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = stringResource(R.string.move_to_album), tint = Color.White)
+                            }
                         }
 
                         IconButton(onClick = {
                             com.hrshd1eux.imava.core.util.HapticUtil.performLongPress(context)
-                            showDeleteConfirmDialog = true
+                            if (item.isHidden) {
+                                showDeletePermanentlyConfirmDialog = true
+                            } else {
+                                showDeleteConfirmDialog = true
+                            }
                         }) {
                             Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.action_delete), tint = Color.White)
                         }
@@ -1243,43 +1262,45 @@ fun PhotoViewerScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                        Spacer(modifier = Modifier.height(10.dp))
+                        if (!item.isHidden) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                            Spacer(modifier = Modifier.height(10.dp))
 
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    showShareDialog = false
-                                    showImavaDropDialog = true
-                                }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        showShareDialog = false
+                                        showImavaDropDialog = true
+                                    }
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.WifiTethering,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.share_via_wifi_drop_title),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.WifiTethering,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
                                     )
-                                    Text(
-                                        text = stringResource(R.string.share_via_wifi_drop_desc),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = stringResource(R.string.share_via_wifi_drop_title),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.share_via_wifi_drop_desc),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                         }

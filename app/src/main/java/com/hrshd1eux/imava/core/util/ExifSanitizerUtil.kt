@@ -222,6 +222,10 @@ object ExifSanitizerUtil {
         context: Context,
         item: MediaItem
     ): File? = withContext(Dispatchers.IO) {
+        if (item.isHidden) {
+            // Guard: Never leak secret vault items to public Pictures/Cleaned
+            return@withContext null
+        }
         try {
             val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             val cleanedDir = File(picturesDir, "Cleaned").apply { mkdirs() }
@@ -240,15 +244,7 @@ object ExifSanitizerUtil {
             }
             inputStream?.use { input ->
                 FileOutputStream(targetFile).use { output ->
-                    if (item.isHidden) {
-                        try {
-                            VaultCrypto.decrypt(input, output)
-                        } catch (_: Exception) {
-                            input.copyTo(output)
-                        }
-                    } else {
-                        input.copyTo(output)
-                    }
+                    input.copyTo(output)
                 }
             } ?: return@withContext null
 

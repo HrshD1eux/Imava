@@ -43,7 +43,8 @@ interface MediaRepository {
     
     fun getFavoriteMediaFlow(): Flow<List<MediaItem>>
     fun getTrashedMediaFlow(): Flow<List<MediaItem>>
-    fun getHiddenMediaFlow(isVaultUnlocked: Boolean = false): Flow<List<MediaItem>>
+    fun getHiddenMediaFlow(isVaultUnlocked: Boolean = false, isDecoy: Boolean = false): Flow<List<MediaItem>>
+    suspend fun saveEditedVaultPhoto(context: android.content.Context, originalItem: com.hrshd1eux.imava.data.model.MediaItem.Photo, editedBitmap: android.graphics.Bitmap): Boolean
     suspend fun deleteMetadataPermanently(mediaId: Long)
     suspend fun deleteOrphanedMetadata(activeIds: List<Long>)
     suspend fun getActiveMediaIds(): List<Long>

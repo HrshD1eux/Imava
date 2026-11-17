@@ -697,8 +697,8 @@ fun TimelineScreen(
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
 
-                // Floating '+' Action Button in Vault view
-                if (viewModel.currentCategoryName == "Hidden Vault" && !inSelectionMode) {
+                // Floating '+' Action Button in Vault view (suppressed in decoy vault)
+                if (viewModel.currentCategoryName == "Hidden Vault" && !inSelectionMode && !viewModel.isDecoyVault) {
                     FloatingActionButton(
                         onClick = {
                             try { com.hrshd1eux.imava.core.util.HapticUtil.performClick(context) } catch (_: Exception) {}

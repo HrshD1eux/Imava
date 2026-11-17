@@ -126,6 +126,14 @@ class MainViewModel @Inject constructor(
 
     suspend fun saveEditedPhoto(context: Context, originalItem: MediaItem.Photo, editedBitmap: Bitmap) = withContext(Dispatchers.IO) {
         try {
+            if (originalItem.isHidden) {
+                val ok = repository.saveEditedVaultPhoto(context, originalItem, editedBitmap)
+                if (ok) {
+                    refreshAll()
+                }
+                return@withContext
+            }
+
             val resolver = context.contentResolver
             val isPng = originalItem.mimeType.equals("image/png", ignoreCase = true) ||
                 originalItem.path.endsWith(".png", ignoreCase = true)
@@ -185,7 +193,7 @@ class MainViewModel @Inject constructor(
 
     fun notifyVaultConfigChanged() = vaultState.notifyVaultConfigChanged()
     fun unlockVault() = vaultState.unlockVault()
-    fun unlockDecoyVault() = vaultState.unlockDecoyVault()
+    fun unlockDecoyVault(context: Context? = null) = vaultState.unlockDecoyVault(context)
 
     fun lockVault(context: Context) {
         if (currentCategoryName == "Hidden Vault") {
@@ -1706,8 +1714,10 @@ class MainViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            isVaultUnlocked.flatMapLatest { unlocked ->
-                repository.getHiddenMediaFlow(unlocked)
+            combine(isVaultUnlocked, vaultState.isDecoyVaultFlow) { unlocked, isDecoy ->
+                Pair(unlocked, isDecoy)
+            }.flatMapLatest { (unlocked, isDecoy) ->
+                repository.getHiddenMediaFlow(isVaultUnlocked = unlocked, isDecoy = isDecoy)
             }.collect {
                 _hidden.value = it
             }
@@ -3763,6 +3773,10 @@ class MainViewModel @Inject constructor(
     }
 
     fun exportCleanCopy(context: Context, item: MediaItem) {
+        if (item.isHidden) {
+            safeToast(context, localizedString(context, R.string.vm_failed_clean_single))
+            return
+        }
         viewModelScope.launch {
             safeToast(context, localizedString(context, R.string.vm_sanitizing_single))
             val file = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
@@ -3778,10 +3792,15 @@ class MainViewModel @Inject constructor(
     }
 
     fun exportCleanCopies(context: Context, items: List<MediaItem>) {
+        val nonHidden = items.filter { !it.isHidden }
+        if (nonHidden.isEmpty()) {
+            safeToast(context, localizedString(context, R.string.vm_failed_clean_many))
+            return
+        }
         viewModelScope.launch {
-            safeToast(context, localizedString(context, R.string.vm_sanitizing_many_fmt, items.size))
+            safeToast(context, localizedString(context, R.string.vm_sanitizing_many_fmt, nonHidden.size))
             var count = 0
-            for (item in items) {
+            for (item in nonHidden) {
                 val f = com.hrshd1eux.imava.core.util.ExifSanitizerUtil.exportCleanCopy(context, item)
                 if (f != null) count++
             }

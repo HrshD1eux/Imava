@@ -837,14 +837,24 @@ class MediaRepositoryImpl @Inject constructor(
                     e.printStackTrace()
                 }
             }
+
+            // Rescue any orphaned vault items that were accidentally marked trashed in earlier versions
+            try {
+                val trashedVaultEntities = metadataDao.getAllMetadata().filter { it.isHidden && it.isTrashed }
+                for (tve in trashedVaultEntities) {
+                    if (tve.vaultPath.isNotBlank() && java.io.File(tve.vaultPath).exists()) {
+                        metadataDao.updateTrashed(tve.mediaId, false, 0L)
+                    }
+                }
+            } catch (_: Exception) {}
         }
     }
 
-    override fun getHiddenMediaFlow(isVaultUnlocked: Boolean): Flow<List<MediaItem>> {
+    override fun getHiddenMediaFlow(isVaultUnlocked: Boolean, isDecoy: Boolean): Flow<List<MediaItem>> {
         return metadataDao.getAllMetadataFlow()
-            .onStart { if (isVaultUnlocked) syncVaultMetadata() }
+            .onStart { if (isVaultUnlocked && !isDecoy) syncVaultMetadata() }
             .map { metadataList ->
-                if (!isVaultUnlocked) return@map emptyList<MediaItem>()
+                if (!isVaultUnlocked || isDecoy) return@map emptyList<MediaItem>()
                 metadataList.filter { it.isHidden && !it.isTrashed }.mapNotNull { entity ->
                     val decryptedFile = com.hrshd1eux.imava.core.util.VaultCacheManager.getDecryptedFile(context, entity)
                     val uri = if (decryptedFile != null) {
@@ -954,10 +964,24 @@ class MediaRepositoryImpl @Inject constructor(
         val meta = metadataDao.getMetadataForMedia(mediaId)
         if (meta != null) {
             if (meta.vaultPath.isNotEmpty()) {
+                val secureShred = com.hrshd1eux.imava.core.util.FileShredderUtil.isSecureShredEnabled(context)
                 val vaultFile = java.io.File(meta.vaultPath)
-                if (vaultFile.exists()) vaultFile.delete()
+                if (vaultFile.exists()) {
+                    if (secureShred) {
+                        try { com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(vaultFile) } catch (_: Exception) { vaultFile.delete() }
+                    } else {
+                        vaultFile.delete()
+                    }
+                }
                 val metaFile = java.io.File(meta.vaultPath + ".meta")
-                if (metaFile.exists()) metaFile.delete()
+                if (metaFile.exists()) {
+                    if (secureShred) {
+                        try { com.hrshd1eux.imava.core.util.FileShredderUtil.shredFile(metaFile) } catch (_: Exception) { metaFile.delete() }
+                    } else {
+                        metaFile.delete()
+                    }
+                }
+                com.hrshd1eux.imava.core.util.VaultCacheManager.removeCachedFile(context, mediaId)
             }
             metadataDao.delete(meta)
             try { ocrDao?.deleteOcr(mediaId) } catch (_: Exception) {}
@@ -1544,6 +1568,89 @@ class MediaRepositoryImpl @Inject constructor(
             } catch (_: Exception) {}
 
             try { resolver.delete(uri, null, null) } catch (_: Exception) {}
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    override suspend fun saveEditedVaultPhoto(
+        context: Context,
+        originalItem: MediaItem.Photo,
+        editedBitmap: android.graphics.Bitmap
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val vaultDir = java.io.File(context.filesDir, "vault").apply { mkdirs() }
+            val newId = -kotlin.math.abs(System.currentTimeMillis() * 1000L + kotlin.random.Random.nextLong(1, 1000))
+            val vaultFile = java.io.File(vaultDir, "vault_$newId")
+            val tempVaultFile = java.io.File(vaultDir, "vault_$newId.tmp")
+
+            val isPng = originalItem.mimeType.equals("image/png", ignoreCase = true) || originalItem.path.endsWith(".png", ignoreCase = true)
+            val ext = if (isPng) "png" else "jpg"
+            val format = if (isPng) android.graphics.Bitmap.CompressFormat.PNG else android.graphics.Bitmap.CompressFormat.JPEG
+            val quality = if (isPng) 100 else 95
+
+            val byteStream = java.io.ByteArrayOutputStream()
+            editedBitmap.compress(format, quality, byteStream)
+            val bytes = byteStream.toByteArray()
+
+            tempVaultFile.outputStream().use { out ->
+                com.hrshd1eux.imava.core.util.VaultCrypto.encrypt(java.io.ByteArrayInputStream(bytes), out)
+            }
+            if (tempVaultFile.length() <= 0) {
+                tempVaultFile.delete()
+                return@withContext false
+            }
+            if (vaultFile.exists()) vaultFile.delete()
+            tempVaultFile.renameTo(vaultFile)
+
+            val entity = MediaMetadataEntity(
+                mediaId = newId,
+                isFavorite = false,
+                isHidden = true,
+                isTrashed = false,
+                originalPath = "Edited_${System.currentTimeMillis()}.$ext",
+                vaultPath = vaultFile.absolutePath,
+                mimeType = if (isPng) "image/png" else "image/jpeg",
+                dateTaken = System.currentTimeMillis(),
+                size = vaultFile.length(),
+                width = editedBitmap.width,
+                height = editedBitmap.height,
+                bucketId = 0L,
+                bucketName = "Vault",
+                durationMs = 0L
+            )
+            metadataDao.insertOrUpdate(entity)
+
+            val metaFile = java.io.File(vaultFile.absolutePath + ".meta")
+            try {
+                val props = java.util.Properties().apply {
+                    setProperty("mediaId", entity.mediaId.toString())
+                    setProperty("isFavorite", "false")
+                    setProperty("isHidden", "true")
+                    setProperty("isTrashed", "false")
+                    setProperty("originalPath", entity.originalPath)
+                    setProperty("vaultPath", entity.vaultPath)
+                    setProperty("mimeType", entity.mimeType)
+                    setProperty("dateTaken", entity.dateTaken.toString())
+                    setProperty("size", entity.size.toString())
+                    setProperty("width", entity.width.toString())
+                    setProperty("height", entity.height.toString())
+                    setProperty("bucketId", "0")
+                    setProperty("bucketName", "Vault")
+                    setProperty("durationMs", "0")
+                }
+                val byteArrayOutput = java.io.ByteArrayOutputStream()
+                props.store(byteArrayOutput, "Vault Metadata Sidecar")
+                metaFile.outputStream().use { out ->
+                    com.hrshd1eux.imava.core.util.VaultCrypto.encrypt(
+                        java.io.ByteArrayInputStream(byteArrayOutput.toByteArray()),
+                        out
+                    )
+                }
+            } catch (_: Exception) {}
+
             true
         } catch (e: Exception) {
             e.printStackTrace()

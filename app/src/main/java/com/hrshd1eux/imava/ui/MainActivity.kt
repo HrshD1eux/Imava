@@ -703,14 +703,16 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             }
                         },
                         actions = {
-                            IconButton(
-                                onClick = { showImavaDropDialog = true }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.WifiTethering,
-                                    contentDescription = stringResource(R.string.settings_wifi_drop),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
+                            if (viewModel.currentCategoryName != "Hidden Vault") {
+                                IconButton(
+                                    onClick = { showImavaDropDialog = true }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.WifiTethering,
+                                        contentDescription = stringResource(R.string.settings_wifi_drop),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                             TextButton(
                                 onClick = {
@@ -1102,22 +1104,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text(stringResource(R.string.menu_compress_images), style = MaterialTheme.typography.bodyMedium)
-                                                    Text(stringResource(R.string.menu_compress_images_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                                }
-                                            },
-                                            leadingIcon = {
-                                                Icon(Icons.Default.Compress, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                                            },
-                                            onClick = {
-                                                showSelectionMorePopup = false
-                                                showBulkCompressDialog = true
-                                            }
-                                        )
-
-                                        DropdownMenuItem(
-                                            text = {
-                                                Column {
                                                     Text(stringResource(R.string.menu_manage_tags), style = MaterialTheme.typography.bodyMedium)
                                                     Text(stringResource(R.string.menu_manage_tags_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
@@ -1216,22 +1202,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         DropdownMenuItem(
                                             text = {
                                                 Column {
-                                                    Text(stringResource(R.string.menu_compress_images), style = MaterialTheme.typography.bodyMedium)
-                                                    Text(stringResource(R.string.menu_compress_images_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                                }
-                                            },
-                                            leadingIcon = {
-                                                Icon(Icons.Default.Compress, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                                            },
-                                            onClick = {
-                                                showSelectionMorePopup = false
-                                                showBulkCompressDialog = true
-                                            }
-                                        )
-
-                                        DropdownMenuItem(
-                                            text = {
-                                                Column {
                                                     Text(stringResource(R.string.menu_manage_tags), style = MaterialTheme.typography.bodyMedium)
                                                     Text(stringResource(R.string.menu_manage_tags_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                                 }
@@ -1246,6 +1216,22 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                                         )
 
                                         if (!isViewingVault) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text(stringResource(R.string.menu_compress_images), style = MaterialTheme.typography.bodyMedium)
+                                                        Text(stringResource(R.string.menu_compress_images_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    }
+                                                },
+                                                leadingIcon = {
+                                                    Icon(Icons.Default.Compress, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                                },
+                                                onClick = {
+                                                    showSelectionMorePopup = false
+                                                    showBulkCompressDialog = true
+                                                }
+                                            )
+
                                             DropdownMenuItem(
                                                 text = {
                                                     Column {
@@ -1952,43 +1938,45 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                    Spacer(modifier = Modifier.height(10.dp))
+                    if (viewModel.currentCategoryName != "Hidden Vault") {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showSelectionShareDialog = false
-                                showImavaDropDialog = true
-                            }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showSelectionShareDialog = false
+                                    showImavaDropDialog = true
+                                }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.WifiTethering,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.share_via_wifi_drop_title),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.WifiTethering,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
                                 )
-                                Text(
-                                    text = stringResource(R.string.share_via_wifi_drop_desc),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = stringResource(R.string.share_via_wifi_drop_title),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.share_via_wifi_drop_desc),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }

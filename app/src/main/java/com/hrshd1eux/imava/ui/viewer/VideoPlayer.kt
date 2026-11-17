@@ -197,7 +197,9 @@ fun VideoPlayerContainer(
             .setAudioAttributes(audioAttributes, true)
             .build().apply {
             val path = uri.path
-            if (path != null && (path.contains("/vault/") || path.contains("vault_") || uri.scheme == "vault")) {
+            val isCachedDecrypted = path != null && (path.contains("vault_cache") || java.io.File(path).name.startsWith("decrypted_"))
+            val isEncryptedVaultCiphertext = path != null && !isCachedDecrypted && (path.contains("/vault/") || uri.scheme == "vault")
+            if (path != null && isEncryptedVaultCiphertext) {
                 val file = java.io.File(path)
                 if (file.exists()) {
                     try {

@@ -18,6 +18,10 @@ object ImageCompressor {
         item: MediaItem,
         targetKb: Int
     ): Uri? = withContext(Dispatchers.IO) {
+        if (item.isHidden) {
+            // Guard: Never leak secret vault items to public MediaStore Pictures/Compressed
+            return@withContext null
+        }
         val resolver = context.contentResolver
         val originalBitmap = try {
             val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }

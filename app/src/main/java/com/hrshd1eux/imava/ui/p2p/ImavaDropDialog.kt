@@ -85,21 +85,22 @@ fun ImavaDropDialog(
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
+    val safeItemsToShare = remember(itemsToShare) { itemsToShare.filter { !it.isHidden } }
     val serverState by ImavaDropServer.state.collectAsState()
     var isCopied by remember { mutableStateOf(false) }
     var showLogs by remember { mutableStateOf(false) }
 
     // Start server on entry if not running, update items if already running
     DisposableEffect(Unit) {
-        ImavaDropServer.start(context, itemsToShare, fromExternalShare = fromExternalShare)
+        ImavaDropServer.start(context, safeItemsToShare, fromExternalShare = fromExternalShare)
         onDispose {
             ImavaDropServer.stop()
         }
     }
 
-    LaunchedEffect(itemsToShare, fromExternalShare) {
-        if (ImavaDropServer.isRunning() && ImavaDropServer.state.value.sharedItems != itemsToShare) {
-            ImavaDropServer.start(context, itemsToShare, fromExternalShare = fromExternalShare)
+    LaunchedEffect(safeItemsToShare, fromExternalShare) {
+        if (ImavaDropServer.isRunning() && ImavaDropServer.state.value.sharedItems != safeItemsToShare) {
+            ImavaDropServer.start(context, safeItemsToShare, fromExternalShare = fromExternalShare)
         }
     }
 

@@ -70,6 +70,14 @@ object VaultCacheManager {
             if (cacheDir.exists()) {
                 cacheDir.deleteRecursively()
             }
+            val sharedDir = File(context.cacheDir, "shared_images")
+            if (sharedDir.exists()) {
+                sharedDir.deleteRecursively()
+            }
+            try {
+                val imageLoader = coil.Coil.imageLoader(context)
+                imageLoader.memoryCache?.clear()
+            } catch (_: Exception) {}
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -197,7 +197,7 @@ fun SearchScreen(
                         onUnlockDecoy = {
                             showSecretVaultUnlockDialog = false
                             viewModel.setSearchQuery("")
-                            viewModel.unlockDecoyVault()
+                            viewModel.unlockDecoyVault(context)
                             viewModel.currentBucketId = null
                             viewModel.currentBucketName = null
                             viewModel.currentCategoryName = "Hidden Vault"

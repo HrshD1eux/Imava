@@ -15,8 +15,9 @@ class VaultStateHolder {
     private val _isVaultUnlocked = MutableStateFlow(false)
     val isVaultUnlocked: StateFlow<Boolean> = _isVaultUnlocked.asStateFlow()
 
-    private var _isDecoyVault = mutableStateOf(false)
+    private val _isDecoyVault = MutableStateFlow(false)
     val isDecoyVault: Boolean get() = _isDecoyVault.value
+    val isDecoyVaultFlow: StateFlow<Boolean> = _isDecoyVault.asStateFlow()
 
     private var backgroundTimestamp = 0L
 
@@ -31,10 +32,11 @@ class VaultStateHolder {
         _vaultConfigVersion.value++
     }
 
-    fun unlockDecoyVault() {
+    fun unlockDecoyVault(context: Context? = null) {
         _isDecoyVault.value = true
         _isVaultUnlocked.value = true
         backgroundTimestamp = 0L
+        context?.let { VaultCacheManager.clearCache(it) }
         _vaultConfigVersion.value++
     }
 

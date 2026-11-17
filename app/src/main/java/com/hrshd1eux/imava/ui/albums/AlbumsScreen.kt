@@ -1486,7 +1486,7 @@ fun AlbumsScreen(
                     viewModel.currentScreen = com.hrshd1eux.imava.ui.Screen.Photos
                 },
                 onUnlockDecoy = {
-                    viewModel.unlockDecoyVault()
+                    viewModel.unlockDecoyVault(context)
                     showHiddenLockedDialog = false
                     viewModel.currentBucketId = null
                     viewModel.currentBucketName = null
