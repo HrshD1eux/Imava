@@ -98,6 +98,7 @@
 | Feature | Technical Implementation | Practical Capability |
 | :--- | :--- | :--- |
 | **Hardware AES-256 GCM Vault** | `VaultCrypto.kt`, `VaultSetupScreen.kt` | Private storage backed by Android Keystore. Encrypts files with AES/GCM/NoPadding (256-bit key), PBKDF2WithHmacSHA256 (100,000 iterations for PIN, 250,000 iterations for .imava backup archives) salt hashing. Encrypted files cannot be read by other apps or file managers. |
+| **Direct In-Vault Import (FAB)** | `VaultAddMediaDialog.kt`, `TimelineScreen.kt` | Floating '+' action button inside the unlocked Vault view allowing direct multi-item media import from internal gallery storage or external file pickers with automatic AES-256 encryption and public unlinking. |
 | **Plausible Deniability Decoy PIN** | `VaultStateHolder.kt`, `VaultUnlockDialog.kt` | Configure a secondary Decoy PIN. Entering the decoy PIN under duress unlocks an empty, harmless decoy vault while keeping your real private files hidden and protected. |
 | **Biometric Authentication** | `BiometricAuthHelper.kt` | Supports Fingerprint, Face Unlock, and Class 3 Biometrics with automatic fallback to device PIN/Pattern. |
 | **Biometric Trash Protection** | `AppLockManager.isTrashLocked()` | Hides deleted media behind biometric authentication. Deleted photos cannot be previewed or restored without identity verification. |

@@ -1460,6 +1460,97 @@ class MediaRepositoryImpl @Inject constructor(
         restoredCount
     }
 
+    override suspend fun importUriToVault(context: Context, uri: Uri): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val resolver = context.contentResolver
+            val vaultDir = java.io.File(context.filesDir, "vault").apply { mkdirs() }
+            val mimeType = resolver.getType(uri) ?: if (uri.toString().contains(".mp4", ignoreCase = true)) "video/mp4" else "image/jpeg"
+            var size = 0L
+            val dateTaken = System.currentTimeMillis()
+
+            try {
+                resolver.query(uri, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val sizeIdx = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                        if (sizeIdx >= 0) size = cursor.getLong(sizeIdx)
+                    }
+                }
+            } catch (_: Exception) {}
+
+            val newId = -kotlin.math.abs(System.currentTimeMillis() * 1000L + kotlin.random.Random.nextLong(1, 1000))
+            val vaultFile = java.io.File(vaultDir, "vault_$newId")
+            val tempVaultFile = java.io.File(vaultDir, "vault_$newId.tmp")
+
+            val openStream = resolver.openInputStream(uri) ?: return@withContext false
+            openStream.use { input ->
+                tempVaultFile.outputStream().use { output ->
+                    com.hrshd1eux.imava.core.util.VaultCrypto.encrypt(input, output)
+                }
+            }
+
+            if (tempVaultFile.length() <= 0) {
+                tempVaultFile.delete()
+                return@withContext false
+            }
+
+            if (vaultFile.exists()) vaultFile.delete()
+            tempVaultFile.renameTo(vaultFile)
+
+            val finalSize = if (size > 0L) size else vaultFile.length()
+            val entity = MediaMetadataEntity(
+                mediaId = newId,
+                isFavorite = false,
+                isHidden = true,
+                isTrashed = false,
+                originalPath = uri.toString(),
+                vaultPath = vaultFile.absolutePath,
+                mimeType = mimeType,
+                dateTaken = dateTaken,
+                size = finalSize,
+                width = 0,
+                height = 0,
+                bucketId = 0L,
+                bucketName = "Vault",
+                durationMs = 0L
+            )
+            metadataDao.insertOrUpdate(entity)
+
+            val metaFile = java.io.File(vaultFile.absolutePath + ".meta")
+            try {
+                val props = java.util.Properties().apply {
+                    setProperty("mediaId", entity.mediaId.toString())
+                    setProperty("isFavorite", entity.isFavorite.toString())
+                    setProperty("isHidden", entity.isHidden.toString())
+                    setProperty("isTrashed", entity.isTrashed.toString())
+                    setProperty("originalPath", entity.originalPath)
+                    setProperty("vaultPath", entity.vaultPath)
+                    setProperty("mimeType", entity.mimeType)
+                    setProperty("dateTaken", entity.dateTaken.toString())
+                    setProperty("size", entity.size.toString())
+                    setProperty("width", entity.width.toString())
+                    setProperty("height", entity.height.toString())
+                    setProperty("bucketId", entity.bucketId.toString())
+                    setProperty("bucketName", entity.bucketName)
+                    setProperty("durationMs", entity.durationMs.toString())
+                }
+                val byteArrayOutput = java.io.ByteArrayOutputStream()
+                props.store(byteArrayOutput, "Vault Metadata Sidecar")
+                metaFile.outputStream().use { out ->
+                    com.hrshd1eux.imava.core.util.VaultCrypto.encrypt(
+                        java.io.ByteArrayInputStream(byteArrayOutput.toByteArray()),
+                        out
+                    )
+                }
+            } catch (_: Exception) {}
+
+            try { resolver.delete(uri, null, null) } catch (_: Exception) {}
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     override suspend fun deleteAllVaultData(context: Context): Int = withContext(Dispatchers.IO) {
         var deletedCount = 0
         try {

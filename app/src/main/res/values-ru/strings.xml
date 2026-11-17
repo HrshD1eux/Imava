@@ -1454,4 +1454,15 @@
     <string name="drop_share_preparing_count_fmt">Подготовка %1$d из %2$d файлов…</string>
     <string name="drop_share_no_supported_media">Не найдено поддерживаемых фото или видео для отправки.</string>
     <string name="drop_share_failed">Не удалось подготовить файлы для передачи.</string>
+    <string name="vault_fab_add_cd">Добавить фото в сейф</string>
+    <string name="vault_import_dialog_title">Добавить в сейф</string>
+    <string name="vault_import_dialog_desc">Выберите фото или видео для шифрования и скрытия в сейфе.</string>
+    <string name="vault_import_selected_count_fmt">Выбрано объектов: %1$d</string>
+    <string name="vault_import_action_btn">Переместить в сейф (%1$d)</string>
+    <string name="vault_import_action_btn_zero">Переместить в сейф</string>
+    <string name="vault_import_select_all">Выбрать все</string>
+    <string name="vault_import_deselect_all">Снять выбор</string>
+    <string name="vault_import_browse_external">Обзор других файлов…</string>
+    <string name="vault_import_no_items">Нет доступных фото или видео для добавления.</string>
+    <string name="vault_import_success_toast_fmt">Перемещено в сейф: %1$d</string>
 </resources>

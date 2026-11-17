@@ -1454,4 +1454,15 @@
     <string name="drop_share_preparing_count_fmt">%2$dটির মধ্যে %1$dটি ফাইল প্রস্তুত করা হচ্ছে…</string>
     <string name="drop_share_no_supported_media">শেয়ার করার জন্য কোনো সমর্থিত ফটো বা ভিডিও পাওয়া যায়নি।</string>
     <string name="drop_share_failed">স্থানান্তরের জন্য শেয়ার করা মিডিয়া প্রস্তুত করা যায়নি।</string>
+    <string name="vault_fab_add_cd">ভল্টে ছবি যোগ করুন</string>
+    <string name="vault_import_dialog_title">ভল্টে যোগ করুন</string>
+    <string name="vault_import_dialog_desc">ভল্টে এনক্রিপ্ট এবং লুকানোর জন্য ছবি বা ভিডিও নির্বাচন করুন।</string>
+    <string name="vault_import_selected_count_fmt">%1$dটি আইটেম নির্বাচিত</string>
+    <string name="vault_import_action_btn">ভল্টে সরান (%1$d)</string>
+    <string name="vault_import_action_btn_zero">ভল্টে সরান</string>
+    <string name="vault_import_select_all">সব নির্বাচন করুন</string>
+    <string name="vault_import_deselect_all">সব অনির্বাচন করুন</string>
+    <string name="vault_import_browse_external">অন্যান্য ফাইল ব্রাউজ করুন…</string>
+    <string name="vault_import_no_items">যোগ করার মতো কোনো ছবি বা ভিডিও পাওয়া যায়নি।</string>
+    <string name="vault_import_success_toast_fmt">%1$dটি আইটেম ভল্টে সরানো হয়েছে</string>
 </resources>

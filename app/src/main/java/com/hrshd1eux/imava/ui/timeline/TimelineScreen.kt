@@ -120,10 +120,17 @@ import com.hrshd1eux.imava.data.model.formattedDuration
 import com.hrshd1eux.imava.data.model.isVideo
 import com.hrshd1eux.imava.data.model.TimelineItem
 import com.hrshd1eux.imava.ui.MainViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import com.hrshd1eux.imava.ui.vault.VaultAddMediaDialog
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -139,6 +146,24 @@ fun TimelineScreen(
     val currentCategory by viewModel.currentCategoryNameFlow.collectAsState()
     var headerToMediaIdsMap by remember { mutableStateOf<Map<String, List<Long>>>(emptyMap()) }
     val inSelectionMode = selectionState.inSelectionMode
+    var showVaultAddMediaDialog by remember { mutableStateOf(false) }
+
+    val externalPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia()
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            viewModel.importUrisToVault(context, uris) { count ->
+                if (count > 0) {
+                    try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(R.string.vault_import_success_toast_fmt, count),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
     LaunchedEffect(visibleItems, currentCategory, inSelectionMode) {
         // Option B optimization: Do NOT run expensive O(N) groupBy on 70k items during cold start or normal scrolling.
         // Only compute date header mapping when user actively enters multi-selection mode.
@@ -671,7 +696,58 @@ fun TimelineScreen(
                     visibleItems = visibleItems,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
+
+                // Floating '+' Action Button in Vault view
+                if (viewModel.currentCategoryName == "Hidden Vault" && !inSelectionMode) {
+                    FloatingActionButton(
+                        onClick = {
+                            try { com.hrshd1eux.imava.core.util.HapticUtil.performClick(context) } catch (_: Exception) {}
+                            showVaultAddMediaDialog = true
+                        },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .navigationBarsPadding()
+                            .padding(end = 20.dp, bottom = 20.dp),
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.vault_fab_add_cd)
+                        )
+                    }
+                }
             }
+        }
+
+        if (showVaultAddMediaDialog) {
+            val allMedia by viewModel.mediaItems.collectAsState()
+            val availableForVault = remember(allMedia) {
+                allMedia.filter { !it.isTrashed && !it.isHidden }
+            }
+            VaultAddMediaDialog(
+                availableMedia = availableForVault,
+                onDismiss = { showVaultAddMediaDialog = false },
+                onBrowseExternal = {
+                    showVaultAddMediaDialog = false
+                    externalPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+                    )
+                },
+                onConfirm = { ids ->
+                    showVaultAddMediaDialog = false
+                    viewModel.hideMediaByIds(context, ids) { count ->
+                        if (count > 0) {
+                            try { com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context) } catch (_: Exception) {}
+                            android.widget.Toast.makeText(
+                                context,
+                                context.getString(R.string.vault_import_success_toast_fmt, count),
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            )
         }
     }
 }

@@ -154,8 +154,8 @@ Imava is built specifically for users who refuse cloud telemetry, mandatory acco
 - **Zero-Binary Map Explorer**: Lightweight Leaflet + OpenStreetMap engine (<150 KB, 0 native `.so` binaries) with dynamic cluster markers for all geotagged photos.
 - **Free-Form Spatial Search**: Add descriptive place tags (e.g., *"delhi rohtak madina village printing press"*) without needing numeric coordinates, with instant gallery search indexing.
 
-### 14. Native 13 Multi-Language Engine & Android 13+ Per-App Locale
-- **Complete Native Translations**: 100% offline translations across 13 locales: **English, Spanish, Portuguese (Portugal), Portuguese (Brazil), German, Russian, French, Hindi, Bengali, Marathi, Telugu, Tamil, and Gujarati**.
+### 14. Multi-Language Engine & Android 13+ Per-App Locale
+- **Complete Native Translations**: 100% offline translations across **13 Android resource folders** covering **12 languages** (plus `System Default`): English, Spanish, Portuguese (`pt` & `pt-BR`), German, Russian, French, Hindi, Bengali, Marathi, Telugu, Tamil, and Gujarati.
 - **Android 13+ Per-App Locale Architecture**: Fully integrated with Android's system-level `LocaleManager` (`android:localeConfig`) as well as an in-app selector with native script typography.
 
 ### 15. Privacy Shield & Biometric App Lock
@@ -186,6 +186,27 @@ Imava is crafted with a pure, audited open-source foundation:
 
 ---
 
+## Supported Languages
+
+Imava ships **100% offline UI & notification translations** across **12 languages** (`locales_config.xml` + `System Default`) backed by **13 `strings.xml` locale folders**, all verified for key and format-placeholder parity in unit tests:
+
+| Language | Native Name | Locale Code | Resource Folder(s) |
+| :--- | :--- | :--- | :--- |
+| **English** *(Default)* | English | `en` | `values` |
+| **Spanish** | Español | `es` | `values-es` |
+| **Portuguese (Brazil / Fallback)** | Português (Brasil) | `pt-BR` | `values-pt-rBR`, `values-pt` |
+| **German** | Deutsch | `de` | `values-de` |
+| **Russian** | Русский | `ru` | `values-ru` |
+| **French** | Français | `fr` | `values-fr` |
+| **Hindi** | हिन्दी | `hi` | `values-hi` |
+| **Bengali** | বাংলা | `bn` | `values-bn` |
+| **Marathi** | मराठी | `mr` | `values-mr` |
+| **Telugu** | తెలుగు | `te` | `values-te` |
+| **Tamil** | தமிழ் | `ta` | `values-ta` |
+| **Gujarati** | ગુજરાતી | `gu` | `values-gu` |
+
+---
+
 ## Contribution Guidelines
 
 Contributions from the open-source community are welcome! To maintain Imava's standards, all contributions must adhere to the following rules:
@@ -203,7 +224,7 @@ Contributions from the open-source community are welcome! To maintain Imava's st
 2. **Mandatory Updates on Changes**:
    - **New Permissions**: Update `AndroidManifest.xml` comments and the in-app `PermissionsTransparencyScreen.kt`.
    - **New Dependencies**: Document in `AboutLegalScreen.kt`, `OpenSourceLicensesScreen.kt`, and this `README.md`.
-   - **New Features**: Add UI exposure with tactile haptic feedback, and ensure all user-facing strings are localized across all 11+ language resource files (`app/src/main/res/values-*/strings.xml`).
+   - **New Features**: Add UI exposure with tactile haptic feedback, and ensure all user-facing strings are localized across all 13 `strings.xml` locale folders (`app/src/main/res/values*/strings.xml`).
 3. **Verify Tests & Build**:
    ```bash
    ./gradlew compileDebugKotlin

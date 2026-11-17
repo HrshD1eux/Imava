@@ -415,4 +415,20 @@ class MainViewModelTest {
         viewModel.clearBatchProgress()
         assertNull(viewModel.batchOperationProgress.value)
     }
+
+    @Test
+    fun testImportUrisToVault_delegatesToRepository() = runTest(testDispatcher) {
+        val mockUri1 = mockk<android.net.Uri>(relaxed = true)
+        val mockUri2 = mockk<android.net.Uri>(relaxed = true)
+        coEvery { mockRepository.importUriToVault(any(), any()) } returns true
+
+        var callbackCount = 0
+        viewModel.importUrisToVault(mockApplication, listOf(mockUri1, mockUri2)) { count ->
+            callbackCount = count
+        }
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(2, callbackCount)
+        coVerify(exactly = 2) { mockRepository.importUriToVault(any(), any()) }
+    }
 }

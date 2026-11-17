@@ -1642,7 +1642,11 @@ class MainViewModel @Inject constructor(
             }
         }
         itemsFlow.map { pagingData ->
-            val nonTrashFiltered = if (category != "Trash") pagingData.filter { !it.isTrashed && !it.isHidden } else pagingData
+            val nonTrashFiltered = when (category) {
+                "Trash" -> pagingData
+                "Hidden Vault" -> pagingData.filter { !it.isTrashed }
+                else -> pagingData.filter { !it.isTrashed && !it.isHidden }
+            }
             val baseFiltered = if (filter == MediaFilterType.ALL || filter == MediaFilterType.PHOTOS || filter == MediaFilterType.SCREENSHOTS || filter == MediaFilterType.FAVORITES || filter == MediaFilterType.GIFS || filter == MediaFilterType.RAW) nonTrashFiltered else nonTrashFiltered.filter { matchesFilter(it, filter) }
             val filteredData = if (customTag.isNullOrBlank()) baseFiltered else baseFiltered.filter { it.tags.any { t -> t.equals(customTag, ignoreCase = true) } }
             val mapped: PagingData<TimelineItem> = filteredData.map { TimelineItem.Media(it) }
@@ -2722,7 +2726,7 @@ class MainViewModel @Inject constructor(
         hideMediaByIds(context, selectedIds)
     }
 
-    fun hideMediaByIds(context: Context, ids: Set<Long>) {
+    fun hideMediaByIds(context: Context, ids: Set<Long>, onComplete: ((Int) -> Unit)? = null) {
         if (ids.isEmpty()) return
         viewModelScope.launch {
             val selectedItems = getSelectedMediaItems(ids)
@@ -2731,6 +2735,26 @@ class MainViewModel @Inject constructor(
             }
             selectionState.clear()
             refreshAll()
+            onComplete?.invoke(selectedItems.size)
+        }
+    }
+
+    fun importUrisToVault(context: Context, uris: List<Uri>, onComplete: ((Int) -> Unit)? = null) {
+        if (uris.isEmpty()) return
+        viewModelScope.launch {
+            var count = 0
+            uris.forEach { uri ->
+                val existing = mediaItems.value.firstOrNull { it.uri == uri }
+                if (existing != null) {
+                    repository.toggleHidden(context, existing)
+                    count++
+                } else {
+                    val ok = repository.importUriToVault(context, uri)
+                    if (ok) count++
+                }
+            }
+            refreshAll()
+            onComplete?.invoke(count)
         }
     }
 

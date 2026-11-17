@@ -1454,4 +1454,15 @@
     <string name="drop_share_preparing_count_fmt">%2$d లో %1$d ఫైల్‌లు సిద్ధమవుతున్నాయి…</string>
     <string name="drop_share_no_supported_media">షేర్ చేయడానికి మద్దతు ఉన్న ఫోటోలు లేదా వీడియోలు ఏవీ కనుగొనబడలేదు.</string>
     <string name="drop_share_failed">బదిలీ కోసం షేర్ చేసిన మీడియాను సిద్ధం చేయడం సాధ్యం కాలేదు.</string>
+    <string name="vault_fab_add_cd">వాల్ట్‌కు ఫోటోలను జోడించండి</string>
+    <string name="vault_import_dialog_title">వాల్ట్‌కు జోడించండి</string>
+    <string name="vault_import_dialog_desc">వాల్ట్‌లో గుప్తీకరించి దాచడానికి ఫోటోలు లేదా వీడియోలను ఎంచుకోండి.</string>
+    <string name="vault_import_selected_count_fmt">%1$d అంశాలు ఎంపికయ్యాయి</string>
+    <string name="vault_import_action_btn">వాల్ట్‌కు తరలించండి (%1$d)</string>
+    <string name="vault_import_action_btn_zero">వాల్ట్‌కు తరలించండి</string>
+    <string name="vault_import_select_all">అన్నీ ఎంచుకోండి</string>
+    <string name="vault_import_deselect_all">ఎంపికను రద్దు చేయండి</string>
+    <string name="vault_import_browse_external">ఇతర ఫైల్‌లను బ్రౌజ్ చేయండి…</string>
+    <string name="vault_import_no_items">జోడించడానికి ఫోటోలు లేదా వీడియోలు లేవు.</string>
+    <string name="vault_import_success_toast_fmt">%1$d అంశాలు వాల్ట్‌కు తరలించబడ్డాయి</string>
 </resources>
