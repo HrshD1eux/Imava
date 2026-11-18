@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">Browse other files…</string>
     <string name="vault_import_no_items">No photos or videos available to add.</string>
     <string name="vault_import_success_toast_fmt">Moved %1$d item(s) to Vault</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">Duress Protection (Decoy Pattern)</string>
+    <string name="vault_set_duress_pattern_desc">If forced to open your vault under duress, draw this separate secondary pattern to display a realistic, empty decoy vault with zero traces of your actual private files.</string>
+    <string name="vault_set_decoy_pattern_active">✓ Decoy Pattern Active</string>
+    <string name="vault_set_decoy_pattern_unset">Decoy Pattern Not Set</string>
+    <string name="vault_set_modify_decoy_pattern_btn">Modify Decoy Pattern</string>
+    <string name="vault_set_set_decoy_pattern_btn">Set Decoy Pattern</string>
+    <string name="vault_set_decoy_pattern_title">Configure Decoy Pattern</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">Draw a 3x3 pattern different from your master pattern. Drawing this pattern on the unlock screen opens an empty decoy vault.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">Connect at least 4 dots for decoy pattern</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">Draw decoy pattern again to confirm</string>
+    <string name="vault_set_err_decoy_same_as_master">Decoy pattern cannot be the same as master pattern</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">Decoy credential cannot be the same as master credential</string>
+    <string name="vault_set_err_master_same_as_decoy">Master credential cannot be the same as decoy credential</string>
+    <string name="vault_set_decoy_type_reset_toast">Master lock changed. Decoy reset for security.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">Decoy pattern activated</string>
+    <string name="vault_set_duress_pass_title">Duress Protection (Decoy Password)</string>
+    <string name="vault_set_duress_pass_desc">If forced to open your vault under duress, enter this separate secondary password to display a realistic, empty decoy vault with zero traces of your actual private files.</string>
+    <string name="vault_set_decoy_pass_active">✓ Decoy Password Active</string>
+    <string name="vault_set_decoy_pass_unset">Decoy Password Not Set</string>
+    <string name="vault_set_modify_decoy_pass_btn">Modify Decoy Password</string>
+    <string name="vault_set_set_decoy_pass_btn">Set Decoy Password</string>
+    <string name="vault_set_decoy_pass_title">Configure Decoy Password</string>
+    <string name="vault_set_decoy_pass_dialog_desc">Enter an alphanumeric password different from your master password. Entering this code on the unlock screen opens an empty decoy vault.</string>
+    <string name="vault_set_decoy_pass_activated_toast">Decoy password activated</string>
+    <string name="vault_set_decoy_pass_label">Decoy Password</string>
+    <string name="vault_set_decoy_pass_confirm_label">Confirm Decoy Password</string>
 </resources>

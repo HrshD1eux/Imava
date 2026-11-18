@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">Procurar outros arquivos…</string>
     <string name="vault_import_no_items">Nenhuma foto ou vídeo disponível para adicionar.</string>
     <string name="vault_import_success_toast_fmt">%1$d item(ns) movido(s) para o cofre</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">Proteção sob coação (Padrão falso)</string>
+    <string name="vault_set_duress_pattern_desc">Se forçado a abrir o cofre sob coação, desenhe este padrão secundário para exibir um cofre falso vazio sem vestígios de seus arquivos reais.</string>
+    <string name="vault_set_decoy_pattern_active">✓ Padrão falso ativo</string>
+    <string name="vault_set_decoy_pattern_unset">Padrão falso não configurado</string>
+    <string name="vault_set_modify_decoy_pattern_btn">Modificar padrão falso</string>
+    <string name="vault_set_set_decoy_pattern_btn">Definir padrão falso</string>
+    <string name="vault_set_decoy_pattern_title">Configurar padrão falso</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">Desenhe um padrão diferente do seu padrão principal para abrir um cofre falso vazio.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">Conecte pelo menos 4 pontos para o padrão falso</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">Desenhe o padrão falso novamente para confirmar</string>
+    <string name="vault_set_err_decoy_same_as_master">O padrão falso não pode ser igual ao padrão principal</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">A credencial falsa não pode ser igual à credencial principal</string>
+    <string name="vault_set_err_master_same_as_decoy">A credencial principal não pode ser igual à credencial falsa</string>
+    <string name="vault_set_decoy_type_reset_toast">Bloqueio principal alterado. Senha falsa redefinida por segurança.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">Padrão falso ativado</string>
+    <string name="vault_set_duress_pass_title">Proteção sob coação (Senha falsa)</string>
+    <string name="vault_set_duress_pass_desc">Se forçado a abrir seu cofre sob coação, insira esta senha secundária para exibir um cofre falso vazio.</string>
+    <string name="vault_set_decoy_pass_active">✓ Senha falsa ativa</string>
+    <string name="vault_set_decoy_pass_unset">Senha falsa não configurada</string>
+    <string name="vault_set_modify_decoy_pass_btn">Modificar senha falsa</string>
+    <string name="vault_set_set_decoy_pass_btn">Definir senha falsa</string>
+    <string name="vault_set_decoy_pass_title">Configurar senha falsa</string>
+    <string name="vault_set_decoy_pass_dialog_desc">Digite uma senha diferente da sua senha principal para abrir um cofre falso vazio.</string>
+    <string name="vault_set_decoy_pass_activated_toast">Senha falsa ativada</string>
+    <string name="vault_set_decoy_pass_label">Senha falsa</string>
+    <string name="vault_set_decoy_pass_confirm_label">Confirmar senha falsa</string>
 </resources>

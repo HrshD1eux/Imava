@@ -79,7 +79,7 @@
 
 | Feature | Technical Implementation | Practical Capability |
 | :--- | :--- | :--- |
-| **Balanced Action Bottom Bar** | `MainActivity.kt` | Balanced 4-pillar selection bar: **Share**, **Edit**, **Delete**, and **More** (with quick Wi-Fi Drop action). |
+| **Balanced Action Bottom Bar with AutoFit Typography** | `MainActivity.kt`, `AutoFitText.kt` | Balanced 4-pillar selection bar: **Share**, **Edit**, **Delete**, and **More** (with quick Wi-Fi Drop action), backed by single-pass synchronous `AutoFitText` typography that prevents label clipping on compact displays. |
 | **Instant Optimistic Deletion** | `MainViewModel.kt` | Removes selected items from UI state in **0 ms** with haptic feedback, while resolving Room metadata and MediaStore file trash/deletion in background coroutines. |
 | **Bulk Image Compressor** | `BulkCompressDialog.kt` | Batch compresses dozens of selected photos to target file size thresholds simultaneously. |
 | **Bulk Tagging System** | `BulkTagDialog.kt` | Adds or removes custom organizational tags (`#family`, `#receipt`, `#vacation`) across multiple selected items at once. |
@@ -99,7 +99,7 @@
 | :--- | :--- | :--- |
 | **Hardware AES-256 GCM Vault** | `VaultCrypto.kt`, `VaultSetupScreen.kt` | Private storage backed by Android Keystore. Encrypts files with AES/GCM/NoPadding (256-bit key), PBKDF2WithHmacSHA256 (100,000 iterations for PIN, 250,000 iterations for .imava backup archives) salt hashing. Encrypted files cannot be read by other apps or file managers. |
 | **Direct In-Vault Import (FAB)** | `VaultAddMediaDialog.kt`, `TimelineScreen.kt` | Floating '+' action button inside the unlocked Vault view allowing direct multi-item media import from internal gallery storage or external file pickers with automatic AES-256 encryption and public unlinking. |
-| **Plausible Deniability Decoy PIN** | `VaultStateHolder.kt`, `VaultUnlockDialog.kt` | Configure a secondary Decoy PIN. Entering the decoy PIN under duress unlocks an empty, harmless decoy vault while keeping your real private files hidden and protected. |
+| **Plausible Deniability Dynamic Decoy (Pattern/PIN/Password)** | `VaultSettingsScreen.kt`, `VaultUnlockDialog.kt`, `VaultSecurityDialog.kt` | Dynamically configures a secondary decoy credential matching the master lock type (Pattern, PIN, or Password). Entering the decoy credential unlocks an empty decoy vault with dedicated cryptographic salt (`vault_decoy_salt`), collision guards, and lock-type migration resets. |
 | **Biometric Authentication** | `BiometricAuthHelper.kt` | Supports Fingerprint, Face Unlock, and Class 3 Biometrics with automatic fallback to device PIN/Pattern. |
 | **Biometric Trash Protection** | `AppLockManager.isTrashLocked()` | Hides deleted media behind biometric authentication. Deleted photos cannot be previewed or restored without identity verification. |
 | **Forensic File Shredder** | `FileShredderUtil.kt` | CSPRNG 3-pass file shredder (DoD 5220.22-M / NIST 800-88 compliant): overwrites byte sectors with `0x00`, `0xFF`, and random cryptographic noise before unlinking. Prevents data recovery from flash memory. |
@@ -192,9 +192,10 @@ Subtle, high-leverage features built natively into Imava that solve daily mobile
 9. **Dual Zoom-Synced Photo Compare Slider**: Split-screen comparison slider where zooming and panning one photo synchronously moves the other photo for pixel-peeping sharpness comparison.
 10. **Native Multi-Image PDF Converter**: Converts 1 to 50+ photos into a single PDF document in seconds with zero third-party PDF SDKs.
 11. **Recents Screenshot Shield (`FLAG_SECURE`)**: Blurs app previews in the Android app switcher and blocks unauthorized screenshots while viewing private media.
-12. **Plausible Deniability Decoy PIN**: Secondary PIN unlocks a harmless, empty decoy vault under duress.
+12. **Dynamic Decoy Credential (Pattern, PIN, Password)**: Plausible deniability credential dynamically matching your master lock type with independent cryptographic salt (`vault_decoy_salt`) and master collision guards.
 13. **Pure Kotlin QR Code Generator**: Reed-Solomon QR encoder running in pure Kotlin without ZXing or external dependencies.
 14. **Auto-Purge Expired Trash Worker**: Background WorkManager cleans up trashed files older than 30 days automatically.
 15. **Database Integrity & Orphan Cleaner Worker**: Cleans up Room database records for files deleted externally by third-party file managers.
 16. **Discrete Laplacian Blurry Photo Detector**: Pure-math edge variance analysis on downscaled thumbnails to flag out-of-focus or motion-blurred shots in milliseconds with zero ML bloat.
 17. **Deterministic Smart Albums**: Instant rule-based classification for giant videos (>500MB), burst sequences, screenshots, current-year captures, and user-tagged media without heavy AI models.
+18. **Zero-Flicker Synchronous Auto-Fit Typography Engine**: Single-pass `rememberTextMeasurer` layout engine that dynamically scales action button typography down to fit compact viewports (320dp/360dp) across all 13 supported languages.

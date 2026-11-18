@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">અન્ય ફાઇલો બ્રાઉઝ કરો…</string>
     <string name="vault_import_no_items">ઉમેરવા માટે કોઈ ફોટા કે વીડિયો ઉપલબ્ધ નથી.</string>
     <string name="vault_import_success_toast_fmt">%1$d આઇટમ વોલ્ટમાં ખસેડવામાં આવી</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">દબાણ હેઠળ સુરક્ષા (નકલી પેટર્ન)</string>
+    <string name="vault_set_duress_pattern_desc">જો દબાણમાં વૉલ્ટ ખોલવું પડે તો આ અલગ પેટર્ન દોરો જેથી ખાલી નકલી વૉલ્ટ ખુલે.</string>
+    <string name="vault_set_decoy_pattern_active">✓ નકલી પેટર્ન સક્રિય</string>
+    <string name="vault_set_decoy_pattern_unset">નકલી પેટર્ન સેટ નથી</string>
+    <string name="vault_set_modify_decoy_pattern_btn">નકલી પેટર્ન બદલો</string>
+    <string name="vault_set_set_decoy_pattern_btn">નકલી પેટર્ન સેટ કરો</string>
+    <string name="vault_set_decoy_pattern_title">નકલી પેટર્ન ગોઠવો</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">ખાલી વૉલ્ટ ખોલવા માટે મુખ્ય પેટર્નથી અલગ પેટર્ન દોરો.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">ઓછામાં ઓછા 4 બિંદુઓ જોડો</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">પુષ્ટિ કરવા માટે ફરીથી નકલી પેટર્ન દોરો</string>
+    <string name="vault_set_err_decoy_same_as_master">નકલી પેટર્ન મુખ્ય પેટર્ન જેવી ન હોઈ શકે</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">નકલી કોડ મુખ્ય કોડ જેવો ન હોઈ શકે</string>
+    <string name="vault_set_err_master_same_as_decoy">મુખ્ય કોડ નકલી કોડ જેવો ન હોઈ શકે</string>
+    <string name="vault_set_decoy_type_reset_toast">માસ્ટર લૉક બદલાયું. સુરક્ષા માટે નકલી કોડ રીસેટ કરવામાં આવ્યો.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">નકલી પેટર્ન સક્રિય થઈ</string>
+    <string name="vault_set_duress_pass_title">દબાણ હેઠળ સુરક્ષા (નકલી પાસવર્ડ)</string>
+    <string name="vault_set_duress_pass_desc">દબાણમાં વૉલ્ટ ખોલવા માટે આ અલગ પાસવર્ડ દાખલ કરો.</string>
+    <string name="vault_set_decoy_pass_active">✓ નકલી પાસવર્ડ સક્રિય</string>
+    <string name="vault_set_decoy_pass_unset">નકલી પાસવર્ડ સેટ નથી</string>
+    <string name="vault_set_modify_decoy_pass_btn">નકલી પાસવર્ડ બદલો</string>
+    <string name="vault_set_set_decoy_pass_btn">નકલી પાસવર્ડ સેટ કરો</string>
+    <string name="vault_set_decoy_pass_title">નકલી પાસવર્ડ ગોઠવો</string>
+    <string name="vault_set_decoy_pass_dialog_desc">ખાલી વૉલ્ટ માટે મુખ્ય પાસવર્ડથી અલગ પાસવર્ડ દાખલ કરો.</string>
+    <string name="vault_set_decoy_pass_activated_toast">નકલી પાસવર્ડ સક્રિય થયો</string>
+    <string name="vault_set_decoy_pass_label">નકલી પાસવર્ડ</string>
+    <string name="vault_set_decoy_pass_confirm_label">નકલી પાસવર્ડની પુષ્ટિ કરો</string>
 </resources>

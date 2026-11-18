@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">Andere Dateien durchsuchen…</string>
     <string name="vault_import_no_items">Keine Fotos oder Videos zum Hinzufügen verfügbar.</string>
     <string name="vault_import_success_toast_fmt">%1$d Element(e) in den Tresor verschoben</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">Notfall-Schutz (Täuschungsmuster)</string>
+    <string name="vault_set_duress_pattern_desc">Zeichnen Sie dieses alternative Muster, wenn Sie gezwungen werden, den Tresor zu öffnen, um einen leeren Scheintresor anzuzeigen.</string>
+    <string name="vault_set_decoy_pattern_active">✓ Täuschungsmuster aktiv</string>
+    <string name="vault_set_decoy_pattern_unset">Täuschungsmuster nicht eingerichtet</string>
+    <string name="vault_set_modify_decoy_pattern_btn">Täuschungsmuster ändern</string>
+    <string name="vault_set_set_decoy_pattern_btn">Täuschungsmuster festlegen</string>
+    <string name="vault_set_decoy_pattern_title">Täuschungsmuster konfigurieren</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">Zeichnen Sie ein Muster, das sich von Ihrem Hauptmuster unterscheidet. Bei Eingabe wird ein leerer Tresor geöffnet.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">Verbinden Sie mindestens 4 Punkte</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">Täuschungsmuster zur Bestätigung erneut zeichnen</string>
+    <string name="vault_set_err_decoy_same_as_master">Täuschungsmuster darf nicht mit dem Hauptmuster identisch sein</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">Täuschungscode darf nicht mit dem Hauptcode identisch sein</string>
+    <string name="vault_set_err_master_same_as_decoy">Hauptcode darf nicht mit dem Täuschungscode identisch sein</string>
+    <string name="vault_set_decoy_type_reset_toast">Hauptsperre geändert. Täuschung zur Sicherheit zurückgesetzt.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">Täuschungsmuster aktiviert</string>
+    <string name="vault_set_duress_pass_title">Notfall-Schutz (Täuschungspasswort)</string>
+    <string name="vault_set_duress_pass_desc">Geben Sie dieses separate Passwort ein, um unter Zwang einen leeren Scheintresor anzuzeigen.</string>
+    <string name="vault_set_decoy_pass_active">✓ Täuschungspasswort aktiv</string>
+    <string name="vault_set_decoy_pass_unset">Täuschungspasswort nicht eingerichtet</string>
+    <string name="vault_set_modify_decoy_pass_btn">Täuschungspasswort ändern</string>
+    <string name="vault_set_set_decoy_pass_btn">Täuschungspasswort festlegen</string>
+    <string name="vault_set_decoy_pass_title">Täuschungspasswort konfigurieren</string>
+    <string name="vault_set_decoy_pass_dialog_desc">Geben Sie ein vom Hauptpasswort abweichendes Passwort ein, um einen leeren Tresor zu entsperren.</string>
+    <string name="vault_set_decoy_pass_activated_toast">Täuschungspasswort aktiviert</string>
+    <string name="vault_set_decoy_pass_label">Täuschungspasswort</string>
+    <string name="vault_set_decoy_pass_confirm_label">Täuschungspasswort bestätigen</string>
 </resources>

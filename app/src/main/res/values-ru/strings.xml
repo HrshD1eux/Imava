@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">Обзор других файлов…</string>
     <string name="vault_import_no_items">Нет доступных фото или видео для добавления.</string>
     <string name="vault_import_success_toast_fmt">Перемещено в сейф: %1$d</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">Защита под принуждением (Ложный графический ключ)</string>
+    <string name="vault_set_duress_pattern_desc">Если вас принуждают открыть сейф, введите этот альтернативный ключ, чтобы открыть пустой ложный сейф без ваших файлов.</string>
+    <string name="vault_set_decoy_pattern_active">✓ Ложный графический ключ активен</string>
+    <string name="vault_set_decoy_pattern_unset">Ложный графический ключ не задан</string>
+    <string name="vault_set_modify_decoy_pattern_btn">Изменить ложный ключ</string>
+    <string name="vault_set_set_decoy_pattern_btn">Задать ложный ключ</string>
+    <string name="vault_set_decoy_pattern_title">Настройка ложного графического ключа</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">Нарисуйте ключ, отличный от основного, для открытия пустого ложного сейфа.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">Соедините минимум 4 точки</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">Повторите ложный ключ для подтверждения</string>
+    <string name="vault_set_err_decoy_same_as_master">Ложный ключ не может совпадать с основным</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">Ложный пароль не может совпадать с основным</string>
+    <string name="vault_set_err_master_same_as_decoy">Основной пароль не может совпадать с ложным</string>
+    <string name="vault_set_decoy_type_reset_toast">Тип блокировки изменен. Ложный пароль сброшен в целях безопасности.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">Ложный графический ключ активирован</string>
+    <string name="vault_set_duress_pass_title">Защита под принуждением (Ложный пароль)</string>
+    <string name="vault_set_duress_pass_desc">При принудительном открытии введите этот отдельный пароль для показа пустого сейфа.</string>
+    <string name="vault_set_decoy_pass_active">✓ Ложный пароль активен</string>
+    <string name="vault_set_decoy_pass_unset">Ложный пароль не задан</string>
+    <string name="vault_set_modify_decoy_pass_btn">Изменить ложный пароль</string>
+    <string name="vault_set_set_decoy_pass_btn">Задать ложный пароль</string>
+    <string name="vault_set_decoy_pass_title">Настройка ложного пароля</string>
+    <string name="vault_set_decoy_pass_dialog_desc">Введите пароль, отличный от основного, чтобы разблокировать пустой сейф.</string>
+    <string name="vault_set_decoy_pass_activated_toast">Ложный пароль активирован</string>
+    <string name="vault_set_decoy_pass_label">Ложный пароль</string>
+    <string name="vault_set_decoy_pass_confirm_label">Подтвердите ложный пароль</string>
 </resources>

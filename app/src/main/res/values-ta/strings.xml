@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">பிற கோப்புகளை உலாவுக…</string>
     <string name="vault_import_no_items">சேர்க்க எந்த புகைப்படமும் அல்லது வீடியோவும் இல்லை.</string>
     <string name="vault_import_success_toast_fmt">%1$d உருப்படிகள் வால்ட்டுக்கு நகர்த்தப்பட்டன</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">அச்சுறுத்தல் பாதுகாப்பு (போலி பேட்டர்ன்)</string>
+    <string name="vault_set_duress_pattern_desc">கட்டாயத்தில் வால்ட்டை திறக்க நேர்ந்தால் இந்த மாற்று பேட்டர்னை வரைந்து வெற்று போலி வால்ட்டை காட்டவும்.</string>
+    <string name="vault_set_decoy_pattern_active">✓ போலி பேட்டர்ன் செயலில் உள்ளது</string>
+    <string name="vault_set_decoy_pattern_unset">போலி பேட்டர்ன் அமைக்கப்படவில்லை</string>
+    <string name="vault_set_modify_decoy_pattern_btn">போலி பேட்டர்னை மாற்று</string>
+    <string name="vault_set_set_decoy_pattern_btn">போலி பேட்டர்னை அமை</string>
+    <string name="vault_set_decoy_pattern_title">போலி பேட்டர்னை அமைத்தல்</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">வெற்று வால்ட்டை திறக்க முதன்மை பேட்டர்னில் இருந்து மாறுபட்ட பேட்டர்னை வரையவும்.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">குறைந்தது 4 புள்ளிகளை இணைக்கவும்</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">உறுதிப்படுத்த மீண்டும் போலி பேட்டர்னை வரையவும்</string>
+    <string name="vault_set_err_decoy_same_as_master">போலி பேட்டர்ன் முதன்மை பேட்டர்னாக இருக்கக்கூடாது</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">போலி குறியீடு முதன்மை குறியீடாக இருக்கக்கூடாது</string>
+    <string name="vault_set_err_master_same_as_decoy">முதன்மை குறியீடு போலி குறியீடாக இருக்கக்கூடாது</string>
+    <string name="vault_set_decoy_type_reset_toast">முதன்மை பூட்டு மாற்றப்பட்டது. பாதுகாப்புக்காக போலி குறியீடு மீட்டமைக்கப்பட்டது.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">போலி பேட்டர்ன் செயல்படுத்தப்பட்டது</string>
+    <string name="vault_set_duress_pass_title">அச்சுறுத்தல் பாதுகாப்பு (போலி கடவுச்சொல்)</string>
+    <string name="vault_set_duress_pass_desc">கட்டாயத்தில் திறக்க இந்த மாற்று கடவுச்சொல்லை உள்ளிடவும்.</string>
+    <string name="vault_set_decoy_pass_active">✓ போலி கடவுச்சொல் செயலில் உள்ளது</string>
+    <string name="vault_set_decoy_pass_unset">போலி கடவுச்சொல் அமைக்கப்படவில்லை</string>
+    <string name="vault_set_modify_decoy_pass_btn">போலி கடவுச்சொல்லை மாற்று</string>
+    <string name="vault_set_set_decoy_pass_btn">போலி கடவுச்சொல்லை அமை</string>
+    <string name="vault_set_decoy_pass_title">போலி கடவுச்சொல்லை அமைத்தல்</string>
+    <string name="vault_set_decoy_pass_dialog_desc">முதன்மை கடவுச்சொல்லில் இருந்து மாறுபட்ட கடவுச்சொல்லை உள்ளிடவும்.</string>
+    <string name="vault_set_decoy_pass_activated_toast">போலி கடவுச்சொல் செயல்படுத்தப்பட்டது</string>
+    <string name="vault_set_decoy_pass_label">போலி கடவுச்சொல்</string>
+    <string name="vault_set_decoy_pass_confirm_label">போலி கடவுச்சொல்லை உறுதிப்படுத்தவும்</string>
 </resources>

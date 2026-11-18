@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">इतर फाइल्स ब्राउझ करा…</string>
     <string name="vault_import_no_items">जोडण्यासाठी कोणतेही फोटो किंवा व्हिडिओ उपलब्ध नाहीत।</string>
     <string name="vault_import_success_toast_fmt">%1$d आयटम व्हॉल्टमध्ये हलवले</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">दबावाखाली संरक्षण (बनावट पॅटर्न)</string>
+    <string name="vault_set_duress_pattern_desc">दबावाखाली व्हॉल्ट उघडावा लागल्यास हा वेगळा पॅटर्न काढा ज्यामुळे रिकामे बनावट व्हॉल्ट उघडेल.</string>
+    <string name="vault_set_decoy_pattern_active">✓ बनावट पॅटर्न सक्रिय</string>
+    <string name="vault_set_decoy_pattern_unset">बनावट पॅटर्न सेट नाही</string>
+    <string name="vault_set_modify_decoy_pattern_btn">बनावट पॅटर्न बदला</string>
+    <string name="vault_set_set_decoy_pattern_btn">बनावट पॅटर्न सेट करा</string>
+    <string name="vault_set_decoy_pattern_title">बनावट पॅटर्न कॉन्फिगर करा</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">मुख्य पॅटर्नपेक्षा वेगळा पॅटर्न काढा ज्यामुळे रिकामे व्हॉल्ट उघडेल.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">किमान ४ बिंदू जोडा</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">खात्री करण्यासाठी पुन्हा बनावट पॅटर्न काढा</string>
+    <string name="vault_set_err_decoy_same_as_master">बनावट पॅटर्न मुख्य पॅटर्नसारखा असू शकत नाही</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">बनावट कोड मुख्य कोडसारखा असू शकत नाही</string>
+    <string name="vault_set_err_master_same_as_decoy">मुख्य कोड बनावट कोडसारखा असू शकत नाही</string>
+    <string name="vault_set_decoy_type_reset_toast">मुख्य लॉक बदलले. सुरक्षेसाठी बनावट कोड रीसेट केला.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">बनावट पॅटर्न सक्रिय झाला</string>
+    <string name="vault_set_duress_pass_title">दबावाखाली संरक्षण (बनावट पासवर्ड)</string>
+    <string name="vault_set_duress_pass_desc">दबावाखाली व्हॉल्ट उघडण्यासाठी हा वेगळा पासवर्ड टाका.</string>
+    <string name="vault_set_decoy_pass_active">✓ बनावट पासवर्ड सक्रिय</string>
+    <string name="vault_set_decoy_pass_unset">बनावट पासवर्ड सेट नाही</string>
+    <string name="vault_set_modify_decoy_pass_btn">बनावट पासवर्ड बदला</string>
+    <string name="vault_set_set_decoy_pass_btn">बनावट पासवर्ड सेट करा</string>
+    <string name="vault_set_decoy_pass_title">बनावट पासवर्ड कॉन्फिगर करा</string>
+    <string name="vault_set_decoy_pass_dialog_desc">मुख्य पासवर्डपेक्षा वेगळा पासवर्ड टाका.</string>
+    <string name="vault_set_decoy_pass_activated_toast">बनावट पासवर्ड सक्रिय झाला</string>
+    <string name="vault_set_decoy_pass_label">बनावट पासवर्ड</string>
+    <string name="vault_set_decoy_pass_confirm_label">बनावट पासवर्डची खात्री करा</string>
 </resources>

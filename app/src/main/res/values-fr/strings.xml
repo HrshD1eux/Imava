@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">Parcourir d\'autres fichiers…</string>
     <string name="vault_import_no_items">Aucune photo ni vidéo disponible à ajouter.</string>
     <string name="vault_import_success_toast_fmt">%1$d élément(s) déplacé(s) vers le coffre-fort</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">Protection sous contrainte (Schéma leurre)</string>
+    <string name="vault_set_duress_pattern_desc">Dessinez ce schéma secondaire sous la contrainte pour afficher un coffre-fort leurre vide sans trace de vos fichiers privés.</string>
+    <string name="vault_set_decoy_pattern_active">✓ Schéma leurre actif</string>
+    <string name="vault_set_decoy_pattern_unset">Schéma leurre non configuré</string>
+    <string name="vault_set_modify_decoy_pattern_btn">Modifier le schéma leurre</string>
+    <string name="vault_set_set_decoy_pattern_btn">Définir le schéma leurre</string>
+    <string name="vault_set_decoy_pattern_title">Configurer le schéma leurre</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">Dessinez un schéma différent de votre schéma principal pour déverrouiller un coffre-fort leurre vide.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">Reliez au moins 4 points pour le schéma leurre</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">Dessinez à nouveau le schéma leurre pour confirmer</string>
+    <string name="vault_set_err_decoy_same_as_master">Le schéma leurre ne peut pas être identique au schéma principal</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">L\'identifiant leurre ne peut pas être identique à l\'identifiant principal</string>
+    <string name="vault_set_err_master_same_as_decoy">L\'identifiant principal ne peut pas être identique à l\'identifiant leurre</string>
+    <string name="vault_set_decoy_type_reset_toast">Verrouillage principal modifié. Leurre réinitialisé par sécurité.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">Schéma leurre activé</string>
+    <string name="vault_set_duress_pass_title">Protection sous contrainte (Mot de passe leurre)</string>
+    <string name="vault_set_duress_pass_desc">Entrez ce mot de passe secondaire sous la contrainte pour afficher un coffre leurre vide.</string>
+    <string name="vault_set_decoy_pass_active">✓ Mot de passe leurre actif</string>
+    <string name="vault_set_decoy_pass_unset">Mot de passe leurre non configuré</string>
+    <string name="vault_set_modify_decoy_pass_btn">Modifier mot de passe leurre</string>
+    <string name="vault_set_set_decoy_pass_btn">Définir mot de passe leurre</string>
+    <string name="vault_set_decoy_pass_title">Configurer mot de passe leurre</string>
+    <string name="vault_set_decoy_pass_dialog_desc">Entrez un mot de passe différent de votre mot de passe principal pour ouvrir un coffre leurre vide.</string>
+    <string name="vault_set_decoy_pass_activated_toast">Mot de passe leurre activé</string>
+    <string name="vault_set_decoy_pass_label">Mot de passe leurre</string>
+    <string name="vault_set_decoy_pass_confirm_label">Confirmer mot de passe leurre</string>
 </resources>

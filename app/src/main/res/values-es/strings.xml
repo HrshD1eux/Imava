@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">Examinar otros archivos…</string>
     <string name="vault_import_no_items">No hay fotos ni videos disponibles para añadir.</string>
     <string name="vault_import_success_toast_fmt">Se movieron %1$d elemento(s) a la bóveda</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">Protección bajo coacción (Patrón señuelo)</string>
+    <string name="vault_set_duress_pattern_desc">Si se le obliga a abrir su bóveda bajo coacción, dibuje este patrón secundario para mostrar una bóveda señuelo vacía sin rastros de sus archivos privados.</string>
+    <string name="vault_set_decoy_pattern_active">✓ Patrón señuelo activo</string>
+    <string name="vault_set_decoy_pattern_unset">Patrón señuelo no configurado</string>
+    <string name="vault_set_modify_decoy_pattern_btn">Modificar patrón señuelo</string>
+    <string name="vault_set_set_decoy_pattern_btn">Establecer patrón señuelo</string>
+    <string name="vault_set_decoy_pattern_title">Configurar patrón señuelo</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">Dibuje un patrón diferente a su patrón maestro. Al dibujarlo en la pantalla de desbloqueo, se abrirá una bóveda señuelo vacía.</string>
+    <string name="vault_set_draw_decoy_pattern_hint">Conecte al menos 4 puntos para el patrón señuelo</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">Dibuje el patrón señuelo de nuevo para confirmar</string>
+    <string name="vault_set_err_decoy_same_as_master">El patrón señuelo no puede ser igual al patrón maestro</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">La credencial señuelo no puede ser igual a la credencial maestra</string>
+    <string name="vault_set_err_master_same_as_decoy">La credencial maestra no puede ser igual a la credencial señuelo</string>
+    <string name="vault_set_decoy_type_reset_toast">Bloqueo maestro modificado. Señuelo restablecido por seguridad.</string>
+    <string name="vault_set_decoy_pattern_activated_toast">Patrón señuelo activado</string>
+    <string name="vault_set_duress_pass_title">Protección bajo coacción (Contraseña señuelo)</string>
+    <string name="vault_set_duress_pass_desc">Si se le obliga a abrir su bóveda bajo coacción, introduzca esta contraseña secundaria para mostrar una bóveda señuelo vacía.</string>
+    <string name="vault_set_decoy_pass_active">✓ Contraseña señuelo activa</string>
+    <string name="vault_set_decoy_pass_unset">Contraseña señuelo no configurada</string>
+    <string name="vault_set_modify_decoy_pass_btn">Modificar contraseña señuelo</string>
+    <string name="vault_set_set_decoy_pass_btn">Establecer contraseña señuelo</string>
+    <string name="vault_set_decoy_pass_title">Configurar contraseña señuelo</string>
+    <string name="vault_set_decoy_pass_dialog_desc">Introduzca una contraseña diferente a su contraseña maestra para abrir una bóveda señuelo vacía.</string>
+    <string name="vault_set_decoy_pass_activated_toast">Contraseña señuelo activada</string>
+    <string name="vault_set_decoy_pass_label">Contraseña señuelo</string>
+    <string name="vault_set_decoy_pass_confirm_label">Confirmar contraseña señuelo</string>
 </resources>

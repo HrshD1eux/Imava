@@ -98,9 +98,11 @@ Imava is built specifically for users who refuse cloud telemetry, mandatory acco
 - **Anti-Recovery Physical Sector Overwrite**: Standard OS file deletion (`unlink`) only removes catalog pointers, leaving raw JPEG/MP4 blocks readable by data recovery tools (DiskDigger, Recuva, PhotoRec). Imava's shredder overwrites clusters with cryptographically secure random bytes in 64KB buffers (`"rws"` mode), zeroes magic headers, forces hardware write cache flush via `FileDescriptor.sync()`, scrambles directory entries, and truncates to 0 bytes before unlinking.
 - **Biometric Trash Lock**: Specifically guard your Trash folder behind fingerprint, face unlock, or device PIN. Deleted item counts are completely masked until unlocked, preventing nosy friends or family from snooping through deleted photos. Auto-relocks on backgrounding.
 
-### 3. Hardware-Backed AES-256-GCM Vault & Decoy PIN
-- **AndroidKeyStore Hardware Isolation**: Media files inside the Hidden Vault are encrypted using AES-256-GCM with hardware-backed keys. Decrypted blocks live only in transient memory and are instantly purged upon locking.
-- **Decoy PIN for Plausible Deniability**: Configure a secondary decoy PIN. If coerced to unlock your phone under duress, entering the decoy PIN unlocks an empty, innocent vault interface while keeping your real vault completely hidden.
+### 3. Hardware-Backed AES-256-GCM Vault & Dynamic Decoy Credentials
+- **AndroidKeyStore Hardware Isolation**: Media files inside the Hidden Vault are encrypted using AES-256-GCM with hardware-backed keys and PBKDF2WithHmacSHA256 (100,000 iterations for master credentials, 250,000 iterations for `.imava` encrypted backup archives). Decrypted blocks live strictly in transient memory and are zeroed upon locking.
+- **Dynamic Plausible Deniability Decoy (Pattern, PIN, Password)**: Coercion-resistant secondary credential that dynamically mirrors your master lock type. If your master lock is a 3x3 Pattern, your decoy is a Decoy Pattern drawn on the identical pattern view. If locked with a numeric PIN or alphanumeric password, the decoy seamlessly prompts for PIN or password. Entering the decoy credential unlocks a harmless, empty decoy vault while keeping your real private media mathematically hidden.
+- **Independent Cryptographic Salting & Collision Guard**: Decoy credentials use an isolated, dedicated salt (`vault_decoy_salt`). Master credential changes or re-salting never invalidate your decoy setup. Built-in collision protection prevents setting matching master/decoy combinations and automatically guards against lock-type migration inconsistencies.
+- **Direct In-Vault Import (FAB)**: Import photos and videos directly into the encrypted vault from internal gallery storage or external file pickers using a dedicated floating `+` button.
 - **Stealth Mode Access**: Hide the Hidden Vault tile entirely from the Albums screen. It can only be opened by typing your secret access code directly into the gallery search bar.
 
 ### 4. Local EXIF Sanitizer & Automatic Background Scrubbing
@@ -162,6 +164,11 @@ Imava is built specifically for users who refuse cloud telemetry, mandatory acco
 - **Recent Apps Masking**: Applies `FLAG_SECURE` to prevent Android's recent task switcher from snapshotting personal photos or vault contents.
 - **Biometric App Guard**: Secure entire gallery launch behind fingerprint, face unlock, or PIN with rate-limited lockout protection.
 
+### 16. Zero-Flicker Synchronous Auto-Fit Typography Engine
+- **Single-Pass Text Measurement**: Powered by Jetpack Compose's native `rememberTextMeasurer`, typography automatically measures layout constraints in memory without multi-frame recomposition loops or UI flicker.
+- **Adaptive Font Scaling**: Dynamically scales typography down to defined minimum limits (e.g. 8sp–10sp) before applying ellipsis. This prevents awkward text truncation on compact phone screens (320dp/360dp) and ensures full readability across long German compound words, French phrases, and complex Indic script action labels.
+- **System-Wide UI Ergonomics**: Integrated across the selection action bar, vault setup cards, security unlock screens, and modal dialog buttons.
+
 ---
 
 ## Tech Stack
@@ -171,7 +178,7 @@ Imava is crafted with a pure, audited open-source foundation:
 | Layer | Technology | License |
 |:---|:---|:---:|
 | **Language** | Kotlin 1.9.22 | Apache 2.0 |
-| **UI Toolkit** | Jetpack Compose (Material 3) | Apache 2.0 |
+| **UI Toolkit** | Jetpack Compose (Material 3) + TextMeasurer Auto-Fit | Apache 2.0 |
 | **Architecture** | ViewModel + StateFlow + Kotlin Coroutines | Apache 2.0 |
 | **Dependency Injection** | Dagger Hilt 2.51.1 | Apache 2.0 |
 | **Database** | SQLite via Room 2.6.1 (KSP) | Apache 2.0 |
@@ -183,6 +190,30 @@ Imava is crafted with a pure, audited open-source foundation:
 | **Networking & NAS** | OkHttp 4.12.0 + Okio | Apache 2.0 |
 | **On-Device OCR** | Tesseract 5 & Leptonica (Tesseract4Android) | Apache 2.0 |
 | **Map Rendering** | Leaflet + OpenStreetMap (<150 KB, 0 native binaries) | BSD-2-Clause |
+
+---
+
+## Audited Permissions & Privacy Transparency
+
+Imava operates on a strict **zero-telemetry, offline-first** security model. Every permission declared in [`AndroidManifest.xml`](file:///h:/Programming/Main%20Projects/Android/Gallery/app/src/main/AndroidManifest.xml) is tracked in the in-app **Permissions Transparency Screen** (`Settings > Permissions Transparency`):
+
+| Permission | Introduced / Scoped | Technical Purpose & Privacy Justification |
+| :--- | :---: | :--- |
+| `READ_MEDIA_IMAGES` / `READ_MEDIA_VIDEO` | API 33+ (Android 13) | Standard OS media access to display, query, and index photo and video libraries. |
+| `READ_MEDIA_VISUAL_USER_SELECTED` | API 34+ (Android 14) | Supports Android 14 granular user selection when full library access is not granted. |
+| `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE` | API 1–32 (Legacy) | Scoped to Android 12 and below (`maxSdkVersion=32` / `29`) for legacy storage compatibility. |
+| `MANAGE_EXTERNAL_STORAGE` | API 30+ (Android 11) | Direct filesystem traversal for Deep Media Scan (`.nomedia`, dual/cloned spaces, chat media), lossless in-place EXIF rotation, and physical sector file shredding. |
+| `ACCESS_MEDIA_LOCATION` | API 29+ (Android 10) | Accesses embedded GPS coordinates in EXIF headers to populate the photo map and detail sheets. |
+| `USE_BIOMETRIC` / `USE_FINGERPRINT` | API 23+ (Android 6) | Hardware-backed biometric prompts for Hidden Vault, locked albums, and Trash lock. |
+| `INTERNET` / `ACCESS_NETWORK_STATE` / `ACCESS_WIFI_STATE` / `CHANGE_WIFI_MULTICAST_STATE` | API 1+ | Restricted strictly to local Wi-Fi P2P Drop (`http://192.168.x.x`), local WebDAV NAS sync, and in-app GitHub update checks. Media never leaves your local network. |
+| `REQUEST_INSTALL_PACKAGES` | API 26+ (Android 8) | Enables 1-tap in-app APK installation for direct GitHub release updates (omitted for Play Store builds). |
+| `FOREGROUND_SERVICE` / `FOREGROUND_SERVICE_DATA_SYNC` | API 28+ (Android 9) | Maintains active Wi-Fi Drop and WebDAV sync transfers when the screen is locked or app minimized. |
+| `POST_NOTIFICATIONS` | API 33+ (Android 13) | Displays progress notifications during background WebDAV backups and active Wi-Fi Drop file transfers. |
+| `VIBRATE` | API 1+ | Tactile haptic feedback on grid interactions, fast-scroller jumps, drag selections, and lock errors. |
+| `SET_WALLPAPER` / `SET_WALLPAPER_HINTS` | API 1+ | Sets home and lock screen wallpapers directly from the photo viewer. |
+
+> [!NOTE]
+> **Zero Invasive Tracking**: Imava contains **no advertising IDs**, **no Google Analytics / Firebase**, **no Crashlytics**, **no contacts or microphone permissions**, and **no third-party cloud SDKs**.
 
 ---
 

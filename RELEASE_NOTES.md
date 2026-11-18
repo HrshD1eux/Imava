@@ -1,3 +1,13 @@
+## 🚀 What's New in Imava v1.1.112
+
+* **Dynamic Decoy Credential Parity (Pattern, PIN, Password)**: Decoy duress authentication now dynamically mirrors your master credential lock type. If your master lock is a 3x3 Pattern, your decoy is a Decoy Pattern drawn on an identical grid. If master is a PIN or Password, decoy setup and verification prompts for matching PIN/Password credentials.
+* **Isolated Cryptographic Decoy Salt**: Generated and persisted an independent cryptographic salt (`vault_decoy_salt`). Master password changes, re-salting, or migrations will never inadvertently invalidate or break decoy vault authentication.
+* **Master Collision & Type Migration Guards**: Built-in safeguards prevent configuring identical master and decoy credentials, and automatically reset obsolete decoy credentials with user notification if master lock type changes (e.g. PIN to Pattern).
+* **Synchronous Auto-Fit Typography Engine (`AutoFitText`)**: High-performance, zero-flicker text scaling engine leveraging Jetpack Compose `rememberTextMeasurer`. Dynamically scales typography down to device-specific minimum limits (8sp–10sp) before truncating, preventing button label ellipses across compact screens (320dp/360dp) and all 13 supported languages (including long German/French words and Indic scripts).
+* **Full 13-Language Parity**: All 26 new decoy pattern, collision alert, and reset strings fully localized across English, Spanish, Portuguese, German, Russian, French, Hindi, Bengali, Marathi, Telugu, Tamil, and Gujarati.
+
+---
+
 ## 🚀 What's New in Imava v1.1.42
 
 * **Cryptographic File Shredder (Anti-Recovery)**: Permanently deleting photos or emptying trash now physically overwrites storage blocks with multi-pass CSPRNG random bytes and zeroes, forces hardware write cache sync, truncates to 0 bytes, and scrambles directory entry filenames so data recovery software (DiskDigger, Recuva, PhotoRec) cannot recover deleted files.

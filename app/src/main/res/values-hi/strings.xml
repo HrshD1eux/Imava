@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">अन्य फ़ाइलें ब्राउज़ करें…</string>
     <string name="vault_import_no_items">जोड़ने के लिए कोई फ़ोटो या वीडियो उपलब्ध नहीं है।</string>
     <string name="vault_import_success_toast_fmt">%1$d आइटम वॉल्ट में ले जाए गए</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">दबाव से सुरक्षा (नकली पैटर्न)</string>
+    <string name="vault_set_duress_pattern_desc">यदि मजबूरी में वॉल्ट खोलना पड़े, तो यह अलग पैटर्न बनाएं जिससे खाली नकली वॉल्ट खुले और आपकी निजी फाइलें सुरक्षित रहें।</string>
+    <string name="vault_set_decoy_pattern_active">✓ नकली पैटर्न सक्रिय है</string>
+    <string name="vault_set_decoy_pattern_unset">नकली पैटर्न सेट नहीं है</string>
+    <string name="vault_set_modify_decoy_pattern_btn">नकली पैटर्न बदलें</string>
+    <string name="vault_set_set_decoy_pattern_btn">नकली पैटर्न सेट करें</string>
+    <string name="vault_set_decoy_pattern_title">नकली पैटर्न कॉन्फ़िगर करें</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">अपने मुख्य पैटर्न से अलग पैटर्न बनाएं जिससे खाली नकली वॉल्ट खुले।</string>
+    <string name="vault_set_draw_decoy_pattern_hint">नकली पैटर्न के लिए कम से कम 4 बिंदु जोड़ें</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">पुष्टि के लिए दोबारा नकली पैटर्न बनाएं</string>
+    <string name="vault_set_err_decoy_same_as_master">नकली पैटर्न मुख्य पैटर्न जैसा नहीं हो सकता</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">नकली कोड मुख्य कोड जैसा नहीं हो सकता</string>
+    <string name="vault_set_err_master_same_as_decoy">मुख्य कोड नकली कोड जैसा नहीं हो सकता</string>
+    <string name="vault_set_decoy_type_reset_toast">मास्टर लॉक बदला गया। सुरक्षा के लिए नकली कोड रीसेट कर दिया गया।</string>
+    <string name="vault_set_decoy_pattern_activated_toast">नकली पैटर्न सक्रिय हो गया</string>
+    <string name="vault_set_duress_pass_title">दबाव से सुरक्षा (नकली पासवर्ड)</string>
+    <string name="vault_set_duress_pass_desc">दबाव में वॉल्ट खोलने के लिए यह अलग पासवर्ड डालें जिससे खाली नकली वॉल्ट खुले।</string>
+    <string name="vault_set_decoy_pass_active">✓ नकली पासवर्ड सक्रिय है</string>
+    <string name="vault_set_decoy_pass_unset">नकली पासवर्ड सेट नहीं है</string>
+    <string name="vault_set_modify_decoy_pass_btn">नकली पासवर्ड बदलें</string>
+    <string name="vault_set_set_decoy_pass_btn">नकली पासवर्ड सेट करें</string>
+    <string name="vault_set_decoy_pass_title">नकली पासवर्ड कॉन्फ़िगर करें</string>
+    <string name="vault_set_decoy_pass_dialog_desc">मुख्य पासवर्ड से अलग पासवर्ड डालें जिससे खाली वॉल्ट खुले।</string>
+    <string name="vault_set_decoy_pass_activated_toast">नकली पासवर्ड सक्रिय हो गया</string>
+    <string name="vault_set_decoy_pass_label">नकली पासवर्ड</string>
+    <string name="vault_set_decoy_pass_confirm_label">नकली पासवर्ड की पुष्टि करें</string>
 </resources>

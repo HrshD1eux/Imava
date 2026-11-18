@@ -608,15 +608,15 @@ fun VaultSecurityDialog(
                             decoyError = context.getString(R.string.vault_decoy_err_mismatch)
                             return@Button
                         }
-                        val saltBase64 = prefs.getString("vault_salt", null)
-                        val saltBytes = if (saltBase64 != null) {
-                            android.util.Base64.decode(saltBase64, android.util.Base64.NO_WRAP)
-                        } else {
-                            VaultCrypto.generateSalt()
-                        }
-                        val decoyHash = VaultCrypto.hashPin(decoyInput, saltBytes)
+                        val decoySalt = VaultCrypto.generateSalt()
+                        val decoyHash = VaultCrypto.hashPin(decoyInput, decoySalt)
                         val encHash = VaultCrypto.encryptString(decoyHash)
-                        prefs.edit().putString("vault_decoy_pin_hash", encHash).apply()
+                        val decoySaltB64 = android.util.Base64.encodeToString(decoySalt, android.util.Base64.NO_WRAP)
+                        prefs.edit()
+                            .putString("vault_decoy_pin_hash", encHash)
+                            .putString("vault_decoy_salt", decoySaltB64)
+                            .putString("vault_decoy_lock_type", lockType)
+                            .apply()
                         hasDecoyPin = true
                         showDecoyPinDialog = false
                         Toast.makeText(context, context.getString(R.string.vault_decoy_configured_toast), Toast.LENGTH_SHORT).show()
@@ -630,7 +630,11 @@ fun VaultSecurityDialog(
                     if (hasDecoyPin) {
                         TextButton(
                             onClick = {
-                                prefs.edit().remove("vault_decoy_pin_hash").apply()
+                                prefs.edit()
+                                    .remove("vault_decoy_pin_hash")
+                                    .remove("vault_decoy_salt")
+                                    .remove("vault_decoy_lock_type")
+                                    .apply()
                                 hasDecoyPin = false
                                 showDecoyPinDialog = false
                                 Toast.makeText(context, context.getString(R.string.vault_decoy_removed_toast), Toast.LENGTH_SHORT).show()

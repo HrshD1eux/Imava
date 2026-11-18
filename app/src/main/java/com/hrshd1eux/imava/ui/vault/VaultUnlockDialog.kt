@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.VaultCrypto
@@ -139,9 +140,24 @@ fun VaultUnlockDialog(
             needsUpgrade = res.needsUpgrade
 
             if (!isValid && storedDecoyHash != null) {
-                val decoyRes = VaultCrypto.verifyPin(input, storedDecoyHash, salt)
-                if (decoyRes.isValid) {
-                    isDecoy = true
+                val storedDecoySaltBase64 = prefs.getString("vault_decoy_salt", null)
+                val storedDecoyLockType = prefs.getString("vault_decoy_lock_type", null)
+                val decoyLockType = storedDecoyLockType ?: storedLockType
+
+                if (decoyLockType == storedLockType) {
+                    val decoySalt = if (storedDecoySaltBase64 != null) {
+                        try {
+                            android.util.Base64.decode(storedDecoySaltBase64, android.util.Base64.NO_WRAP)
+                        } catch (_: Exception) {
+                            salt
+                        }
+                    } else {
+                        salt
+                    }
+                    val decoyRes = VaultCrypto.verifyPin(input, storedDecoyHash, decoySalt)
+                    if (decoyRes.isValid) {
+                        isDecoy = true
+                    }
                 }
             }
         } else if (legacyPin != null && input == legacyPin) {
@@ -583,14 +599,24 @@ fun VaultUnlockDialog(
                                 errorMessage = null
                             }
                         ) {
-                            Text(stringResource(R.string.action_next))
+                            com.hrshd1eux.imava.ui.common.AutoFitText(
+                                text = stringResource(R.string.action_next),
+                                style = MaterialTheme.typography.labelLarge,
+                                maxLines = 1,
+                                minFontSize = 10.sp
+                            )
                         }
                     }
                 } else {
                     Button(
                         onClick = { finalizeSetup() }
                     ) {
-                        Text(stringResource(R.string.vault_unlock_finish_btn))
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.vault_unlock_finish_btn),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            minFontSize = 10.sp
+                        )
                     }
                 }
             } else {
@@ -602,7 +628,12 @@ fun VaultUnlockDialog(
                             }
                         }
                     ) {
-                        Text(stringResource(R.string.action_unlock))
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.action_unlock),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            minFontSize = 10.sp
+                        )
                     }
                 }
             }
@@ -623,16 +654,31 @@ fun VaultUnlockDialog(
                             )
                         }
                     ) {
-                        Text(stringResource(R.string.vault_unlock_use_bio_btn))
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.vault_unlock_use_bio_btn),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            minFontSize = 9.sp
+                        )
                     }
                 }
                 if (!isPinConfigured && setupStage == 2) {
                     TextButton(onClick = { setupStage = 1 }) {
-                        Text(stringResource(R.string.action_back))
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.action_back),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            minFontSize = 10.sp
+                        )
                     }
                 } else {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.action_cancel))
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.action_cancel),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            minFontSize = 10.sp
+                        )
                     }
                 }
             }

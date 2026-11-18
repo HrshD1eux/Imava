@@ -62,6 +62,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -230,7 +231,11 @@ fun VaultSettingsScreen(
                     ) {
                         Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.vault_set_change_master_btn))
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.vault_set_change_master_btn),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 }
             }
@@ -313,15 +318,52 @@ fun VaultSettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+                    val duressTitle = when (lockType) {
+                        "PATTERN" -> stringResource(R.string.vault_set_duress_pattern_title)
+                        "PASSWORD" -> stringResource(R.string.vault_set_duress_pass_title)
+                        else -> stringResource(R.string.vault_set_duress_title)
+                    }
+                    val duressDesc = when (lockType) {
+                        "PATTERN" -> stringResource(R.string.vault_set_duress_pattern_desc)
+                        "PASSWORD" -> stringResource(R.string.vault_set_duress_pass_desc)
+                        else -> stringResource(R.string.vault_set_duress_desc)
+                    }
+                    val decoyStatusText = if (hasDecoyPin) {
+                        when (lockType) {
+                            "PATTERN" -> stringResource(R.string.vault_set_decoy_pattern_active)
+                            "PASSWORD" -> stringResource(R.string.vault_set_decoy_pass_active)
+                            else -> stringResource(R.string.vault_set_decoy_active)
+                        }
+                    } else {
+                        when (lockType) {
+                            "PATTERN" -> stringResource(R.string.vault_set_decoy_pattern_unset)
+                            "PASSWORD" -> stringResource(R.string.vault_set_decoy_pass_unset)
+                            else -> stringResource(R.string.vault_set_decoy_unset)
+                        }
+                    }
+                    val decoyBtnText = if (hasDecoyPin) {
+                        when (lockType) {
+                            "PATTERN" -> stringResource(R.string.vault_set_modify_decoy_pattern_btn)
+                            "PASSWORD" -> stringResource(R.string.vault_set_modify_decoy_pass_btn)
+                            else -> stringResource(R.string.vault_set_modify_decoy_btn)
+                        }
+                    } else {
+                        when (lockType) {
+                            "PATTERN" -> stringResource(R.string.vault_set_set_decoy_pattern_btn)
+                            "PASSWORD" -> stringResource(R.string.vault_set_set_decoy_pass_btn)
+                            else -> stringResource(R.string.vault_set_set_decoy_btn)
+                        }
+                    }
+
                     Text(
-                        text = stringResource(R.string.vault_set_duress_title),
+                        text = duressTitle,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = stringResource(R.string.vault_set_duress_desc),
+                        text = duressDesc,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -332,18 +374,26 @@ fun VaultSettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = if (hasDecoyPin) stringResource(R.string.vault_set_decoy_active) else stringResource(R.string.vault_set_decoy_unset),
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = decoyStatusText,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
-                            color = if (hasDecoyPin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            color = if (hasDecoyPin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f, fill = false).padding(end = 8.dp),
+                            maxLines = 1,
+                            minFontSize = 11.sp
                         )
 
                         OutlinedButton(
                             onClick = { showDecoyPinDialog = true },
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Text(if (hasDecoyPin) stringResource(R.string.vault_set_modify_decoy_btn) else stringResource(R.string.vault_set_set_decoy_btn))
+                            com.hrshd1eux.imava.ui.common.AutoFitText(
+                                text = decoyBtnText,
+                                style = MaterialTheme.typography.labelLarge,
+                                maxLines = 1,
+                                minFontSize = 10.sp
+                            )
                         }
                     }
                 }
@@ -434,33 +484,82 @@ fun VaultSettingsScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                val timestamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())
-                                createDocLauncher.launch("Imava_Vault_Backup_$timestamp.imava")
-                            },
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.weight(1f)
+                    val screenWidth = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp
+                    if (screenWidth < 360) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(stringResource(R.string.vault_set_export_btn))
-                        }
+                            OutlinedButton(
+                                onClick = {
+                                    val timestamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())
+                                    createDocLauncher.launch("Imava_Vault_Backup_$timestamp.imava")
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                com.hrshd1eux.imava.ui.common.AutoFitText(
+                                    text = stringResource(R.string.vault_set_export_btn),
+                                    maxLines = 1,
+                                    minFontSize = 11.sp
+                                )
+                            }
 
-                        OutlinedButton(
-                            onClick = {
-                                openDocLauncher.launch(arrayOf("application/octet-stream", "*/*"))
-                            },
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.weight(1f)
+                            OutlinedButton(
+                                onClick = {
+                                    openDocLauncher.launch(arrayOf("application/octet-stream", "*/*"))
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.CloudDownload, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                com.hrshd1eux.imava.ui.common.AutoFitText(
+                                    text = stringResource(R.string.vault_set_import_btn),
+                                    maxLines = 1,
+                                    minFontSize = 11.sp
+                                )
+                            }
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Icon(Icons.Default.CloudDownload, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(stringResource(R.string.vault_set_import_btn))
+                            OutlinedButton(
+                                onClick = {
+                                    val timestamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())
+                                    createDocLauncher.launch("Imava_Vault_Backup_$timestamp.imava")
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                com.hrshd1eux.imava.ui.common.AutoFitText(
+                                    text = stringResource(R.string.vault_set_export_btn),
+                                    maxLines = 1,
+                                    minFontSize = 10.sp
+                                )
+                            }
+
+                            OutlinedButton(
+                                onClick = {
+                                    openDocLauncher.launch(arrayOf("application/octet-stream", "*/*"))
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.CloudDownload, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                com.hrshd1eux.imava.ui.common.AutoFitText(
+                                    text = stringResource(R.string.vault_set_import_btn),
+                                    maxLines = 1,
+                                    minFontSize = 10.sp
+                                )
+                            }
                         }
                     }
                 }
@@ -495,7 +594,11 @@ fun VaultSettingsScreen(
                     ) {
                         Icon(Icons.Default.DeleteForever, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.vault_set_delete_ellipsis_btn))
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.vault_set_delete_ellipsis_btn),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 }
             }
@@ -660,81 +763,184 @@ fun VaultSettingsScreen(
                             return@Button
                         }
 
+                        // Prevent master credential from matching existing decoy credential
+                        val storedDecoyHash = prefs.getString("vault_decoy_pin_hash", null)
+                        val storedDecoySaltB64 = prefs.getString("vault_decoy_salt", null)
+                        if (storedDecoyHash != null && storedDecoySaltB64 != null) {
+                            try {
+                                val dSalt = java.util.Base64.getDecoder().decode(storedDecoySaltB64)
+                                if (VaultCrypto.verifyPin(codeToSave, storedDecoyHash, dSalt).isValid) {
+                                    changeError = context.getString(R.string.vault_set_err_master_same_as_decoy)
+                                    return@Button
+                                }
+                            } catch (_: Exception) {}
+                        }
+
                         val newSalt = VaultCrypto.generateSalt()
                         val newHash = VaultCrypto.hashPin(codeToSave, newSalt)
                         val encHash = VaultCrypto.encryptString(newHash)
                         val newSaltB64 = java.util.Base64.getEncoder().encodeToString(newSalt)
 
-                        prefs.edit()
+                        val editor = prefs.edit()
                             .putString("vault_lock_type", newLockType)
                             .putString("vault_pin_hash", encHash)
                             .putString("vault_salt", newSaltB64)
                             .remove("vault_pin")
-                            .apply()
+
+                        val decoyReset = if (newLockType != lockType && hasDecoyPin) {
+                            editor.remove("vault_decoy_pin_hash")
+                                .remove("vault_decoy_salt")
+                                .remove("vault_decoy_lock_type")
+                            hasDecoyPin = false
+                            true
+                        } else false
+
+                        editor.apply()
 
                         lockType = newLockType
                         showPasswordChangeDialog = false
                         HapticUtil.performSuccess(context)
-                        Toast.makeText(context, context.getString(R.string.vault_set_master_updated_toast), Toast.LENGTH_SHORT).show()
+                        if (decoyReset) {
+                            Toast.makeText(context, context.getString(R.string.vault_set_decoy_type_reset_toast), Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(context, context.getString(R.string.vault_set_master_updated_toast), Toast.LENGTH_SHORT).show()
+                        }
                     }
                 ) {
-                    Text(stringResource(R.string.action_save))
+                    com.hrshd1eux.imava.ui.common.AutoFitText(
+                        text = stringResource(R.string.action_save),
+                        maxLines = 1,
+                        minFontSize = 10.sp
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPasswordChangeDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
+                    com.hrshd1eux.imava.ui.common.AutoFitText(
+                        text = stringResource(R.string.action_cancel),
+                        maxLines = 1,
+                        minFontSize = 10.sp
+                    )
                 }
             }
         )
     }
 
-    // Dialog: Set Decoy PIN
+    // Dialog: Set Decoy Credential (Dynamically adapts to lockType)
     if (showDecoyPinDialog) {
-        var decoyPinInput by remember { mutableStateOf("") }
-        var confirmDecoyPinInput by remember { mutableStateOf("") }
+        var decoyInput by remember { mutableStateOf("") }
+        var confirmDecoyInput by remember { mutableStateOf("") }
         var decoyError by remember { mutableStateOf<String?>(null) }
+
+        var decoyPatternStep by remember { mutableIntStateOf(1) }
+        var decoyPatternFirst by remember { mutableStateOf("") }
+        var decoyPatternResult by remember { mutableStateOf("") }
+
+        val dialogTitle = when (lockType) {
+            "PATTERN" -> stringResource(R.string.vault_set_decoy_pattern_title)
+            "PASSWORD" -> stringResource(R.string.vault_set_decoy_pass_title)
+            else -> stringResource(R.string.vault_set_decoy_title)
+        }
+        val dialogDesc = when (lockType) {
+            "PATTERN" -> stringResource(R.string.vault_set_decoy_pattern_dialog_desc)
+            "PASSWORD" -> stringResource(R.string.vault_set_decoy_pass_dialog_desc)
+            else -> stringResource(R.string.vault_set_decoy_dialog_desc)
+        }
 
         AlertDialog(
             onDismissRequest = { showDecoyPinDialog = false },
             shape = RoundedCornerShape(20.dp),
-            title = { Text(stringResource(R.string.vault_set_decoy_title)) },
+            title = {
+                com.hrshd1eux.imava.ui.common.AutoFitText(
+                    text = dialogTitle,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    minFontSize = 14.sp
+                )
+            },
             text = {
-                Column {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     Text(
-                        text = stringResource(R.string.vault_set_decoy_dialog_desc),
+                        text = dialogDesc,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(
-                        value = decoyPinInput,
-                        onValueChange = {
-                            if (it.length <= 8 && it.all { c -> c.isDigit() }) decoyPinInput = it
-                            decoyError = null
-                        },
-                        label = { Text(stringResource(R.string.vault_decoy_pin_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    if (lockType == "PATTERN") {
+                        Text(
+                            text = if (decoyPatternStep == 1) stringResource(R.string.vault_set_draw_decoy_pattern_hint) else stringResource(R.string.vault_set_confirm_decoy_pattern_hint),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        PatternLockView(
+                            modifier = Modifier.size(220.dp),
+                            onPatternComplete = { p ->
+                                if (p.split("-").size < 4) {
+                                    decoyError = context.getString(R.string.vault_set_min_4_dots)
+                                } else if (decoyPatternStep == 1) {
+                                    val masterHash = prefs.getString("vault_pin_hash", null)
+                                    val masterSaltB64 = prefs.getString("vault_salt", null)
+                                    val isSame = if (masterHash != null && masterSaltB64 != null) {
+                                        try {
+                                            val mSalt = java.util.Base64.getDecoder().decode(masterSaltB64)
+                                            VaultCrypto.verifyPin(p, masterHash, mSalt).isValid
+                                        } catch (_: Exception) { false }
+                                    } else false
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                                    if (isSame) {
+                                        decoyError = context.getString(R.string.vault_set_err_decoy_same_as_master)
+                                    } else {
+                                        decoyPatternFirst = p
+                                        decoyPatternStep = 2
+                                        decoyError = null
+                                    }
+                                } else {
+                                    if (p == decoyPatternFirst) {
+                                        decoyPatternResult = p
+                                        decoyError = null
+                                    } else {
+                                        decoyError = context.getString(R.string.vault_set_patterns_mismatch)
+                                        decoyPatternStep = 1
+                                    }
+                                }
+                            }
+                        )
+                    } else {
+                        val isPin = lockType == "PIN"
+                        OutlinedTextField(
+                            value = decoyInput,
+                            onValueChange = {
+                                if (isPin) {
+                                    if (it.length <= 8 && it.all { c -> c.isDigit() }) decoyInput = it
+                                } else decoyInput = it
+                                decoyError = null
+                            },
+                            label = { Text(if (isPin) stringResource(R.string.vault_decoy_pin_label) else stringResource(R.string.vault_set_decoy_pass_label)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = if (isPin) KeyboardType.NumberPassword else KeyboardType.Password),
+                            visualTransformation = PasswordVisualTransformation(),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    OutlinedTextField(
-                        value = confirmDecoyPinInput,
-                        onValueChange = {
-                            if (it.length <= 8 && it.all { c -> c.isDigit() }) confirmDecoyPinInput = it
-                            decoyError = null
-                        },
-                        label = { Text(stringResource(R.string.vault_decoy_pin_confirm_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedTextField(
+                            value = confirmDecoyInput,
+                            onValueChange = {
+                                if (isPin) {
+                                    if (it.length <= 8 && it.all { c -> c.isDigit() }) confirmDecoyInput = it
+                                } else confirmDecoyInput = it
+                                decoyError = null
+                            },
+                            label = { Text(if (isPin) stringResource(R.string.vault_decoy_pin_confirm_label) else stringResource(R.string.vault_set_decoy_pass_confirm_label)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = if (isPin) KeyboardType.NumberPassword else KeyboardType.Password),
+                            visualTransformation = PasswordVisualTransformation(),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
                     if (decoyError != null) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -745,47 +951,97 @@ fun VaultSettingsScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        if (decoyPinInput.length < 4 || decoyPinInput.length > 8) {
+                        val codeToSave = if (lockType == "PATTERN") decoyPatternResult else decoyInput.trim()
+                        if (lockType == "PIN" && (codeToSave.length < 4 || codeToSave.length > 8)) {
                             decoyError = context.getString(R.string.vault_set_err_pin_4_8)
                             return@Button
                         }
-                        if (decoyPinInput != confirmDecoyPinInput) {
+                        if (lockType == "PASSWORD" && codeToSave.length < 4) {
+                            decoyError = context.getString(R.string.vault_set_err_pass_min4)
+                            return@Button
+                        }
+                        if ((lockType == "PIN" || lockType == "PASSWORD") && decoyInput != confirmDecoyInput) {
                             decoyError = context.getString(R.string.vault_decoy_err_mismatch)
                             return@Button
                         }
+                        if (lockType == "PATTERN" && decoyPatternResult.isBlank()) {
+                            decoyError = context.getString(R.string.vault_set_err_draw_confirm_pattern)
+                            return@Button
+                        }
 
-                        val salt = VaultCrypto.generateSalt()
-                        val hash = VaultCrypto.hashPin(decoyPinInput, salt)
+                        // Guard against master credential equality
+                        val masterHash = prefs.getString("vault_pin_hash", null)
+                        val masterSaltB64 = prefs.getString("vault_salt", null)
+                        if (masterHash != null && masterSaltB64 != null) {
+                            try {
+                                val mSalt = java.util.Base64.getDecoder().decode(masterSaltB64)
+                                if (VaultCrypto.verifyPin(codeToSave, masterHash, mSalt).isValid) {
+                                    decoyError = if (lockType == "PATTERN") context.getString(R.string.vault_set_err_decoy_same_as_master) else context.getString(R.string.vault_set_err_decoy_pass_same_as_master)
+                                    return@Button
+                                }
+                            } catch (_: Exception) {}
+                        }
+
+                        // Use dedicated decoy salt so master password changes never break decoy
+                        val decoySalt = VaultCrypto.generateSalt()
+                        val hash = VaultCrypto.hashPin(codeToSave, decoySalt)
                         val encHash = VaultCrypto.encryptString(hash)
+                        val decoySaltB64 = java.util.Base64.getEncoder().encodeToString(decoySalt)
 
                         prefs.edit()
                             .putString("vault_decoy_pin_hash", encHash)
+                            .putString("vault_decoy_salt", decoySaltB64)
+                            .putString("vault_decoy_lock_type", lockType)
                             .apply()
 
                         hasDecoyPin = true
                         showDecoyPinDialog = false
                         HapticUtil.performSuccess(context)
-                        Toast.makeText(context, context.getString(R.string.vault_set_decoy_activated_toast), Toast.LENGTH_SHORT).show()
+                        val toastMsg = when (lockType) {
+                            "PATTERN" -> context.getString(R.string.vault_set_decoy_pattern_activated_toast)
+                            "PASSWORD" -> context.getString(R.string.vault_set_decoy_pass_activated_toast)
+                            else -> context.getString(R.string.vault_set_decoy_activated_toast)
+                        }
+                        Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text(stringResource(R.string.vault_set_save_decoy_btn))
+                    com.hrshd1eux.imava.ui.common.AutoFitText(
+                        text = stringResource(R.string.vault_set_save_decoy_btn),
+                        maxLines = 1,
+                        minFontSize = 10.sp
+                    )
                 }
             },
             dismissButton = {
-                if (hasDecoyPin) {
-                    TextButton(
-                        onClick = {
-                            prefs.edit().remove("vault_decoy_pin_hash").apply()
-                            hasDecoyPin = false
-                            showDecoyPinDialog = false
-                            Toast.makeText(context, context.getString(R.string.vault_decoy_removed_toast), Toast.LENGTH_SHORT).show()
+                Row {
+                    if (hasDecoyPin) {
+                        TextButton(
+                            onClick = {
+                                prefs.edit()
+                                    .remove("vault_decoy_pin_hash")
+                                    .remove("vault_decoy_salt")
+                                    .remove("vault_decoy_lock_type")
+                                    .apply()
+                                hasDecoyPin = false
+                                showDecoyPinDialog = false
+                                Toast.makeText(context, context.getString(R.string.vault_decoy_removed_toast), Toast.LENGTH_SHORT).show()
+                            }
+                        ) {
+                            com.hrshd1eux.imava.ui.common.AutoFitText(
+                                text = stringResource(R.string.vault_set_remove_decoy_btn),
+                                color = MaterialTheme.colorScheme.error,
+                                maxLines = 1,
+                                minFontSize = 10.sp
+                            )
                         }
-                    ) {
-                        Text(stringResource(R.string.vault_set_remove_decoy_btn), color = MaterialTheme.colorScheme.error)
                     }
-                }
-                TextButton(onClick = { showDecoyPinDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
+                    TextButton(onClick = { showDecoyPinDialog = false }) {
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.action_cancel),
+                            maxLines = 1,
+                            minFontSize = 10.sp
+                        )
+                    }
                 }
             }
         )

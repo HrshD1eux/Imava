@@ -1465,4 +1465,32 @@
     <string name="vault_import_browse_external">অন্যান্য ফাইল ব্রাউজ করুন…</string>
     <string name="vault_import_no_items">যোগ করার মতো কোনো ছবি বা ভিডিও পাওয়া যায়নি।</string>
     <string name="vault_import_success_toast_fmt">%1$dটি আইটেম ভল্টে সরানো হয়েছে</string>
+
+    <!-- Dynamic Decoy Credentials -->
+    <string name="vault_set_duress_pattern_title">চাপের মুখে সুরক্ষা (নকল প্যাটার্ন)</string>
+    <string name="vault_set_duress_pattern_desc">বাধ্য হয়ে ভল্ট খুলতে হলে এই আলাদা প্যাটার্ন আঁকুন যাতে খালি নকল ভল্ট খোলে।</string>
+    <string name="vault_set_decoy_pattern_active">✓ নকল প্যাটার্ন সক্রিয়</string>
+    <string name="vault_set_decoy_pattern_unset">নকল প্যাটার্ন সেট করা নেই</string>
+    <string name="vault_set_modify_decoy_pattern_btn">নকল প্যাটার্ন পরিবর্তন করুন</string>
+    <string name="vault_set_set_decoy_pattern_btn">নকল প্যাটার্ন সেট করুন</string>
+    <string name="vault_set_decoy_pattern_title">নকল প্যাটার্ন কনফিগার করুন</string>
+    <string name="vault_set_decoy_pattern_dialog_desc">আসল প্যাটার্ন থেকে ভিন্ন প্যাটার্ন আঁকুন যা খালি ভল্ট খুলবে।</string>
+    <string name="vault_set_draw_decoy_pattern_hint">কমপক্ষে ৪টি বিন্দু যুক্ত করুন</string>
+    <string name="vault_set_confirm_decoy_pattern_hint">নিশ্চিত করতে আবার নকল প্যাটার্ন আঁকুন</string>
+    <string name="vault_set_err_decoy_same_as_master">নকল প্যাটার্ন আসল প্যাটার্নের মতো হতে পারে না</string>
+    <string name="vault_set_err_decoy_pass_same_as_master">নকল কোড আসল কোডের মতো হতে পারে না</string>
+    <string name="vault_set_err_master_same_as_decoy">আসল কোড নকল কোডের মতো হতে পারে না</string>
+    <string name="vault_set_decoy_type_reset_toast">প্রধান লক পরিবর্তিত হয়েছে। সুরক্ষার জন্য নকল কোড রিসেট করা হয়েছে।</string>
+    <string name="vault_set_decoy_pattern_activated_toast">নকল প্যাটার্ন সক্রিয় হয়েছে</string>
+    <string name="vault_set_duress_pass_title">চাপের মুখে সুরক্ষা (নকল পাসওয়ার্ড)</string>
+    <string name="vault_set_duress_pass_desc">চাপের মুখে ভল্ট খুলতে এই আলাদা পাসওয়ার্ড লিখুন যাতে খালি ভল্ট খোলে।</string>
+    <string name="vault_set_decoy_pass_active">✓ নকল পাসওয়ার্ড সক্রিয়</string>
+    <string name="vault_set_decoy_pass_unset">নকল পাসওয়ার্ড সেট করা নেই</string>
+    <string name="vault_set_modify_decoy_pass_btn">নকল পাসওয়ার্ড পরিবর্তন করুন</string>
+    <string name="vault_set_set_decoy_pass_btn">নকল পাসওয়ার্ড সেট করুন</string>
+    <string name="vault_set_decoy_pass_title">নকল পাসওয়ার্ড কনফিগার করুন</string>
+    <string name="vault_set_decoy_pass_dialog_desc">আসল পাসওয়ার্ড থেকে আলাদা পাসওয়ার্ড দিন।</string>
+    <string name="vault_set_decoy_pass_activated_toast">নকল পাসওয়ার্ড সক্রিয় হয়েছে</string>
+    <string name="vault_set_decoy_pass_label">নকল পাসওয়ার্ড</string>
+    <string name="vault_set_decoy_pass_confirm_label">নকল পাসওয়ার্ড নিশ্চিত করুন</string>
 </resources>
