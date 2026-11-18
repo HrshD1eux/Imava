@@ -62,6 +62,7 @@
     <string name="trash_empty">La corbeille est vide</string>
     <string name="favorites_empty">Aucun favori pour l\'instant</string>
     <string name="no_media_found">Aucune photo ni vidéo trouvée</string>
+    <string name="no_pictures_here">Aucune photo ici</string>
 
     <!-- Settings -->
     <string name="settings_title">Paramètres</string>

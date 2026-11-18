@@ -1083,7 +1083,7 @@ class MainViewModel @Inject constructor(
                 else !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
             }
             "Trash" -> if (com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(application)) emptyList() else trash
-            "Hidden Vault" -> if (isDecoyVault) emptyList() else vault
+            "Hidden Vault" -> vault
             "Videos" -> {
                 val trashedIds = trash.map { it.id }.toSet()
                 val trashedPaths = trash.filter {
@@ -2415,9 +2415,10 @@ class MainViewModel @Inject constructor(
     }
 
     fun toggleHidden(context: Context, item: MediaItem, targetNextItem: MediaItem? = null) {
+        val isDecoy = isDecoyVault
         viewModelScope.launch {
             try {
-                repository.toggleHidden(context, item)
+                repository.toggleHidden(context, item, isDecoy = isDecoy)
                 refreshAll()
             } catch (e: Exception) {
                 val recoverable = e as? android.app.RecoverableSecurityException
@@ -2751,15 +2752,16 @@ class MainViewModel @Inject constructor(
 
     fun importUrisToVault(context: Context, uris: List<Uri>, onComplete: ((Int) -> Unit)? = null) {
         if (uris.isEmpty()) return
+        val isDecoy = isDecoyVault
         viewModelScope.launch {
             var count = 0
             uris.forEach { uri ->
                 val existing = mediaItems.value.firstOrNull { it.uri == uri }
                 if (existing != null) {
-                    repository.toggleHidden(context, existing)
+                    repository.toggleHidden(context, existing, isDecoy = isDecoy)
                     count++
                 } else {
-                    val ok = repository.importUriToVault(context, uri)
+                    val ok = repository.importUriToVault(context, uri, isDecoy = isDecoy)
                     if (ok) count++
                 }
             }

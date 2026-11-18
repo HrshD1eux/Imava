@@ -62,6 +62,7 @@
     <string name="trash_empty">Корзина пуста</string>
     <string name="favorites_empty">В избранном пока ничего нет</string>
     <string name="no_media_found">Фотографии и видео не найдены</string>
+    <string name="no_pictures_here">Здесь нет фотографий</string>
 
     <!-- Settings -->
     <string name="settings_title">Настройки</string>

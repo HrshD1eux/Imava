@@ -62,6 +62,7 @@
     <string name="trash_empty">ট্র্যাশ খালি</string>
     <string name="favorites_empty">এখনও কোনো প্রিয় ছবি নেই</string>
     <string name="no_media_found">কোনো ছবি বা ভিডিও পাওয়া যায়নি</string>
+    <string name="no_pictures_here">এখানে কোনো ছবি নেই</string>
 
     <!-- Settings -->
     <string name="settings_title">সেটিংস</string>

@@ -62,6 +62,7 @@
     <string name="trash_empty">குப்பைத்தொட்டி காலியாக உள்ளது</string>
     <string name="favorites_empty">விருப்பங்கள் எதுவும் இல்லை</string>
     <string name="no_media_found">புகைப்படங்கள் அல்லது வீடியோக்கள் எதுவும் இல்லை</string>
+    <string name="no_pictures_here">இங்கு படங்கள் இல்லை</string>
 
     <!-- Settings -->
     <string name="settings_title">அமைப்புகள்</string>

@@ -7,14 +7,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -25,14 +30,20 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,10 +55,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.core.util.HapticUtil
 import com.hrshd1eux.imava.core.util.VaultCrypto
@@ -224,25 +238,177 @@ fun VaultUnlockDialog(
         }
     }
 
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = if (!isPinConfigured) {
-                    if (setupStage == 1) stringResource(R.string.vault_unlock_setup_step1) else stringResource(R.string.vault_unlock_setup_step2)
-                } else {
-                    stringResource(R.string.unlock_vault_title)
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = if (!isPinConfigured) {
+                                    if (setupStage == 1) stringResource(R.string.vault_unlock_setup_step1) else stringResource(R.string.vault_unlock_setup_step2)
+                                } else {
+                                    stringResource(R.string.unlock_vault_title)
+                                },
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onDismiss) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.action_cancel)
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        )
+                    )
                 },
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                bottomBar = {
+                    val isBiometricEnabled = prefs.getBoolean("vault_biometric_enabled", false)
+                    val activity = context.findActivity()
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 3.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (isPinConfigured && isBiometricEnabled && activity != null) {
+                                TextButton(
+                                    onClick = {
+                                        com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
+                                            activity = activity,
+                                            title = context.getString(R.string.unlock_vault_title),
+                                            subtitle = context.getString(R.string.vault_unlock_bio_subtitle),
+                                            onSuccess = { onUnlockSuccess() },
+                                            onError = { _ -> }
+                                        )
+                                    }
+                                ) {
+                                    com.hrshd1eux.imava.ui.common.AutoFitText(
+                                        text = stringResource(R.string.vault_unlock_use_bio_btn),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        maxLines = 1,
+                                        minFontSize = 9.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            if (!isPinConfigured && setupStage == 2) {
+                                TextButton(onClick = { setupStage = 1 }) {
+                                    com.hrshd1eux.imava.ui.common.AutoFitText(
+                                        text = stringResource(R.string.action_back),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        maxLines = 1,
+                                        minFontSize = 10.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            } else {
+                                TextButton(onClick = onDismiss) {
+                                    com.hrshd1eux.imava.ui.common.AutoFitText(
+                                        text = stringResource(R.string.action_cancel),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        maxLines = 1,
+                                        minFontSize = 10.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+
+                            if (!isPinConfigured) {
+                                if (setupStage == 1) {
+                                    if (setupLockType == "PIN" || setupLockType == "PASSWORD") {
+                                        Button(
+                                            onClick = {
+                                                val minLen = if (setupLockType == "PIN") 4 else 6
+                                                if (setupPinInput.length < minLen) {
+                                                    errorMessage = context.getString(
+                                                        if (setupLockType == "PIN") R.string.vault_unlock_err_pin_min_chars_fmt else R.string.vault_unlock_err_pass_min_chars_fmt,
+                                                        minLen
+                                                    )
+                                                    return@Button
+                                                }
+                                                if (setupPinInput != confirmPinInput) {
+                                                    errorMessage = context.getString(
+                                                        if (setupLockType == "PIN") R.string.vault_unlock_err_pins_mismatch else R.string.vault_unlock_err_passwords_mismatch
+                                                    )
+                                                    return@Button
+                                                }
+                                                chosenCodeToSave = setupPinInput
+                                                setupStage = 2
+                                                errorMessage = null
+                                            }
+                                        ) {
+                                            com.hrshd1eux.imava.ui.common.AutoFitText(
+                                                text = stringResource(R.string.action_next),
+                                                style = MaterialTheme.typography.labelLarge,
+                                                maxLines = 1,
+                                                minFontSize = 10.sp
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { finalizeSetup() }
+                                    ) {
+                                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                                            text = stringResource(R.string.vault_unlock_finish_btn),
+                                            style = MaterialTheme.typography.labelLarge,
+                                            maxLines = 1,
+                                            minFontSize = 10.sp
+                                        )
+                                    }
+                                }
+                            } else {
+                                if (storedLockType == "PIN" || storedLockType == "PASSWORD") {
+                                    Button(
+                                        onClick = {
+                                            if (pinInput.isNotBlank()) {
+                                                verifyInput(pinInput)
+                                            }
+                                        }
+                                    ) {
+                                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                                            text = stringResource(R.string.action_unlock),
+                                            style = MaterialTheme.typography.labelLarge,
+                                            maxLines = 1,
+                                            minFontSize = 10.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 24.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                 if (lockoutRemainingSeconds > 0) {
                     Text(
                         text = stringResource(R.string.vault_unlock_lockout_fmt, lockoutRemainingSeconds),
@@ -551,7 +717,7 @@ fun VaultUnlockDialog(
                                     verifyInput(patternStr)
                                 },
                                 isError = isPatternError,
-                                modifier = Modifier.height(260.dp)
+                                modifier = Modifier.size(280.dp)
                             )
                         }
                     } else {
@@ -568,120 +734,12 @@ fun VaultUnlockDialog(
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = if (storedLockType == "PASSWORD") KeyboardType.Password else KeyboardType.NumberPassword
                             ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            if (!isPinConfigured) {
-                if (setupStage == 1) {
-                    if (setupLockType == "PIN" || setupLockType == "PASSWORD") {
-                        Button(
-                            onClick = {
-                                val minLen = if (setupLockType == "PIN") 4 else 6
-                                if (setupPinInput.length < minLen) {
-                                    errorMessage = context.getString(
-                                        if (setupLockType == "PIN") R.string.vault_unlock_err_pin_min_chars_fmt else R.string.vault_unlock_err_pass_min_chars_fmt,
-                                        minLen
-                                    )
-                                    return@Button
-                                }
-                                if (setupPinInput != confirmPinInput) {
-                                    errorMessage = context.getString(
-                                        if (setupLockType == "PIN") R.string.vault_unlock_err_pins_mismatch else R.string.vault_unlock_err_passwords_mismatch
-                                    )
-                                    return@Button
-                                }
-                                chosenCodeToSave = setupPinInput
-                                setupStage = 2
-                                errorMessage = null
-                            }
-                        ) {
-                            com.hrshd1eux.imava.ui.common.AutoFitText(
-                                text = stringResource(R.string.action_next),
-                                style = MaterialTheme.typography.labelLarge,
-                                maxLines = 1,
-                                minFontSize = 10.sp
-                            )
-                        }
-                    }
-                } else {
-                    Button(
-                        onClick = { finalizeSetup() }
-                    ) {
-                        com.hrshd1eux.imava.ui.common.AutoFitText(
-                            text = stringResource(R.string.vault_unlock_finish_btn),
-                            style = MaterialTheme.typography.labelLarge,
-                            maxLines = 1,
-                            minFontSize = 10.sp
-                        )
-                    }
-                }
-            } else {
-                if (storedLockType == "PIN" || storedLockType == "PASSWORD") {
-                    Button(
-                        onClick = {
-                            if (pinInput.isNotBlank()) {
-                                verifyInput(pinInput)
-                            }
-                        }
-                    ) {
-                        com.hrshd1eux.imava.ui.common.AutoFitText(
-                            text = stringResource(R.string.action_unlock),
-                            style = MaterialTheme.typography.labelLarge,
-                            maxLines = 1,
-                            minFontSize = 10.sp
-                        )
-                    }
-                }
-            }
-        },
-        dismissButton = {
-            val isBiometricEnabled = prefs.getBoolean("vault_biometric_enabled", false)
-            val activity = context.findActivity()
-            Row {
-                if (isPinConfigured && isBiometricEnabled && activity != null) {
-                    TextButton(
-                        onClick = {
-                            com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(
-                                activity = activity,
-                                title = context.getString(R.string.unlock_vault_title),
-                                subtitle = context.getString(R.string.vault_unlock_bio_subtitle),
-                                onSuccess = { onUnlockSuccess() },
-                                onError = { _ -> }
-                            )
-                        }
-                    ) {
-                        com.hrshd1eux.imava.ui.common.AutoFitText(
-                            text = stringResource(R.string.vault_unlock_use_bio_btn),
-                            style = MaterialTheme.typography.labelLarge,
-                            maxLines = 1,
-                            minFontSize = 9.sp
-                        )
-                    }
-                }
-                if (!isPinConfigured && setupStage == 2) {
-                    TextButton(onClick = { setupStage = 1 }) {
-                        com.hrshd1eux.imava.ui.common.AutoFitText(
-                            text = stringResource(R.string.action_back),
-                            style = MaterialTheme.typography.labelLarge,
-                            maxLines = 1,
-                            minFontSize = 10.sp
-                        )
-                    }
-                } else {
-                    TextButton(onClick = onDismiss) {
-                        com.hrshd1eux.imava.ui.common.AutoFitText(
-                            text = stringResource(R.string.action_cancel),
-                            style = MaterialTheme.typography.labelLarge,
-                            maxLines = 1,
-                            minFontSize = 10.sp
+                            modifier = Modifier.widthIn(max = 380.dp).fillMaxWidth()
                         )
                     }
                 }
             }
         }
-    )
+    }
+}
 }

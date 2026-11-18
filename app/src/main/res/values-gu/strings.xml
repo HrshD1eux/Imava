@@ -62,6 +62,7 @@
     <string name="trash_empty">કચરાપેટી ખાલી છે</string>
     <string name="favorites_empty">હજી કોઈ મનપસંદ નથી</string>
     <string name="no_media_found">કોઈ ફોટા કે વિડિઓ મળ્યા નથી</string>
+    <string name="no_pictures_here">અહીં કોઈ ચિત્રો નથી</string>
 
     <!-- Settings -->
     <string name="settings_title">સેટિંગ્સ</string>

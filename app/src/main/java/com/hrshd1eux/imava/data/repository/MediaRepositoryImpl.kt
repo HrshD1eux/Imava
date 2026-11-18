@@ -408,7 +408,7 @@ class MediaRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun toggleHidden(context: Context, mediaItem: MediaItem) {
+    override suspend fun toggleHidden(context: Context, mediaItem: MediaItem, isDecoy: Boolean) {
         val currentMeta = metadataDao.getMetadataForMedia(mediaItem.id)
         if (mediaItem.isHidden) {
             // vault restore
@@ -479,7 +479,8 @@ class MediaRepositoryImpl @Inject constructor(
             }
         } else {
             // vault hide
-            val vaultDir = java.io.File(context.filesDir, "vault").apply { mkdirs() }
+            val vaultDirName = if (isDecoy) "decoy_vault" else "vault"
+            val vaultDir = java.io.File(context.filesDir, vaultDirName).apply { mkdirs() }
             val vaultFile = java.io.File(vaultDir, "vault_${mediaItem.id}")
             val tempVaultFile = java.io.File(vaultDir, "vault_${mediaItem.id}.tmp")
             val resolver = context.contentResolver
@@ -791,8 +792,9 @@ class MediaRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun syncVaultMetadata() = withContext(Dispatchers.IO) {
-        val vaultDir = java.io.File(context.filesDir, "vault")
+    private suspend fun syncVaultMetadata(isDecoy: Boolean = false) = withContext(Dispatchers.IO) {
+        val vaultDirName = if (isDecoy) "decoy_vault" else "vault"
+        val vaultDir = java.io.File(context.filesDir, vaultDirName)
         if (!vaultDir.exists()) return@withContext
         val metaFiles = vaultDir.listFiles { _, name -> name.endsWith(".meta") } ?: return@withContext
         
@@ -852,10 +854,15 @@ class MediaRepositoryImpl @Inject constructor(
 
     override fun getHiddenMediaFlow(isVaultUnlocked: Boolean, isDecoy: Boolean): Flow<List<MediaItem>> {
         return metadataDao.getAllMetadataFlow()
-            .onStart { if (isVaultUnlocked && !isDecoy) syncVaultMetadata() }
+            .onStart { if (isVaultUnlocked) syncVaultMetadata(isDecoy) }
             .map { metadataList ->
-                if (!isVaultUnlocked || isDecoy) return@map emptyList<MediaItem>()
-                metadataList.filter { it.isHidden && !it.isTrashed }.mapNotNull { entity ->
+                if (!isVaultUnlocked) return@map emptyList<MediaItem>()
+                val targetList = if (isDecoy) {
+                    metadataList.filter { it.isHidden && !it.isTrashed && it.vaultPath.contains("decoy_vault") }
+                } else {
+                    metadataList.filter { it.isHidden && !it.isTrashed && !it.vaultPath.contains("decoy_vault") }
+                }
+                targetList.mapNotNull { entity ->
                     val decryptedFile = com.hrshd1eux.imava.core.util.VaultCacheManager.getDecryptedFile(context, entity)
                     val uri = if (decryptedFile != null) {
                         android.net.Uri.fromFile(decryptedFile)
@@ -1484,10 +1491,11 @@ class MediaRepositoryImpl @Inject constructor(
         restoredCount
     }
 
-    override suspend fun importUriToVault(context: Context, uri: Uri): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun importUriToVault(context: Context, uri: Uri, isDecoy: Boolean): Boolean = withContext(Dispatchers.IO) {
         try {
             val resolver = context.contentResolver
-            val vaultDir = java.io.File(context.filesDir, "vault").apply { mkdirs() }
+            val vaultDirName = if (isDecoy) "decoy_vault" else "vault"
+            val vaultDir = java.io.File(context.filesDir, vaultDirName).apply { mkdirs() }
             val mimeType = resolver.getType(uri) ?: if (uri.toString().contains(".mp4", ignoreCase = true)) "video/mp4" else "image/jpeg"
             var size = 0L
             val dateTaken = System.currentTimeMillis()

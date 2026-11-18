@@ -256,10 +256,13 @@ fun AlbumsScreen(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(
+                    com.hrshd1eux.imava.ui.common.AutoFitText(
                         text = stringResource(R.string.search_hint),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        minFontSize = 10.sp,
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -799,14 +802,12 @@ fun AlbumsScreen(
             }
 
             if (visibleBuckets.isEmpty()) {
-                if (allMedia.isNotEmpty()) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.no_albums_found),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                item {
+                    Text(
+                        text = stringResource(R.string.no_albums_found),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             } else {
                 if (numCols == 1) {

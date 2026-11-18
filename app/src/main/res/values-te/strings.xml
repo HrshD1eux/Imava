@@ -62,6 +62,7 @@
     <string name="trash_empty">ట్రాష్ ఖాళీగా ఉంది</string>
     <string name="favorites_empty">ఇంకా ఇష్టమైనవి లేవు</string>
     <string name="no_media_found">ఫోటోలు లేదా వీడియోలు కనుగొనబడలేదు</string>
+    <string name="no_pictures_here">ఇక్కడ చిత్రాలు లేవు</string>
 
     <!-- Settings -->
     <string name="settings_title">సెట్టింగ్‌లు</string>

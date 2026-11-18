@@ -62,6 +62,7 @@
     <string name="trash_empty">Papierkorb ist leer</string>
     <string name="favorites_empty">Noch keine Favoriten</string>
     <string name="no_media_found">Keine Fotos oder Videos gefunden</string>
+    <string name="no_pictures_here">Keine Bilder hier</string>
 
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>

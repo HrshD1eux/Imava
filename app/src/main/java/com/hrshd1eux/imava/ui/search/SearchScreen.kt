@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.hrshd1eux.imava.R
 import com.hrshd1eux.imava.data.model.MediaItem
@@ -127,7 +128,13 @@ fun SearchScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { viewModel.setSearchQuery(it) },
-                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                    placeholder = {
+                        com.hrshd1eux.imava.ui.common.AutoFitText(
+                            text = stringResource(R.string.search_placeholder),
+                            maxLines = 1,
+                            minFontSize = 10.sp
+                        )
+                    },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
