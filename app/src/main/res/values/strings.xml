@@ -63,6 +63,7 @@
     <string name="favorites_empty">No favorites yet</string>
     <string name="no_media_found">No photos or videos found</string>
     <string name="no_pictures_here">No pictures here</string>
+    <string name="no_decoy_items">No decoy items found</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

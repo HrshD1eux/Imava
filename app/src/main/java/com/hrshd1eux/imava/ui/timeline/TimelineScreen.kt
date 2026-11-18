@@ -451,7 +451,7 @@ fun TimelineScreen(
                                     "Favorites" -> stringResource(R.string.favorites_empty)
                                     "Videos" -> stringResource(R.string.timeline_videos_empty)
                                     "Trash" -> stringResource(R.string.trash_empty)
-                                    "Hidden Vault" -> stringResource(R.string.no_pictures_here)
+                                    "Hidden Vault" -> if (viewModel.isDecoyVault) stringResource(R.string.no_decoy_items) else stringResource(R.string.no_pictures_here)
                                     else -> if (currentFilter != MediaFilterType.ALL || selectedCustomTag != null) {
                                         stringResource(R.string.timeline_filter_empty)
                                     } else if (viewModel.currentCategoryName != null || viewModel.currentBucketId != null) {
