@@ -627,12 +627,37 @@ fun VaultSettingsScreen(
         var patternFirst by remember { mutableStateOf("") }
         var patternResult by remember { mutableStateOf("") }
 
-        AlertDialog(
+        Dialog(
             onDismissRequest = { showPasswordChangeDialog = false },
-            shape = RoundedCornerShape(20.dp),
-            title = { Text(stringResource(R.string.vault_set_change_master_title)) },
-            text = {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(stringResource(R.string.vault_set_change_master_title), fontWeight = FontWeight.Bold) },
+                            navigationIcon = {
+                                IconButton(onClick = { showPasswordChangeDialog = false }) {
+                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_cancel))
+                                }
+                            }
+                        )
+                    }
+                ) { padding ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .padding(24.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                     Text(stringResource(R.string.vault_set_verify_current), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(6.dp))
 
