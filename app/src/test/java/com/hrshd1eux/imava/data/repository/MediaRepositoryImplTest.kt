@@ -114,6 +114,11 @@ class MediaRepositoryImplTest {
             return dbMap.values.filter { it.isHidden }
         }
 
+        override suspend fun deleteHiddenMetadata() {
+            val toRemove = dbMap.values.filter { it.isHidden }.map { it.mediaId }
+            toRemove.forEach { dbMap.remove(it) }
+        }
+
         override suspend fun updateTags(mediaId: Long, tags: String) {
             val cur = dbMap[mediaId] ?: MediaMetadataEntity(mediaId = mediaId)
             dbMap[mediaId] = cur.copy(tags = tags)
@@ -156,6 +161,7 @@ class MediaRepositoryImplTest {
         every { mockContext.cacheDir } returns tempFolder
 
         val resolver = mockk<android.content.ContentResolver>(relaxed = true)
+        every { resolver.delete(any(), any(), any()) } returns 1
         every { mockContext.contentResolver } returns resolver
         val mockUri = mockk<android.net.Uri>(relaxed = true)
         mockkStatic(android.net.Uri::class)
@@ -364,6 +370,7 @@ class MediaRepositoryImplTest {
 
             repository.clearVaultCache(mockContext)
             assertTrue("vault_cache must be cleared on vault lock", !decryptedFile.exists())
+            assertTrue("SQLite hidden metadata must be cleared on vault lock", fakeDao.dbMap.values.none { it.isHidden })
 
             tempFolder.deleteRecursively()
             unmockkStatic(android.net.Uri::class)

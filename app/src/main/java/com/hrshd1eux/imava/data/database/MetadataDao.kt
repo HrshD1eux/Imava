@@ -64,6 +64,9 @@ interface MetadataDao {
     @Query("SELECT * FROM media_metadata WHERE isHidden = 1")
     suspend fun getHiddenMetadata(): List<MediaMetadataEntity>
 
+    @Query("DELETE FROM media_metadata WHERE isHidden = 1")
+    suspend fun deleteHiddenMetadata()
+
     @Query("UPDATE media_metadata SET tags = :tags WHERE mediaId = :mediaId")
     suspend fun updateTags(mediaId: Long, tags: String)
 }

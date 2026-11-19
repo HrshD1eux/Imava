@@ -560,10 +560,17 @@ class MediaRepositoryImpl @Inject constructor(
             }
             
 
-            try {
+            val resolverDeleted = try {
                 resolver.delete(mediaItem.uri, null, null)
             } catch (e: SecurityException) {
-                throw e
+                0
+            }
+            if (resolverDeleted <= 0) {
+                val directFile = if (mediaItem.path.isNotBlank()) java.io.File(mediaItem.path) else null
+                val fileDeleted = directFile?.exists() == true && directFile.delete()
+                if (!fileDeleted) {
+                    throw SecurityException("Cannot delete original media file ${mediaItem.uri} without user permission.")
+                }
             }
         }
     }
@@ -797,6 +804,17 @@ class MediaRepositoryImpl @Inject constructor(
         val vaultDir = java.io.File(context.filesDir, vaultDirName)
         if (!vaultDir.exists()) return@withContext
         val metaFiles = vaultDir.listFiles { _, name -> name.endsWith(".meta") } ?: return@withContext
+
+        // Clear any opposite-vault entries to guarantee strict isolation
+        val existingHidden = metadataDao.getHiddenMetadata()
+        val oppositeEntities = if (isDecoy) {
+            existingHidden.filter { !it.vaultPath.contains("decoy_vault") }
+        } else {
+            existingHidden.filter { it.vaultPath.contains("decoy_vault") }
+        }
+        if (oppositeEntities.isNotEmpty()) {
+            oppositeEntities.forEach { metadataDao.delete(it) }
+        }
         
         if (metaFiles.isNotEmpty()) {
             val dbIds = metadataDao.getAllMetadata().map { it.mediaId }.toSet()
@@ -912,6 +930,9 @@ class MediaRepositoryImpl @Inject constructor(
     @OptIn(coil.annotation.ExperimentalCoilApi::class)
     override suspend fun clearVaultCache(context: Context): Unit = withContext(Dispatchers.IO) {
         com.hrshd1eux.imava.core.util.VaultCacheManager.clearCache(context)
+        try {
+            metadataDao.deleteHiddenMetadata()
+        } catch (_: Exception) {}
         try {
             val imageLoader = coil.Coil.imageLoader(context)
             imageLoader.memoryCache?.clear()

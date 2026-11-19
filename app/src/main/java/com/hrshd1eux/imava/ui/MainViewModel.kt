@@ -202,6 +202,9 @@ class MainViewModel @Inject constructor(
             currentScreen = Screen.Albums
         }
         vaultState.lockVault(context)
+        viewModelScope.launch {
+            repository.clearVaultCache(context)
+        }
     }
 
     fun onAppBackgrounded() {
@@ -2740,14 +2743,49 @@ class MainViewModel @Inject constructor(
 
     fun hideMediaByIds(context: Context, ids: Set<Long>, onComplete: ((Int) -> Unit)? = null) {
         if (ids.isEmpty()) return
+        val isDecoy = isDecoyVault
         viewModelScope.launch {
             val selectedItems = getSelectedMediaItems(ids)
+            val itemsNeedingUserDelete = mutableListOf<MediaItem>()
+            var successCount = 0
+
             selectedItems.forEach { item ->
-                toggleHidden(context, item)
+                try {
+                    repository.toggleHidden(context, item, isDecoy = isDecoy)
+                    successCount++
+                } catch (e: Exception) {
+                    itemsNeedingUserDelete.add(item)
+                }
             }
+
             selectionState.clear()
             refreshAll()
-            onComplete?.invoke(selectedItems.size)
+
+            if (itemsNeedingUserDelete.isNotEmpty()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
+                    val activity = context.findActivity()
+                    if (activity != null) {
+                        pendingBatchActionItems = itemsNeedingUserDelete
+                        try {
+                            val uris = itemsNeedingUserDelete.map { it.uri }
+                            val pendingIntent = android.provider.MediaStore.createDeleteRequest(
+                                context.contentResolver,
+                                uris
+                            )
+                            activity.startIntentSenderForResult(
+                                pendingIntent.intentSender,
+                                1004,
+                                null,
+                                0,
+                                0,
+                                0
+                            )
+                            return@launch
+                        } catch (_: Exception) {}
+                    }
+                }
+            }
+            onComplete?.invoke(successCount)
         }
     }
 
@@ -3494,6 +3532,7 @@ class MainViewModel @Inject constructor(
                 }
                 1004 -> {
                     pendingActionItem = null
+                    pendingBatchActionItems = null
                     refreshAll()
                 }
                 1005 -> {
@@ -3663,11 +3702,14 @@ class MainViewModel @Inject constructor(
             }
         } else {
             // Cancelled flow
-            if (requestCode == 1004 && item != null) {
-                // Rollback: delete vault file and Room entry
+            if (requestCode == 1004) {
+                val targets = if (batchItems != null) batchItems else if (item != null) listOf(item) else emptyList()
                 viewModelScope.launch {
-                    repository.deleteMetadataPermanently(item.id)
+                    targets.forEach { target ->
+                        repository.deleteMetadataPermanently(target.id)
+                    }
                     pendingActionItem = null
+                    pendingBatchActionItems = null
                     refreshAll()
                 }
             } else if (requestCode == 1007) {
