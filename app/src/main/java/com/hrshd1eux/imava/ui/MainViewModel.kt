@@ -190,6 +190,7 @@ class MainViewModel @Inject constructor(
     val vaultConfigVersion: StateFlow<Int> = vaultState.vaultConfigVersion
     val isVaultUnlocked: StateFlow<Boolean> = vaultState.isVaultUnlocked
     val isDecoyVault: Boolean get() = vaultState.isDecoyVault
+    val isDecoyVaultFlow: StateFlow<Boolean> = vaultState.isDecoyVaultFlow
 
     fun notifyVaultConfigChanged() = vaultState.notifyVaultConfigChanged()
     fun unlockVault() = vaultState.unlockVault()
@@ -1577,7 +1578,7 @@ class MainViewModel @Inject constructor(
         combine(snapshotFlow { sortMode }, snapshotFlow { sortOrder }) { mode, order -> Pair(mode, order) },
         _excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion,
-        combine(_selectedFilter, _selectedCustomTag, refreshTrigger) { f, tag, r -> Triple(f, tag, r) }
+        combine(_selectedFilter, _selectedCustomTag, refreshTrigger, vaultState.vaultConfigVersion) { f, tag, r, _ -> Triple(f, tag, r) }
     ) { (bucketId, category), (mode, order), excluded, _, (filter, customTag, _) ->
         val itemsFlow: Flow<PagingData<MediaItem>> = if (category == "Trash") {
             trashed.map { list ->

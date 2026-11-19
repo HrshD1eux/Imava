@@ -128,6 +128,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import com.hrshd1eux.imava.ui.vault.VaultAddMediaDialog
@@ -144,6 +145,7 @@ fun TimelineScreen(
 
     val visibleItems by viewModel.visibleMediaItems.collectAsState()
     val currentCategory by viewModel.currentCategoryNameFlow.collectAsState()
+    val isDecoyVault by viewModel.isDecoyVaultFlow.collectAsState()
     var headerToMediaIdsMap by remember { mutableStateOf<Map<String, List<Long>>>(emptyMap()) }
     val inSelectionMode = selectionState.inSelectionMode
     var showVaultAddMediaDialog by remember { mutableStateOf(false) }
@@ -318,7 +320,6 @@ fun TimelineScreen(
 
     val currentFilter by viewModel.selectedFilter.collectAsState()
     val showFilterChips = !selectionState.inSelectionMode && viewModel.currentCategoryName == null && viewModel.currentBucketId == null
-    val hasInitiallyLoaded by viewModel.hasAppInitiallyLoaded.collectAsState()
 
     LaunchedEffect(lazyPagingItems.itemCount) {
         if (lazyPagingItems.itemCount > 0 && !viewModel.hasAppInitiallyLoaded.value) {
@@ -391,14 +392,14 @@ fun TimelineScreen(
                 val isPagingLoading = lazyPagingItems.loadState.refresh is androidx.paging.LoadState.Loading
 
                 if (lazyPagingItems.itemCount == 0) {
-                    if (!hasInitiallyLoaded && isPagingLoading) {
+                    if (isPagingLoading) {
                         TimelineSkeletonGrid(columns = viewModel.gridColumnCount)
-                    } else if (!isPagingLoading) {
+                    } else {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            if (viewModel.currentCategoryName == "Trash" && com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(context)) {
+                            if (currentCategory == "Trash" && com.hrshd1eux.imava.core.util.AppLockManager.isTrashLocked(context)) {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center,
@@ -447,24 +448,51 @@ fun TimelineScreen(
                                     }
                                 }
                             } else {
-                                val emptyMessage = when (viewModel.currentCategoryName) {
-                                    "Favorites" -> stringResource(R.string.favorites_empty)
-                                    "Videos" -> stringResource(R.string.timeline_videos_empty)
-                                    "Trash" -> stringResource(R.string.trash_empty)
-                                    "Hidden Vault" -> if (viewModel.isDecoyVault) stringResource(R.string.no_decoy_items) else stringResource(R.string.no_pictures_here)
-                                    else -> if (currentFilter != MediaFilterType.ALL || selectedCustomTag != null) {
-                                        stringResource(R.string.timeline_filter_empty)
-                                    } else if (viewModel.currentCategoryName != null || viewModel.currentBucketId != null) {
-                                        stringResource(R.string.no_pictures_here)
-                                    } else {
-                                        stringResource(R.string.no_pictures_here)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(32.dp)
+                                ) {
+                                    Surface(
+                                        shape = RoundedCornerShape(20.dp),
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(68.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(
+                                                imageVector = when (currentCategory) {
+                                                    "Hidden Vault" -> if (isDecoyVault) Icons.Default.Security else Icons.Default.Lock
+                                                    "Trash" -> Icons.Default.Delete
+                                                    else -> Icons.Default.Lock
+                                                },
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(32.dp)
+                                            )
+                                        }
                                     }
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    val emptyMessage = when (currentCategory) {
+                                        "Favorites" -> stringResource(R.string.favorites_empty)
+                                        "Videos" -> stringResource(R.string.timeline_videos_empty)
+                                        "Trash" -> stringResource(R.string.trash_empty)
+                                        "Hidden Vault" -> if (isDecoyVault) stringResource(R.string.no_decoy_items) else stringResource(R.string.timeline_vault_empty)
+                                        else -> if (currentFilter != MediaFilterType.ALL || selectedCustomTag != null) {
+                                            stringResource(R.string.timeline_filter_empty)
+                                        } else if (currentCategory != null || viewModel.currentBucketId != null) {
+                                            stringResource(R.string.no_pictures_here)
+                                        } else {
+                                            stringResource(R.string.no_pictures_here)
+                                        }
+                                    }
+                                    Text(
+                                        text = emptyMessage,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
                                 }
-                                Text(
-                                    text = emptyMessage,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
                             }
                         }
                     }

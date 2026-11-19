@@ -655,7 +655,7 @@ fun MainScreenLayout(viewModel: MainViewModel) {
 
 
     LaunchedEffect(mainPagerState.settledPage) {
-        if (currentScreen != Screen.Search) {
+        if (currentScreen != Screen.Search && !mainPagerState.isScrollInProgress) {
             val targetScreen = screens.getOrNull(mainPagerState.settledPage)
             if (targetScreen != null && viewModel.currentScreen != targetScreen) {
                 if (viewModel.currentCategoryName == "Hidden Vault" && targetScreen != Screen.Photos) {
