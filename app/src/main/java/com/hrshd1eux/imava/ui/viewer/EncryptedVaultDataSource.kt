@@ -52,7 +52,7 @@ class EncryptedVaultDataSource(
 
         if (dataSpec.position > 0) {
             var skipped = 0L
-            val skipBuffer = ByteArray(8192)
+            val skipBuffer = ByteArray(65536)
             while (skipped < dataSpec.position) {
                 val toRead = minOf(skipBuffer.size.toLong(), dataSpec.position - skipped).toInt()
                 val read = cis.read(skipBuffer, 0, toRead)

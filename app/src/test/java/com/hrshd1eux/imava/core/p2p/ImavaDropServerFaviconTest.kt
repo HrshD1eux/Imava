@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.hrshd1eux.imava.R
+import com.hrshd1eux.imava.data.model.MediaItem
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -90,5 +91,56 @@ class ImavaDropServerFaviconTest {
 
         assertTrue("Response should contain HTTP/1.1 200 OK", responseString.startsWith("HTTP/1.1 200 OK"))
         assertTrue("Response should have Content-Type: image/png", responseString.contains("Content-Type: image/png"))
+    }
+
+    @Test
+    fun startAndUpdateItems_filtersOutHiddenAndVaultItems() {
+        val normalItem = MediaItem.Photo(
+            id = 1L,
+            uri = mockk(relaxed = true),
+            path = "/storage/emulated/0/DCIM/Camera/IMG_1.jpg",
+            mimeType = "image/jpeg",
+            dateTaken = 1000L,
+            size = 1024L,
+            width = 100,
+            height = 100,
+            bucketId = 1L,
+            bucketName = "Camera"
+        )
+        val hiddenItem = MediaItem.Photo(
+            id = 2L,
+            uri = mockk(relaxed = true),
+            path = "/storage/emulated/0/DCIM/Camera/IMG_2.jpg",
+            mimeType = "image/jpeg",
+            dateTaken = 1000L,
+            size = 2048L,
+            width = 100,
+            height = 100,
+            bucketId = 1L,
+            bucketName = "Camera",
+            isHidden = true
+        )
+        val vaultPathItem = MediaItem.Photo(
+            id = 3L,
+            uri = mockk(relaxed = true),
+            path = "/data/user/0/com.hrshd1eux.imava/files/vault/encrypted_3.bin",
+            mimeType = "image/jpeg",
+            dateTaken = 1000L,
+            size = 4096L,
+            width = 100,
+            height = 100,
+            bucketId = 1L,
+            bucketName = "Vault"
+        )
+
+        ImavaDropServer.start(mockContext, listOf(normalItem, hiddenItem, vaultPathItem))
+        assertEquals(1, ImavaDropServer.state.value.sharedItems.size)
+        assertEquals(normalItem.id, ImavaDropServer.state.value.sharedItems[0].id)
+        assertEquals(1024L, ImavaDropServer.state.value.totalBytes)
+
+        ImavaDropServer.updateItems(listOf(normalItem, hiddenItem, vaultPathItem))
+        assertEquals(1, ImavaDropServer.state.value.sharedItems.size)
+        assertEquals(normalItem.id, ImavaDropServer.state.value.sharedItems[0].id)
+        assertEquals(1024L, ImavaDropServer.state.value.totalBytes)
     }
 }

@@ -1641,7 +1641,7 @@ fun MediaGridCell(
             .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
             .memoryCacheKey("${item.uri}_${item.dateTaken}")
             .diskCacheKey("${item.uri}_${item.dateTaken}")
-            .precision(coil.size.Precision.INEXACT)
+            .precision(coil.size.Precision.EXACT)
             .error(android.R.drawable.ic_menu_report_image)
             .fallback(android.R.drawable.ic_menu_report_image)
             .build()

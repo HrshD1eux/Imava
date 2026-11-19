@@ -96,9 +96,10 @@ object ImavaDropServer {
         preferredPort: Int = 8765,
         fromExternalShare: Boolean = false
     ): Boolean {
+        val safeItems = items.filter { !it.isHidden && !it.path.contains("vault") }
         if (_state.value.isRunning) {
             launchedFromExternalShare = fromExternalShare
-            updateItems(items)
+            updateItems(safeItems)
             return true
         }
 
@@ -109,7 +110,7 @@ object ImavaDropServer {
             addLog("No active Wi-Fi or Local Area Network connection detected.")
         }
 
-        val totalSize = items.sumOf { it.size }
+        val totalSize = safeItems.sumOf { it.size }
 
         // Find available port starting from preferredPort
         var port = preferredPort
@@ -153,7 +154,7 @@ object ImavaDropServer {
             url = fullUrl,
             baseUrl = base ?: "http://localhost:$port",
             pin = pin,
-            sharedItems = items,
+            sharedItems = safeItems,
             totalBytes = totalSize,
             logs = listOf(
                 if (base != null) "Imava Drop started on $base" else "Imava Drop waiting for Wi-Fi or Hotspot connection",
@@ -213,12 +214,13 @@ object ImavaDropServer {
 
     @Synchronized
     fun updateItems(items: List<MediaItem>) {
-        val totalSize = items.sumOf { it.size }
+        val safeItems = items.filter { !it.isHidden && !it.path.contains("vault") }
+        val totalSize = safeItems.sumOf { it.size }
         _state.value = _state.value.copy(
-            sharedItems = items,
+            sharedItems = safeItems,
             totalBytes = totalSize
         )
-        addLog("Updated share list: ${items.size} items (${FormatUtils.formatFileSize(totalSize)})")
+        addLog("Updated share list: ${safeItems.size} items (${FormatUtils.formatFileSize(totalSize)})")
     }
 
     @Synchronized

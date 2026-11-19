@@ -476,7 +476,7 @@ fun SearchResultGridCell(
             .size(280, 280)
             .diskCachePolicy(coil.request.CachePolicy.ENABLED)
             .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
-            .precision(coil.size.Precision.INEXACT)
+            .precision(coil.size.Precision.EXACT)
             .error(android.R.drawable.ic_menu_report_image)
             .fallback(android.R.drawable.ic_menu_report_image)
             .build()
