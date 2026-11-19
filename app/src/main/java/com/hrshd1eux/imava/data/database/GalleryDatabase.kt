@@ -6,10 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.hrshd1eux.imava.core.di.DatabaseModule
 
-@Database(entities = [MediaMetadataEntity::class, MediaOcrEntity::class], version = 8, exportSchema = true)
+@Database(entities = [MediaMetadataEntity::class, MediaOcrEntity::class, WebDavSyncedEntity::class], version = 9, exportSchema = true)
 abstract class GalleryDatabase : RoomDatabase() {
     abstract fun metadataDao(): MetadataDao
     abstract fun ocrDao(): OcrDao
+    abstract fun webDavSyncedDao(): WebDavSyncedDao
 
     companion object {
         @Volatile
@@ -28,7 +29,8 @@ abstract class GalleryDatabase : RoomDatabase() {
                 DatabaseModule.MIGRATION_5_6,
                 DatabaseModule.MIGRATION_6_7,
                 DatabaseModule.MIGRATION_7_8,
-                DatabaseModule.MIGRATION_6_8
+                DatabaseModule.MIGRATION_6_8,
+                DatabaseModule.MIGRATION_8_9
             )
             .fallbackToDestructiveMigration()
             .fallbackToDestructiveMigrationOnDowngrade()

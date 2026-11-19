@@ -515,7 +515,10 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         if (isVaultActive && shakeLockEnabled) {
             val sensorManager = context.getSystemService(android.content.Context.SENSOR_SERVICE) as? android.hardware.SensorManager
             val accelerometer = sensorManager?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
-            var lastShakeTimestamp = 0L
+            var lastShakeLockTimestamp = 0L
+            var shakeCount = 0
+            var firstShakeDirectionTimestamp = 0L
+            var lastDirection = 0
 
             val listener = object : android.hardware.SensorEventListener {
                 override fun onSensorChanged(event: android.hardware.SensorEvent?) {
@@ -524,14 +527,42 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                     val y = event.values[1]
                     val z = event.values[2]
                     val gForce = kotlin.math.sqrt((x * x + y * y + z * z).toDouble()).toFloat() / android.hardware.SensorManager.GRAVITY_EARTH
-                    if (gForce > 2.5f) {
+
+                    // Deliberate vigorous shake threshold: >= 3.2g total acceleration
+                    if (gForce >= 3.2f) {
                         val now = System.currentTimeMillis()
-                        if (now - lastShakeTimestamp > 1500L) {
-                            lastShakeTimestamp = now
-                            viewModel.lockVault(context)
-                            viewModel.activeMediaItem = null
-                            com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
-                            android.widget.Toast.makeText(context, context.getString(R.string.emergency_shake_vault_locked), android.widget.Toast.LENGTH_SHORT).show()
+                        // Find dominant axis direction
+                        val dominantVal = if (kotlin.math.abs(x) > kotlin.math.abs(y) && kotlin.math.abs(x) > kotlin.math.abs(z)) {
+                            x
+                        } else if (kotlin.math.abs(y) > kotlin.math.abs(z)) {
+                            y
+                        } else {
+                            z
+                        }
+                        val currentDirection = if (dominantVal > 0) 1 else -1
+
+                        if (now - firstShakeDirectionTimestamp > 500L) {
+                            // Reset shake sequence window
+                            shakeCount = 1
+                            firstShakeDirectionTimestamp = now
+                            lastDirection = currentDirection
+                        } else if (currentDirection != lastDirection) {
+                            // Direction reversal detected within 500ms window
+                            shakeCount++
+                            lastDirection = currentDirection
+                            if (shakeCount >= 2 && (now - lastShakeLockTimestamp > 2000L)) {
+                                lastShakeLockTimestamp = now
+                                shakeCount = 0
+                                firstShakeDirectionTimestamp = 0L
+                                viewModel.lockVault(context)
+                                viewModel.activeMediaItem = null
+                                com.hrshd1eux.imava.core.util.HapticUtil.performError(context)
+                                android.widget.Toast.makeText(
+                                    context,
+                                    context.getString(R.string.emergency_shake_vault_locked),
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 }

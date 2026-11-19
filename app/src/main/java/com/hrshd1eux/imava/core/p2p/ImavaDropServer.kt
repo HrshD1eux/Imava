@@ -76,6 +76,46 @@ object ImavaDropServer {
     private val _state = MutableStateFlow(ImavaDropState())
     val state: StateFlow<ImavaDropState> = _state.asStateFlow()
 
+    private data class RateLimitRecord(
+        var failedAttempts: Int = 0,
+        var lockedUntil: Long = 0L,
+        var lastAttemptTime: Long = 0L
+    )
+
+    private val ipRateLimits = java.util.concurrent.ConcurrentHashMap<String, RateLimitRecord>()
+
+    private fun checkRateLimit(clientIp: String): Boolean {
+        val now = System.currentTimeMillis()
+        val record = ipRateLimits.computeIfAbsent(clientIp) { RateLimitRecord() }
+        synchronized(record) {
+            if (record.lockedUntil > now) {
+                return false
+            }
+            if (now - record.lastAttemptTime > 60_000L && record.lockedUntil <= now) {
+                record.failedAttempts = 0
+            }
+            return true
+        }
+    }
+
+    private fun recordAuthFailure(clientIp: String) {
+        val now = System.currentTimeMillis()
+        val record = ipRateLimits.computeIfAbsent(clientIp) { RateLimitRecord() }
+        synchronized(record) {
+            record.lastAttemptTime = now
+            record.failedAttempts++
+            if (record.failedAttempts >= 5) {
+                record.lockedUntil = now + 60_000L
+                addLog("Security: Client ($clientIp) locked out for 60s due to repeated invalid PIN attempts.")
+            }
+        }
+        try { Thread.sleep(500L) } catch (_: InterruptedException) {}
+    }
+
+    private fun recordAuthSuccess(clientIp: String) {
+        ipRateLimits.remove(clientIp)
+    }
+
     private var appContext: Context? = null
     @Volatile
     var launchedFromExternalShare: Boolean = false
@@ -253,6 +293,7 @@ object ImavaDropServer {
         wifiLock = null
 
         cachedFaviconBytes = null
+        ipRateLimits.clear()
         cachedFaviconBase64 = null
         launchedFromExternalShare = false
         ImavaDropShareHelper.clearStagedFiles(appContext)
@@ -323,6 +364,13 @@ object ImavaDropServer {
 
             val clientIp = client.inetAddress.hostAddress ?: "Unknown"
 
+            if (!checkRateLimit(clientIp)) {
+                val res = "HTTP/1.1 429 Too Many Requests\r\nContent-Type: text/plain; charset=utf-8\r\nRetry-After: 60\r\nConnection: close\r\n\r\nToo Many Requests: IP locked for 60s due to repeated authentication failures."
+                output.write(res.toByteArray(Charsets.UTF_8))
+                output.flush()
+                return
+            }
+
             val hostHeader = headers["host"]
             if (!isValidHost(hostHeader, _state.value.ipAddress)) {
                 val res = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nForbidden: Invalid Host header"
@@ -351,6 +399,10 @@ object ImavaDropServer {
             val isAuth = isAuthorized(queryParams, headers, expectedPin)
 
             if (!isAuth) {
+                val hasAttemptedPin = queryParams.containsKey("pin") || headers.containsKey("x-imava-pin") || (headers["cookie"]?.contains("imava_pin") == true)
+                if (hasAttemptedPin) {
+                    recordAuthFailure(clientIp)
+                }
                 if (method == "GET" && (path == "/" || path == "/index.html")) {
                     val hasFailedPin = queryParams.containsKey("pin")
                     servePinAuthForm(output, hasError = hasFailedPin)
@@ -359,6 +411,8 @@ object ImavaDropServer {
                 }
                 return
             }
+
+            recordAuthSuccess(clientIp)
 
             markActivity()
 

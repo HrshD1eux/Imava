@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">போலி கடவுச்சொல் செயல்படுத்தப்பட்டது</string>
     <string name="vault_set_decoy_pass_label">போலி கடவுச்சொல்</string>
     <string name="vault_set_decoy_pass_confirm_label">போலி கடவுச்சொல்லை உறுதிப்படுத்தவும்</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">எந்த உருப்படிகளும் கிடைக்கவில்லை</string>
+    <string name="action_discard">நிராகரி</string>
+    <string name="unsaved_changes_title">சேமிக்கப்படாத மாற்றங்கள்</string>
+    <string name="unsaved_changes_desc">உங்கள் மறைமுக குறியீட்டில் சேமிக்கப்படாத மாற்றங்கள் உள்ளன. அவற்றை சேமிக்க விரும்புகிறீர்களா அல்லது நிராகரிக்க விரும்புகிறீர்களா?</string>
+    <string name="vault_stealth_code_saved">மறைமுக குறியீடு சேமிக்கப்பட்டது</string>
+</resources>

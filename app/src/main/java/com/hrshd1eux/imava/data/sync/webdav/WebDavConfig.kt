@@ -24,6 +24,7 @@ object WebDavConfigManager {
     private const val KEY_SERVER_URL = "server_url"
     private const val KEY_USERNAME = "username"
     private const val KEY_PASSWORD = "password"
+    private const val KEY_PASSWORD_ENCRYPTED = "password_encrypted"
     private const val KEY_REMOTE_DIR = "remote_dir"
     private const val KEY_WIFI_ONLY = "wifi_only"
     private const val KEY_CHARGING_ONLY = "charging_only"
@@ -36,10 +37,28 @@ object WebDavConfigManager {
 
     fun loadConfig(context: Context): WebDavConfig {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val encryptedPassword = prefs.getString(KEY_PASSWORD_ENCRYPTED, null)
+        val password = if (!encryptedPassword.isNullOrBlank()) {
+            try {
+                com.hrshd1eux.imava.core.util.VaultCrypto.decryptString(encryptedPassword)
+            } catch (_: Exception) {
+                encryptedPassword
+            }
+        } else {
+            val legacy = prefs.getString(KEY_PASSWORD, "") ?: ""
+            if (legacy.isNotBlank()) {
+                try {
+                    val enc = com.hrshd1eux.imava.core.util.VaultCrypto.encryptString(legacy)
+                    prefs.edit().putString(KEY_PASSWORD_ENCRYPTED, enc).remove(KEY_PASSWORD).apply()
+                } catch (_: Exception) {}
+            }
+            legacy
+        }
+
         return WebDavConfig(
             serverUrl = prefs.getString(KEY_SERVER_URL, "") ?: "",
             username = prefs.getString(KEY_USERNAME, "") ?: "",
-            password = prefs.getString(KEY_PASSWORD, "") ?: "",
+            password = password,
             remoteDirectory = prefs.getString(KEY_REMOTE_DIR, "Imava_Backup") ?: "Imava_Backup",
             syncWifiOnly = prefs.getBoolean(KEY_WIFI_ONLY, true),
             syncChargingOnly = prefs.getBoolean(KEY_CHARGING_ONLY, false),
@@ -58,10 +77,19 @@ object WebDavConfigManager {
 
     fun saveConfig(context: Context, config: WebDavConfig) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val encryptedPassword = if (config.password.isNotBlank()) {
+            try {
+                com.hrshd1eux.imava.core.util.VaultCrypto.encryptString(config.password)
+            } catch (_: Exception) {
+                config.password
+            }
+        } else ""
+
         prefs.edit()
             .putString(KEY_SERVER_URL, config.serverUrl.trim())
             .putString(KEY_USERNAME, config.username.trim())
-            .putString(KEY_PASSWORD, config.password)
+            .putString(KEY_PASSWORD_ENCRYPTED, encryptedPassword)
+            .remove(KEY_PASSWORD)
             .putString(KEY_REMOTE_DIR, config.remoteDirectory.trim())
             .putBoolean(KEY_WIFI_ONLY, config.syncWifiOnly)
             .putBoolean(KEY_CHARGING_ONLY, config.syncChargingOnly)
@@ -84,24 +112,59 @@ object WebDavConfigManager {
 
     fun getSyncedIds(context: Context): Set<String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getStringSet(KEY_SYNCED_IDS, emptySet()) ?: emptySet()
+        return try {
+            val dao = com.hrshd1eux.imava.data.database.GalleryDatabase.getInstance(context).webDavSyncedDao()
+            val roomIds = kotlinx.coroutines.runBlocking { dao.getAllSyncedIds() }.map { it.toString() }.toSet()
+            if (roomIds.isNotEmpty()) {
+                roomIds
+            } else {
+                val legacy = prefs.getStringSet(KEY_SYNCED_IDS, emptySet()) ?: emptySet()
+                if (legacy.isNotEmpty()) {
+                    val entities = legacy.mapNotNull { it.toLongOrNull() }.map {
+                        com.hrshd1eux.imava.data.database.WebDavSyncedEntity(it)
+                    }
+                    kotlinx.coroutines.runBlocking { dao.markAllSynced(entities) }
+                    prefs.edit().remove(KEY_SYNCED_IDS).apply()
+                }
+                legacy
+            }
+        } catch (_: Exception) {
+            prefs.getStringSet(KEY_SYNCED_IDS, emptySet()) ?: emptySet()
+        }
     }
 
     fun markIdAsSynced(context: Context, mediaId: Long) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val current = (prefs.getStringSet(KEY_SYNCED_IDS, emptySet()) ?: emptySet()).toMutableSet()
-        current.add(mediaId.toString())
-        prefs.edit().putStringSet(KEY_SYNCED_IDS, current).apply()
+        try {
+            val dao = com.hrshd1eux.imava.data.database.GalleryDatabase.getInstance(context).webDavSyncedDao()
+            kotlinx.coroutines.runBlocking {
+                dao.markSynced(com.hrshd1eux.imava.data.database.WebDavSyncedEntity(mediaId))
+            }
+        } catch (_: Exception) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val current = (prefs.getStringSet(KEY_SYNCED_IDS, emptySet()) ?: emptySet()).toMutableSet()
+            current.add(mediaId.toString())
+            prefs.edit().putStringSet(KEY_SYNCED_IDS, current).apply()
+        }
     }
 
     fun markIdsAsSynced(context: Context, mediaIds: Collection<Long>) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val current = (prefs.getStringSet(KEY_SYNCED_IDS, emptySet()) ?: emptySet()).toMutableSet()
-        mediaIds.forEach { current.add(it.toString()) }
-        prefs.edit().putStringSet(KEY_SYNCED_IDS, current).apply()
+        try {
+            val dao = com.hrshd1eux.imava.data.database.GalleryDatabase.getInstance(context).webDavSyncedDao()
+            val entities = mediaIds.map { com.hrshd1eux.imava.data.database.WebDavSyncedEntity(it) }
+            kotlinx.coroutines.runBlocking { dao.markAllSynced(entities) }
+        } catch (_: Exception) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val current = (prefs.getStringSet(KEY_SYNCED_IDS, emptySet()) ?: emptySet()).toMutableSet()
+            mediaIds.forEach { current.add(it.toString()) }
+            prefs.edit().putStringSet(KEY_SYNCED_IDS, current).apply()
+        }
     }
 
     fun clearSyncedIds(context: Context) {
+        try {
+            val dao = com.hrshd1eux.imava.data.database.GalleryDatabase.getInstance(context).webDavSyncedDao()
+            kotlinx.coroutines.runBlocking { dao.clearAll() }
+        } catch (_: Exception) {}
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().remove(KEY_SYNCED_IDS).apply()
     }

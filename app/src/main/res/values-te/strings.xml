@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">డికాయ్ పాస్‌వర్డ్ యాక్టివేట్ అయింది</string>
     <string name="vault_set_decoy_pass_label">డికాయ్ పాస్‌వర్డ్</string>
     <string name="vault_set_decoy_pass_confirm_label">డికాయ్ పాస్‌వర్డ్‌ని నిర్ధారించండి</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">ఎలాంటి అంశాలు కనుగొనబడలేదు</string>
+    <string name="action_discard">రద్దు చేయి</string>
+    <string name="unsaved_changes_title">సేవ్ చేయని మార్పులు</string>
+    <string name="unsaved_changes_desc">మీ స్టెల్త్ ట్రిగ్గర్ కోడ్‌లో సేవ్ చేయని మార్పులు ఉన్నాయి. వాటిని సేవ్ చేయాలనుకుంటున్నారా లేదా రద్దు చేయాలనుకుంటున్నారా?</string>
+    <string name="vault_stealth_code_saved">స్టెల్త్ ట్రిగ్గర్ కోడ్ సేవ్ చేయబడింది</string>
+</resources>

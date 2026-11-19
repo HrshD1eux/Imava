@@ -1244,8 +1244,9 @@ class MainViewModel @Inject constructor(
         _searchQuery.debounce(300),
         _advancedFilterState,
         albumState.excludedBucketIds,
-        com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion
-    ) { query, advFilter, excluded, _ ->
+        com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion,
+        visibleMediaItems
+    ) { query, advFilter, excluded, _, liveMediaItems ->
         val cleanQuery = query.trim().removePrefix("#")
         if (cleanQuery.isBlank() && !advFilter.isActive) {
             emptyList()
@@ -1256,7 +1257,7 @@ class MainViewModel @Inject constructor(
                     !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, item.bucketId, item.bucketName)
                 }
             } else {
-                visibleMediaItems.value.filter { item ->
+                liveMediaItems.filter { item ->
                     !excluded.contains(item.bucketId.toString()) &&
                     !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, item.bucketId, item.bucketName)
                 }
@@ -2416,7 +2417,21 @@ class MainViewModel @Inject constructor(
             try {
                 val hasAllFilesAccess = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && android.os.Environment.isExternalStorageManager()
                 val isDirectDiskFile = item.uri.scheme != android.content.ContentResolver.SCHEME_CONTENT || item.id <= 0
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !isDirectDiskFile && !hasAllFilesAccess) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !isDirectDiskFile) {
+                    if (hasAllFilesAccess) {
+                        try {
+                            val mediaUri = getMediaProviderUri(item)
+                            val cv = android.content.ContentValues().apply {
+                                put(android.provider.MediaStore.MediaColumns.IS_TRASHED, if (!item.isTrashed) 1 else 0)
+                            }
+                            context.contentResolver.update(mediaUri, cv, null, null)
+                            repository.toggleTrashed(item)
+                            repository.evictSecondaryDiskItem(item.id, item.path)
+                            repository.invalidateThirdPartyCache()
+                            advanceActiveMediaItem(item, targetNextItem)
+                            return@launch
+                        } catch (_: Exception) {}
+                    }
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingActionItem = item
@@ -2922,7 +2937,25 @@ class MainViewModel @Inject constructor(
             }
 
             try {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    if (android.os.Environment.isExternalStorageManager()) {
+                        try {
+                            validItems.forEach { item ->
+                                val mediaUri = getMediaProviderUri(item)
+                                val cv = android.content.ContentValues().apply {
+                                    put(android.provider.MediaStore.MediaColumns.IS_TRASHED, 1)
+                                }
+                                context.contentResolver.update(mediaUri, cv, null, null)
+                                repository.toggleTrashed(item)
+                                repository.evictSecondaryDiskItem(item.id, item.path)
+                            }
+                            selectionState.clear()
+                            repository.invalidateThirdPartyCache()
+                            refreshAll()
+                            safeToast(context, localizedString(context, R.string.vm_moved_broken_trash_fmt, validItems.size))
+                            return@launch
+                        } catch (_: Exception) {}
+                    }
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingBatchActionItems = validItems
@@ -3041,7 +3074,25 @@ class MainViewModel @Inject constructor(
                     return@launch
                 }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    if (android.os.Environment.isExternalStorageManager()) {
+                        try {
+                            validItems.forEach { item ->
+                                val mediaUri = getMediaProviderUri(item)
+                                val cv = android.content.ContentValues().apply {
+                                    put(android.provider.MediaStore.MediaColumns.IS_TRASHED, 1)
+                                }
+                                context.contentResolver.update(mediaUri, cv, null, null)
+                                repository.toggleTrashed(item)
+                                repository.evictSecondaryDiskItem(item.id, item.path)
+                            }
+                            selectionState.clear()
+                            repository.invalidateThirdPartyCache()
+                            refreshAll()
+                            safeToast(context, localizedString(context, R.string.vm_moved_broken_trash_fmt, validItems.size))
+                            return@launch
+                        } catch (_: Exception) {}
+                    }
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingBatchActionItems = validItems
@@ -3134,7 +3185,25 @@ class MainViewModel @Inject constructor(
         if (trashedItems.isEmpty()) return
         viewModelScope.launch {
             try {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    if (android.os.Environment.isExternalStorageManager()) {
+                        try {
+                            trashedItems.forEach { item ->
+                                val mediaUri = getMediaProviderUri(item)
+                                val cv = android.content.ContentValues().apply {
+                                    put(android.provider.MediaStore.MediaColumns.IS_TRASHED, 0)
+                                }
+                                context.contentResolver.update(mediaUri, cv, null, null)
+                                repository.toggleTrashed(item)
+                                repository.evictSecondaryDiskItem(item.id, item.path)
+                            }
+                            selectionState.clear()
+                            repository.invalidateThirdPartyCache()
+                            refreshAll()
+                            safeToast(context, localizedString(context, R.string.vm_restored_items_toast_fmt, trashedItems.size))
+                            return@launch
+                        } catch (_: Exception) {}
+                    }
                     val activity = context.findActivity()
                     if (activity != null) {
                         pendingBatchActionItems = trashedItems

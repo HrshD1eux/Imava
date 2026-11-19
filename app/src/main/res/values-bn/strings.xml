@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">নকল পাসওয়ার্ড সক্রিয় হয়েছে</string>
     <string name="vault_set_decoy_pass_label">নকল পাসওয়ার্ড</string>
     <string name="vault_set_decoy_pass_confirm_label">নকল পাসওয়ার্ড নিশ্চিত করুন</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">কোনো আইটেম পাওয়া যায়নি</string>
+    <string name="action_discard">বাতিল করুন</string>
+    <string name="unsaved_changes_title">সংরক্ষণ না করা পরিবর্তনসমূহ</string>
+    <string name="unsaved_changes_desc">আপনার স্টিলথ ট্রিগার কোডে অসংরক্ষিত পরিবর্তন রয়েছে। আপনি কি সেগুলি সংরক্ষণ করতে চান নাকি বাতিল করতে চান?</string>
+    <string name="vault_stealth_code_saved">স্টিলথ ট্রিগার কোড সংরক্ষিত হয়েছে</string>
+</resources>

@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">Täuschungspasswort aktiviert</string>
     <string name="vault_set_decoy_pass_label">Täuschungspasswort</string>
     <string name="vault_set_decoy_pass_confirm_label">Täuschungspasswort bestätigen</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">Keine Elemente gefunden</string>
+    <string name="action_discard">Verwerfen</string>
+    <string name="unsaved_changes_title">Ungespeicherte Änderungen</string>
+    <string name="unsaved_changes_desc">Sie haben ungespeicherte Änderungen an Ihrem Tarnmodus-Code. Möchten Sie diese speichern oder verwerfen?</string>
+    <string name="vault_stealth_code_saved">Tarnmodus-Code gespeichert</string>
+</resources>

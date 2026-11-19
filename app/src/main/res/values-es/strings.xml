@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">Contraseña señuelo activada</string>
     <string name="vault_set_decoy_pass_label">Contraseña señuelo</string>
     <string name="vault_set_decoy_pass_confirm_label">Confirmar contraseña señuelo</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">No se encontraron elementos</string>
+    <string name="action_discard">Descartar</string>
+    <string name="unsaved_changes_title">Cambios sin guardar</string>
+    <string name="unsaved_changes_desc">Tienes cambios sin guardar en tu código de modo sigiloso. ¿Deseas guardarlos o descartarlos?</string>
+    <string name="vault_stealth_code_saved">Código de modo sigiloso guardado</string>
+</resources>

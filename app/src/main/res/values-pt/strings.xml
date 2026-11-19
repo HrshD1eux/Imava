@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">Senha falsa ativada</string>
     <string name="vault_set_decoy_pass_label">Senha falsa</string>
     <string name="vault_set_decoy_pass_confirm_label">Confirmar senha falsa</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">Nenhum item encontrado</string>
+    <string name="action_discard">Descartar</string>
+    <string name="unsaved_changes_title">Alterações não salvas</string>
+    <string name="unsaved_changes_desc">Você tem alterações não salvas no seu código de modo furtivo. Deseja salvá-las ou descartá-las?</string>
+    <string name="vault_stealth_code_saved">Código de modo furtivo salvo</string>
+</resources>

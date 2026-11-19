@@ -93,18 +93,22 @@ Imava is built specifically for users who refuse cloud telemetry, mandatory acco
 - **On-the-Fly Dynamic ZIP Generator**: Download hundreds of selected photos as a single uncompressed ZIP stream with zero intermediate disk space used on your phone.
 - **Bidirectional Drag-and-Drop Web Upload**: Desktop computers can drag-and-drop photos and videos directly onto the browser page to transfer them straight into your phone's gallery (`Pictures/ImavaDrop`).
 - **System Share Sheet Integration**: Send photos or videos directly to **Imava Drop** from WhatsApp, Telegram, Chrome, or any Android app's Share menu without unlocking or opening the full gallery.
+- **In-Memory LAN Brute-Force Rate Limiting**: Embedded sliding-window firewall locks out unauthorized connection attempts ($\ge 5$ failed PIN tries enforces a 60-second IP quarantine with HTTP 429 and response throttling), hardened alongside DNS-rebinding verification and strict CORS isolation.
 
-### 2. Cryptographic DoD File Shredder & Biometric Trash Lock
-- **Anti-Recovery Physical Sector Overwrite**: Standard OS file deletion (`unlink`) only removes catalog pointers, leaving raw JPEG/MP4 blocks readable by data recovery tools (DiskDigger, Recuva, PhotoRec). Imava's shredder overwrites clusters with cryptographically secure random bytes in 64KB buffers (`"rws"` mode), zeroes magic headers, forces hardware write cache flush via `FileDescriptor.sync()`, scrambles directory entries, and truncates to 0 bytes before unlinking.
+### 2. Cryptographic DoD File Shredder, Native MediaStore Trash & Biometric Lock
+- **Anti-Recovery Physical Sector Overwrite**: Standard OS file deletion (`unlink`) only removes catalog pointers, leaving raw JPEG/MP4 blocks readable by data recovery tools (DiskDigger, Recuva, PhotoRec). Imava's shredder overwrites clusters with cryptographically secure random bytes in 64KB buffers (`"rws"` mode), zeroes magic headers, forces hardware write cache flush via `FileDescriptor.sync()`, scrambles directory entries, and truncates to 0 bytes before unlinking with zero deceptive fallbacks.
+- **Native MediaStore Scoped Storage Trash (API 30+)**: Full integration with Android's system-level `IS_TRASHED` lifecycle and `createTrashRequest`. Replaces wasteful internal file copying with in-place OS-level trash recycling that honors scoped storage permissions.
 - **Biometric Trash Lock**: Specifically guard your Trash folder behind fingerprint, face unlock, or device PIN. Deleted item counts are completely masked until unlocked, preventing nosy friends or family from snooping through deleted photos. Auto-relocks on backgrounding.
 
 ### 3. Hardware-Backed AES-256-GCM Vault & Dynamic Decoy Credentials
 - **AndroidKeyStore Hardware Isolation**: Media files inside the Hidden Vault are encrypted using AES-256-GCM with hardware-backed keys and PBKDF2WithHmacSHA256 (100,000 iterations for master credentials, 250,000 iterations for `.imava` encrypted backup archives). Decrypted blocks live strictly in transient memory and are zeroed upon locking.
 - **Dynamic Plausible Deniability Decoy (Pattern, PIN, Password)**: Coercion-resistant secondary credential that dynamically mirrors your master lock type. If your master lock is a 3x3 Pattern, your decoy is a Decoy Pattern drawn on the identical pattern view. If locked with a numeric PIN or alphanumeric password, the decoy seamlessly prompts for PIN or password. Entering the decoy credential unlocks an isolated decoy vault with dedicated decoy storage (`decoy_vault/`), allowing plausible dummy media while keeping real vault files completely shielded.
 - **Full-Screen Edge-to-Edge Unlock & Decoy Setup**: Native full-screen credential dialogs eliminate cramped alert pop-ups, rendering responsive top and bottom app bars, tactile pattern grids, and single-line auto-fitting controls across all screen form factors.
+- **Biometric Vault Isolation**: Vault biometric unlocking enforces strict biometric verification (`allowDeviceCredential = false`), stopping lockscreen device PIN/pattern fallbacks from bypassing the vault's custom security boundaries.
+- **Emergency Shake-to-Lock**: Directional peak-reversal accelerometer detector ($\ge 3.2\text{g}$, $\ge 2$ directional reversals within $500\text{ ms}$, $2\text{s}$ debounce) immediately locks the vault upon an intentional physical shake, while completely ignoring everyday pocket motion or walking vibrations.
+- **Stealth Mode Access & Neutralized Decoy Presence**: Hide the vault tile entirely from the Albums screen. It can only be opened by typing your case-sensitive secret trigger directly into the search bar, with an inline Save button and unsaved changes confirmation dialog. Empty decoy vaults display identical, neutral empty states ("No items found") across all 13 supported languages to ensure zero forensic trace.
 - **Independent Cryptographic Salting & Collision Guard**: Decoy credentials use an isolated, dedicated salt (`vault_decoy_salt`). Master credential changes or re-salting never invalidate your decoy setup. Built-in collision protection prevents setting matching master/decoy combinations and automatically guards against lock-type migration inconsistencies.
 - **Direct In-Vault Import (FAB)**: Import photos and videos directly into the encrypted master vault or partitioned decoy vault from internal gallery storage or external file pickers using a dedicated floating `+` button.
-- **Stealth Mode Access**: Hide the Hidden Vault tile entirely from the Albums screen. It can only be opened by typing your secret access code directly into the gallery search bar.
 
 ### 4. Local EXIF Sanitizer & Automatic Background Scrubbing
 - **On-the-Fly Metadata Stripping**: Strip embedded GPS coordinates, camera serial numbers, and device fingerprints before sharing photos to messaging apps or social networks.
@@ -113,10 +117,12 @@ Imava is built specifically for users who refuse cloud telemetry, mandatory acco
 
 ### 5. Private WebDAV / Home NAS Zero-Cloud Auto-Sync (Atomic Staging)
 - **100% Self-Hosted & Local**: Automatically back up your library to home NAS appliances (Synology, Nextcloud, TrueNAS, QNAP, ownCloud) or custom WebDAV endpoints over your local network.
+- **Hardware Keystore Credential Encryption**: Server passwords and access tokens are encrypted with hardware-backed AES-256-GCM via AndroidKeyStore before being stored on disk, with automatic migration from legacy configurations.
+- **Locked Album & Vault Zero-Leak Isolation**: Strict pre-flight privacy checks guarantee that media located in locked albums or private vaults is permanently excluded from cloud sync and background backup workers.
 - **Atomic Two-Phase Upload Engine**: Staged upload to `.imava_tmp` followed by atomic RFC 4918 `MOVE` destination rename. Network drops or power loss will never leave half-written, corrupted files on your NAS.
-- **Redundant Upload Suppression**: Performs remote `HEAD` probes and `Content-Length` checks prior to transfer, skipping already backed-up files and saving mobile bandwidth and battery.
+- **Redundant Upload Suppression & Room Ledger**: High-performance Room SQLite synced entity table (`webdav_synced_media`) with indexed lookups skips already backed-up files and saves mobile bandwidth and battery.
 - **Zero Third-Party Cloud**: No external servers, no subscriptions, and zero telemetry. Media never touches commercial cloud providers.
-- **Automated WorkManager Scheduling**: Incremental sync ledger backed by SQLite ensures only new/modified photos are uploaded, with strict **Wi-Fi Only** and **Device Charging** constraints.
+- **Automated WorkManager Scheduling**: Incremental paginated background sync worker processes the entire gallery in chunked batches, adhering to strict **Wi-Fi Only** and **Device Charging** constraints.
 
 ### 6. Tablet & Foldable Responsive Dual-Pane Architecture
 - **Adaptive Layout Engine**: Automatically transforms from single-column phone ergonomics to an edge-to-edge Navigation Rail and dual-pane layout on wide screens (tablets, unfolded foldables, and landscape devices).

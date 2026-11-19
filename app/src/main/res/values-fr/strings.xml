@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">Mot de passe leurre activé</string>
     <string name="vault_set_decoy_pass_label">Mot de passe leurre</string>
     <string name="vault_set_decoy_pass_confirm_label">Confirmer mot de passe leurre</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">Aucun élément trouvé</string>
+    <string name="action_discard">Ignorer</string>
+    <string name="unsaved_changes_title">Modifications non enregistrées</string>
+    <string name="unsaved_changes_desc">Vous avez des modifications non enregistrées pour votre code de mode furtif. Voulez-vous les enregistrer ou les ignorer ?</string>
+    <string name="vault_stealth_code_saved">Code de mode furtif enregistré</string>
+</resources>

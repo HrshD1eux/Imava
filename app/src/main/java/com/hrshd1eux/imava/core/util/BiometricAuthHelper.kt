@@ -22,7 +22,7 @@ object BiometricAuthHelper {
         return null
     }
 
-    fun canAuthenticate(context: Context, allowDeviceCredential: Boolean = true): Boolean {
+    fun canAuthenticate(context: Context, allowDeviceCredential: Boolean = false): Boolean {
         return try {
             val biometricManager = BiometricManager.from(context)
             val canBio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && allowDeviceCredential) {
@@ -59,7 +59,7 @@ object BiometricAuthHelper {
         title: String = "",
         subtitle: String = "",
         negativeButtonText: String = "",
-        allowDeviceCredential: Boolean = true,
+        allowDeviceCredential: Boolean = false,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {

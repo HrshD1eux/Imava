@@ -72,6 +72,13 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_8_9 = object : androidx.room.migration.Migration(8, 9) {
+        override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS webdav_synced_media (mediaId INTEGER PRIMARY KEY NOT NULL, syncedAt INTEGER NOT NULL DEFAULT 0)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_webdav_synced_media_mediaId ON webdav_synced_media(mediaId)")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): GalleryDatabase {
@@ -88,6 +95,12 @@ object DatabaseModule {
     @Singleton
     fun provideOcrDao(db: GalleryDatabase): com.hrshd1eux.imava.data.database.OcrDao {
         return db.ocrDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWebDavSyncedDao(db: GalleryDatabase): com.hrshd1eux.imava.data.database.WebDavSyncedDao {
+        return db.webDavSyncedDao()
     }
 }
 

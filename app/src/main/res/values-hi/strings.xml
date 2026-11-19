@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">नकली पासवर्ड सक्रिय हो गया</string>
     <string name="vault_set_decoy_pass_label">नकली पासवर्ड</string>
     <string name="vault_set_decoy_pass_confirm_label">नकली पासवर्ड की पुष्टि करें</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">कोई आइटम नहीं मिला</string>
+    <string name="action_discard">खारिज करें</string>
+    <string name="unsaved_changes_title">असुरक्षित परिवर्तन</string>
+    <string name="unsaved_changes_desc">आपके पास स्टेल्थ ट्रिगर कोड में अनसहेजे गए बदलाव हैं। क्या आप उन्हें सहेजना चाहते हैं या छोड़ना चाहते हैं?</string>
+    <string name="vault_stealth_code_saved">स्टेल्थ ट्रिगर कोड सहेजा गया</string>
+</resources>

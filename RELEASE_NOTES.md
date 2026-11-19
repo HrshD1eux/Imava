@@ -1,3 +1,22 @@
+## 🚀 What's New in Imava v1.1.120
+
+* **Hardware Keystore WebDAV Credential Encryption**: WebDAV server passwords and authentication secrets are now encrypted via hardware-backed AndroidKeyStore AES-256-GCM (`VaultCrypto`) prior to disk persistence, with seamless background migration from legacy configurations.
+* **Locked Album Cloud Sync & Backup Isolation**: Enforced strict pre-flight privacy checks across both `WebDavSyncManager` and `WebDavBackupWorker`. Photos and videos located in biometric-locked or PIN-locked albums are permanently excluded from cloud synchronization and auto-backups.
+* **Vault Biometric Isolation**: Enforced strict biometric requirements (`allowDeviceCredential = false`) for hidden vault access, preventing device lockscreen PINs or patterns from bypassing vault security.
+* **In-Memory LAN Brute-Force Rate Limiting (Imava Drop)**: Protected local Wi-Fi sharing against unauthorized pairing attempts using an in-memory sliding-window firewall. Receiving 5 failed PIN attempts locks the offending client IP for 60 seconds with HTTP 429 and artificial response throttling.
+* **Native Scoped Storage MediaStore Trash (API 30+)**: Eliminated redundant disk copies into private app caches on Android 11+. Directly updates `MediaStore.MediaColumns.IS_TRASHED` or requests `MediaStore.createTrashRequest()`, preserving native filesystem recycling and scoped storage compliance.
+* **Forensic File Shredder Integrity**: Removed deceptive un-shredded file deletion fallbacks. If DoD 5220.22-M sector zeroing fails, the shredder fails safely and honestly rather than reporting a false-positive secure wipe.
+* **Paginated Cloud Backup Engine**: `WebDavBackupWorker` now processes the entire media library using paginated chunked queries (`pageSize = 500`), backing up large libraries without memory pressure or truncated scans.
+* **Room-Backed Synced Media Ledger**: Upgraded `GalleryDatabase` to Version 9 with `MIGRATION_8_9`. Synced media records are now maintained in a dedicated, indexed SQLite entity (`webdav_synced_media`), replacing unindexed XML SharedPreferences.
+* **Stealth Code Search Verification & Draft Protection**: Fixed case-sensitivity bug in stealth code search activation (`#Harsh` vs `#harsh`). Added an inline "Save Code" button with haptic feedback, plus an "Unsaved Changes" confirmation dialog on back press or dismiss.
+* **Neutral Decoy Empty State**: Replaced "No decoy items found" with neutral "No items found" across all 13 supported languages, preventing forensic discovery of decoy vault mode.
+* **Directional Peak-Reversal Emergency Shake-to-Lock**: Replaced single-sample accelerometer triggers with a calibrated directional peak-reversal detector ($\ge 3.2\text{g}$, $\ge 2$ reversals within 500ms, 2s debounce) to ensure instant emergency locking without accidental pocket triggers.
+* **Multi-Core Coroutine Duplicate Detection**: Parallelized `DuplicateFinder` across available CPU cores on `Dispatchers.Default` using 16-bit hash sub-chunk candidate multi-indexing, pruning comparison time on large libraries.
+* **High-Precision Photo Viewer Deep Zoom**: Configured Coil viewer requests with `Precision.EXACT` and hoisted GPU texture dimensions up to 8192px, eliminating downsampling blur when inspecting 20MP+ photos.
+* **Reactive Library Search Flow**: Search queries now dynamically combine with the active media list, instantly reflecting changes when photos are deleted, trashed, or added.
+
+---
+
 ## 🚀 What's New in Imava v1.1.112
 
 * **Dynamic Decoy Credential Parity (Pattern, PIN, Password)**: Decoy duress authentication now dynamically mirrors your master credential lock type. If your master lock is a 3x3 Pattern, your decoy is a Decoy Pattern drawn on an identical grid. If master is a PIN or Password, decoy setup and verification prompts for matching PIN/Password credentials.

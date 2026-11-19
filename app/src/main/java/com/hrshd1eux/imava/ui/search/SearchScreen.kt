@@ -159,9 +159,10 @@ fun SearchScreen(
                     val prefs = context.getSharedPreferences("vault_prefs", Context.MODE_PRIVATE)
                     val secretTrigger = prefs.getString("vault_secret_trigger", "#vault") ?: "#vault"
                     val isVaultDisabled = prefs.getBoolean("vault_disabled", false)
+                    val isStealthMode = prefs.getBoolean("vault_stealth_mode", false)
                     val isBiometricEnabled = prefs.getBoolean("vault_biometric_enabled", false)
                     val query = searchQuery.trim()
-                    if (!isVaultDisabled && query.isNotEmpty() && query.equals(secretTrigger.trim(), ignoreCase = true)) {
+                    if (isStealthMode && !isVaultDisabled && query.isNotEmpty() && query == secretTrigger.trim()) {
                         val activity = context.findActivity()
                         if (isBiometricEnabled && activity != null) {
                             com.hrshd1eux.imava.core.util.BiometricAuthHelper.authenticate(

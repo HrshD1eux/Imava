@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">Ложный пароль активирован</string>
     <string name="vault_set_decoy_pass_label">Ложный пароль</string>
     <string name="vault_set_decoy_pass_confirm_label">Подтвердите ложный пароль</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">Элементы не найдены</string>
+    <string name="action_discard">Сбросить</string>
+    <string name="unsaved_changes_title">Несохраненные изменения</string>
+    <string name="unsaved_changes_desc">У вас есть несохраненные изменения кода скрытого режима. Сохранить или отменить их?</string>
+    <string name="vault_stealth_code_saved">Код скрытого режима сохранен</string>
+</resources>

@@ -2,11 +2,13 @@ package com.hrshd1eux.imava.ui.vault
 
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
@@ -100,7 +103,23 @@ fun VaultSettingsScreen(
     var lockType by remember { mutableStateOf(prefs.getString("vault_lock_type", "PASSWORD") ?: "PASSWORD") }
     var isBiometricEnabled by remember { mutableStateOf(prefs.getBoolean("vault_biometric_enabled", false)) }
     var isStealthMode by remember { mutableStateOf(prefs.getBoolean("vault_stealth_mode", false)) }
-    var secretTrigger by remember { mutableStateOf(prefs.getString("vault_secret_trigger", "#vault") ?: "#vault") }
+    val savedSecretTrigger = remember(prefs) { prefs.getString("vault_secret_trigger", "#vault") ?: "#vault" }
+    var draftSecretTrigger by remember { mutableStateOf(savedSecretTrigger) }
+    var committedSecretTrigger by remember { mutableStateOf(savedSecretTrigger) }
+    val hasUnsavedStealthCode = isStealthMode && draftSecretTrigger.trim() != committedSecretTrigger.trim()
+    var showUnsavedChangesDialog by remember { mutableStateOf(false) }
+
+    val handleBack = {
+        if (hasUnsavedStealthCode) {
+            showUnsavedChangesDialog = true
+        } else {
+            onBackClick()
+        }
+    }
+
+    BackHandler(enabled = hasUnsavedStealthCode) {
+        showUnsavedChangesDialog = true
+    }
 
     val galleryPrefs = remember(context) { context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE) }
     var shakeLockEnabled by remember { mutableStateOf(galleryPrefs.getBoolean("vault_shake_lock_enabled", true)) }
@@ -147,7 +166,7 @@ fun VaultSettingsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = handleBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.action_back)
@@ -446,22 +465,44 @@ fun VaultSettingsScreen(
                     if (isStealthMode) {
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedTextField(
-                            value = secretTrigger,
-                            onValueChange = {
-                                secretTrigger = it
-                                prefs.edit().putString("vault_secret_trigger", it).apply()
-                            },
+                            value = draftSecretTrigger,
+                            onValueChange = { draftSecretTrigger = it },
                             label = { Text(stringResource(R.string.vault_set_secret_trigger_label)) },
                             placeholder = { Text(stringResource(R.string.vault_set_secret_trigger_hint)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = stringResource(R.string.vault_set_secret_trigger_help),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.vault_set_secret_trigger_help),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (hasUnsavedStealthCode && draftSecretTrigger.isNotBlank()) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
+                                    onClick = {
+                                        val trimmed = draftSecretTrigger.trim()
+                                        prefs.edit().putString("vault_secret_trigger", trimmed).apply()
+                                        committedSecretTrigger = trimmed
+                                        draftSecretTrigger = trimmed
+                                        HapticUtil.performSuccess(context)
+                                        Toast.makeText(context, context.getString(R.string.vault_stealth_code_saved), Toast.LENGTH_SHORT).show()
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                                ) {
+                                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(stringResource(R.string.action_save))
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -704,4 +745,38 @@ fun VaultSettingsScreen(
             }
         }
     )
+
+    if (showUnsavedChangesDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnsavedChangesDialog = false },
+            title = { Text(stringResource(R.string.unsaved_changes_title)) },
+            text = { Text(stringResource(R.string.unsaved_changes_desc)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val trimmed = draftSecretTrigger.trim()
+                        if (trimmed.isNotBlank()) {
+                            prefs.edit().putString("vault_secret_trigger", trimmed).apply()
+                            committedSecretTrigger = trimmed
+                        }
+                        showUnsavedChangesDialog = false
+                        onBackClick()
+                    }
+                ) {
+                    Text(stringResource(R.string.action_save))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        draftSecretTrigger = committedSecretTrigger
+                        showUnsavedChangesDialog = false
+                        onBackClick()
+                    }
+                ) {
+                    Text(stringResource(R.string.action_discard))
+                }
+            }
+        )
+    }
 }

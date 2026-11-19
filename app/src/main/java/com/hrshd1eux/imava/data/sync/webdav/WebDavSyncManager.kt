@@ -97,6 +97,7 @@ object WebDavSyncManager {
                 val eligibleItems = allItems.filter { item ->
                     if (item.isHidden || item.isTrashed) return@filter false
                     if (!config.includeVideos && item.isVideo) return@filter false
+                    if (com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(context, item.bucketId, item.bucketName)) return@filter false
                     !alreadySyncedIds.contains(item.id.toString())
                 }
 

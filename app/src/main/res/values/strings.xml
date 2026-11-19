@@ -63,7 +63,7 @@
     <string name="favorites_empty">No favorites yet</string>
     <string name="no_media_found">No photos or videos found</string>
     <string name="no_pictures_here">No pictures here</string>
-    <string name="no_decoy_items">No decoy items found</string>
+    <string name="no_decoy_items">No items found</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -1495,4 +1495,8 @@
     <string name="vault_set_decoy_pass_activated_toast">Decoy password activated</string>
     <string name="vault_set_decoy_pass_label">Decoy Password</string>
     <string name="vault_set_decoy_pass_confirm_label">Confirm Decoy Password</string>
+    <string name="action_discard">Discard</string>
+    <string name="unsaved_changes_title">Unsaved Changes</string>
+    <string name="unsaved_changes_desc">You have unsaved changes to your stealth trigger code. Do you want to save or discard them?</string>
+    <string name="vault_stealth_code_saved">Stealth trigger code saved</string>
 </resources>

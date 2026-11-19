@@ -199,6 +199,16 @@ fun PhotoViewerScreen(
     val initialActiveItem = remember { activeItem }
     var isCurrentPageZoomed by remember { mutableStateOf(false) }
 
+    val maxTextureDim = remember {
+        try {
+            val maxTex = IntArray(1)
+            android.opengl.GLES20.glGetIntegerv(android.opengl.GLES20.GL_MAX_TEXTURE_SIZE, maxTex, 0)
+            if (maxTex[0] >= 8192) 8192 else 4096
+        } catch (_: Exception) {
+            4096
+        }
+    }
+
     var deletedMediaIds by remember { mutableStateOf(emptySet<Long>()) }
 
     LaunchedEffect(visibleMediaItems) {
@@ -436,8 +446,7 @@ fun PhotoViewerScreen(
         ) { page ->
             val item = mediaItems.getOrNull(page)
             if (item != null) {
-                val imageRequest = remember(item.uri, item.width, item.height, item.isPending, item.size) {
-                    val maxTextureDim = 4096
+                val imageRequest = remember(item.uri, item.width, item.height, item.isPending, item.size, maxTextureDim) {
                     val builder = coil.request.ImageRequest.Builder(context)
                         .data(item.uri)
                         .crossfade(true)
@@ -455,7 +464,7 @@ fun PhotoViewerScreen(
                             val targetW = (item.width * scale).toInt().coerceAtLeast(1)
                             val targetH = (item.height * scale).toInt().coerceAtLeast(1)
                             builder.size(targetW, targetH)
-                                .precision(coil.size.Precision.INEXACT)
+                                .precision(coil.size.Precision.EXACT)
                         } else {
                             builder.size(coil.size.Size.ORIGINAL)
                         }

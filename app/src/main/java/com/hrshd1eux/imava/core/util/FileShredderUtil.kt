@@ -96,8 +96,7 @@ object FileShredderUtil {
             val targetToDelete = if (file.renameTo(scrambledFile)) scrambledFile else file
             targetToDelete.delete()
         } catch (_: Exception) {
-            // Fallback to direct delete if shredding failed due to permission or I/O
-            file.delete()
+            false
         }
     }
 

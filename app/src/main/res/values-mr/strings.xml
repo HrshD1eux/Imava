@@ -1494,4 +1494,9 @@
     <string name="vault_set_decoy_pass_activated_toast">बनावट पासवर्ड सक्रिय झाला</string>
     <string name="vault_set_decoy_pass_label">बनावट पासवर्ड</string>
     <string name="vault_set_decoy_pass_confirm_label">बनावट पासवर्डची खात्री करा</string>
-<string name="no_decoy_items">No decoy items found</string></resources>
+    <string name="no_decoy_items">कोणतेही घटक आढळले नाहीत</string>
+    <string name="action_discard">हटवा</string>
+    <string name="unsaved_changes_title">अजतन केलेले बदल</string>
+    <string name="unsaved_changes_desc">तुमच्याकडे स्टेल्थ कोडमध्ये न जतन केलेले बदल आहेत. आपण ते जतन करू इच्छिता की सोडू इच्छिता?</string>
+    <string name="vault_stealth_code_saved">स्टेल्थ ट्रिगर कोड जतन केला</string>
+</resources>

@@ -6,6 +6,9 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import com.hrshd1eux.imava.data.model.MediaItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
@@ -122,45 +125,83 @@ object DuplicateFinder {
         }
 
         val totalPhotos = remainingPhotos.size
-        var scannedCount = 0
+        val cpuCount = Runtime.getRuntime().availableProcessors().coerceIn(2, 8)
+        val signatures = java.util.concurrent.CopyOnWriteArrayList<PhotoSignature>()
+        val scannedCounter = java.util.concurrent.atomic.AtomicInteger(0)
 
-        val semaphore = Semaphore(4)
-        val signatures = mutableListOf<PhotoSignature>()
-
-        for (item in remainingPhotos) {
-            semaphore.withPermit {
-                try {
-                    val bitmap = decodeMicroThumbnail(context, item)
-                    if (bitmap != null) {
-                        val dHash = computeDHash(bitmap)
-                        val aHash = computeAHash(bitmap)
-                        signatures.add(PhotoSignature(item, dHash, aHash))
-                        bitmap.recycle()
+        // True coroutine parallelism across CPU cores with Dispatchers.Default
+        coroutineScope {
+            val chunkSize = (remainingPhotos.size + cpuCount - 1) / cpuCount
+            val deferreds = remainingPhotos.chunked(chunkSize).map { chunk ->
+                async(Dispatchers.Default) {
+                    for (item in chunk) {
+                        try {
+                            val bitmap = decodeMicroThumbnail(context, item)
+                            if (bitmap != null) {
+                                val dHash = computeDHash(bitmap)
+                                val aHash = computeAHash(bitmap)
+                                signatures.add(PhotoSignature(item, dHash, aHash))
+                                bitmap.recycle()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        } finally {
+                            val count = scannedCounter.incrementAndGet()
+                            onProgress?.invoke(count, totalPhotos)
+                        }
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    scannedCount++
-                    onProgress?.invoke(scannedCount, totalPhotos)
                 }
             }
+            deferreds.awaitAll()
         }
 
+        val parsedIgnoredPairs = ignoredPairs.mapNotNull {
+            val parts = it.split("_")
+            if (parts.size == 2) {
+                val a = parts[0].toLongOrNull()
+                val b = parts[1].toLongOrNull()
+                if (a != null && b != null) Pair(minOf(a, b), maxOf(a, b)) else null
+            } else null
+        }.toSet()
+
+        val sortedSignatures = signatures.sortedBy { it.item.dateTaken }
         val visitedSignatures = mutableSetOf<Long>()
 
-        for (i in signatures.indices) {
-            val sigA = signatures[i]
+        // 16-bit sub-chunk multi-index for fast candidate lookup
+        val hashBuckets = mutableMapOf<Int, MutableList<PhotoSignature>>()
+        for (sig in sortedSignatures) {
+            val chunk1 = (sig.dHash and 0xFFFFL).toInt()
+            val chunk2 = ((sig.dHash ushr 16) and 0xFFFFL).toInt()
+            val chunk3 = ((sig.dHash ushr 32) and 0xFFFFL).toInt()
+            val chunk4 = ((sig.dHash ushr 48) and 0xFFFFL).toInt()
+            hashBuckets.getOrPut(chunk1) { mutableListOf() }.add(sig)
+            hashBuckets.getOrPut(chunk2) { mutableListOf() }.add(sig)
+            hashBuckets.getOrPut(chunk3) { mutableListOf() }.add(sig)
+            hashBuckets.getOrPut(chunk4) { mutableListOf() }.add(sig)
+        }
+
+        for (sigA in sortedSignatures) {
             if (visitedSignatures.contains(sigA.item.id)) continue
 
             val cluster = mutableListOf<MediaItem.Photo>()
             cluster.add(sigA.item)
 
-            for (j in i + 1 until signatures.size) {
-                val sigB = signatures[j]
-                if (visitedSignatures.contains(sigB.item.id)) continue
+            // Gather candidate matches from identical 16-bit hash chunks or close temporal proximity (+/- 15s)
+            val candidateSet = mutableSetOf<PhotoSignature>()
+            val c1 = (sigA.dHash and 0xFFFFL).toInt()
+            val c2 = ((sigA.dHash ushr 16) and 0xFFFFL).toInt()
+            val c3 = ((sigA.dHash ushr 32) and 0xFFFFL).toInt()
+            val c4 = ((sigA.dHash ushr 48) and 0xFFFFL).toInt()
+            hashBuckets[c1]?.let { candidateSet.addAll(it) }
+            hashBuckets[c2]?.let { candidateSet.addAll(it) }
+            hashBuckets[c3]?.let { candidateSet.addAll(it) }
+            hashBuckets[c4]?.let { candidateSet.addAll(it) }
 
-                val pairKey = if (sigA.item.id < sigB.item.id) "${sigA.item.id}_${sigB.item.id}" else "${sigB.item.id}_${sigA.item.id}"
-                if (ignoredPairs.contains(pairKey)) continue
+            for (sigB in candidateSet) {
+                if (sigA.item.id == sigB.item.id || visitedSignatures.contains(sigB.item.id)) continue
+
+                val pairKey = Pair(minOf(sigA.item.id, sigB.item.id), maxOf(sigA.item.id, sigB.item.id))
+                if (parsedIgnoredPairs.contains(pairKey)) continue
 
                 if (arePerceptualDuplicates(sigA, sigB)) {
                     cluster.add(sigB.item)
