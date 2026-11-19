@@ -712,13 +712,6 @@ class MainViewModel @Inject constructor(
     private val _buckets = MutableStateFlow<List<BucketInfo>>(emptyList())
     val buckets: StateFlow<List<BucketInfo>> = _buckets.asStateFlow()
 
-    private val _excludedBucketIds = MutableStateFlow<Set<String>>(
-        (prefs.getStringSet("excluded_buckets", null)
-            ?: application.getSharedPreferences("album_prefs", Context.MODE_PRIVATE).getStringSet("excluded_buckets", emptySet())
-            ?: emptySet())
-    )
-    val excludedBucketIds: StateFlow<Set<String>> = _excludedBucketIds.asStateFlow()
-
     enum class AlbumSortOrder {
         NAME_ASC,
         COUNT_DESC,
@@ -732,33 +725,30 @@ class MainViewModel @Inject constructor(
         GRID_4  // Small
     }
 
-    private val _albumSortOrder = MutableStateFlow(
-        try {
-            AlbumSortOrder.valueOf(prefs.getString("album_sort_order", AlbumSortOrder.NAME_ASC.name) ?: AlbumSortOrder.NAME_ASC.name)
-        } catch (_: Exception) {
-            AlbumSortOrder.NAME_ASC
-        }
-    )
-    val albumSortOrder: StateFlow<AlbumSortOrder> = _albumSortOrder.asStateFlow()
+    private val albumState by lazy { com.hrshd1eux.imava.ui.albums.AlbumStateHolder(application) }
 
-    fun setAlbumSortOrder(order: AlbumSortOrder) {
-        _albumSortOrder.value = order
-        prefs.edit().putString("album_sort_order", order.name).apply()
+    val excludedBucketIds: StateFlow<Set<String>> = albumState.excludedBucketIds
+    val albumSortOrder: StateFlow<AlbumSortOrder> = albumState.albumSortOrder
+    fun setAlbumSortOrder(order: AlbumSortOrder) = albumState.setAlbumSortOrder(order)
+    val albumLayoutMode: StateFlow<AlbumLayoutMode> = albumState.albumLayoutMode
+    fun setAlbumLayoutMode(mode: AlbumLayoutMode) = albumState.setAlbumLayoutMode(mode)
+    val customAlbumCovers: StateFlow<Map<Long, Long>> = albumState.customAlbumCovers
+    fun setCustomAlbumCover(bucketId: Long, mediaId: Long) {
+        albumState.setCustomAlbumCover(bucketId, mediaId)
+        refreshAll()
     }
-
-    private val _albumLayoutMode = MutableStateFlow(
-        try {
-            AlbumLayoutMode.valueOf(prefs.getString("album_layout_mode", AlbumLayoutMode.GRID_2.name) ?: AlbumLayoutMode.GRID_2.name)
-        } catch (_: Exception) {
-            AlbumLayoutMode.GRID_2
-        }
-    )
-    val albumLayoutMode: StateFlow<AlbumLayoutMode> = _albumLayoutMode.asStateFlow()
-
-    fun setAlbumLayoutMode(mode: AlbumLayoutMode) {
-        _albumLayoutMode.value = mode
-        prefs.edit().putString("album_layout_mode", mode.name).apply()
+    val pinnedBucketIds: StateFlow<Set<String>> = albumState.pinnedBucketIds
+    fun togglePinBucket(bucketId: Long) = albumState.togglePinBucket(bucketId)
+    fun excludeBucket(bucketId: Long) {
+        albumState.excludeBucket(bucketId)
+        refreshAll()
     }
+    fun restoreExcludedBucket(bucketId: String) {
+        albumState.restoreExcludedBucket(bucketId)
+        refreshAll()
+    }
+    val mergeSameNamedAlbums: StateFlow<Boolean> = albumState.mergeSameNamedAlbums
+    fun setMergeSameNamedAlbums(enabled: Boolean) = albumState.setMergeSameNamedAlbums(enabled)
 
     private fun localizedString(context: Context?, resId: Int, vararg args: Any): String {
         return com.hrshd1eux.imava.core.util.LocaleHelper.getString(
@@ -779,49 +769,8 @@ class MainViewModel @Inject constructor(
     private val _lastDeletedMediaId = MutableStateFlow<Long?>(null)
     val lastDeletedMediaId: StateFlow<Long?> = _lastDeletedMediaId.asStateFlow()
 
-    private val _customAlbumCovers = MutableStateFlow<Map<Long, Long>>(loadCustomAlbumCovers())
-    val customAlbumCovers: StateFlow<Map<Long, Long>> = _customAlbumCovers.asStateFlow()
-
-    private fun loadCustomAlbumCovers(): Map<Long, Long> {
-        val map = mutableMapOf<Long, Long>()
-        val allPrefs = prefs.all
-        for ((k, v) in allPrefs) {
-            if (k.startsWith("custom_cover_")) {
-                val bucketId = k.removePrefix("custom_cover_").toLongOrNull()
-                val mediaId = (v as? Long) ?: (v as? String)?.toLongOrNull()
-                if (bucketId != null && mediaId != null) {
-                    map[bucketId] = mediaId
-                }
-            }
-        }
-        return map
-    }
-
-    fun setCustomAlbumCover(bucketId: Long, mediaId: Long) {
-        val newMap = _customAlbumCovers.value.toMutableMap()
-        newMap[bucketId] = mediaId
-        _customAlbumCovers.value = newMap
-        prefs.edit().putLong("custom_cover_$bucketId", mediaId).apply()
-        refreshAll()
-    }
-
-    private val _pinnedBucketIds = MutableStateFlow<Set<String>>(
-        (prefs.getStringSet("pinned_buckets", null)
-            ?: application.getSharedPreferences("album_prefs", Context.MODE_PRIVATE).getStringSet("pinned_buckets", emptySet())
-            ?: emptySet())
-    )
-    val pinnedBucketIds: StateFlow<Set<String>> = _pinnedBucketIds.asStateFlow()
-
-    private val _mergeSameNamedAlbums = MutableStateFlow(galleryPrefs.getBoolean("merge_same_named_albums", true))
-    val mergeSameNamedAlbums: StateFlow<Boolean> = _mergeSameNamedAlbums.asStateFlow()
-
-    fun setMergeSameNamedAlbums(enabled: Boolean) {
-        galleryPrefs.edit().putBoolean("merge_same_named_albums", enabled).apply()
-        _mergeSameNamedAlbums.value = enabled
-    }
-
     val visibleBuckets: StateFlow<List<BucketInfo>> = combine(
-        _buckets, _excludedBucketIds, _albumSortOrder, _mergeSameNamedAlbums, mediaItems
+        _buckets, albumState.excludedBucketIds, albumState.albumSortOrder, albumState.mergeSameNamedAlbums, mediaItems
     ) { list: List<BucketInfo>, excluded: Set<String>, sortOrder: AlbumSortOrder, mergeEnabled: Boolean, rawMedia: List<MediaItem> ->
         val rawList = if (list.isNotEmpty()) {
             list
@@ -907,31 +856,7 @@ class MainViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun excludeBucket(bucketId: Long) {
-        val newSet = _excludedBucketIds.value.toMutableSet().apply { add(bucketId.toString()) }
-        _excludedBucketIds.value = newSet
-        prefs.edit().putStringSet("excluded_buckets", newSet).apply()
-        application.getSharedPreferences("album_prefs", Context.MODE_PRIVATE).edit().putStringSet("excluded_buckets", newSet).apply()
-        refreshAll()
-    }
 
-    fun restoreExcludedBucket(bucketId: String) {
-        val newSet = _excludedBucketIds.value.toMutableSet().apply { remove(bucketId) }
-        _excludedBucketIds.value = newSet
-        prefs.edit().putStringSet("excluded_buckets", newSet).apply()
-        application.getSharedPreferences("album_prefs", Context.MODE_PRIVATE).edit().putStringSet("excluded_buckets", newSet).apply()
-        refreshAll()
-    }
-
-    fun togglePinBucket(bucketId: Long) {
-        val isPinned = _pinnedBucketIds.value.contains(bucketId.toString())
-        val newSet = _pinnedBucketIds.value.toMutableSet().apply {
-            if (isPinned) remove(bucketId.toString()) else add(bucketId.toString())
-        }
-        _pinnedBucketIds.value = newSet
-        prefs.edit().putStringSet("pinned_buckets", newSet).apply()
-        application.getSharedPreferences("album_prefs", Context.MODE_PRIVATE).edit().putStringSet("pinned_buckets", newSet).apply()
-    }
 
     private val _favorites = MutableStateFlow<List<MediaItem>>(emptyList())
     val favorites: StateFlow<List<MediaItem>> = _favorites.asStateFlow()
@@ -961,7 +886,7 @@ class MainViewModel @Inject constructor(
     }
 
     val storageBreakdown: StateFlow<StorageStats> = combine(
-        mediaItems, hidden, trashed, _excludedBucketIds
+        mediaItems, hidden, trashed, albumState.excludedBucketIds
     ) { raw, vault, trash, excluded ->
         var photosBytes = 0L
         var videosBytes = 0L
@@ -994,7 +919,7 @@ class MainViewModel @Inject constructor(
 
     val videosCount: StateFlow<Int> = combine(
         mediaItems,
-        _excludedBucketIds,
+        albumState.excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion
     ) { list, excluded, _ ->
         list.count {
@@ -1017,7 +942,7 @@ class MainViewModel @Inject constructor(
 
     val smartAlbumCounts: StateFlow<SmartAlbumCounts> = combine(
         mediaItems,
-        _excludedBucketIds,
+        albumState.excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion
     ) { list, excluded, _ ->
         val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
@@ -1077,7 +1002,7 @@ class MainViewModel @Inject constructor(
         combine(mediaItems, favorites) { m, f -> Pair(m, f) },
         combine(trashed, hidden) { t, h -> Pair(t, h) },
         _currentCategoryName,
-        _excludedBucketIds,
+        albumState.excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion
     ) { (raw, favs), (trash, vault), category, excluded, _ ->
         val list = when (category) {
@@ -1318,7 +1243,7 @@ class MainViewModel @Inject constructor(
     val searchResults: StateFlow<List<MediaItem>> = combine(
         _searchQuery.debounce(300),
         _advancedFilterState,
-        _excludedBucketIds,
+        albumState.excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion
     ) { query, advFilter, excluded, _ ->
         val cleanQuery = query.trim().removePrefix("#")
@@ -1579,7 +1504,7 @@ class MainViewModel @Inject constructor(
     val pagingDataFlow: Flow<PagingData<TimelineItem>> = combine(
         combine(snapshotFlow { currentBucketId }, _currentCategoryName) { bId, cat -> Pair(bId, cat) },
         combine(snapshotFlow { sortMode }, snapshotFlow { sortOrder }) { mode, order -> Pair(mode, order) },
-        _excludedBucketIds,
+        albumState.excludedBucketIds,
         com.hrshd1eux.imava.core.util.AppLockManager.lockStateVersion,
         combine(_selectedFilter, _selectedCustomTag, refreshTrigger, vaultState.vaultConfigVersion) { f, tag, r, _ -> Triple(f, tag, r) }
     ) { (bucketId, category), (mode, order), excluded, _, (filter, customTag, _) ->
@@ -1874,7 +1799,7 @@ class MainViewModel @Inject constructor(
                 sortOrder = sortOrder
             )
             _mediaItems.value = if (currentBucketId != null) items else items.filter {
-                !_excludedBucketIds.value.contains(it.bucketId.toString()) &&
+                !albumState.excludedBucketIds.value.contains(it.bucketId.toString()) &&
                 !com.hrshd1eux.imava.core.util.AppLockManager.isMediaItemLocked(application, it.bucketId, it.bucketName)
             }
         }

@@ -438,7 +438,6 @@ fun MainScreenLayout(viewModel: MainViewModel) {
     val scope = rememberCoroutineScope()
     var showSelectionShareDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showImavaDropDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
-    var selectionSharePrivacyMode by remember { androidx.compose.runtime.mutableStateOf(com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL) }
     var showSelectionDeleteConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showSelectionDeletePermanentlyConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showSelectionRestoreConfirmDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -1875,133 +1874,19 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         }
     }
 
-    if (showSelectionShareDialog) {
-        AlertDialog(
-            onDismissRequest = { showSelectionShareDialog = false },
-            title = { Text(stringResource(R.string.share_dialog_title)) },
-            text = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.share_choose_privacy),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL }
-                            .padding(vertical = 4.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectionSharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL,
-                            onClick = { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.STRIP_ALL }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(stringResource(R.string.share_strip_all), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                            Text(stringResource(R.string.share_strip_all_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION }
-                            .padding(vertical = 4.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectionSharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION,
-                            onClick = { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FUZZ_LOCATION }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(stringResource(R.string.share_fuzz_gps), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                            Text(stringResource(R.string.share_fuzz_gps_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA }
-                            .padding(vertical = 4.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectionSharePrivacyMode == com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA,
-                            onClick = { selectionSharePrivacyMode = com.hrshd1eux.imava.core.util.SharePrivacyMode.FULL_METADATA }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(stringResource(R.string.share_full_metadata), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                            Text(stringResource(R.string.share_full_metadata_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-
-                    if (viewModel.currentCategoryName != "Hidden Vault") {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    showSelectionShareDialog = false
-                                    showImavaDropDialog = true
-                                }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.WifiTethering,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.share_via_wifi_drop_title),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.share_via_wifi_drop_desc),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showSelectionShareDialog = false
-                        viewModel.shareSelectedMedia(context, selectionSharePrivacyMode)
-                    }
-                ) {
-                    Text(stringResource(R.string.action_share))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSelectionShareDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        )
-    }
+    com.hrshd1eux.imava.ui.selection.SelectionShareDialog(
+        show = showSelectionShareDialog,
+        isViewingVault = viewModel.currentCategoryName == "Hidden Vault",
+        onDismiss = { showSelectionShareDialog = false },
+        onConfirmShare = { mode ->
+            showSelectionShareDialog = false
+            viewModel.shareSelectedMedia(context, mode)
+        },
+        onDropClicked = {
+            showSelectionShareDialog = false
+            showImavaDropDialog = true
+        }
+    )
 
     if (showImavaDropDialog) {
         val allVisible by viewModel.visibleMediaItems.collectAsState()
@@ -2019,161 +1904,68 @@ fun MainScreenLayout(viewModel: MainViewModel) {
         )
     }
 
-    if (showVaultPreConfirmDialog) {
-        AlertDialog(
-            onDismissRequest = { showVaultPreConfirmDialog = false },
-            icon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text(stringResource(R.string.vault_hide_dialog_title)) },
-            text = {
-                Column {
-                    Text(stringResource(R.string.vault_hide_dialog_message))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(R.string.vault_hide_allow_next_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showVaultPreConfirmDialog = false
-                        val vaultPrefs = context.getSharedPreferences("vault_prefs", android.content.Context.MODE_PRIVATE)
-                        val storedPinHash = vaultPrefs.getString("vault_pin_hash", null)
-                        val legacyPin = vaultPrefs.getString("vault_pin", null)
-                        val isVaultDisabled = vaultPrefs.getBoolean("vault_disabled", false)
-                        val isConfigured = !isVaultDisabled && (storedPinHash != null || legacyPin != null)
+    com.hrshd1eux.imava.ui.selection.VaultPreConfirmDialog(
+        show = showVaultPreConfirmDialog,
+        onDismiss = { showVaultPreConfirmDialog = false },
+        onProceed = {
+            showVaultPreConfirmDialog = false
+            val vaultPrefs = context.getSharedPreferences("vault_prefs", android.content.Context.MODE_PRIVATE)
+            val storedPinHash = vaultPrefs.getString("vault_pin_hash", null)
+            val legacyPin = vaultPrefs.getString("vault_pin", null)
+            val isVaultDisabled = vaultPrefs.getBoolean("vault_disabled", false)
+            val isConfigured = !isVaultDisabled && (storedPinHash != null || legacyPin != null)
 
-                        if (!isConfigured) {
-                            pendingMoveToVaultIds = selectionState.selectedIds.toSet()
-                            showVaultSetupRequiredDialog = true
-                        } else {
-                            viewModel.hideSelectedMedia(context)
-                        }
-                    }
-                ) {
-                    Text(stringResource(R.string.action_continue))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showVaultPreConfirmDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
+            if (!isConfigured) {
+                pendingMoveToVaultIds = selectionState.selectedIds.toSet()
+                showVaultSetupRequiredDialog = true
+            } else {
+                viewModel.hideSelectedMedia(context)
             }
-        )
-    }
+        }
+    )
 
-    if (showVaultSetupRequiredDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showVaultSetupRequiredDialog = false
-                pendingMoveToVaultIds = emptySet()
-            },
-            icon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text(stringResource(R.string.vault_setup_required_title)) },
-            text = {
-                Text(stringResource(R.string.vault_setup_required_message))
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showVaultSetupRequiredDialog = false
-                        viewModel.currentScreen = Screen.VaultSetup
-                    }
-                ) {
-                    Text(stringResource(R.string.vault_setup_button))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showVaultSetupRequiredDialog = false
-                        pendingMoveToVaultIds = emptySet()
-                    }
-                ) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        )
-    }
+    com.hrshd1eux.imava.ui.selection.VaultSetupRequiredDialog(
+        show = showVaultSetupRequiredDialog,
+        onDismiss = {
+            showVaultSetupRequiredDialog = false
+            pendingMoveToVaultIds = emptySet()
+        },
+        onSetup = {
+            showVaultSetupRequiredDialog = false
+            viewModel.currentScreen = Screen.VaultSetup
+        }
+    )
 
-    if (showSelectionRestoreConfirmDialog) {
-        val count = selectionState.selectedIds.size
-        AlertDialog(
-            onDismissRequest = { showSelectionRestoreConfirmDialog = false },
-            icon = { Icon(Icons.Default.RestoreFromTrash, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text(stringResource(R.string.restore_items_confirm_title)) },
-            text = { Text(stringResource(R.string.restore_items_confirm_message, count)) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showSelectionRestoreConfirmDialog = false
-                        com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
-                        viewModel.restoreSelectedMedia(context)
-                    }
-                ) {
-                    Text(stringResource(R.string.action_restore))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSelectionRestoreConfirmDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        )
-    }
+    com.hrshd1eux.imava.ui.selection.SelectionRestoreConfirmDialog(
+        show = showSelectionRestoreConfirmDialog,
+        count = selectionState.selectedIds.size,
+        onDismiss = { showSelectionRestoreConfirmDialog = false },
+        onConfirm = {
+            showSelectionRestoreConfirmDialog = false
+            com.hrshd1eux.imava.core.util.HapticUtil.performSuccess(context)
+            viewModel.restoreSelectedMedia(context)
+        }
+    )
 
+    com.hrshd1eux.imava.ui.selection.SelectionDeleteConfirmDialog(
+        show = showSelectionDeleteConfirmDialog,
+        count = selectionState.selectedIds.size,
+        onDismiss = { showSelectionDeleteConfirmDialog = false },
+        onConfirm = {
+            showSelectionDeleteConfirmDialog = false
+            viewModel.deleteSelectedMedia(context)
+        }
+    )
 
-    if (showSelectionDeleteConfirmDialog) {
-        val count = selectionState.selectedIds.size
-        AlertDialog(
-            onDismissRequest = { showSelectionDeleteConfirmDialog = false },
-            title = { Text(stringResource(R.string.trash_items_confirm_title)) },
-            text = { Text(stringResource(R.string.trash_items_confirm_message, count)) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showSelectionDeleteConfirmDialog = false
-                        viewModel.deleteSelectedMedia(context)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text(stringResource(R.string.move_to_trash))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSelectionDeleteConfirmDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        )
-    }
-
-    if (showSelectionDeletePermanentlyConfirmDialog) {
-        val count = selectionState.selectedIds.size
-        AlertDialog(
-            onDismissRequest = { showSelectionDeletePermanentlyConfirmDialog = false },
-            title = { Text(stringResource(R.string.delete_permanently_confirm_title)) },
-            text = { Text(stringResource(R.string.delete_permanently_confirm_message, count)) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showSelectionDeletePermanentlyConfirmDialog = false
-                        viewModel.deleteSelectedMediaPermanently(context)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text(stringResource(R.string.delete_permanently))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSelectionDeletePermanentlyConfirmDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        )
-    }
+    com.hrshd1eux.imava.ui.selection.SelectionDeletePermanentlyConfirmDialog(
+        show = showSelectionDeletePermanentlyConfirmDialog,
+        count = selectionState.selectedIds.size,
+        onDismiss = { showSelectionDeletePermanentlyConfirmDialog = false },
+        onConfirm = {
+            showSelectionDeletePermanentlyConfirmDialog = false
+            viewModel.deleteSelectedMediaPermanently(context)
+        }
+    )
 
     if (showMoveToAlbumDialog) {
         val bucketList by viewModel.buckets.collectAsState()
