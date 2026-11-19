@@ -198,7 +198,7 @@ fun VideoPlayerContainer(
             .build().apply {
             val path = uri.path
             val isCachedDecrypted = path != null && (path.contains("vault_cache") || java.io.File(path).name.startsWith("decrypted_"))
-            val isEncryptedVaultCiphertext = path != null && !isCachedDecrypted && (path.contains("/vault/") || uri.scheme == "vault")
+            val isEncryptedVaultCiphertext = path != null && !isCachedDecrypted && (path.contains("vault") || uri.scheme == "vault")
             if (path != null && isEncryptedVaultCiphertext) {
                 val file = java.io.File(path)
                 if (file.exists()) {

@@ -22,6 +22,9 @@ class ImavaApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         try {
+            com.hrshd1eux.imava.core.util.VaultCacheManager.clearCache(this)
+        } catch (_: Exception) {}
+        try {
             androidx.work.WorkManager.getInstance(this).cancelUniqueWork("TrashAutoPurgeWork")
         } catch (_: Exception) {}
         scheduleAppUpdateChecker()

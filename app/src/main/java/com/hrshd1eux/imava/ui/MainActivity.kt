@@ -840,21 +840,23 @@ fun MainScreenLayout(viewModel: MainViewModel) {
                             )
                         }
 
-                        DescriptiveIconButton(
-                            onClick = {
-                                if (selectionState.selectedIds.isEmpty()) {
-                                    Toast.makeText(context, context.getString(R.string.wifi_drop_select_prompt), Toast.LENGTH_SHORT).show()
-                                } else {
-                                    showImavaDropDialog = true
-                                }
-                            },
-                            title = stringResource(R.string.settings_wifi_drop),
-                            description = stringResource(R.string.wifi_drop_toolbar_desc)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.WifiTethering,
-                                contentDescription = stringResource(R.string.settings_wifi_drop)
-                            )
+                        if (viewModel.currentCategoryName != "Hidden Vault") {
+                            DescriptiveIconButton(
+                                onClick = {
+                                    if (selectionState.selectedIds.isEmpty()) {
+                                        Toast.makeText(context, context.getString(R.string.wifi_drop_select_prompt), Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        showImavaDropDialog = true
+                                    }
+                                },
+                                title = stringResource(R.string.settings_wifi_drop),
+                                description = stringResource(R.string.wifi_drop_toolbar_desc)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.WifiTethering,
+                                    contentDescription = stringResource(R.string.settings_wifi_drop)
+                                )
+                            }
                         }
 
                         val categoryName by viewModel.currentCategoryNameFlow.collectAsState()

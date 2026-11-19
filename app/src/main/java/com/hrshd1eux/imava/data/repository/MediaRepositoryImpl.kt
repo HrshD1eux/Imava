@@ -863,15 +863,10 @@ class MediaRepositoryImpl @Inject constructor(
                     metadataList.filter { it.isHidden && !it.isTrashed && !it.vaultPath.contains("decoy_vault") }
                 }
                 targetList.mapNotNull { entity ->
-                    val decryptedFile = com.hrshd1eux.imava.core.util.VaultCacheManager.getDecryptedFile(context, entity)
-                    val uri = if (decryptedFile != null) {
-                        android.net.Uri.fromFile(decryptedFile)
-                    } else {
-                        val vaultFile = java.io.File(entity.vaultPath)
-                        if (!vaultFile.exists()) return@mapNotNull null
-                        android.net.Uri.fromFile(vaultFile)
-                    }
-                    val path = decryptedFile?.absolutePath ?: entity.originalPath.ifEmpty { entity.vaultPath }
+                    val vaultFile = java.io.File(entity.vaultPath)
+                    if (!vaultFile.exists()) return@mapNotNull null
+                    val uri = android.net.Uri.fromFile(vaultFile)
+                    val path = entity.vaultPath
 
                     if (entity.mimeType.contains("video", ignoreCase = true)) {
                         MediaItem.Video(
@@ -1026,15 +1021,10 @@ class MediaRepositoryImpl @Inject constructor(
         if (missingIds.isNotEmpty()) {
             val vaultEntities = metadataList.filter { it.mediaId in missingIds && it.isHidden }
             val vaultItems = vaultEntities.mapNotNull { entity ->
-                val decryptedFile = com.hrshd1eux.imava.core.util.VaultCacheManager.getDecryptedFile(context, entity)
-                val uri = if (decryptedFile != null) {
-                    android.net.Uri.fromFile(decryptedFile)
-                } else {
-                    val vaultFile = java.io.File(entity.vaultPath)
-                    if (!vaultFile.exists()) return@mapNotNull null
-                    android.net.Uri.fromFile(vaultFile)
-                }
-                val path = decryptedFile?.absolutePath ?: entity.originalPath.ifEmpty { entity.vaultPath }
+                val vaultFile = java.io.File(entity.vaultPath)
+                if (!vaultFile.exists()) return@mapNotNull null
+                val uri = android.net.Uri.fromFile(vaultFile)
+                val path = entity.vaultPath
                 if (entity.mimeType.contains("video", ignoreCase = true)) {
                     MediaItem.Video(
                         id = entity.mediaId,

@@ -12,6 +12,7 @@ object VaultCacheManager {
         return File(context.cacheDir, "vault_cache").apply { mkdirs() }
     }
 
+    @Deprecated("Vault media should be streamed via EncryptedVaultDataSource or fetched in-memory via VaultFetcher to prevent plaintext disk leaks")
     fun getDecryptedFile(context: Context, entity: MediaMetadataEntity): File? {
         if (entity.vaultPath.isBlank()) return null
         val vaultFile = File(entity.vaultPath)
@@ -28,10 +29,12 @@ object VaultCacheManager {
         }
         val cachedFile = File(cacheDir, "decrypted_${entity.mediaId}.$ext")
         if (cachedFile.exists() && cachedFile.length() > 0) {
+            cachedFile.deleteOnExit()
             return cachedFile
         }
 
         val tempFile = File(cacheDir, "decrypted_${entity.mediaId}.tmp")
+        tempFile.deleteOnExit()
         return try {
             FileInputStream(vaultFile).use { input ->
                 FileOutputStream(tempFile).use { output ->
@@ -41,6 +44,7 @@ object VaultCacheManager {
             if (tempFile.exists() && tempFile.length() > 0) {
                 if (cachedFile.exists()) cachedFile.delete()
                 tempFile.renameTo(cachedFile)
+                cachedFile.deleteOnExit()
                 cachedFile
             } else {
                 tempFile.delete()
@@ -74,6 +78,9 @@ object VaultCacheManager {
             val sharedDir = File(baseCacheDir, "shared_images")
             if (sharedDir.exists()) {
                 sharedDir.deleteRecursively()
+            }
+            baseCacheDir.listFiles { _, name -> name.startsWith("decrypted_") }?.forEach {
+                it.delete()
             }
             try {
                 val imageLoader = coil.Coil.imageLoader(context)

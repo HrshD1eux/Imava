@@ -41,7 +41,9 @@
     <application
         android:usesCleartextTraffic="true"
         android:name=".ImavaApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:enableOnBackInvokedCallback="true"
         android:requestLegacyExternalStorage="true"
         android:largeHeap="true"
