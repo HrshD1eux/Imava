@@ -12,7 +12,10 @@ object VaultCacheManager {
         return File(context.cacheDir, "vault_cache").apply { mkdirs() }
     }
 
-    @Deprecated("Vault media should be streamed via EncryptedVaultDataSource or fetched in-memory via VaultFetcher to prevent plaintext disk leaks")
+    /**
+     * Ephemerally provides decrypted media files in isolated app cache while the vault is actively unlocked.
+     * All files are strictly deleted on exit and wiped on vault lock/app backgrounding.
+     */
     fun getDecryptedFile(context: Context, entity: MediaMetadataEntity): File? {
         if (entity.vaultPath.isBlank()) return null
         val vaultFile = File(entity.vaultPath)

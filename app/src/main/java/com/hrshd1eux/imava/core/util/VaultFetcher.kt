@@ -41,11 +41,19 @@ class VaultFetcher(
 
         if (!success || buffer.size == 0L) return null
 
+        val mimeType = when {
+            buffer.rangeEquals(0, okio.ByteString.of(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte())) -> "image/jpeg"
+            buffer.rangeEquals(0, okio.ByteString.of(0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte())) -> "image/png"
+            buffer.rangeEquals(0, okio.ByteString.of('G'.code.toByte(), 'I'.code.toByte(), 'F'.code.toByte())) -> "image/gif"
+            buffer.rangeEquals(0, okio.ByteString.of('R'.code.toByte(), 'I'.code.toByte(), 'F'.code.toByte(), 'F'.code.toByte())) -> "image/webp"
+            else -> null
+        }
+
         val imageSource = ImageSource(source = buffer, context = options.context)
 
         return SourceResult(
             source = imageSource,
-            mimeType = null,
+            mimeType = mimeType,
             dataSource = DataSource.MEMORY
         )
     }
@@ -53,9 +61,10 @@ class VaultFetcher(
     class Factory : Fetcher.Factory<Uri> {
         override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
             val path = data.path ?: return null
-            if (path.contains("/vault/") || path.contains("vault_") || data.scheme == "vault") {
+            if (path.contains("vault_cache")) return null
+            if ((path.contains("/vault/") || path.contains("/decoy_vault/") || path.contains("vault_") || data.scheme == "vault") && !path.endsWith(".meta")) {
                 val file = File(path)
-                if (file.exists()) {
+                if (file.exists() && file.isFile) {
                     // no caching for vault media
                     val vaultOptions = options.copy(
                         diskCachePolicy = CachePolicy.DISABLED,

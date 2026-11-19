@@ -354,7 +354,7 @@ fun TimelineScreen(
 
             val isLibraryScanning by viewModel.isLibraryScanning.collectAsState()
             AnimatedVisibility(
-                visible = isLibraryScanning,
+                visible = isLibraryScanning && currentCategory != "Hidden Vault",
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically(),
                 modifier = Modifier
@@ -392,7 +392,7 @@ fun TimelineScreen(
                 val isPagingLoading = lazyPagingItems.loadState.refresh is androidx.paging.LoadState.Loading
 
                 if (lazyPagingItems.itemCount == 0) {
-                    if (isPagingLoading) {
+                    if (isPagingLoading && currentCategory != "Hidden Vault") {
                         TimelineSkeletonGrid(columns = viewModel.gridColumnCount)
                     } else {
                         Box(
