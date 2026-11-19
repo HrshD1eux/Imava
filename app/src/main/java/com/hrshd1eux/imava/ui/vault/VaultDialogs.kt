@@ -30,17 +30,13 @@ fun ChangeMasterPasswordDialog(
     show: Boolean,
     onDismiss: () -> Unit,
     currentLockType: String,
-    prefs: android.content.SharedPreferences,
     onLockTypeChanged: (String) -> Unit
 ) {
     if (!show) return
 
     var oldPassword by remember { mutableStateOf("") }
     var newLockType by remember { mutableStateOf(currentLockType) }
-    var newPassword by remember { mutableStateOf("") }
-    var confirmNewPassword by remember { mutableStateOf("") }
     var changeError by remember { mutableStateOf<String?>(null) }
-    var patternResult by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
@@ -367,7 +363,6 @@ fun DeleteVaultConfirmationDialog(
 fun ExportPasswordDialog(
     show: Boolean,
     onDismiss: () -> Unit,
-    context: android.content.Context,
     onExportConfirmed: (String) -> Unit
 ) {
     if (!show) return
@@ -408,7 +403,6 @@ fun ExportPasswordDialog(
 fun RestorePasswordDialog(
     show: Boolean,
     onDismiss: () -> Unit,
-    context: android.content.Context,
     onRestoreConfirmed: (String) -> Unit
 ) {
     if (!show) return

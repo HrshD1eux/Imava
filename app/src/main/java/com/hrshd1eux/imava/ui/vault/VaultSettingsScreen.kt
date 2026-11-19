@@ -94,8 +94,8 @@ fun VaultSettingsScreen(
     onVaultDeleted: () -> Unit
 ) {
     val context = LocalContext.current
-    val prefs = remember(context) { context.getSharedPreferences("vault_prefs", Context.MODE_PRIVATE) }
     val scope = rememberCoroutineScope()
+    val prefs = remember(context) { context.getSharedPreferences("vault_prefs", Context.MODE_PRIVATE) }
 
     var lockType by remember { mutableStateOf(prefs.getString("vault_lock_type", "PASSWORD") ?: "PASSWORD") }
     var isBiometricEnabled by remember { mutableStateOf(prefs.getBoolean("vault_biometric_enabled", false)) }
@@ -110,17 +110,13 @@ fun VaultSettingsScreen(
 
     var showPasswordChangeDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
-    var isProcessingDelete by remember { mutableStateOf(false) }
 
     // Backup & Restore state
     var showExportPasswordDialog by remember { mutableStateOf(false) }
     var pendingExportUri by remember { mutableStateOf<android.net.Uri?>(null) }
-    var exportPassword by remember { mutableStateOf("") }
 
     var showRestorePasswordDialog by remember { mutableStateOf(false) }
     var pendingRestoreUri by remember { mutableStateOf<android.net.Uri?>(null) }
-    var restorePassword by remember { mutableStateOf("") }
-    var isProcessingBackup by remember { mutableStateOf(false) }
 
     val createDocLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/octet-stream")
@@ -618,35 +614,94 @@ fun VaultSettingsScreen(
         show = showPasswordChangeDialog,
         onDismiss = { showPasswordChangeDialog = false },
         currentLockType = lockType,
-        prefs = prefs,
         onLockTypeChanged = { lockType = it }
     )
 
-    /*
-    if (showDecoyPinDialog) {
-        ...
-    }
-    */
-    // TODO: Migrate to SetDecoyCredentialDialog in VaultDialogs.kt
+    SetDecoyCredentialDialog(
+        show = showDecoyPinDialog,
+        onDismiss = { showDecoyPinDialog = false },
+        lockType = lockType,
+        prefs = prefs,
+        hasDecoyPin = hasDecoyPin,
+        onHasDecoyPinChanged = { hasDecoyPin = it }
+    )
 
-    /*
-    if (showDeleteConfirmDialog) {
-        ...
-    }
-    */
-    // TODO: Migrate to DeleteVaultConfirmationDialog in VaultDialogs.kt
+    DeleteVaultConfirmationDialog(
+        show = showDeleteConfirmDialog,
+        onDismiss = { showDeleteConfirmDialog = false },
+        context = context,
+        viewModel = viewModel,
+        onVaultDeleted = onVaultDeleted
+    )
 
-    /*
-    if (showExportPasswordDialog) {
-        ...
-    }
-    */
-    // TODO: Migrate to ExportPasswordDialog in VaultDialogs.kt
+    ExportPasswordDialog(
+        show = showExportPasswordDialog,
+        onDismiss = {
+            showExportPasswordDialog = false
+            pendingExportUri = null
+        },
+        onExportConfirmed = { exportPassword ->
+            val uri = pendingExportUri ?: return@ExportPasswordDialog
+            scope.launch {
+                try {
+                    val outputStream = context.contentResolver.openOutputStream(uri)
+                    if (outputStream != null) {
+                        val db = com.hrshd1eux.imava.data.database.GalleryDatabase.getInstance(context)
+                        val result = VaultBackupManager.exportVaultBackup(
+                            context = context,
+                            database = db,
+                            targetOutputStream = outputStream,
+                            passphrase = exportPassword.toCharArray()
+                        )
+                        Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                        if (result.success) {
+                            HapticUtil.performSuccess(context)
+                            showExportPasswordDialog = false
+                            pendingExportUri = null
+                        }
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.vault_set_err_open_write), Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, context.getString(R.string.vault_backup_export_failed_fmt, e.message ?: ""), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    )
 
-    /*
-    if (showRestorePasswordDialog) {
-        ...
-    }
-    */
-    // TODO: Migrate to RestorePasswordDialog in VaultDialogs.kt
+    RestorePasswordDialog(
+        show = showRestorePasswordDialog,
+        onDismiss = {
+            showRestorePasswordDialog = false
+            pendingRestoreUri = null
+        },
+        onRestoreConfirmed = { restorePassword ->
+            val uri = pendingRestoreUri ?: return@RestorePasswordDialog
+            scope.launch {
+                try {
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    if (inputStream != null) {
+                        val db = com.hrshd1eux.imava.data.database.GalleryDatabase.getInstance(context)
+                        val result = VaultBackupManager.restoreVaultBackup(
+                            context = context,
+                            database = db,
+                            inputStream = inputStream,
+                            passphrase = restorePassword.toCharArray()
+                        )
+                        Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                        if (result.success) {
+                            HapticUtil.performSuccess(context)
+                            viewModel.refreshAll()
+                            showRestorePasswordDialog = false
+                            pendingRestoreUri = null
+                        }
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.vault_set_err_open_read), Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, context.getString(R.string.vault_set_restore_failed_fmt, e.message ?: ""), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    )
 }
