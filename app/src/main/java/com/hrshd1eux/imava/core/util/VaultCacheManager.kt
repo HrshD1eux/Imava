@@ -66,11 +66,12 @@ object VaultCacheManager {
 
     fun clearCache(context: Context) {
         try {
-            val cacheDir = File(context.cacheDir, "vault_cache")
+            val baseCacheDir = context.cacheDir ?: return
+            val cacheDir = File(baseCacheDir, "vault_cache")
             if (cacheDir.exists()) {
                 cacheDir.deleteRecursively()
             }
-            val sharedDir = File(context.cacheDir, "shared_images")
+            val sharedDir = File(baseCacheDir, "shared_images")
             if (sharedDir.exists()) {
                 sharedDir.deleteRecursively()
             }

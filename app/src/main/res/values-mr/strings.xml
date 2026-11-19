@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Imava Gallery</string>
     <string name="request_permissions_title">स्टोरेज परवानगी आवश्यक आहे</string>
@@ -6,12 +6,12 @@
     <string name="grant_permission">परवानगी द्या</string>
     <string name="open_settings">सेटिंग्ज उघडा</string>
 
-    <!-- Navigation -->
+    
     <string name="nav_photos">फोटो</string>
     <string name="nav_albums">अल्बम</string>
     <string name="nav_settings">सेटिंग्ज</string>
 
-    <!-- Common Actions -->
+    
     <string name="action_cancel">रद्द करा</string>
     <string name="action_delete">हटवा</string>
     <string name="action_create">तयार करा</string>
@@ -35,7 +35,7 @@
     <string name="action_pin">पिन करा</string>
     <string name="action_unpin">अनपिन करा</string>
 
-    <!-- Albums &amp; Categories -->
+    
     <string name="category_favorites">आवडते</string>
     <string name="category_trash">कचरा टोपली</string>
     <string name="category_vault">गुप्त व्हॉल्ट</string>
@@ -48,7 +48,7 @@
     <string name="delete_album">अल्बम हटवा</string>
     <string name="folder_locations">%1$d फोल्डर स्थाने</string>
 
-    <!-- Viewer &amp; Media -->
+    
     <string name="processing_photo">फोटो प्रक्रिया चालू आहे…</string>
     <string name="saving_photo">फोटो सेव्ह होत आहे…</string>
     <string name="motion_photo">मोशन फोटो</string>
@@ -64,7 +64,7 @@
     <string name="no_media_found">कोणतेही फोटो किंवा व्हिडिओ सापडले नाहीत</string>
     <string name="no_pictures_here">येथे कोणतीही चित्रे नाहीत</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">सेटिंग्ज</string>
     <string name="settings_language">भाषा</string>
     <string name="settings_language_desc">अ‍ॅपची भाषा निवडा</string>
@@ -78,7 +78,7 @@
     <string name="settings_about">बद्दल आणि आवृत्ती</string>
     <string name="settings_wifi_drop">वाय-फाय ड्रॉप</string>
 
-    <!-- Settings: Appearance &amp; Startup -->
+    
     <string name="settings_choose_theme">अ‍ॅप थीम निवडा</string>
     <string name="theme_system">सिस्टम डीफॉल्ट</string>
     <string name="theme_dark">डार्क थीम</string>
@@ -91,7 +91,7 @@
     <string name="settings_brightness_boost">व्ह्यूअर ब्राइटनेस बूस्ट ☀️</string>
     <string name="settings_brightness_boost_desc">फोटो आणि व्हिडिओ पाहताना कमाल HDR तपशीलासाठी स्क्रीन ब्राइटनेस स्वयंचलितपणे वाढवा</string>
 
-    <!-- Settings: Grid &amp; Layout -->
+    
     <string name="settings_grid_title">ग्रिड आणि डिस्प्ले आकार</string>
     <string name="settings_timeline_columns">टाइमलाइन स्तंभ</string>
     <string name="settings_grid_desc">टाइमलाइन ग्रिडमध्ये फोटोंचा आकार समायोजित करा. आपण कधीही पिंच-टू-झूम करू शकता.</string>
@@ -106,18 +106,18 @@
     <string name="column_label_normal">३ (सामान्य)</string>
     <string name="column_label_dense">६ (दाट)</string>
 
-    <!-- Settings: Touch &amp; Haptics -->
+    
     <string name="settings_touch_haptics">स्पर्श आणि हॅप्टिक्स</string>
     <string name="settings_haptics">हॅप्टिक कंपन</string>
     <string name="settings_haptics_desc">फोटो निवडताना, व्हॉल्ट अनलॉक करताना, संपादन करताना आणि हटवताना स्पर्श प्रतिसाद</string>
 
-    <!-- Settings: Backup &amp; NAS -->
+    
     <string name="settings_nas_title">बॅकअप आणि स्थानिक NAS (शून्य क्लाउड)</string>
     <string name="settings_nas_card_title">स्थानिक NAS / WebDAV सिंक</string>
     <string name="settings_nas_card_desc">वाय-फाय वर Synology, Nextcloud, TrueNAS किंवा घरगुती सर्व्हरवर खाजगी बॅकअप</string>
     <string name="settings_nas_configured">कॉन्फिगर केले • %1$s</string>
 
-    <!-- Settings: Folders &amp; Storage -->
+    
     <string name="settings_folders_access">फोल्डर आणि मीडिया प्रवेश</string>
     <string name="settings_excluded_folders">वगळलेले / लपवलेले फोल्डर</string>
     <string name="settings_excluded_folders_none">कोणतेही फोल्डर लपवलेले नाही</string>
@@ -131,7 +131,7 @@
     <string name="settings_sd_card_granted">बाह्य स्टोरेज परवानगी मंजूर झाली</string>
     <string name="settings_sd_card_desc">दुय्यम स्टोरेजसाठी SAF ट्री परवानगी द्या</string>
 
-    <!-- Settings: Privacy &amp; App Lock -->
+    
     <string name="settings_app_lock_group">अ‍ॅप लॉक आणि डिव्हाइस गोपनीयता</string>
     <string name="settings_app_lock_title">अ‍ॅप लॉक (बायोमेट्रिक / पिन) 🔒</string>
     <string name="settings_app_lock_desc">Imava उघडताना दरवेळी फिंगरप्रिंट, चेहरा किंवा पिन आवश्यक करा</string>
@@ -142,7 +142,7 @@
     <string name="settings_guest_pinning">गेस्ट मोड (स्क्रीन पिनिंग) 📌</string>
     <string name="settings_guest_pinning_desc">फोन दुसऱ्याला देताना, फोटो व्ह्यूअरमध्ये पिन 📌 चिन्हावर टॅप करा. पाहुणे प्रमाणीकरणाशिवाय पुढील फोटो पाहू शकत नाहीत.</string>
 
-    <!-- Settings: Storage Cleaners -->
+    
     <string name="settings_storage_cleaners">स्टोरेज क्लीनर आणि देखभाल</string>
     <string name="settings_file_shredder">क्रिप्टोग्राफिक फाइल श्रेडर 🛡️⚡</string>
     <string name="settings_file_shredder_desc">हटवलेल्या फायली यादृच्छिक डेटा आणि शून्याने पुनर्लिखित करा जेणेकरून फॉरेन्सिक पुनर्प्राप्ती अशक्य होईल</string>
@@ -150,7 +150,7 @@
     <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails आणि कॅशेमधील असुरक्षित थंबनेल्स नष्ट करा</string>
     <string name="action_shred_now">नष्ट करा</string>
 
-    <!-- Settings: Deep Scan -->
+    
     <string name="settings_deep_scan_title">डीप मीडिया स्कॅन आणि स्टोरेज</string>
     <string name="settings_deep_discovery">सखोल मीडिया शोध</string>
     <string name="settings_deep_discovery_desc">डिव्हाइसमधील पाठवलेले मीडिया, खाजगी फोल्डर्स, GIF आणि लपवलेल्या .nomedia फायली स्कॅन करा.</string>
@@ -160,11 +160,11 @@
     <string name="action_scan_now">आता स्कॅन करा</string>
     <string name="scanning_device">डिव्हाइस स्कॅन होत आहे…</string>
 
-    <!-- Settings: About &amp; Legal -->
+    
     <string name="settings_about_legal">बद्दल आणि कायदेशीर माहिती</string>
     <string name="settings_about_legal_desc">डेव्हलपर, अद्यतने, परवाने आणि परवानग्या</string>
 
-    <!-- Storage Doctor -->
+    
     <string name="doctor_title">स्टोरेज डॉक्टर 🩺</string>
     <string name="doctor_analyze">एकूण: %1$s · विश्लेषण ➔</string>
     <string name="doctor_photos_count">फोटो (%1$d)</string>
@@ -184,7 +184,7 @@
     <string name="doctor_ghost_purger_title">घोस्ट थंबनेल क्लीनर 🧹⚡</string>
     <string name="doctor_ghost_purger_desc">वाया गेलेली डिस्क कॅशे आणि अवशिष्ट थंबनेल फायली साफ करा</string>
 
-    <!-- Duplicate Finder -->
+    
     <string name="duplicate_finder_title">डुप्लिकेट शोधा 🧹</string>
     <string name="duplicate_finder_desc">डुप्लिकेट फोटो स्कॅन आणि साफ करा</string>
     <string name="duplicate_analyzing">डुप्लिकेटसाठी गॅलरीचे विश्लेषण होत आहे…</string>
@@ -200,7 +200,7 @@
     <string name="duplicate_keep_this">हा फोटो ठेवा (हटवणे रद्द करा)</string>
     <string name="duplicate_mark_delete">हटवण्यासाठी चिन्हांकित करा</string>
 
-    <!-- Albums Screen -->
+    
     <string name="search_hint">फोटो, व्हिडिओ, अल्बम शोधा…</string>
     <string name="albums_count_format">अल्बम (%1$d)</string>
     <string name="pinned_albums_count_format">पिन केलेले अल्बम (%1$d)</string>
@@ -247,7 +247,7 @@
     <string name="unlock_vault_title">हिडन व्हॉल्ट अनलॉक करा</string>
     <string name="unlock_vault_desc">लपवलेले फोटो पाहण्यासाठी फिंगरप्रिंट किंवा चेहरा वापरा</string>
 
-    <!-- App Update Strings -->
+    
     <string name="update_dialog_title">अपडेट उपलब्ध आहे</string>
     <string name="update_installed">स्थापित</string>
     <string name="update_latest">नवीनतम</string>
@@ -270,7 +270,7 @@
     <string name="update_failed_desc">नेटवर्क कनेक्शन खंडित झाले (%1$s). %2$s जतन केले आहे. पुढे चालू ठेवण्यासाठी टॅप करा किंवा थेट ब्राउझरद्वारे डाउनलोड करा.</string>
     <string name="update_download_browser">ब्राउझरवरून डाउनलोड करा</string>
 
-    <!-- About, Legal, Licenses & Permissions -->
+    
     <string name="action_ok">ठीक आहे</string>
     <string name="action_back">मागे</string>
     <string name="about_back_to_settings">सेटिंग्जवर परत</string>
@@ -343,7 +343,7 @@
     <string name="copying_media">मीडिया कॉपी करत आहे…</string>
     <string name="deleting_media">मीडिया हटवत आहे…</string>
 
-    <!-- Phase 3: Dialogs & UI Actions -->
+    
     <string name="items_selected_format">%1$d निवडले</string>
     <string name="lock_vault_now">तिजोरी आता लॉक करा</string>
     <string name="lock_vault_now_desc">खाजगी फाइल्स त्वरित लॉक करा आणि लपवा</string>
@@ -1109,7 +1109,7 @@
     <string name="vault_unlock_finish_btn">पूर्ण करा आणि अनलॉक करा</string>
     <string name="vault_unlock_bio_subtitle">बायोमेट्रिक सेन्सर प्रमाणित करा</string>
     <string name="vault_unlock_use_bio_btn">बायोमेट्रिक वापरा</string>
-    <!-- Batch 3A Localization (Viewer, Video, OCR, Motion, Trim) -->
+    
     <string name="unit_kb_fmt">%1$d KB</string>
     <string name="unit_mb_fmt">%1$d MB</string>
     <string name="viewer_unlock_gallery_title">गॅलरी अनलॉक करा</string>
@@ -1277,7 +1277,7 @@
     <string name="trim_saved_video_toast">Movies/Trimmed मध्ये जतन झाले</string>
     <string name="trim_export_failed_toast">निर्यात अयशस्वी</string>
     <string name="trim_save_btn">ट्रिम आणि जतन करा</string>
-    <!-- Batch 3B Localization (Editor, Tools, Dialogs, Service, Backup, ViewModel) -->
+    
     <string name="editor_unsaved_title">जतन न केलेले बदल</string>
     <string name="editor_unsaved_desc">या फोटोमध्ये जतन न केलेले बदल आहेत. तुम्हाला ते जतन करायचे आहेत की रद्द करायचे?</string>
     <string name="editor_save_changes">बदल जतन करा</string>
@@ -1467,7 +1467,7 @@
     <string name="vault_import_no_items">जोडण्यासाठी कोणतेही फोटो किंवा व्हिडिओ उपलब्ध नाहीत।</string>
     <string name="vault_import_success_toast_fmt">%1$d आयटम व्हॉल्टमध्ये हलवले</string>
 
-    <!-- Dynamic Decoy Credentials -->
+    
     <string name="vault_set_duress_pattern_title">दबावाखाली संरक्षण (बनावट पॅटर्न)</string>
     <string name="vault_set_duress_pattern_desc">दबावाखाली व्हॉल्ट उघडावा लागल्यास हा वेगळा पॅटर्न काढा ज्यामुळे रिकामे बनावट व्हॉल्ट उघडेल.</string>
     <string name="vault_set_decoy_pattern_active">✓ बनावट पॅटर्न सक्रिय</string>
@@ -1494,4 +1494,4 @@
     <string name="vault_set_decoy_pass_activated_toast">बनावट पासवर्ड सक्रिय झाला</string>
     <string name="vault_set_decoy_pass_label">बनावट पासवर्ड</string>
     <string name="vault_set_decoy_pass_confirm_label">बनावट पासवर्डची खात्री करा</string>
-</resources>
+<string name="no_decoy_items">No decoy items found</string></resources>

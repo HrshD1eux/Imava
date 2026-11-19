@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Imava Gallery</string>
     <string name="request_permissions_title">Autorisation de stockage requise</string>
@@ -6,12 +6,12 @@
     <string name="grant_permission">Accorder l\'autorisation</string>
     <string name="open_settings">Ouvrir les paramètres</string>
 
-    <!-- Navigation -->
+    
     <string name="nav_photos">Photos</string>
     <string name="nav_albums">Albums</string>
     <string name="nav_settings">Paramètres</string>
 
-    <!-- Common Actions -->
+    
     <string name="action_cancel">Annuler</string>
     <string name="action_delete">Supprimer</string>
     <string name="action_create">Créer</string>
@@ -35,7 +35,7 @@
     <string name="action_pin">Épingler</string>
     <string name="action_unpin">Désépingler</string>
 
-    <!-- Albums &amp; Categories -->
+    
     <string name="category_favorites">Favoris</string>
     <string name="category_trash">Corbeille</string>
     <string name="category_vault">Coffre-fort masqué</string>
@@ -48,7 +48,7 @@
     <string name="delete_album">Supprimer l\'album</string>
     <string name="folder_locations">%1$d emplacements de dossiers</string>
 
-    <!-- Viewer &amp; Media -->
+    
     <string name="processing_photo">Traitement de la photo…</string>
     <string name="saving_photo">Enregistrement de la photo…</string>
     <string name="motion_photo">Photo animée</string>
@@ -64,7 +64,7 @@
     <string name="no_media_found">Aucune photo ni vidéo trouvée</string>
     <string name="no_pictures_here">Aucune photo ici</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">Paramètres</string>
     <string name="settings_language">Langue</string>
     <string name="settings_language_desc">Choisir la langue de l\'application</string>
@@ -78,7 +78,7 @@
     <string name="settings_about">À propos et version</string>
     <string name="settings_wifi_drop">Wi-Fi Drop</string>
 
-    <!-- Settings: Appearance &amp; Startup -->
+    
     <string name="settings_choose_theme">Choisir le thème de l\'application</string>
     <string name="theme_system">Par défaut du système</string>
     <string name="theme_dark">Thème sombre</string>
@@ -91,7 +91,7 @@
     <string name="settings_brightness_boost">Luminosité maximale du visualiseur ☀️</string>
     <string name="settings_brightness_boost_desc">Augmenter automatiquement la luminosité de l\'écran pour révéler les détails HDR lors du visionnage</string>
 
-    <!-- Settings: Grid &amp; Layout -->
+    
     <string name="settings_grid_title">Grille et taille d\'affichage</string>
     <string name="settings_timeline_columns">Colonnes de la chronologie</string>
     <string name="settings_grid_desc">Ajustez la taille par défaut des photos dans la grille. Vous pouvez également pincer pour zoomer à tout moment.</string>
@@ -106,18 +106,18 @@
     <string name="column_label_normal">3 (Normal)</string>
     <string name="column_label_dense">6 (Dense)</string>
 
-    <!-- Settings: Touch &amp; Haptics -->
+    
     <string name="settings_touch_haptics">Tactile et haptique</string>
     <string name="settings_haptics">Vibrations haptiques</string>
     <string name="settings_haptics_desc">Retour tactile lors de la sélection, du déverrouillage du coffre-fort, de l\'édition et de la suppression</string>
 
-    <!-- Settings: Backup &amp; NAS -->
+    
     <string name="settings_nas_title">Sauvegarde et NAS local (Zéro Cloud)</string>
     <string name="settings_nas_card_title">Synchronisation NAS local / WebDAV</string>
     <string name="settings_nas_card_desc">Sauvegarde sans cloud vers Synology, Nextcloud, TrueNAS ou serveur personnel en Wi-Fi</string>
     <string name="settings_nas_configured">Configuré • %1$s</string>
 
-    <!-- Settings: Folders &amp; Storage -->
+    
     <string name="settings_folders_access">Dossiers et accès aux médias</string>
     <string name="settings_excluded_folders">Dossiers exclus / masqués</string>
     <string name="settings_excluded_folders_none">Aucun dossier masqué</string>
@@ -131,7 +131,7 @@
     <string name="settings_sd_card_granted">Autorisation accordée pour le stockage externe</string>
     <string name="settings_sd_card_desc">Accorder l\'autorisation SAF pour le stockage secondaire</string>
 
-    <!-- Settings: Privacy &amp; App Lock -->
+    
     <string name="settings_app_lock_group">Verrouillage et confidentialité de l\'appareil</string>
     <string name="settings_app_lock_title">Verrouillage de l\'app (Biométrie / Code) 🔒</string>
     <string name="settings_app_lock_desc">Exiger l\'empreinte, le visage ou le code à chaque ouverture d\'Imava</string>
@@ -142,7 +142,7 @@
     <string name="settings_guest_pinning">Mode invité (Épinglage d\'application) 📌</string>
     <string name="settings_guest_pinning_desc">Lorsque vous prêtez votre téléphone, touchez l\'icône Épingler 📌 pour verrouiller l\'écran sur cette photo. Les invités ne peuvent pas faire défiler sans authentification.</string>
 
-    <!-- Settings: Storage Cleaners -->
+    
     <string name="settings_storage_cleaners">Nettoyeurs et maintenance du stockage</string>
     <string name="settings_file_shredder">Broyeur cryptographique de fichiers 🛡️⚡</string>
     <string name="settings_file_shredder_desc">Écraser physiquement les fichiers supprimés avec des données aléatoires et des zéros pour empêcher toute récupération forensique</string>
@@ -150,7 +150,7 @@
     <string name="settings_ghost_thumb_purger_desc">Broyer les aperçus orphelins non chiffrés dans DCIM/.thumbnails et le cache</string>
     <string name="action_shred_now">Broyer maintenant</string>
 
-    <!-- Settings: Deep Scan -->
+    
     <string name="settings_deep_scan_title">Analyse approfondie et stockage</string>
     <string name="settings_deep_discovery">Détection approfondie des médias</string>
     <string name="settings_deep_discovery_desc">Rechercher les médias envoyés, les dossiers privés, les GIF et autres fichiers .nomedia masqués sur votre appareil.</string>
@@ -160,11 +160,11 @@
     <string name="action_scan_now">Analyser maintenant</string>
     <string name="scanning_device">Analyse de l\'appareil en cours…</string>
 
-    <!-- Settings: About &amp; Legal -->
+    
     <string name="settings_about_legal">À propos et mentions légales</string>
     <string name="settings_about_legal_desc">Développeur, mises à jour, licences et autorisations</string>
 
-    <!-- Storage Doctor -->
+    
     <string name="doctor_title">Docteur de stockage 🩺</string>
     <string name="doctor_analyze">Total : %1$s · Analyser ➔</string>
     <string name="doctor_photos_count">Photos (%1$d)</string>
@@ -184,7 +184,7 @@
     <string name="doctor_ghost_purger_title">Purgeur de miniatures fantômes 🧹⚡</string>
     <string name="doctor_ghost_purger_desc">Récupérer le cache disque gaspillé et broyer les aperçus</string>
 
-    <!-- Duplicate Finder -->
+    
     <string name="duplicate_finder_title">Trouver les doublons 🧹</string>
     <string name="duplicate_finder_desc">Analyser et nettoyer les photos en double</string>
     <string name="duplicate_analyzing">Analyse de la galerie pour détecter les doublons…</string>
@@ -200,7 +200,7 @@
     <string name="duplicate_keep_this">Garder cette photo (Désélectionner)</string>
     <string name="duplicate_mark_delete">Marquer pour suppression</string>
 
-    <!-- Albums Screen -->
+    
     <string name="search_hint">Rechercher photos, vidéos, albums…</string>
     <string name="albums_count_format">Albums (%1$d)</string>
     <string name="pinned_albums_count_format">Albums épinglés (%1$d)</string>
@@ -247,7 +247,7 @@
     <string name="unlock_vault_title">Déverrouiller le coffre-fort masqué</string>
     <string name="unlock_vault_desc">Utilisez votre empreinte ou visage pour accéder à vos photos masquées</string>
 
-    <!-- App Update Strings -->
+    
     <string name="update_dialog_title">Mise à jour disponible</string>
     <string name="update_installed">Installée</string>
     <string name="update_latest">Dernière</string>
@@ -270,7 +270,7 @@
     <string name="update_failed_desc">Connexion réseau interrompue (%1$s). %2$s ont été enregistrés. Appuyez sur Reprendre ou téléchargez directement via le navigateur.</string>
     <string name="update_download_browser">Télécharger via navigateur</string>
 
-    <!-- About, Legal, Licenses & Permissions -->
+    
     <string name="action_ok">OK</string>
     <string name="action_back">Retour</string>
     <string name="about_back_to_settings">Retour aux paramètres</string>
@@ -343,7 +343,7 @@
     <string name="copying_media">Copie des médias…</string>
     <string name="deleting_media">Suppression des médias…</string>
 
-    <!-- Phase 3: Dialogs & UI Actions -->
+    
     <string name="items_selected_format">%1$d sélectionnés</string>
     <string name="lock_vault_now">Verrouiller le coffre-fort</string>
     <string name="lock_vault_now_desc">Verrouiller et masquer immédiatement les fichiers privés</string>
@@ -1109,7 +1109,7 @@
     <string name="vault_unlock_finish_btn">Terminer et ouvrir</string>
     <string name="vault_unlock_bio_subtitle">Authentifier le capteur biométrique</string>
     <string name="vault_unlock_use_bio_btn">Utiliser la biométrie</string>
-    <!-- Batch 3A Localization (Viewer, Video, OCR, Motion, Trim) -->
+    
     <string name="unit_kb_fmt">%1$d Ko</string>
     <string name="unit_mb_fmt">%1$d Mo</string>
     <string name="viewer_unlock_gallery_title">Déverrouiller la galerie</string>
@@ -1277,7 +1277,7 @@
     <string name="trim_saved_video_toast">Enregistré dans Movies/Trimmed</string>
     <string name="trim_export_failed_toast">Échec de l\'exportation</string>
     <string name="trim_save_btn">Couper et enregistrer</string>
-    <!-- Batch 3B Localization (Editor, Tools, Dialogs, Service, Backup, ViewModel) -->
+    
     <string name="editor_unsaved_title">Modifications non enregistrées</string>
     <string name="editor_unsaved_desc">Vous avez des modifications non enregistrées. Voulez-vous enregistrer ou ignorer ?</string>
     <string name="editor_save_changes">Enregistrer</string>
@@ -1467,7 +1467,7 @@
     <string name="vault_import_no_items">Aucune photo ni vidéo disponible à ajouter.</string>
     <string name="vault_import_success_toast_fmt">%1$d élément(s) déplacé(s) vers le coffre-fort</string>
 
-    <!-- Dynamic Decoy Credentials -->
+    
     <string name="vault_set_duress_pattern_title">Protection sous contrainte (Schéma leurre)</string>
     <string name="vault_set_duress_pattern_desc">Dessinez ce schéma secondaire sous la contrainte pour afficher un coffre-fort leurre vide sans trace de vos fichiers privés.</string>
     <string name="vault_set_decoy_pattern_active">✓ Schéma leurre actif</string>
@@ -1494,4 +1494,4 @@
     <string name="vault_set_decoy_pass_activated_toast">Mot de passe leurre activé</string>
     <string name="vault_set_decoy_pass_label">Mot de passe leurre</string>
     <string name="vault_set_decoy_pass_confirm_label">Confirmer mot de passe leurre</string>
-</resources>
+<string name="no_decoy_items">No decoy items found</string></resources>

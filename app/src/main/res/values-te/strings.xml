@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Imava Gallery</string>
     <string name="request_permissions_title">స్టోరేజ్ అనుమతి అవసరం</string>
@@ -6,12 +6,12 @@
     <string name="grant_permission">అనుమతించండి</string>
     <string name="open_settings">సెట్టింగ్‌లను తెరవండి</string>
 
-    <!-- Navigation -->
+    
     <string name="nav_photos">ఫోటోలు</string>
     <string name="nav_albums">ఆల్బమ్‌లు</string>
     <string name="nav_settings">సెట్టింగ్‌లు</string>
 
-    <!-- Common Actions -->
+    
     <string name="action_cancel">రద్దు చేయండి</string>
     <string name="action_delete">తొలగించండి</string>
     <string name="action_create">సృష్టించండి</string>
@@ -35,7 +35,7 @@
     <string name="action_pin">పిన్ చేయండి</string>
     <string name="action_unpin">అన్‌పిన్ చేయండి</string>
 
-    <!-- Albums &amp; Categories -->
+    
     <string name="category_favorites">ఇష్టమైనవి</string>
     <string name="category_trash">ట్రాష్</string>
     <string name="category_vault">రహస్య వాల్ట్</string>
@@ -48,7 +48,7 @@
     <string name="delete_album">ఆల్బమ్‌ను తొలగించండి</string>
     <string name="folder_locations">%1$d ఫోల్డర్ స్థానాలు</string>
 
-    <!-- Viewer &amp; Media -->
+    
     <string name="processing_photo">ఫోటో ప్రాసెస్ అవుతోంది…</string>
     <string name="saving_photo">ఫోటో భద్రపరచబడుతోంది…</string>
     <string name="motion_photo">మోషన్ ఫోటో</string>
@@ -64,7 +64,7 @@
     <string name="no_media_found">ఫోటోలు లేదా వీడియోలు కనుగొనబడలేదు</string>
     <string name="no_pictures_here">ఇక్కడ చిత్రాలు లేవు</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">సెట్టింగ్‌లు</string>
     <string name="settings_language">భాష</string>
     <string name="settings_language_desc">యాప్ ప్రదర్శన భాషను ఎంచుకోండి</string>
@@ -78,7 +78,7 @@
     <string name="settings_about">గురించి మరియు వెర్షన్</string>
     <string name="settings_wifi_drop">వై-ఫై డ్రాప్</string>
 
-    <!-- Settings: Appearance &amp; Startup -->
+    
     <string name="settings_choose_theme">యాప్ థీమ్‌ను ఎంచుకోండి</string>
     <string name="theme_system">సిస్టమ్ డిఫాల్ట్</string>
     <string name="theme_dark">డార్క్ థీమ్</string>
@@ -91,7 +91,7 @@
     <string name="settings_brightness_boost">వీక్షక కాంతి పెంపు ☀️</string>
     <string name="settings_brightness_boost_desc">ఫోటోలు, వీడియోలను వీక్షించేటప్పుడు పూర్తి HDR వివరాల కోసం స్క్రీన్ ప్రకాశాన్ని స్వయంచాలకంగా పెంచండి</string>
 
-    <!-- Settings: Grid &amp; Layout -->
+    
     <string name="settings_grid_title">గ్రిడ్ మరియు ప్రదర్శన పరిమాణం</string>
     <string name="settings_timeline_columns">కాలక్రమ నిలువు వరుసలు</string>
     <string name="settings_grid_desc">గ్రిడ్‌లో ఫోటోల పరిమాణాన్ని మార్చండి. మీరు ఎప్పుడైనా జూమ్ చేయడానికి పించ్ చేయవచ్చు.</string>
@@ -106,18 +106,18 @@
     <string name="column_label_normal">3 (సాధారణం)</string>
     <string name="column_label_dense">6 (దగ్గరి)</string>
 
-    <!-- Settings: Touch &amp; Haptics -->
+    
     <string name="settings_touch_haptics">స్పర్శ మరియు హాప్టిక్స్</string>
     <string name="settings_haptics">హాప్టిక్ కంపనాలు</string>
     <string name="settings_haptics_desc">ఫోటోల ఎంపిక, వాల్ట్ అన్‌లాక్, సవరణ మరియు తొలగింపు సమయంలో స్పర్శ ప్రతిస్పందన</string>
 
-    <!-- Settings: Backup &amp; NAS -->
+    
     <string name="settings_nas_title">బ్యాకప్ మరియు లోకల్ NAS (క్లౌడ్ రహిత)</string>
     <string name="settings_nas_card_title">లోకల్ NAS / WebDAV సింక్</string>
     <string name="settings_nas_card_desc">వై-ఫై ద్వారా Synology, Nextcloud, TrueNAS లేదా ఇంటి సర్వర్‌కు నేరుగా సురక్షిత బ్యాకప్</string>
     <string name="settings_nas_configured">కాన్ఫిగర్ చేయబడింది • %1$s</string>
 
-    <!-- Settings: Folders &amp; Storage -->
+    
     <string name="settings_folders_access">ఫోల్డర్లు మరియు మీడియా యాక్సెస్</string>
     <string name="settings_excluded_folders">మినహాయించిన / దాచబడిన ఫోల్డర్లు</string>
     <string name="settings_excluded_folders_none">ఏ ఫోల్డరూ దాచబడలేదు</string>
@@ -131,7 +131,7 @@
     <string name="settings_sd_card_granted">బాహ్య నిల్వ అనుమతి మంజూరు చేయబడింది</string>
     <string name="settings_sd_card_desc">ద్వితీయ నిల్వ కోసం SAF చెట్టు అనుమతి ఇవ్వండి</string>
 
-    <!-- Settings: Privacy &amp; App Lock -->
+    
     <string name="settings_app_lock_group">యాప్ లాక్ మరియు పరికర గోప్యత</string>
     <string name="settings_app_lock_title">యాప్ లాక్ (బయోమెట్రిక్ / పిన్) 🔒</string>
     <string name="settings_app_lock_desc">Imava తెరిచిన ప్రతిసారీ వేలిముద్ర, ముఖం లేదా పరికర పిన్ అవసరం</string>
@@ -142,7 +142,7 @@
     <string name="settings_guest_pinning">అతిథి మోడ్ (స్క్రీన్ పిన్నింగ్) 📌</string>
     <string name="settings_guest_pinning_desc">మీ ఫోన్‌ను ఇతరులకు ఇచ్చినప్పుడు, ఫోటో వీక్షకంలో పిన్ 📌 గుర్తును తాకి స్క్రీన్‌ను లాక్ చేయండి. అతిథులు ప్రామాణీకరణ లేకుండా ఇతర ఫోటోలను చూడలేరు.</string>
 
-    <!-- Settings: Storage Cleaners -->
+    
     <string name="settings_storage_cleaners">నిల్వ క్లీనర్లు మరియు నిర్వహణ</string>
     <string name="settings_file_shredder">క్రిప్టోగ్రాఫిక్ ఫైల్ ష్రెడ్డర్ 🛡️⚡</string>
     <string name="settings_file_shredder_desc">ఫోరెన్సిక్ పునరుద్ధరణను అడ్డుకోవడానికి తొలగించిన ఫైళ్లను యాదృచ్ఛిక డేటాతో భౌతికంగా తిరిగి రాయండి</string>
@@ -150,7 +150,7 @@
     <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails మరియు కాష్‌లో మిగిలిన అసురక్షిత థంబ్‌నెయిల్‌లను పూర్తిగా నాశనం చేయండి</string>
     <string name="action_shred_now">ఇప్పుడే తొలగించు</string>
 
-    <!-- Settings: Deep Scan -->
+    
     <string name="settings_deep_scan_title">డీప్ మీడియా స్కాన్ మరియు నిల్వ</string>
     <string name="settings_deep_discovery">డీప్ మీడియా అన్వేషణ</string>
     <string name="settings_deep_discovery_desc">పంపిన మీడియా, ప్రైవేట్ ఫోల్డర్లు, GIFలు మరియు దాచిన .nomedia ఫైళ్లను స్కాన్ చేయండి.</string>
@@ -160,11 +160,11 @@
     <string name="action_scan_now">ఇప్పుడే స్కాన్ చేయండి</string>
     <string name="scanning_device">పరికరంలో స్కాన్ జరుగుతోంది…</string>
 
-    <!-- Settings: About &amp; Legal -->
+    
     <string name="settings_about_legal">గురించి మరియు చట్టపరమైన సమాచారం</string>
     <string name="settings_about_legal_desc">డెవలపర్, నవీకరణలు, లైసెన్సులు మరియు అనుమతులు</string>
 
-    <!-- Storage Doctor -->
+    
     <string name="doctor_title">స్టోరేజ్ డాక్టర్ 🩺</string>
     <string name="doctor_analyze">మొత్తం: %1$s · విశ్లేషణ ➔</string>
     <string name="doctor_photos_count">ఫోటోలు (%1$d)</string>
@@ -184,7 +184,7 @@
     <string name="doctor_ghost_purger_title">ఘోస్ట్ థంబ్‌నెయిల్ పర్జర్ 🧹⚡</string>
     <string name="doctor_ghost_purger_desc">వృథా అయిన డిస్క్ కాష్ మరియు మిగిలిన థంబ్‌నెయిల్ ఫైళ్లను తొలగించండి</string>
 
-    <!-- Duplicate Finder -->
+    
     <string name="duplicate_finder_title">నకిలీలను కనుగొనండి 🧹</string>
     <string name="duplicate_finder_desc">నకిలీ ఫోటోలను స్కాన్ చేసి శుభ్రం చేయండి</string>
     <string name="duplicate_analyzing">నకిలీల కోసం గ్యాలరీని విశ్లేషిస్తోంది…</string>
@@ -200,7 +200,7 @@
     <string name="duplicate_keep_this">ఈ ఫోటోను ఉంచుకోండి (తొలగింపు రద్దు)</string>
     <string name="duplicate_mark_delete">తొలగించడానికి గుర్తు పెట్టండి</string>
 
-    <!-- Albums Screen -->
+    
     <string name="search_hint">ఫోటోలు, వీడియోలు, ఆల్బమ్‌లు శోధించండి…</string>
     <string name="albums_count_format">ఆల్బమ్‌లు (%1$d)</string>
     <string name="pinned_albums_count_format">పిన్ చేసిన ఆల్బమ్‌లు (%1$d)</string>
@@ -247,7 +247,7 @@
     <string name="unlock_vault_title">దాచిన వాల్ట్‌ను అన్‌లాక్ చేయండి</string>
     <string name="unlock_vault_desc">మీ దాచిన ఫోటోలను యాక్సెస్ చేయడానికి వేలిముద్ర లేదా ముఖ గుర్తింపును ఉపయోగించండి</string>
 
-    <!-- App Update Strings -->
+    
     <string name="update_dialog_title">అప్‌డేట్ అందుబాటులో ఉంది</string>
     <string name="update_installed">ఇన్‌స్టాల్ చేయబడింది</string>
     <string name="update_latest">తాజాది</string>
@@ -270,7 +270,7 @@
     <string name="update_failed_desc">నెట్‌వర్క్ కనెక్షన్ తెగిపోయింది (%1$s). %2$s భద్రపరచబడింది. కొనసాగించడానికి నొక్కండి లేదా బ్రౌజర్ ద్వారా నేరుగా డౌన్‌లోడ్ చేయండి.</string>
     <string name="update_download_browser">బ్రౌజర్ ద్వారా డౌన్‌లోడ్ చేయండి</string>
 
-    <!-- About, Legal, Licenses & Permissions -->
+    
     <string name="action_ok">సరే</string>
     <string name="action_back">వెనుకకు</string>
     <string name="about_back_to_settings">సెట్టింగ్స్‌కు వెనుకకు</string>
@@ -343,7 +343,7 @@
     <string name="copying_media">మీడియా కాపీ చేయబడుతోంది…</string>
     <string name="deleting_media">మీడియా తొలగించబడుతోంది…</string>
 
-    <!-- Phase 3: Dialogs & UI Actions -->
+    
     <string name="items_selected_format">%1$d ఎంపిక చేయబడ్డాయి</string>
     <string name="lock_vault_now">వాల్ట్‌ను ఇప్పుడే లాక్ చేయండి</string>
     <string name="lock_vault_now_desc">వ్యక్తిగత మీడియాను వెంటనే లాక్ చేసి దాచండి</string>
@@ -1109,7 +1109,7 @@
     <string name="vault_unlock_finish_btn">పూర్తి చేసి అన్‌లాక్ చేయండి</string>
     <string name="vault_unlock_bio_subtitle">బయోమెట్రిక్ సెన్సార్ ధృవీకరించండి</string>
     <string name="vault_unlock_use_bio_btn">బయోమెట్రిక్ ఉపయోగించండి</string>
-    <!-- Batch 3A Localization (Viewer, Video, OCR, Motion, Trim) -->
+    
     <string name="unit_kb_fmt">%1$d KB</string>
     <string name="unit_mb_fmt">%1$d MB</string>
     <string name="viewer_unlock_gallery_title">గ్యాలరీని అన్‌లాక్ చేయండి</string>
@@ -1277,7 +1277,7 @@
     <string name="trim_saved_video_toast">Movies/Trimmedలో సేవ్ చేయబడింది</string>
     <string name="trim_export_failed_toast">ఎగుమతి విఫలమైంది</string>
     <string name="trim_save_btn">ట్రిమ్ &amp; సేవ్</string>
-    <!-- Batch 3B Localization (Editor, Tools, Dialogs, Service, Backup, ViewModel) -->
+    
     <string name="editor_unsaved_title">సేవ్ చేయని సవరణలు</string>
     <string name="editor_unsaved_desc">ఈ ఫోటోలో సేవ్ చేయని మార్పులు ఉన్నాయి. మీరు వాటిని సేవ్ చేయాలనుకుంటున్నారా లేదా విస్మరించాలా?</string>
     <string name="editor_save_changes">మార్పులు సేవ్ చేయండి</string>
@@ -1467,7 +1467,7 @@
     <string name="vault_import_no_items">జోడించడానికి ఫోటోలు లేదా వీడియోలు లేవు.</string>
     <string name="vault_import_success_toast_fmt">%1$d అంశాలు వాల్ట్‌కు తరలించబడ్డాయి</string>
 
-    <!-- Dynamic Decoy Credentials -->
+    
     <string name="vault_set_duress_pattern_title">ఒత్తిడి రక్షణ (డికాయ్ సరళి)</string>
     <string name="vault_set_duress_pattern_desc">ఒత్తిడితో వాల్ట్ తెరవవలసి వస్తే ఈ వేరే సరళిని గీయండి, ఖాళీ డికాయ్ వాల్ట్ మాత్రమే కనిపిస్తుంది.</string>
     <string name="vault_set_decoy_pattern_active">✓ డికాయ్ సరళి యాక్టివ్‌గా ఉంది</string>
@@ -1494,4 +1494,4 @@
     <string name="vault_set_decoy_pass_activated_toast">డికాయ్ పాస్‌వర్డ్ యాక్టివేట్ అయింది</string>
     <string name="vault_set_decoy_pass_label">డికాయ్ పాస్‌వర్డ్</string>
     <string name="vault_set_decoy_pass_confirm_label">డికాయ్ పాస్‌వర్డ్‌ని నిర్ధారించండి</string>
-</resources>
+<string name="no_decoy_items">No decoy items found</string></resources>

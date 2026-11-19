@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Imava Gallery</string>
     <string name="request_permissions_title">Требуется разрешение на доступ к памяти</string>
@@ -6,12 +6,12 @@
     <string name="grant_permission">Предоставить разрешение</string>
     <string name="open_settings">Открыть настройки</string>
 
-    <!-- Navigation -->
+    
     <string name="nav_photos">Фото</string>
     <string name="nav_albums">Альбомы</string>
     <string name="nav_settings">Настройки</string>
 
-    <!-- Common Actions -->
+    
     <string name="action_cancel">Отмена</string>
     <string name="action_delete">Удалить</string>
     <string name="action_create">Создать</string>
@@ -35,7 +35,7 @@
     <string name="action_pin">Закрепить</string>
     <string name="action_unpin">Открепить</string>
 
-    <!-- Albums &amp; Categories -->
+    
     <string name="category_favorites">Избранное</string>
     <string name="category_trash">Корзина</string>
     <string name="category_vault">Скрытое хранилище</string>
@@ -48,7 +48,7 @@
     <string name="delete_album">Удалить альбом</string>
     <string name="folder_locations">Папок: %1$d</string>
 
-    <!-- Viewer &amp; Media -->
+    
     <string name="processing_photo">Обработка фото…</string>
     <string name="saving_photo">Сохранение фото…</string>
     <string name="motion_photo">Живое фото</string>
@@ -64,7 +64,7 @@
     <string name="no_media_found">Фотографии и видео не найдены</string>
     <string name="no_pictures_here">Здесь нет фотографий</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">Настройки</string>
     <string name="settings_language">Язык</string>
     <string name="settings_language_desc">Выбор языка приложения</string>
@@ -78,7 +78,7 @@
     <string name="settings_about">О приложении и версия</string>
     <string name="settings_wifi_drop">Wi-Fi Drop</string>
 
-    <!-- Settings: Appearance &amp; Startup -->
+    
     <string name="settings_choose_theme">Выбор темы приложения</string>
     <string name="theme_system">Системная</string>
     <string name="theme_dark">Темная тема</string>
@@ -91,7 +91,7 @@
     <string name="settings_brightness_boost">Максимальная яркость в просмотрщике ☀️</string>
     <string name="settings_brightness_boost_desc">Автоматически увеличивать яркость экрана при просмотре фото и видео для максимальной детализации HDR</string>
 
-    <!-- Settings: Grid &amp; Layout -->
+    
     <string name="settings_grid_title">Сетка и размер отображения</string>
     <string name="settings_timeline_columns">Столбцы шкалы времени</string>
     <string name="settings_grid_desc">Настройте стандартный размер фото в сетке. Масштабировать также можно жестом щипка в любой момент.</string>
@@ -106,18 +106,18 @@
     <string name="column_label_normal">3 (Стандартно)</string>
     <string name="column_label_dense">6 (Плотно)</string>
 
-    <!-- Settings: Touch &amp; Haptics -->
+    
     <string name="settings_touch_haptics">Касания и тактильный отклик</string>
     <string name="settings_haptics">Тактильная виброотдача</string>
     <string name="settings_haptics_desc">Тактильный отклик при выборе фото, разблокировке сейфа, редактировании и удалении</string>
 
-    <!-- Settings: Backup &amp; NAS -->
+    
     <string name="settings_nas_title">Резервное копирование и локальный NAS (Без облака)</string>
     <string name="settings_nas_card_title">Синхронизация с локальным NAS / WebDAV</string>
     <string name="settings_nas_card_desc">Резервное копирование без сторонних облаков на Synology, Nextcloud, TrueNAS или домашний сервер по Wi-Fi</string>
     <string name="settings_nas_configured">Настроено • %1$s</string>
 
-    <!-- Settings: Folders &amp; Storage -->
+    
     <string name="settings_folders_access">Папки и доступ к медиа</string>
     <string name="settings_excluded_folders">Исключенные / Скрытые папки</string>
     <string name="settings_excluded_folders_none">Нет скрытых папок</string>
@@ -131,7 +131,7 @@
     <string name="settings_sd_card_granted">Разрешение для внешнего накопителя предоставлено</string>
     <string name="settings_sd_card_desc">Предоставить доступ SAF для работы со вторичным накопителем</string>
 
-    <!-- Settings: Privacy &amp; App Lock -->
+    
     <string name="settings_app_lock_group">Блокировка и конфиденциальность устройства</string>
     <string name="settings_app_lock_title">Блокировка приложения (Биометрия / PIN) 🔒</string>
     <string name="settings_app_lock_desc">Запрашивать отпечаток пальца, лицо или PIN-код при каждом открытии Imava</string>
@@ -142,7 +142,7 @@
     <string name="settings_guest_pinning">Гостевой режим (Закрепление приложения) 📌</string>
     <string name="settings_guest_pinning_desc">Передавая телефон другому человеку, нажмите значок булавки 📌 в просмотрщике, чтобы зафиксировать экран на текущем фото. Гости не смогут листать другие медиа без аутентификации.</string>
 
-    <!-- Settings: Storage Cleaners -->
+    
     <string name="settings_storage_cleaners">Очистка памяти и обслуживание</string>
     <string name="settings_file_shredder">Криптографический шредер файлов 🛡️⚡</string>
     <string name="settings_file_shredder_desc">Физически перезаписывать удаляемые файлы случайными данными и нулями для предотвращения криминалистического восстановления</string>
@@ -150,7 +150,7 @@
     <string name="settings_ghost_thumb_purger_desc">Уничтожать оставшиеся незашифрованные миниатюры в DCIM/.thumbnails и кэше</string>
     <string name="action_shred_now">Уничтожить сейчас</string>
 
-    <!-- Settings: Deep Scan -->
+    
     <string name="settings_deep_scan_title">Глубокое сканирование и память</string>
     <string name="settings_deep_discovery">Глубокий поиск медиафайлов</string>
     <string name="settings_deep_discovery_desc">Поиск отправленных медиа, приватных папок, GIF-анимаций и скрытых файлов .nomedia на вашем устройстве.</string>
@@ -160,11 +160,11 @@
     <string name="action_scan_now">Сканировать сейчас</string>
     <string name="scanning_device">Сканирование устройства…</string>
 
-    <!-- Settings: About &amp; Legal -->
+    
     <string name="settings_about_legal">О приложении и правовая информация</string>
     <string name="settings_about_legal_desc">Разработчик, обновления, лицензии и разрешения</string>
 
-    <!-- Storage Doctor -->
+    
     <string name="doctor_title">Анализ хранилища 🩺</string>
     <string name="doctor_analyze">Всего: %1$s · Анализ ➔</string>
     <string name="doctor_photos_count">Фото (%1$d)</string>
@@ -184,7 +184,7 @@
     <string name="doctor_ghost_purger_title">Уничтожитель остаточных миниатюр 🧹⚡</string>
     <string name="doctor_ghost_purger_desc">Освободите дисковый кэш и сотрите остаточные эскизы</string>
 
-    <!-- Duplicate Finder -->
+    
     <string name="duplicate_finder_title">Поиск дубликатов 🧹</string>
     <string name="duplicate_finder_desc">Поиск и удаление дубликатов фото</string>
     <string name="duplicate_analyzing">Анализ галереи на наличие дубликатов…</string>
@@ -200,7 +200,7 @@
     <string name="duplicate_keep_this">Оставить это фото (Снять метку удаления)</string>
     <string name="duplicate_mark_delete">Отметить для удаления</string>
 
-    <!-- Albums Screen -->
+    
     <string name="search_hint">Поиск фото, видео, альбомов…</string>
     <string name="albums_count_format">Альбомы (%1$d)</string>
     <string name="pinned_albums_count_format">Закрепленные альбомы (%1$d)</string>
@@ -247,7 +247,7 @@
     <string name="unlock_vault_title">Разблокировать скрытый сейф</string>
     <string name="unlock_vault_desc">Используйте отпечаток пальца или лицо для доступа к скрытым фото</string>
 
-    <!-- App Update Strings -->
+    
     <string name="update_dialog_title">Доступно обновление</string>
     <string name="update_installed">Установлено</string>
     <string name="update_latest">Новейшая</string>
@@ -270,7 +270,7 @@
     <string name="update_failed_desc">Сетевое соединение разорвано (%1$s). Сохранено: %2$s. Нажмите «Возобновить» или скачайте напрямую через браузер.</string>
     <string name="update_download_browser">Скачать через браузер</string>
 
-    <!-- About, Legal, Licenses & Permissions -->
+    
     <string name="action_ok">ОК</string>
     <string name="action_back">Назад</string>
     <string name="about_back_to_settings">Назад к настройкам</string>
@@ -343,7 +343,7 @@
     <string name="copying_media">Копирование медиа…</string>
     <string name="deleting_media">Удаление медиа…</string>
 
-    <!-- Phase 3: Dialogs & UI Actions -->
+    
     <string name="items_selected_format">Выбрано: %1$d</string>
     <string name="lock_vault_now">Заблокировать сейф</string>
     <string name="lock_vault_now_desc">Немедленно заблокировать и скрыть личные файлы</string>
@@ -1109,7 +1109,7 @@
     <string name="vault_unlock_finish_btn">Готово и открыть</string>
     <string name="vault_unlock_bio_subtitle">Приложите палец или посмотрите в камеру</string>
     <string name="vault_unlock_use_bio_btn">Использовать биометрию</string>
-    <!-- Batch 3A Localization (Viewer, Video, OCR, Motion, Trim) -->
+    
     <string name="unit_kb_fmt">%1$d КБ</string>
     <string name="unit_mb_fmt">%1$d МБ</string>
     <string name="viewer_unlock_gallery_title">Разблокировать галерею</string>
@@ -1277,7 +1277,7 @@
     <string name="trim_saved_video_toast">Сохранено в Movies/Trimmed</string>
     <string name="trim_export_failed_toast">Ошибка экспорта</string>
     <string name="trim_save_btn">Обрезать и сохранить</string>
-    <!-- Batch 3B Localization (Editor, Tools, Dialogs, Service, Backup, ViewModel) -->
+    
     <string name="editor_unsaved_title">Несохранённые правки</string>
     <string name="editor_unsaved_desc">Есть несохранённые изменения фото. Сохранить правки или отменить их?</string>
     <string name="editor_save_changes">Сохранить</string>
@@ -1467,7 +1467,7 @@
     <string name="vault_import_no_items">Нет доступных фото или видео для добавления.</string>
     <string name="vault_import_success_toast_fmt">Перемещено в сейф: %1$d</string>
 
-    <!-- Dynamic Decoy Credentials -->
+    
     <string name="vault_set_duress_pattern_title">Защита под принуждением (Ложный графический ключ)</string>
     <string name="vault_set_duress_pattern_desc">Если вас принуждают открыть сейф, введите этот альтернативный ключ, чтобы открыть пустой ложный сейф без ваших файлов.</string>
     <string name="vault_set_decoy_pattern_active">✓ Ложный графический ключ активен</string>
@@ -1494,4 +1494,4 @@
     <string name="vault_set_decoy_pass_activated_toast">Ложный пароль активирован</string>
     <string name="vault_set_decoy_pass_label">Ложный пароль</string>
     <string name="vault_set_decoy_pass_confirm_label">Подтвердите ложный пароль</string>
-</resources>
+<string name="no_decoy_items">No decoy items found</string></resources>

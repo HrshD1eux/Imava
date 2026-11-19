@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Imava Gallery</string>
     <string name="request_permissions_title">স্টোরেজ অনুমতি প্রয়োজন</string>
@@ -6,12 +6,12 @@
     <string name="grant_permission">অনুমতি দিন</string>
     <string name="open_settings">সেটিংস খুলুন</string>
 
-    <!-- Navigation -->
+    
     <string name="nav_photos">ছবি</string>
     <string name="nav_albums">অ্যালবাম</string>
     <string name="nav_settings">সেটিংস</string>
 
-    <!-- Common Actions -->
+    
     <string name="action_cancel">বাতিল</string>
     <string name="action_delete">মুছুন</string>
     <string name="action_create">তৈরি করুন</string>
@@ -35,7 +35,7 @@
     <string name="action_pin">পিন করুন</string>
     <string name="action_unpin">আনপিন করুন</string>
 
-    <!-- Albums &amp; Categories -->
+    
     <string name="category_favorites">প্রিয়</string>
     <string name="category_trash">ট্র্যাশ</string>
     <string name="category_vault">লুকানো ভল্ট</string>
@@ -48,7 +48,7 @@
     <string name="delete_album">অ্যালবাম মুছুন</string>
     <string name="folder_locations">%1$d ফোল্ডার অবস্থান</string>
 
-    <!-- Viewer &amp; Media -->
+    
     <string name="processing_photo">ছবি প্রসেস হচ্ছে…</string>
     <string name="saving_photo">ছবি সংরক্ষণ করা হচ্ছে…</string>
     <string name="motion_photo">মোশন ফটো</string>
@@ -64,7 +64,7 @@
     <string name="no_media_found">কোনো ছবি বা ভিডিও পাওয়া যায়নি</string>
     <string name="no_pictures_here">এখানে কোনো ছবি নেই</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">সেটিংস</string>
     <string name="settings_language">ভাষা</string>
     <string name="settings_language_desc">অ্যাপের ভাষা নির্বাচন করুন</string>
@@ -78,7 +78,7 @@
     <string name="settings_about">সম্পর্কে ও সংস্করণ</string>
     <string name="settings_wifi_drop">ওয়াই-ফাই ড্রপ</string>
 
-    <!-- Settings: Appearance &amp; Startup -->
+    
     <string name="settings_choose_theme">অ্যাপ থিম বেছে নিন</string>
     <string name="theme_system">সিস্টেম ডিফল্ট</string>
     <string name="theme_dark">ডার্ক থিম</string>
@@ -91,7 +91,7 @@
     <string name="settings_brightness_boost">ভিউয়ার উজ্জ্বলতা বৃদ্ধি ☀️</string>
     <string name="settings_brightness_boost_desc">ছবি এবং ভিডিও দেখার সময় সর্বোচ্চ HDR বিবরণের জন্য স্ক্রিনের উজ্জ্বলতা স্বয়ংক্রিয়ভাবে বৃদ্ধি করুন</string>
 
-    <!-- Settings: Grid &amp; Layout -->
+    
     <string name="settings_grid_title">গ্রিড ও প্রদর্শনের আকার</string>
     <string name="settings_timeline_columns">টাইমলাইন কলাম</string>
     <string name="settings_grid_desc">টাইমলাইন গ্রিডে ছবির আকার সমন্বয় করুন। আপনি যেকোনো সময় পিঞ্চ-টু-জুমও করতে পারেন।</string>
@@ -106,18 +106,18 @@
     <string name="column_label_normal">৩ (সাধারণ)</string>
     <string name="column_label_dense">৬ (ঘন)</string>
 
-    <!-- Settings: Touch &amp; Haptics -->
+    
     <string name="settings_touch_haptics">স্পর্শ ও হ্যাপটিক্স</string>
     <string name="settings_haptics">হ্যাপটিক কম্পন</string>
     <string name="settings_haptics_desc">ছবি নির্বাচন, ভল্ট আনলক, সম্পাদনা এবং মুছে ফেলার সময় স্পর্শীয় প্রতিক্রিয়া</string>
 
-    <!-- Settings: Backup &amp; NAS -->
+    
     <string name="settings_nas_title">ব্যাকআপ ও লোকাল NAS (শূন্য ক্লাউড)</string>
     <string name="settings_nas_card_title">লোকাল NAS / WebDAV সিঙ্ক</string>
     <string name="settings_nas_card_desc">ওয়াই-ফাইয়ের মাধ্যমে Synology, Nextcloud, TrueNAS বা হোম সার্ভারে ক্লাউডহীন ব্যাকআপ</string>
     <string name="settings_nas_configured">কনফিগার করা হয়েছে • %1$s</string>
 
-    <!-- Settings: Folders &amp; Storage -->
+    
     <string name="settings_folders_access">ফোল্ডার ও মিডিয়া অ্যাক্সেস</string>
     <string name="settings_excluded_folders">বাদ দেওয়া / লুকানো ফোল্ডার</string>
     <string name="settings_excluded_folders_none">কোনো ফোল্ডার লুকানো নেই</string>
@@ -131,7 +131,7 @@
     <string name="settings_sd_card_granted">বাহ্যিক স্টোরেজের অনুমতি মঞ্জুর হয়েছে</string>
     <string name="settings_sd_card_desc">গৌণ স্টোরেজের জন্য SAF ট্রির অনুমতি প্রদান করুন</string>
 
-    <!-- Settings: Privacy &amp; App Lock -->
+    
     <string name="settings_app_lock_group">অ্যাপ লক ও ডিভাইসের গোপনীয়তা</string>
     <string name="settings_app_lock_title">অ্যাপ লক (বায়োমেট্রিক / পিন) 🔒</string>
     <string name="settings_app_lock_desc">প্রতিবার Imava খোলার সময় আঙুলের ছাপ, মুখ বা পিন প্রয়োজন করুন</string>
@@ -142,7 +142,7 @@
     <string name="settings_guest_pinning">গেস্ট মোড (স্ক্রিন পিনিং) 📌</string>
     <string name="settings_guest_pinning_desc">অন্য কাউকে ফোন দেওয়ার সময়, ফটো ভিউয়ারে পিন 📌 আইকনে আলতো চাপুন। অতিথিরা প্রমাণীকরণ ছাড়া অন্য ছবি দেখতে পারবেন না।</string>
 
-    <!-- Settings: Storage Cleaners -->
+    
     <string name="settings_storage_cleaners">স্টোরেজ ক্লিনার ও রক্ষণাবেক্ষণ</string>
     <string name="settings_file_shredder">ক্রিপ্টোগ্রাফিক ফাইল শ্রেডার 🛡️⚡</string>
     <string name="settings_file_shredder_desc">মুছে ফেলা ফাইলগুলি র‍্যান্ডম ডেটা ও শূন্য দিয়ে ওভাররাইট করুন যাতে ফরেনসিক পুনরুদ্ধার অসম্ভব হয়</string>
@@ -150,7 +150,7 @@
     <string name="settings_ghost_thumb_purger_desc">DCIM/.thumbnails এবং ক্যাশে থাকা অরক্ষিত অবশিষ্ট থাম্বনেল ফাইলগুলি ধ্বংস করুন</string>
     <string name="action_shred_now">ধ্বংস করুন</string>
 
-    <!-- Settings: Deep Scan -->
+    
     <string name="settings_deep_scan_title">ডিপ মিডিয়া স্ক্যান ও স্টোরেজ</string>
     <string name="settings_deep_discovery">গভীর মিডিয়া অনুসন্ধান</string>
     <string name="settings_deep_discovery_desc">ডিভাইসের পাঠানো মিডিয়া, গোপন ফোল্ডার, GIF এবং লুকানো .nomedia ফাইল স্ক্যান করুন।</string>
@@ -160,11 +160,11 @@
     <string name="action_scan_now">এখনই স্ক্যান করুন</string>
     <string name="scanning_device">ডিভাইস স্ক্যান করা হচ্ছে…</string>
 
-    <!-- Settings: About &amp; Legal -->
+    
     <string name="settings_about_legal">সম্পর্কে ও আইনি তথ্য</string>
     <string name="settings_about_legal_desc">ডেভেলপার, আপডেট, লাইসেন্স এবং অনুমতিসমূহ</string>
 
-    <!-- Storage Doctor -->
+    
     <string name="doctor_title">স্টোরেজ ডক্টর 🩺</string>
     <string name="doctor_analyze">মোট: %1$s · বিশ্লেষণ ➔</string>
     <string name="doctor_photos_count">ছবি (%1$d)</string>
@@ -184,7 +184,7 @@
     <string name="doctor_ghost_purger_title">ভুতুড়ে থাম্বনেল ক্লিনার 🧹⚡</string>
     <string name="doctor_ghost_purger_desc">অপব্যয়িত ডিস্ক ক্যাশ এবং ধ্বংসাবশেষ থাম্বনেল পরিষ্কার করুন</string>
 
-    <!-- Duplicate Finder -->
+    
     <string name="duplicate_finder_title">ডুপ্লিকেট খুঁজুন 🧹</string>
     <string name="duplicate_finder_desc">ডুপ্লিকেট ছবি স্ক্যান ও পরিষ্কার করুন</string>
     <string name="duplicate_analyzing">ডুপ্লিকেটের জন্য গ্যালারি বিশ্লেষণ করা হচ্ছে…</string>
@@ -200,7 +200,7 @@
     <string name="duplicate_keep_this">এই ছবিটি রাখুন (মুছা বাতিল করুন)</string>
     <string name="duplicate_mark_delete">মুছতে চিহ্নিত করুন</string>
 
-    <!-- Albums Screen -->
+    
     <string name="search_hint">ছবি, ভিডিও, অ্যালবাম অনুসন্ধান করুন…</string>
     <string name="albums_count_format">অ্যালবাম (%1$d)</string>
     <string name="pinned_albums_count_format">পিন করা অ্যালবাম (%1$d)</string>
@@ -247,7 +247,7 @@
     <string name="unlock_vault_title">লুকানো ভল্ট আনলক করুন</string>
     <string name="unlock_vault_desc">লুকানো ছবিগুলি দেখতে আঙুলের ছাপ বা মুখ দিয়ে আনলক করুন</string>
 
-    <!-- App Update Strings -->
+    
     <string name="update_dialog_title">আপডেট উপলব্ধ</string>
     <string name="update_installed">ইনস্টল করা</string>
     <string name="update_latest">সর্বশেষ</string>
@@ -270,7 +270,7 @@
     <string name="update_failed_desc">নেটওয়ার্ক সংযোগ বিচ্ছিন্ন (%1$s)। %2$s সংরক্ষিত হয়েছে। পুনরায় শুরু করতে ট্যাপ করুন বা সরাসরি ব্রাউজার থেকে ডাউনলোড করুন।</string>
     <string name="update_download_browser">ব্রাউজার দিয়ে ডাউনলোড করুন</string>
 
-    <!-- About, Legal, Licenses & Permissions -->
+    
     <string name="action_ok">ঠিক আছে</string>
     <string name="action_back">ফিরে যান</string>
     <string name="about_back_to_settings">সেটিংসে ফিরে যান</string>
@@ -343,7 +343,7 @@
     <string name="copying_media">মিডিয়া কপি করা হচ্ছে…</string>
     <string name="deleting_media">মিডিয়া মুছে ফেলা হচ্ছে…</string>
 
-    <!-- Phase 3: Dialogs & UI Actions -->
+    
     <string name="items_selected_format">%1$dটি নির্বাচিত</string>
     <string name="lock_vault_now">ভল্ট এখনই লক করুন</string>
     <string name="lock_vault_now_desc">ব্যক্তিগত মিডিয়া অবিলম্বে লক এবং লুকান</string>
@@ -1109,7 +1109,7 @@
     <string name="vault_unlock_finish_btn">সম্পন্ন করে আনলক করুন</string>
     <string name="vault_unlock_bio_subtitle">বায়োমেট্রিক সেন্সর যাচাই করুন</string>
     <string name="vault_unlock_use_bio_btn">বায়োমেট্রিক ব্যবহার করুন</string>
-    <!-- Batch 3A Localization (Viewer, Video, OCR, Motion, Trim) -->
+    
     <string name="unit_kb_fmt">%1$d KB</string>
     <string name="unit_mb_fmt">%1$d MB</string>
     <string name="viewer_unlock_gallery_title">গ্যালারি আনলক করুন</string>
@@ -1277,7 +1277,7 @@
     <string name="trim_saved_video_toast">Movies/Trimmed-এ সংরক্ষিত</string>
     <string name="trim_export_failed_toast">এক্সপোর্ট ব্যর্থ</string>
     <string name="trim_save_btn">ট্রিম ও সংরক্ষণ</string>
-    <!-- Batch 3B Localization (Editor, Tools, Dialogs, Service, Backup, ViewModel) -->
+    
     <string name="editor_unsaved_title">অসংরক্ষিত সম্পাদনা</string>
     <string name="editor_unsaved_desc">এই ছবিতে অসংরক্ষিত পরিবর্তন রয়েছে। আপনি কি এগুলো সংরক্ষণ করবেন নাকি বাদ দেবেন?</string>
     <string name="editor_save_changes">পরিবর্তন সংরক্ষণ</string>
@@ -1467,7 +1467,7 @@
     <string name="vault_import_no_items">যোগ করার মতো কোনো ছবি বা ভিডিও পাওয়া যায়নি।</string>
     <string name="vault_import_success_toast_fmt">%1$dটি আইটেম ভল্টে সরানো হয়েছে</string>
 
-    <!-- Dynamic Decoy Credentials -->
+    
     <string name="vault_set_duress_pattern_title">চাপের মুখে সুরক্ষা (নকল প্যাটার্ন)</string>
     <string name="vault_set_duress_pattern_desc">বাধ্য হয়ে ভল্ট খুলতে হলে এই আলাদা প্যাটার্ন আঁকুন যাতে খালি নকল ভল্ট খোলে।</string>
     <string name="vault_set_decoy_pattern_active">✓ নকল প্যাটার্ন সক্রিয়</string>
@@ -1494,4 +1494,4 @@
     <string name="vault_set_decoy_pass_activated_toast">নকল পাসওয়ার্ড সক্রিয় হয়েছে</string>
     <string name="vault_set_decoy_pass_label">নকল পাসওয়ার্ড</string>
     <string name="vault_set_decoy_pass_confirm_label">নকল পাসওয়ার্ড নিশ্চিত করুন</string>
-</resources>
+<string name="no_decoy_items">No decoy items found</string></resources>
