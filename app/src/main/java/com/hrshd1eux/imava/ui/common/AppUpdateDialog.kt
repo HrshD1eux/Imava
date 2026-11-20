@@ -23,11 +23,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -122,10 +124,12 @@ fun AppUpdateDialog(
                             )
                             val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
                             val totalStr = if (state.totalBytes > 0) FormatUtils.formatFileSize(state.totalBytes) else "..."
-                            Text(
+                            AutoFitText(
                                 text = "$downloadedStr / $totalStr",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                minFontSize = 9.sp
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
@@ -138,20 +142,32 @@ fun AppUpdateDialog(
                 },
                 confirmButton = {
                     Button(onClick = { dismissAndMarkSeen() }) {
-                        Text(stringResource(R.string.update_run_background))
+                        AutoFitText(
+                            text = stringResource(R.string.update_run_background),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 },
                 dismissButton = {
                     Row {
                         TextButton(onClick = { AppUpdateManager.pauseDownload(context) }) {
-                            Text(stringResource(R.string.update_pause))
+                            AutoFitText(
+                                text = stringResource(R.string.update_pause),
+                                maxLines = 1,
+                                minFontSize = 11.sp
+                            )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
                         TextButton(onClick = {
                             AppUpdateManager.cancelDownload(context)
                             dismissAndMarkSeen()
                         }) {
-                            Text(stringResource(R.string.action_cancel))
+                            AutoFitText(
+                                text = stringResource(R.string.action_cancel),
+                                maxLines = 1,
+                                minFontSize = 11.sp
+                            )
                         }
                     }
                 }
@@ -184,20 +200,32 @@ fun AppUpdateDialog(
                 },
                 confirmButton = {
                     Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                        Text(stringResource(R.string.update_resume))
+                        AutoFitText(
+                            text = stringResource(R.string.update_resume),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 },
                 dismissButton = {
                     Row {
                         TextButton(onClick = { dismissAndMarkSeen() }) {
-                            Text(stringResource(R.string.update_background))
+                            AutoFitText(
+                                text = stringResource(R.string.update_background),
+                                maxLines = 1,
+                                minFontSize = 11.sp
+                            )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
                         TextButton(onClick = {
                             AppUpdateManager.cancelDownload(context)
                             dismissAndMarkSeen()
                         }) {
-                            Text(stringResource(R.string.action_cancel))
+                            AutoFitText(
+                                text = stringResource(R.string.action_cancel),
+                                maxLines = 1,
+                                minFontSize = 11.sp
+                            )
                         }
                     }
                 }
@@ -220,12 +248,20 @@ fun AppUpdateDialog(
                         AppUpdateManager.installApk(context, state.apkFile)
                         dismissAndMarkSeen()
                     }) {
-                        Text(stringResource(R.string.update_install_now))
+                        AutoFitText(
+                            text = stringResource(R.string.update_install_now),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { dismissAndMarkSeen() }) {
-                        Text(stringResource(R.string.update_later))
+                        AutoFitText(
+                            text = stringResource(R.string.update_later),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 }
             )
@@ -237,18 +273,13 @@ fun AppUpdateDialog(
                 shape = RoundedCornerShape(22.dp),
                 title = { Text(stringResource(R.string.update_interrupted_title)) },
                 text = {
-                    val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
-                    Text(
-                        text = stringResource(R.string.update_failed_desc, state.error, downloadedStr),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                confirmButton = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
+                        Text(
+                            text = stringResource(R.string.update_failed_desc, state.error, downloadedStr),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
                         val browserUrl = updateInfo.apkDownloadUrl ?: "https://github.com/HrshD1eux/imava/releases/latest"
                         OutlinedButton(
                             onClick = {
@@ -259,14 +290,31 @@ fun AppUpdateDialog(
                                     context.startActivity(intent)
                                 } catch (_: Exception) {}
                                 dismissAndMarkSeen()
-                            }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp)
                         ) {
-                            Text(stringResource(R.string.update_download_browser))
+                            Icon(
+                                imageVector = Icons.Default.OpenInBrowser,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            AutoFitText(
+                                text = stringResource(R.string.update_download_browser),
+                                maxLines = 1,
+                                minFontSize = 11.sp
+                            )
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                            Text(stringResource(R.string.update_resume))
-                        }
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
+                        AutoFitText(
+                            text = stringResource(R.string.update_resume),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 },
                 dismissButton = {
@@ -274,7 +322,11 @@ fun AppUpdateDialog(
                         AppUpdateManager.cancelDownload(context)
                         dismissAndMarkSeen()
                     }) {
-                        Text(stringResource(R.string.action_cancel))
+                        AutoFitText(
+                            text = stringResource(R.string.action_cancel),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 }
             )
@@ -445,51 +497,93 @@ fun AppUpdateDialog(
                             )
                         }
                     }
+
+                    // Secondary download options (cleanly separated from the footer confirm button)
+                    val browserUrl = updateInfo.apkDownloadUrl ?: "https://github.com/HrshD1eux/imava/releases/latest"
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                AppUpdateManager.startOrResumeDownload(context, updateInfo)
+                                dismissAndMarkSeen()
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CloudDownload,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            AutoFitText(
+                                text = stringResource(R.string.update_background),
+                                maxLines = 1,
+                                minFontSize = 10.sp
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(browserUrl)).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                try {
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                                dismissAndMarkSeen()
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.OpenInBrowser,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            AutoFitText(
+                                text = stringResource(R.string.update_download_browser),
+                                maxLines = 1,
+                                minFontSize = 10.sp
+                            )
+                        }
+                    }
                 }
             }
         },
         confirmButton = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val browserUrl = updateInfo.apkDownloadUrl ?: "https://github.com/HrshD1eux/imava/releases/latest"
-                IconButton(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(browserUrl)).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        }
-                        try {
-                            context.startActivity(intent)
-                        } catch (_: Exception) {}
-                        dismissAndMarkSeen()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.OpenInBrowser,
-                        contentDescription = stringResource(R.string.update_download_browser),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                TextButton(
-                    onClick = {
-                        AppUpdateManager.startOrResumeDownload(context, updateInfo)
-                        dismissAndMarkSeen()
-                    }
-                ) {
-                    Text(stringResource(R.string.update_background))
-                }
+            Button(
+                onClick = {
+                    AppUpdateManager.startOrResumeDownload(context, updateInfo)
+                },
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
                 Spacer(modifier = Modifier.width(6.dp))
-                Button(
-                    onClick = {
-                        AppUpdateManager.startOrResumeDownload(context, updateInfo)
-                    }
-                ) {
-                    Text(stringResource(R.string.update_now))
-                }
+                AutoFitText(
+                    text = stringResource(R.string.update_now),
+                    maxLines = 1,
+                    minFontSize = 11.sp
+                )
             }
         },
         dismissButton = {
             TextButton(onClick = { dismissAndMarkSeen() }) {
-                Text(stringResource(R.string.update_later))
+                AutoFitText(
+                    text = stringResource(R.string.update_later),
+                    maxLines = 1,
+                    minFontSize = 11.sp
+                )
             }
         }
     )

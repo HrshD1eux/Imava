@@ -68,6 +68,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.hrshd1eux.imava.ui.common.AutoFitText
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.collectAsState
@@ -202,55 +206,65 @@ fun AboutLegalScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                if (!isCheckingUpdates) {
-                                    isCheckingUpdates = true
-                                    scope.launch {
-                                        try {
-                                            val info = AppUpdateManager.checkForUpdates(context)
-                                            updateResult = info
-                                            if (!info.hasUpdate) {
-                                                showUpToDateDialog = true
-                                            }
-                                        } catch (_: Exception) {
-                                            android.widget.Toast.makeText(context, context.getString(R.string.about_update_check_failed), android.widget.Toast.LENGTH_SHORT).show()
-                                        } finally {
-                                            isCheckingUpdates = false
+                    Button(
+                        onClick = {
+                            if (!isCheckingUpdates) {
+                                isCheckingUpdates = true
+                                scope.launch {
+                                    try {
+                                        val info = AppUpdateManager.checkForUpdates(context)
+                                        updateResult = info
+                                        if (!info.hasUpdate) {
+                                            showUpToDateDialog = true
                                         }
+                                    } catch (_: Exception) {
+                                        android.widget.Toast.makeText(context, context.getString(R.string.about_update_check_failed), android.widget.Toast.LENGTH_SHORT).show()
+                                    } finally {
+                                        isCheckingUpdates = false
                                     }
                                 }
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            if (isCheckingUpdates) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(18.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    strokeWidth = 2.dp
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(stringResource(R.string.about_checking_updates))
-                            } else {
-                                Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(stringResource(R.string.about_check_for_updates))
                             }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (isCheckingUpdates) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            AutoFitText(
+                                text = stringResource(R.string.about_checking_updates),
+                                maxLines = 1,
+                                minFontSize = 12.sp
+                            )
+                        } else {
+                            Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            AutoFitText(
+                                text = stringResource(R.string.about_check_for_updates),
+                                maxLines = 1,
+                                minFontSize = 12.sp
+                            )
                         }
+                    }
 
-                        OutlinedButton(
-                            onClick = { showWhatsNewDialog = true },
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(stringResource(R.string.whats_new_dialog_title))
-                        }
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    OutlinedButton(
+                        onClick = { showWhatsNewDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        AutoFitText(
+                            text = stringResource(R.string.whats_new_dialog_title),
+                            maxLines = 1,
+                            minFontSize = 12.sp
+                        )
                     }
 
                     // Background Update Status Box
@@ -272,14 +286,20 @@ fun AboutLegalScreen(
                                             text = stringResource(R.string.about_downloading_progress, state.version, state.progress),
                                             style = MaterialTheme.typography.titleSmall,
                                             fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
+                                            color = MaterialTheme.colorScheme.primary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.weight(1f, fill = false)
                                         )
+                                        Spacer(modifier = Modifier.width(8.dp))
                                         val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
                                         val totalStr = if (state.totalBytes > 0) FormatUtils.formatFileSize(state.totalBytes) else "..."
-                                        Text(
+                                        AutoFitText(
                                             text = "$downloadedStr / $totalStr",
                                             style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            minFontSize = 9.sp
                                         )
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -290,11 +310,19 @@ fun AboutLegalScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         TextButton(onClick = { AppUpdateManager.pauseDownload(context) }) {
-                                            Text(stringResource(R.string.update_pause))
+                                            AutoFitText(
+                                                text = stringResource(R.string.update_pause),
+                                                maxLines = 1,
+                                                minFontSize = 11.sp
+                                            )
                                         }
                                         Spacer(modifier = Modifier.width(6.dp))
                                         TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
-                                            Text(stringResource(R.string.action_cancel))
+                                            AutoFitText(
+                                                text = stringResource(R.string.action_cancel),
+                                                maxLines = 1,
+                                                minFontSize = 11.sp
+                                            )
                                         }
                                     }
                                 }
@@ -309,11 +337,13 @@ fun AboutLegalScreen(
                             ) {
                                 Column(modifier = Modifier.padding(14.dp)) {
                                     val downloadedStr = FormatUtils.formatFileSize(state.downloadedBytes)
-                                    Text(
+                                    AutoFitText(
                                         text = stringResource(R.string.about_download_paused_progress, state.progress, downloadedStr),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.secondary
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        maxLines = 1,
+                                        minFontSize = 11.sp
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     LinearProgressIndicator(
@@ -323,11 +353,19 @@ fun AboutLegalScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                                            Text(stringResource(R.string.update_resume))
+                                            AutoFitText(
+                                                text = stringResource(R.string.update_resume),
+                                                maxLines = 1,
+                                                minFontSize = 11.sp
+                                            )
                                         }
                                         Spacer(modifier = Modifier.width(6.dp))
                                         TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
-                                            Text(stringResource(R.string.action_cancel))
+                                            AutoFitText(
+                                                text = stringResource(R.string.action_cancel),
+                                                maxLines = 1,
+                                                minFontSize = 11.sp
+                                            )
                                         }
                                     }
                                 }
@@ -341,16 +379,22 @@ fun AboutLegalScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.padding(14.dp)) {
-                                    Text(
+                                    AutoFitText(
                                         text = stringResource(R.string.about_update_ready, state.version),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.tertiary
+                                        color = MaterialTheme.colorScheme.tertiary,
+                                        maxLines = 1,
+                                        minFontSize = 11.sp
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         Button(onClick = { AppUpdateManager.installApk(context, state.apkFile) }) {
-                                            Text(stringResource(R.string.update_install_now))
+                                            AutoFitText(
+                                                text = stringResource(R.string.update_install_now),
+                                                maxLines = 1,
+                                                minFontSize = 11.sp
+                                            )
                                         }
                                     }
                                 }
@@ -364,20 +408,30 @@ fun AboutLegalScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.padding(14.dp)) {
-                                    Text(
+                                    AutoFitText(
                                         text = stringResource(R.string.about_download_failed, state.error),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.error
+                                        color = MaterialTheme.colorScheme.error,
+                                        maxLines = 1,
+                                        minFontSize = 11.sp
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                         Button(onClick = { AppUpdateManager.resumeDownload(context) }) {
-                                            Text(stringResource(R.string.about_retry_resume))
+                                            AutoFitText(
+                                                text = stringResource(R.string.about_retry_resume),
+                                                maxLines = 1,
+                                                minFontSize = 11.sp
+                                            )
                                         }
                                         Spacer(modifier = Modifier.width(6.dp))
                                         TextButton(onClick = { AppUpdateManager.cancelDownload(context) }) {
-                                            Text(stringResource(R.string.about_dismiss))
+                                            AutoFitText(
+                                                text = stringResource(R.string.about_dismiss),
+                                                maxLines = 1,
+                                                minFontSize = 11.sp
+                                            )
                                         }
                                     }
                                 }

@@ -66,8 +66,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import com.hrshd1eux.imava.R
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.hrshd1eux.imava.R
+import com.hrshd1eux.imava.ui.common.AutoFitText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -673,7 +675,11 @@ fun ImavaDropDialog(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.drop_stop_sharing))
+                        AutoFitText(
+                            text = stringResource(R.string.drop_stop_sharing),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                     Button(
                         onClick = {
@@ -684,7 +690,11 @@ fun ImavaDropDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text(stringResource(R.string.action_done))
+                        AutoFitText(
+                            text = stringResource(R.string.action_done),
+                            maxLines = 1,
+                            minFontSize = 11.sp
+                        )
                     }
                 }
             }

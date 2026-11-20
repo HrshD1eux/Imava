@@ -60,8 +60,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.hrshd1eux.imava.R
+import com.hrshd1eux.imava.ui.common.AutoFitText
 
 data class PermissionDetail(
     @androidx.annotation.StringRes val friendlyNameRes: Int? = null,
@@ -386,12 +388,12 @@ fun PermissionsTransparencyScreen(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(
+                            AutoFitText(
                                 text = stringResource(R.string.perm_mode_simple),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                                minFontSize = 10.sp,
                                 color = if (!isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -430,12 +432,12 @@ fun PermissionsTransparencyScreen(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(
+                            AutoFitText(
                                 text = stringResource(R.string.perm_mode_technical),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                                minFontSize = 10.sp,
                                 color = if (isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
