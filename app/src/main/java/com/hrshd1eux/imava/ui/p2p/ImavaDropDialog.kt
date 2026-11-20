@@ -34,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Share
@@ -89,6 +90,7 @@ fun ImavaDropDialog(
     val serverState by ImavaDropServer.state.collectAsState()
     var isCopied by remember { mutableStateOf(false) }
     var showLogs by remember { mutableStateOf(false) }
+    var showHistoryDialog by remember { mutableStateOf(false) }
 
     // Start server on entry if not running, update items if already running
     DisposableEffect(Unit) {
@@ -168,11 +170,20 @@ fun ImavaDropDialog(
                             )
                         }
                     }
-                    IconButton(onClick = {
-                        ImavaDropServer.stop()
-                        onDismissRequest()
-                    }) {
-                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = { showHistoryDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = stringResource(R.string.drop_history_title),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        IconButton(onClick = {
+                            ImavaDropServer.stop()
+                            onDismissRequest()
+                        }) {
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
+                        }
                     }
                 }
 
@@ -678,6 +689,12 @@ fun ImavaDropDialog(
                 }
             }
         }
+    }
+
+    if (showHistoryDialog) {
+        ImavaDropHistoryDialog(
+            onDismissRequest = { showHistoryDialog = false }
+        )
     }
 }
 

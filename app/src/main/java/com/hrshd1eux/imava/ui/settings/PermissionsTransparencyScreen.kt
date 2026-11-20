@@ -2,11 +2,13 @@ package com.hrshd1eux.imava.ui.settings
 
 import android.content.pm.PackageManager
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,10 +51,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.hrshd1eux.imava.R
@@ -74,6 +80,7 @@ fun PermissionsTransparencyScreen(
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     var isTechnicalMode by remember { mutableStateOf(false) }
 
     // Known detailed explanations for permissions
@@ -331,68 +338,104 @@ fun PermissionsTransparencyScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Mode Selector Bar
+            // Mode Selector Bar (Robust 50dp tactile segmented pill)
             Surface(
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .height(50.dp),
                 shape = RoundedCornerShape(14.dp)
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp)
+                        .fillMaxSize()
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Surface(
-                        onClick = { isTechnicalMode = false },
-                        shape = RoundedCornerShape(10.dp),
-                        color = if (!isTechnicalMode) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        modifier = Modifier.weight(1f)
+                    // Simple Button
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(
+                                if (!isTechnicalMode) MaterialTheme.colorScheme.primary
+                                else Color.Transparent
+                            )
+                            .clickable(
+                                role = Role.Tab,
+                                onClick = {
+                                    if (isTechnicalMode) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        isTechnicalMode = false
+                                    }
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
                         Row(
-                            modifier = Modifier.padding(vertical = 10.dp),
                             horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = null,
                                 tint = if (!isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = stringResource(R.string.perm_mode_simple),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 color = if (!isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
 
-                    Surface(
-                        onClick = { isTechnicalMode = true },
-                        shape = RoundedCornerShape(10.dp),
-                        color = if (isTechnicalMode) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        modifier = Modifier.weight(1f)
+                    // Technical Button
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(
+                                if (isTechnicalMode) MaterialTheme.colorScheme.primary
+                                else Color.Transparent
+                            )
+                            .clickable(
+                                role = Role.Tab,
+                                onClick = {
+                                    if (!isTechnicalMode) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        isTechnicalMode = true
+                                    }
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
                         Row(
-                            modifier = Modifier.padding(vertical = 10.dp),
                             horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Code,
                                 contentDescription = null,
                                 tint = if (isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = stringResource(R.string.perm_mode_technical),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 color = if (isTechnicalMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }

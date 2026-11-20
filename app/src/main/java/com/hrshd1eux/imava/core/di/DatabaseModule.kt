@@ -79,6 +79,25 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_9_10 = object : androidx.room.migration.Migration(9, 10) {
+        override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS `imava_drop_history` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `fileName` TEXT NOT NULL,
+                    `fileSizeBytes` INTEGER NOT NULL,
+                    `direction` TEXT NOT NULL,
+                    `clientIp` TEXT NOT NULL,
+                    `timestamp` INTEGER NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `mediaUri` TEXT
+                )
+            """.trimIndent())
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_imava_drop_history_timestamp` ON `imava_drop_history`(`timestamp`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_imava_drop_history_direction` ON `imava_drop_history`(`direction`)")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): GalleryDatabase {
@@ -101,6 +120,12 @@ object DatabaseModule {
     @Singleton
     fun provideWebDavSyncedDao(db: GalleryDatabase): com.hrshd1eux.imava.data.database.WebDavSyncedDao {
         return db.webDavSyncedDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideImavaDropHistoryDao(db: GalleryDatabase): com.hrshd1eux.imava.data.database.ImavaDropHistoryDao {
+        return db.imavaDropHistoryDao()
     }
 }
 

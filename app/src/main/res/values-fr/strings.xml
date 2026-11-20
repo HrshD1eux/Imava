@@ -1499,4 +1499,52 @@
     <string name="unsaved_changes_title">Modifications non enregistrées</string>
     <string name="unsaved_changes_desc">Vous avez des modifications non enregistrées pour votre code de mode furtif. Voulez-vous les enregistrer ou les ignorer ?</string>
     <string name="vault_stealth_code_saved">Code de mode furtif enregistré</string>
+
+    <!-- Imava Drop Transfer History -->
+    <string name="drop_history_title">Historique des transferts</string>
+    <string name="drop_history_count_fmt">%1$d transferts enregistrés</string>
+    <string name="drop_history_empty">Aucun transfert enregistré</string>
+    <string name="drop_history_clear">Effacer l\'historique</string>
+    <string name="drop_history_clear_confirm">Effacer tout l\'historique des transferts ? Les fichiers reçus ne seront pas supprimés.</string>
+    <string name="drop_history_sent">Envoyé</string>
+    <string name="drop_history_received">Reçu</string>
+    <string name="drop_history_filter_all">Tout</string>
+    <string name="drop_history_settings_desc">Consulter les journaux de transferts Wi-Fi locaux et fichiers reçus</string>
+
+    <!-- App Update Package Size & Fallback -->
+    <string name="update_package_size_fmt">Taille du téléchargement : %1$s</string>
+    <string name="update_err_no_apk">Aucun APK direct trouvé pour cette version. Ouverture du navigateur...</string>
+
+    <!-- What's New Feature Highlights -->
+    <string name="settings_whats_new">Nouveautés de cette mise à jour</string>
+    <string name="settings_whats_new_desc">Découvrez les fonctionnalités, la sécurité et les améliorations dans v%1$s</string>
+    <string name="whats_new_dialog_title">Nouveautés</string>
+    <string name="whats_new_version_fmt">Version v%1$s</string>
+    <string name="whats_new_got_it">Compris</string>
+    <string name="wn_v120_keystore_title">Chiffrement WebDAV matériel</string>
+    <string name="wn_v120_keystore_desc">Les mots de passe cloud &amp; NAS sont protégés par le Keystore matériel AES-256-GCM.</string>
+    <string name="wn_v120_vault_iso_title">Isolation biométrique du coffre-fort</string>
+    <string name="wn_v120_vault_iso_desc">Le coffre-fort exige une biométrie authentique, bloquant le contournement par le code de l\'écran de verrouillage.</string>
+    <string name="wn_v120_shake_title">Verrouillage d\'urgence par secousse directionnelle</string>
+    <string name="wn_v120_shake_desc">Détecteur accélérométrique calibré à inversion de pic qui sécurise le coffre tout en ignorant les vibrations habituelles.</string>
+    <string name="wn_v120_drop_limit_title">Limitation de débit pare-feu Imava Drop</string>
+    <string name="wn_v120_drop_limit_desc">Défense anti-bruteforce en mémoire bloquant les tentatives d\'appairage réseau non autorisées.</string>
+    <string name="wn_v120_drop_history_title">Historique persistant des transferts Imava Drop</string>
+    <string name="wn_v120_drop_history_desc">Suivez les transferts Wi-Fi entrants et sortants avec horodatage, taille, IP et visualisation directe.</string>
+    <string name="wn_v120_trash_title">Corbeille MediaStore Scoped Storage native</string>
+    <string name="wn_v120_trash_desc">Recyclage natif Android 11+ (IS_TRASHED) éliminant les copies de fichiers inutiles.</string>
+    <string name="wn_v120_dup_title">Détection de doublons multi-cœurs</string>
+    <string name="wn_v120_dup_desc">Hachage perceptuel parallèle avec coroutines et partitionnement multi-index 16 bits.</string>
+    <string name="wn_v120_zoom_title">Zoom haute précision pour photos 20MP+</string>
+    <string name="wn_v120_zoom_desc">Textures portées à 8192px avec précision d\'échantillonnage Coil pour un zoom ultra net.</string>
+    <string name="wn_v120_stealth_title">Renforcement du déclencheur furtif</string>
+    <string name="wn_v120_stealth_desc">Déclencheur sensible à la casse, dialogue de confirmation des modifications et état vide leurre neutre.</string>
+    <string name="wn_v112_decoy_title">Identifiants leurres dynamiques</string>
+    <string name="wn_v112_decoy_desc">Déverrouillage leurre sous contrainte calqué sur le verrouillage principal (Schéma, PIN, Mot de passe) avec sel isolé.</string>
+    <string name="wn_v112_autofit_title">Typographie auto-ajustable sans scintillement</string>
+    <string name="wn_v112_autofit_desc">Mise à l\'échelle en une seule passe empêchant la troncature des libellés de boutons sur tous les écrans.</string>
+    <string name="wn_v42_shredder_title">Broyeur de fichiers DoD 5220.22-M</string>
+    <string name="wn_v42_shredder_desc">Écrasement de secteurs CSPRNG multi-passes et déliaison pour effacement anti-récupération.</string>
+    <string name="wn_v42_deepscan_title">Analyse approfondie instantanée (&lt;100ms)</string>
+    <string name="wn_v42_deepscan_desc">Extraction SQLite multi-motifs révélant les médias cachés des messageries et espaces clonés.</string>
 </resources>

@@ -1499,4 +1499,52 @@
     <string name="unsaved_changes_title">Несохраненные изменения</string>
     <string name="unsaved_changes_desc">У вас есть несохраненные изменения кода скрытого режима. Сохранить или отменить их?</string>
     <string name="vault_stealth_code_saved">Код скрытого режима сохранен</string>
+
+    <!-- Imava Drop Transfer History -->
+    <string name="drop_history_title">История передач</string>
+    <string name="drop_history_count_fmt">Записей передач: %1$d</string>
+    <string name="drop_history_empty">История передач пуста</string>
+    <string name="drop_history_clear">Очистить историю</string>
+    <string name="drop_history_clear_confirm">Очистить историю передач? Полученные файлы удалены не будут.</string>
+    <string name="drop_history_sent">Отправлено</string>
+    <string name="drop_history_received">Получено</string>
+    <string name="drop_history_filter_all">Все</string>
+    <string name="drop_history_settings_desc">Журнал локальных Wi-Fi передач и полученные медиафайлы</string>
+
+    <!-- App Update Package Size & Fallback -->
+    <string name="update_package_size_fmt">Размер загрузки: %1$s</string>
+    <string name="update_err_no_apk">Прямой APK для этой версии не найден. Открываем браузер...</string>
+
+    <!-- What's New Feature Highlights -->
+    <string name="settings_whats_new">Что нового в этом обновлении</string>
+    <string name="settings_whats_new_desc">Узнайте о новых функциях, безопасности и улучшениях в v%1$s</string>
+    <string name="whats_new_dialog_title">Что нового</string>
+    <string name="whats_new_version_fmt">Версия v%1$s</string>
+    <string name="whats_new_got_it">Понятно</string>
+    <string name="wn_v120_keystore_title">Аппаратное шифрование WebDAV</string>
+    <string name="wn_v120_keystore_desc">Пароли облака и NAS защищены аппаратным Keystore AES-256-GCM.</string>
+    <string name="wn_v120_vault_iso_title">Биометрическая изоляция сейфа</string>
+    <string name="wn_v120_vault_iso_desc">Скрытый сейф требует подлинную биометрию, предотвращая обход через PIN экрана блокировки.</string>
+    <string name="wn_v120_shake_title">Экстренная блокировка встряхиванием</string>
+    <string name="wn_v120_shake_desc">Калиброванный детектор смены пиков акселерометра мгновенно блокирует сейф, игнорируя шаги в кармане.</string>
+    <string name="wn_v120_drop_limit_title">Ограничение частоты брандмауэра Imava Drop</string>
+    <string name="wn_v120_drop_limit_desc">Защита от перебора в памяти блокирует несанкционированные попытки подключения в сети.</string>
+    <string name="wn_v120_drop_history_title">Постоянная история передач Imava Drop</string>
+    <string name="wn_v120_drop_history_desc">Учет входящих и исходящих Wi-Fi передач с датой, размером, IP и прямым просмотром файлов.</string>
+    <string name="wn_v120_trash_title">Нативная корзина MediaStore Scoped Storage</string>
+    <string name="wn_v120_trash_desc">Нативная утилизация Android 11+ (IS_TRASHED) без дублирующего копирования файлов.</string>
+    <string name="wn_v120_dup_title">Многоядерный поиск дубликатов</string>
+    <string name="wn_v120_dup_desc">Параллельное перцептивное хеширование с 16-битной мульти-индексной группировкой кандидатов.</string>
+    <string name="wn_v120_zoom_title">Высокоточный глубокий зум для фото 20MP+</string>
+    <string name="wn_v120_zoom_desc">Текстуры увеличены до 8192px с точной дискретизацией Coil для кристальной четкости.</string>
+    <string name="wn_v120_stealth_title">Защита скрытого кода и черновика</string>
+    <string name="wn_v120_stealth_desc">Чувствительный к регистру поиск, подтверждение несохраненных правок и нейтральное пустое состояние ложного сейфа.</string>
+    <string name="wn_v112_decoy_title">Динамические ложные учетные данные</string>
+    <string name="wn_v112_decoy_desc">Ложная разблокировка под принуждением динамически повторяет тип главного замка с изолированной солью.</string>
+    <string name="wn_v112_autofit_title">Автоподгонка шрифта без мерцания</string>
+    <string name="wn_v112_autofit_desc">Однопроходное масштабирование текста предотвращает обрезку надписей кнопок на всех экранах.</string>
+    <string name="wn_v42_shredder_title">Уничтожитель файлов DoD 5220.22-M</string>
+    <string name="wn_v42_shredder_desc">Многопроходное обнуление секторов CSPRNG и отсоединение каталога для безвозвратного удаления.</string>
+    <string name="wn_v42_deepscan_title">Мгновенное глубокое сканирование (&lt;100мс)</string>
+    <string name="wn_v42_deepscan_desc">Многошаблонный парсинг SQLite находит скрытые файлы из мессенджеров и клонированных пространств.</string>
 </resources>

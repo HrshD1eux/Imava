@@ -1499,4 +1499,52 @@
     <string name="unsaved_changes_title">Ungespeicherte Änderungen</string>
     <string name="unsaved_changes_desc">Sie haben ungespeicherte Änderungen an Ihrem Tarnmodus-Code. Möchten Sie diese speichern oder verwerfen?</string>
     <string name="vault_stealth_code_saved">Tarnmodus-Code gespeichert</string>
+
+    <!-- Imava Drop Transfer History -->
+    <string name="drop_history_title">Übertragungsverlauf</string>
+    <string name="drop_history_count_fmt">%1$d Übertragungen aufgezeichnet</string>
+    <string name="drop_history_empty">Noch keine Übertragungen aufgezeichnet</string>
+    <string name="drop_history_clear">Verlauf löschen</string>
+    <string name="drop_history_clear_confirm">Gesamten Übertragungsverlauf löschen? Empfangene Dateien werden nicht gelöscht.</string>
+    <string name="drop_history_sent">Gesendet</string>
+    <string name="drop_history_received">Empfangen</string>
+    <string name="drop_history_filter_all">Alle</string>
+    <string name="drop_history_settings_desc">Lokale WLAN-Übertragungsprotokolle und empfangene Medien anzeigen</string>
+
+    <!-- App Update Package Size & Fallback -->
+    <string name="update_package_size_fmt">Download-Größe: %1$s</string>
+    <string name="update_err_no_apk">Keine direkte APK für diese Version gefunden. Browser wird geöffnet...</string>
+
+    <!-- What's New Feature Highlights -->
+    <string name="settings_whats_new">Was ist neu in diesem Update</string>
+    <string name="settings_whats_new_desc">Funktionen, Sicherheitsupdates und Verbesserungen in v%1$s erkunden</string>
+    <string name="whats_new_dialog_title">Was ist neu</string>
+    <string name="whats_new_version_fmt">Version v%1$s</string>
+    <string name="whats_new_got_it">Verstanden</string>
+    <string name="wn_v120_keystore_title">Hardware-WebDAV-Verschlüsselung</string>
+    <string name="wn_v120_keystore_desc">Cloud- &amp; NAS-Passwörter sind jetzt durch hardwaregestützten Keystore AES-256-GCM geschützt.</string>
+    <string name="wn_v120_vault_iso_title">Biometrische Tresor-Isolation</string>
+    <string name="wn_v120_vault_iso_desc">Der versteckte Tresor erfordert echte Biometrie und verhindert die Umgehung durch den Sperrbildschirm-PIN.</string>
+    <string name="wn_v120_shake_title">Notfall-Sperre durch gerichtetes Schütteln</string>
+    <string name="wn_v120_shake_desc">Kalibrierter Beschleunigungssensor mit Peak-Umkehr sperrt den Tresor sofort und ignoriert normale Vibrationen.</string>
+    <string name="wn_v120_drop_limit_title">Imava Drop Firewall Ratenbegrenzung</string>
+    <string name="wn_v120_drop_limit_desc">In-Memory-Brute-Force-Schutz blockiert unberechtigte lokale Netzwerk-Kopplungsversuche.</string>
+    <string name="wn_v120_drop_history_title">Dauerhafter Imava Drop Übertragungsverlauf</string>
+    <string name="wn_v120_drop_history_desc">Verfolgen Sie eingehende und ausgehende WLAN-Übertragungen mit Zeitstempel, Größe, IP und Direktansicht.</string>
+    <string name="wn_v120_trash_title">Nativer Scoped MediaStore Papierkorb</string>
+    <string name="wn_v120_trash_desc">Natives Android 11+ Papierkorbrecycling (IS_TRASHED) verhindert redundantes Dateikopieren.</string>
+    <string name="wn_v120_dup_title">Multi-Core Duplikaterkennung</string>
+    <string name="wn_v120_dup_desc">Paralleles Coroutine Perceptual Hashing mit 16-Bit Multi-Index Kandidaten-Bucketing.</string>
+    <string name="wn_v120_zoom_title">Hochpräziser 20MP+ Tiefenzoom</string>
+    <string name="wn_v120_zoom_desc">Texturabmessungen auf 8192px mit exakter Coil-Abtastpräzision für gestochen scharfen Fotozoom.</string>
+    <string name="wn_v120_stealth_title">Tarncode-Härtung &amp; Entwurfsschutz</string>
+    <string name="wn_v120_stealth_desc">Groß-/Kleinschreibungssensitiver Auslöser, Bestätigungsdialog für Änderungen und neutraler Täuschungs-Leerzustand.</string>
+    <string name="wn_v112_decoy_title">Dynamische Täuschungs-Anmeldedaten</string>
+    <string name="wn_v112_decoy_desc">Notfall-Täuschungsentsperrung passt sich dynamisch dem Hauptsperrtyp (Muster, PIN, Passwort) mit isoliertem Salt an.</string>
+    <string name="wn_v112_autofit_title">Flackerfreie Auto-Fit-Typografie</string>
+    <string name="wn_v112_autofit_desc">Single-Pass-Textskalierung verhindert abgeschnittene Schaltflächenbeschriftungen auf allen Bildschirmen.</string>
+    <string name="wn_v42_shredder_title">DoD 5220.22-M Dateishredder</string>
+    <string name="wn_v42_shredder_desc">Mehrfaches CSPRNG-Sektor-Überschreiben und Verzeichnisentkopplung für unumkehrbare Datenlöschung.</string>
+    <string name="wn_v42_deepscan_title">Sub-100ms Instant Deep Media Scan</string>
+    <string name="wn_v42_deepscan_desc">Multi-Muster SQLite-Dateisystemanalyse entdeckt versteckte Medien aus Messaging-Apps und geklonten Bereichen.</string>
 </resources>

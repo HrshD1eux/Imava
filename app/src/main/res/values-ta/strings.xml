@@ -1499,4 +1499,52 @@
     <string name="unsaved_changes_title">சேமிக்கப்படாத மாற்றங்கள்</string>
     <string name="unsaved_changes_desc">உங்கள் மறைமுக குறியீட்டில் சேமிக்கப்படாத மாற்றங்கள் உள்ளன. அவற்றை சேமிக்க விரும்புகிறீர்களா அல்லது நிராகரிக்க விரும்புகிறீர்களா?</string>
     <string name="vault_stealth_code_saved">மறைமுக குறியீடு சேமிக்கப்பட்டது</string>
+
+    <!-- Imava Drop Transfer History -->
+    <string name="drop_history_title">பரிமாற்ற வரலாறு</string>
+    <string name="drop_history_count_fmt">%1$d பரிமாற்றங்கள் பதிவு செய்யப்பட்டுள்ளன</string>
+    <string name="drop_history_empty">இதுவரை எந்த பரிமாற்றங்களும் பதிவு செய்யப்படவில்லை</string>
+    <string name="drop_history_clear">வரலாற்றை அழி</string>
+    <string name="drop_history_clear_confirm">அனைத்து பரிமாற்ற வரலாற்றையும் அழிக்கவா? பெறப்பட்ட கோப்புகள் நீக்கப்படாது.</string>
+    <string name="drop_history_sent">அனுப்பப்பட்டது</string>
+    <string name="drop_history_received">பெறப்பட்டது</string>
+    <string name="drop_history_filter_all">அனைத்தும்</string>
+    <string name="drop_history_settings_desc">உள்ளூர் P2P Wi-Fi பரிமாற்ற பதிவுகள் மற்றும் பெறப்பட்ட ஊடகங்களைக் காண்க</string>
+
+    <!-- App Update Package Size & Fallback -->
+    <string name="update_package_size_fmt">பதிவிறக்க அளவு: %1$s</string>
+    <string name="update_err_no_apk">இந்த பதிப்பிற்கு நேரடி APK கிடைக்கவில்லை. உலாவி திறக்கப்படுகிறது...</string>
+
+    <!-- What\'s New Feature Highlights -->
+    <string name="settings_whats_new">இந்த புதுப்பிப்பில் புதியவை</string>
+    <string name="settings_whats_new_desc">v%1$s பதிப்பின் புதிய அம்சங்கள், பாதுகாப்பு புதுப்பிப்புகள் மற்றும் மேம்பாடுகளை ஆராயுங்கள்</string>
+    <string name="whats_new_dialog_title">புதியவை என்ன</string>
+    <string name="whats_new_version_fmt">பதிப்பு v%1$s</string>
+    <string name="whats_new_got_it">புரிந்தது</string>
+    <string name="wn_v120_keystore_title">வன்பொருள் WebDAV குறியாக்கம்</string>
+    <string name="wn_v120_keystore_desc">கிளவுட் மற்றும் NAS கடவுச்சொற்கள் இப்போது வன்பொருள் சார்ந்த Keystore AES-256-GCM மூலம் பாதுகாக்கப்படுகின்றன.</string>
+    <string name="wn_v120_vault_iso_title">பயோமெட்ரிக் வால்ட் தனிமைப்படுத்தல்</string>
+    <string name="wn_v120_vault_iso_desc">மறைக்கப்பட்ட பெட்டகத்திற்கு உண்மையான பயோமெட்ரிக்ஸ் கட்டாயம், திரைப் பூட்டு பின் புறக்கணிப்பு தடுக்கப்பட்டுள்ளது.</string>
+    <string name="wn_v120_shake_title">திசை சார்ந்த அவசர உலுக்கல் பூட்டு</string>
+    <string name="wn_v120_shake_desc">பாக்கெட்டின் சாதாரண அசைவுகளைப் புறக்கணித்து துல்லியமான சென்சார் மூலம் பெட்டகத்தை உடனடியாகப் பூட்டுகிறது.</string>
+    <string name="wn_v120_drop_limit_title">Imava Drop ஃபயர்வால் வீத வரம்பு</string>
+    <string name="wn_v120_drop_limit_desc">அங்கீகரிக்கப்படாத உள்ளூர் பிணைய இணைப்பு முயற்சிகளைத் தடுக்க நினைவக முரட்டுத் தாக்குதல் பாதுகாப்பு.</string>
+    <string name="wn_v120_drop_history_title">நிலையான Imava Drop பரிமாற்ற வரலாறு</string>
+    <string name="wn_v120_drop_history_desc">நேரம், கோப்பு அளவு, கிளையண்ட் ஐபி மற்றும் நேரடி கோப்பு பார்வை ஆகியவற்றுடன் உள்வரும் மற்றும் வெளிச்செல்லும் பரிமாற்றங்களைக் கண்காணிக்கவும்.</string>
+    <string name="wn_v120_trash_title">சொந்த ஸ்கோப் செய்யப்பட்ட MediaStore குப்பை</string>
+    <string name="wn_v120_trash_desc">தேவையற்ற கோப்பு நகலைத் தவிர்த்து Android 11+ சொந்த ஸ்கோப் செய்யப்பட்ட சேமிப்பக மறுசுழற்சி (IS_TRASHED).</string>
+    <string name="wn_v120_dup_title">மல்டி-கோர் நகல் கண்டறிதல்</string>
+    <string name="wn_v120_dup_desc">16-பிட் மல்டி-இன்டெக்ஸ் பக்கெட்டிங் உடன் இணை கோரூட்டீன் காட்சி ஹேஷிங்.</string>
+    <string name="wn_v120_zoom_title">உயர்-துல்லிய 20MP+ ஆழமான பெரிதாக்கம்</string>
+    <string name="wn_v120_zoom_desc">தெளிவான புகைப்பட பெரிதாக்கலுக்கு 8192px வரை அமைப்பு பரிமாணங்கள் மற்றும் துல்லியமான காயில் மாதிரி.</string>
+    <string name="wn_v120_stealth_title">மறைமுக தூண்டுதல் பாதுகாப்பு &amp; வரைவு காப்பகம்</string>
+    <string name="wn_v120_stealth_desc">எழுத்துரு உணர்திறன் பெட்டக தேடல் தூண்டுதல், சேமிக்கப்படாத மாற்றங்கள் உரையாடல் மற்றும் வெற்று போலி நிலை.</string>
+    <string name="wn_v112_decoy_title">மாறும் போலி நற்சான்றிதழ்கள்</string>
+    <string name="wn_v112_decoy_desc">அச்சுறுத்தல் பாதுகாப்பு போலி திறத்தல் முதன்மை பூட்டு வகையுடன் (பேட்டர்ன், பின், கடவுச்சொல்) தனி உப்புடன் பொருந்துகிறது.</string>
+    <string name="wn_v112_autofit_title">மினுமினுப்பற்ற தானியங்கு-பொருத்து அச்சுக்கலை</string>
+    <string name="wn_v112_autofit_desc">அனைத்து திரை அடர்த்திகளிலும் மொழிகளிலும் பொத்தான் உரை துண்டிக்கப்படுவதைத் தடுக்கும் ஒற்றை-பாஸ் உரை அளவீடு.</string>
+    <string name="wn_v42_shredder_title">DoD 5220.22-M கோப்பு துண்டாக்கி</string>
+    <string name="wn_v42_shredder_desc">தரவு மீட்டெடுப்பைத் தடுக்க பல-பாஸ் CSPRNG துறை பூஜ்ஜியமாக்கல் மற்றும் கோப்பக இணைப்பு நீக்கம்.</string>
+    <string name="wn_v42_deepscan_title">சப்-100ms உடனடி ஆழமான ஊடக ஸ்கேன்</string>
+    <string name="wn_v42_deepscan_desc">செய்தியிடல் பயன்பாடுகள் மற்றும் குளோன் இடைவெளிகளில் மறைக்கப்பட்ட ஊடகங்களை வெளிக்கொணர பல-முறைமை SQLite ஸ்கேன்.</string>
 </resources>

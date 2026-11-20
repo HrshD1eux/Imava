@@ -1499,4 +1499,52 @@
     <string name="unsaved_changes_title">Cambios sin guardar</string>
     <string name="unsaved_changes_desc">Tienes cambios sin guardar en tu código de modo sigiloso. ¿Deseas guardarlos o descartarlos?</string>
     <string name="vault_stealth_code_saved">Código de modo sigiloso guardado</string>
+
+    <!-- Imava Drop Transfer History -->
+    <string name="drop_history_title">Historial de transferencias</string>
+    <string name="drop_history_count_fmt">%1$d transferencias registradas</string>
+    <string name="drop_history_empty">No hay transferencias registradas</string>
+    <string name="drop_history_clear">Borrar historial</string>
+    <string name="drop_history_clear_confirm">¿Borrar todo el historial de transferencias? Los archivos recibidos no se eliminarán.</string>
+    <string name="drop_history_sent">Enviado</string>
+    <string name="drop_history_received">Recibido</string>
+    <string name="drop_history_filter_all">Todo</string>
+    <string name="drop_history_settings_desc">Ver registros de transferencias Wi-Fi locales y archivos recibidos</string>
+
+    <!-- App Update Package Size & Fallback -->
+    <string name="update_package_size_fmt">Tamaño de descarga: %1$s</string>
+    <string name="update_err_no_apk">No se encontró APK directo para esta versión. Abriendo navegador...</string>
+
+    <!-- What's New Feature Highlights -->
+    <string name="settings_whats_new">Novedades de esta actualización</string>
+    <string name="settings_whats_new_desc">Explora funciones, actualizaciones de seguridad y mejoras en v%1$s</string>
+    <string name="whats_new_dialog_title">Novedades</string>
+    <string name="whats_new_version_fmt">Versión v%1$s</string>
+    <string name="whats_new_got_it">Entendido</string>
+    <string name="wn_v120_keystore_title">Cifrado WebDAV por hardware</string>
+    <string name="wn_v120_keystore_desc">Las contraseñas de la nube y NAS ahora están protegidas con Keystore AES-256-GCM respaldado por hardware.</string>
+    <string name="wn_v120_vault_iso_title">Aislamiento biométrico de bóveda</string>
+    <string name="wn_v120_vault_iso_desc">La bóveda oculta requiere biometría auténtica, bloqueando eludir mediante PIN de pantalla de bloqueo.</string>
+    <string name="wn_v120_shake_title">Bloqueo de emergencia por sacudida direccional</string>
+    <string name="wn_v120_shake_desc">Detector de acelerómetro calibrado de inversión de pico que asegura la bóveda de inmediato ignorando vibraciones normales.</string>
+    <string name="wn_v120_drop_limit_title">Límite de tasa en cortafuegos de Imava Drop</string>
+    <string name="wn_v120_drop_limit_desc">Defensa de fuerza bruta en memoria que bloquea intentos de emparejamiento no autorizados.</string>
+    <string name="wn_v120_drop_history_title">Historial persistente de transferencias Imava Drop</string>
+    <string name="wn_v120_drop_history_desc">Registra transferencias Wi-Fi entrantes y salientes con fecha, tamaño, IP del cliente y visualización directa.</string>
+    <string name="wn_v120_trash_title">Papelera MediaStore con Scoped Storage</string>
+    <string name="wn_v120_trash_desc">Reciclaje nativo de Android 11+ (IS_TRASHED) eliminando copias redundantes de archivos.</string>
+    <string name="wn_v120_dup_title">Detección de duplicados multinúcleo</string>
+    <string name="wn_v120_dup_desc">Hash perceptivo paralelo con corrutinas y agrupamiento de candidatos multiíndice de 16 bits.</string>
+    <string name="wn_v120_zoom_title">Zoom profundo de alta precisión para 20MP+</string>
+    <string name="wn_v120_zoom_desc">Dimensiones de textura elevadas a 8192px con precisión exacta Coil para un zoom nítido.</string>
+    <string name="wn_v120_stealth_title">Blindaje de código sigiloso y borrador</string>
+    <string name="wn_v120_stealth_desc">Disparador de búsqueda exacto, diálogo de confirmación de cambios y estado vacío neutral para señuelo.</string>
+    <string name="wn_v112_decoy_title">Credenciales señuelo dinámicas</string>
+    <string name="wn_v112_decoy_desc">Desbloqueo señuelo bajo coacción que coincide con el bloqueo maestro (patrón, PIN, contraseña) con sal aislada.</string>
+    <string name="wn_v112_autofit_title">Tipografía autoajustable sin parpadeo</string>
+    <string name="wn_v112_autofit_desc">Escalado de texto de un solo paso que evita el truncamiento de etiquetas en todas las densidades e idiomas.</string>
+    <string name="wn_v42_shredder_title">Trituradora de archivos DoD 5220.22-M</string>
+    <string name="wn_v42_shredder_desc">Sobreescritura de sectores CSPRNG multipaso y desenlace de directorio para borrado antirrecuperación.</string>
+    <string name="wn_v42_deepscan_title">Escaneo profundo instantáneo de medios (&lt;100ms)</string>
+    <string name="wn_v42_deepscan_desc">Extracción SQLite multipatrón que desentierra medios ocultos en apps de mensajería y espacios clonados.</string>
 </resources>

@@ -422,14 +422,14 @@ object ImavaDropServer {
                 }
                 method == "GET" && path == "/download-all" -> {
                     addLog("Client ($clientIp) requested Download All (ZIP)")
-                    serveZipArchive(output)
+                    serveZipArchive(output, clientIp)
                 }
                 method == "GET" && path.startsWith("/file/") -> {
                     val id = path.removePrefix("/file/").toLongOrNull()
                     val item = _state.value.sharedItems.find { it.id == id }
                     if (item != null) {
                         addLog("Client ($clientIp) downloading: ${getFilename(item)}")
-                        serveSingleFile(item, headers, output)
+                        serveSingleFile(item, headers, output, clientIp)
                     } else {
                         send404(output)
                     }
@@ -438,7 +438,7 @@ object ImavaDropServer {
                     val id = path.removePrefix("/thumb/").toLongOrNull()
                     val item = _state.value.sharedItems.find { it.id == id }
                     if (item != null) {
-                        serveThumbnail(item, output)
+                        serveThumbnail(item, output, clientIp)
                     } else {
                         send404(output)
                     }
@@ -1025,7 +1025,7 @@ object ImavaDropServer {
         }
     }
 
-    private fun serveThumbnail(item: MediaItem, output: OutputStream) {
+    private fun serveThumbnail(item: MediaItem, output: OutputStream, clientIp: String = "127.0.0.1") {
         val ctx = appContext ?: return send404(output)
         try {
             val bitmap: Bitmap? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -1054,7 +1054,7 @@ object ImavaDropServer {
                 output.flush()
             } else {
                 // If thumbnail generation completely fails, stream the file as fallback so UI shows preview
-                serveSingleFile(item, emptyMap(), output)
+                serveSingleFile(item, emptyMap(), output, clientIp)
             }
         } catch (_: Exception) {
             send404(output)
@@ -1124,7 +1124,36 @@ object ImavaDropServer {
         }
     }
 
-    private fun serveSingleFile(item: MediaItem, headers: Map<String, String>, output: OutputStream) {
+    private fun recordTransferHistory(
+        fileName: String,
+        fileSizeBytes: Long,
+        direction: String,
+        clientIp: String,
+        status: String = com.hrshd1eux.imava.data.database.ImavaDropHistoryEntity.STATUS_SUCCESS,
+        mediaUri: String? = null
+    ) {
+        val ctx = appContext ?: return
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val dao = com.hrshd1eux.imava.data.database.GalleryDatabase.getInstance(ctx).imavaDropHistoryDao()
+                dao.insert(
+                    com.hrshd1eux.imava.data.database.ImavaDropHistoryEntity(
+                        fileName = fileName,
+                        fileSizeBytes = fileSizeBytes,
+                        direction = direction,
+                        clientIp = clientIp,
+                        timestamp = System.currentTimeMillis(),
+                        status = status,
+                        mediaUri = mediaUri
+                    )
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun serveSingleFile(item: MediaItem, headers: Map<String, String>, output: OutputStream, clientIp: String = "127.0.0.1") {
         val ctx = appContext ?: return send404(output)
         val fileLength = item.size
         val filename = getFilename(item)
@@ -1163,6 +1192,13 @@ object ImavaDropServer {
                 stream.copyTo(output, 65536)
             }
             output.flush()
+            recordTransferHistory(
+                fileName = filename,
+                fileSizeBytes = fileLength,
+                direction = com.hrshd1eux.imava.data.database.ImavaDropHistoryEntity.DIRECTION_SENT,
+                clientIp = clientIp,
+                mediaUri = item.uri.toString()
+            )
         }
     }
 
@@ -1178,7 +1214,7 @@ object ImavaDropServer {
         }
     }
 
-    private fun serveZipArchive(output: OutputStream) {
+    private fun serveZipArchive(output: OutputStream, clientIp: String = "127.0.0.1") {
         val ctx = appContext ?: return send404(output)
         val items = _state.value.sharedItems
         val dateStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
@@ -1218,6 +1254,13 @@ object ImavaDropServer {
         zipOut.finish()
         zipOut.flush()
         addLog("Zip transfer completed for ${items.size} items.")
+        recordTransferHistory(
+            fileName = zipFilename,
+            fileSizeBytes = _state.value.totalBytes,
+            direction = com.hrshd1eux.imava.data.database.ImavaDropHistoryEntity.DIRECTION_SENT,
+            clientIp = clientIp,
+            mediaUri = null
+        )
     }
 
     private fun handleUpload(
@@ -1312,6 +1355,13 @@ object ImavaDropServer {
 
             addLog("Received from $clientIp: $cleanFilename")
             _state.value = _state.value.copy(filesReceivedCount = _state.value.filesReceivedCount + 1)
+            recordTransferHistory(
+                fileName = cleanFilename,
+                fileSizeBytes = if (contentLength > 0) contentLength else (targetFile?.length() ?: 0L),
+                direction = com.hrshd1eux.imava.data.database.ImavaDropHistoryEntity.DIRECTION_RECEIVED,
+                clientIp = clientIp,
+                mediaUri = targetUri?.toString() ?: targetFile?.let { Uri.fromFile(it).toString() }
+            )
 
             // Trigger real-time callback so the app refreshes gallery instantaneously
             try {

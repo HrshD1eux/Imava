@@ -1499,4 +1499,52 @@
     <string name="unsaved_changes_title">సేవ్ చేయని మార్పులు</string>
     <string name="unsaved_changes_desc">మీ స్టెల్త్ ట్రిగ్గర్ కోడ్‌లో సేవ్ చేయని మార్పులు ఉన్నాయి. వాటిని సేవ్ చేయాలనుకుంటున్నారా లేదా రద్దు చేయాలనుకుంటున్నారా?</string>
     <string name="vault_stealth_code_saved">స్టెల్త్ ట్రిగ్గర్ కోడ్ సేవ్ చేయబడింది</string>
+
+    <!-- Imava Drop Transfer History -->
+    <string name="drop_history_title">బదిలీ చరిత్ర</string>
+    <string name="drop_history_count_fmt">%1$d బదిలీలు నమోదు చేయబడ్డాయి</string>
+    <string name="drop_history_empty">ఇంకా ఎలాంటి బదిలీలు నమోదు కాలేదు</string>
+    <string name="drop_history_clear">చరిత్రను క్లియర్ చేయండి</string>
+    <string name="drop_history_clear_confirm">అన్ని బదిలీ రికార్డులను క్లియర్ చేయాలా? స్వీకరించిన ఫైల్‌లు తొలగించబడవు.</string>
+    <string name="drop_history_sent">పంపినవి</string>
+    <string name="drop_history_received">స్వీకరించినవి</string>
+    <string name="drop_history_filter_all">అన్నీ</string>
+    <string name="drop_history_settings_desc">స్థానిక P2P వై-ఫై బదిలీ లాగ్‌లు మరియు స్వీకరించిన మీడియాను వీక్షించండి</string>
+
+    <!-- App Update Package Size & Fallback -->
+    <string name="update_package_size_fmt">డౌన్‌లోడ్ పరిమాణం: %1$s</string>
+    <string name="update_err_no_apk">ఈ విడుదల కోసం డైరెక్ట్ APK కనుగొనబడలేదు. బ్రౌజర్ తెరవబడుతోంది...</string>
+
+    <!-- What\'s New Feature Highlights -->
+    <string name="settings_whats_new">ఈ అప్‌డేట్‌లో కొత్తవి</string>
+    <string name="settings_whats_new_desc">v%1$s లోని ఫీచర్లు, భద్రతా అప్‌డేట్‌లు మరియు మెరుగుదలలను అన్వేషించండి</string>
+    <string name="whats_new_dialog_title">కొత్తవి ఏమున్నాయి</string>
+    <string name="whats_new_version_fmt">విడుదల v%1$s</string>
+    <string name="whats_new_got_it">అర్థమైంది</string>
+    <string name="wn_v120_keystore_title">హార్డ్‌వేర్ WebDAV ఎన్‌క్రిప్షన్</string>
+    <string name="wn_v120_keystore_desc">క్లౌడ్ మరియు NAS పాస్‌వర్డ్‌లు ఇప్పుడు హార్డ్‌వేర్-సహకార కీస్టోర్ AES-256-GCM ద్వారా రక్షించబడ్డాయి.</string>
+    <string name="wn_v120_vault_iso_title">బయోమెట్రిక్ వాల్ట్ ఐసోలేషన్</string>
+    <string name="wn_v120_vault_iso_desc">దాచిన వాల్ట్ కోసం నిజమైన బయోమెట్రిక్స్ తప్పనిసరి, లాక్‌స్క్రీన్ పిన్ బైపాస్ నిరోధించబడింది.</string>
+    <string name="wn_v120_shake_title">దిశాత్మక అత్యవసర షేక్-టు-లాక్</string>
+    <string name="wn_v120_shake_desc">జేబులోని సాధారణ కదలికలను విస్మరిస్తూ ఖచ్చితమైన సెన్సార్‌తో వాల్ట్‌ను తక్షణమే లాక్ చేస్తుంది.</string>
+    <string name="wn_v120_drop_limit_title">Imava Drop ఫైర్‌వాల్ రేట్ పరిమితి</string>
+    <string name="wn_v120_drop_limit_desc">అనధికార స్థానిక నెట్‌వర్క్ పెయిరింగ్ ప్రయత్నాలను నిరోధించడానికి ఇన్-మెమరీ బ్రూట్-ఫోర్స్ రక్షణ.</string>
+    <string name="wn_v120_drop_history_title">శాశ్వత Imava Drop బదిలీ చరిత్ర</string>
+    <string name="wn_v120_drop_history_desc">సమయం, ఫైల్ పరిమాణం, క్లయింట్ IP మరియు ప్రత్యక్ష ఫైల్ ఓపెనింగ్‌తో ఇన్‌కమింగ్ మరియు అవుట్‌గోయింగ్ బదిలీలను ట్రాక్ చేయండి.</string>
+    <string name="wn_v120_trash_title">స్థానిక స్కోప్డ్ MediaStore ట్రాష్</string>
+    <string name="wn_v120_trash_desc">అనవసరమైన ఫైల్ కాపీలను తొలగిస్తూ Android 11+ స్థానిక స్కోప్డ్ స్టోరేజ్ రీసైక్లింగ్ (IS_TRASHED).</string>
+    <string name="wn_v120_dup_title">మల్టీ-కోర్ నకిలీ గుర్తింపు</string>
+    <string name="wn_v120_dup_desc">16-బిట్ మల్టీ-ఇండెక్స్ బకెటింగ్‌తో సమాంతర కొరూటిన్ పర్సెప్చువల్ హ్యాషింగ్.</string>
+    <string name="wn_v120_zoom_title">అధిక-ఖచ్చితత్వ 20MP+ డీప్ జూమ్</string>
+    <string name="wn_v120_zoom_desc">స్పష్టమైన ఫోటో జూమ్ కోసం 8192px అల్లిక పరిమాణాలు మరియు ఖచ్చితమైన కాయిల్ శాంప్లింగ్.</string>
+    <string name="wn_v120_stealth_title">స్టెల్త్ ట్రిగ్గర్ భద్రత &amp; డ్రాఫ్ట్ గార్డ్</string>
+    <string name="wn_v120_stealth_desc">కేస్-సెన్సిటివ్ వాల్ట్ సెర్చ్ ట్రిగ్గర్, సేవ్ చేయని మార్పుల డైలాగ్ మరియు ఖాళీ డికాయ్ స్థితి.</string>
+    <string name="wn_v112_decoy_title">డైనమిక్ డికాయ్ ఆధారాలు</string>
+    <string name="wn_v112_decoy_desc">ఒత్తిడి రక్షణ డికాయ్ అన్‌లాక్ మాస్టర్ లాక్ రకంతో (సరళి, పిన్, పాస్‌వర్డ్) వేరుచేసిన సాల్ట్‌తో సరిపోలుతుంది.</string>
+    <string name="wn_v112_autofit_title">ఫ్లికర్ రహిత ఆటో-ఫిట్ టైపోగ్రఫీ</string>
+    <string name="wn_v112_autofit_desc">అన్ని స్క్రీన్ సాంద్రతలు మరియు భాషలలో బటన్ టెక్స్ట్ కత్తిరింపును నిరోధించే సింగిల్-పాస్ టెక్స్ట్ స్కేలింగ్.</string>
+    <string name="wn_v42_shredder_title">DoD 5220.22-M ఫైల్ ష్రెడ్డర్</string>
+    <string name="wn_v42_shredder_desc">డేటా రికవరీని నిరోధించడానికి మల్టీ-పాస్ CSPRNG సెక్టార్ జీరోయింగ్ మరియు డైరెక్టరీ అన్‌లింకింగ్.</string>
+    <string name="wn_v42_deepscan_title">సబ్-100ms తక్షణ డీప్ మీడియా స్కాన్</string>
+    <string name="wn_v42_deepscan_desc">మెసేజింగ్ యాప్‌లు మరియు క్లోన్ స్పేస్‌లలో దాచిన మీడియాను కనుగొనడానికి మల్టీ-నమూనా SQLite ఫైల్‌సిస్టమ్ స్కాన్.</string>
 </resources>

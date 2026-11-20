@@ -37,7 +37,8 @@ data class UpdateInfo(
     val latestVersion: String,
     val currentVersion: String,
     val releaseNotes: String,
-    val apkDownloadUrl: String?
+    val apkDownloadUrl: String?,
+    val apkSizeBytes: Long = 0L
 )
 
 sealed class AppUpdateDownloadState {
@@ -140,6 +141,7 @@ object AppUpdateManager {
             )
 
             var apkUrl: String? = null
+            var apkSize: Long = 0L
             val assets = json.optJSONArray("assets")
             if (assets != null) {
                 for (i in 0 until assets.length()) {
@@ -148,6 +150,7 @@ object AppUpdateManager {
                     val browserUrl = asset.optString("browser_download_url", "")
                     if (name.endsWith(".apk", ignoreCase = true)) {
                         apkUrl = browserUrl
+                        apkSize = asset.optLong("size", 0L)
                         break
                     }
                 }
@@ -159,7 +162,8 @@ object AppUpdateManager {
                 latestVersion = latestVersion,
                 currentVersion = currentVersion,
                 releaseNotes = body,
-                apkDownloadUrl = apkUrl
+                apkDownloadUrl = apkUrl,
+                apkSizeBytes = apkSize
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -182,7 +186,22 @@ object AppUpdateManager {
      * Can continue while the app is in the background with ongoing notification.
      */
     fun startOrResumeDownload(context: Context, updateInfo: UpdateInfo) {
-        val downloadUrl = updateInfo.apkDownloadUrl ?: return
+        val downloadUrl = updateInfo.apkDownloadUrl
+        if (downloadUrl.isNullOrBlank()) {
+            android.widget.Toast.makeText(
+                context,
+                LocaleHelper.getString(context, R.string.update_err_no_apk, "No direct APK found for this release."),
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+            val browserUrl = "https://github.com/HrshD1eux/Imava/releases/tag/v${updateInfo.latestVersion}"
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(browserUrl)).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+            } catch (_: Exception) {}
+            return
+        }
         activeUpdateInfo = updateInfo
         isPauseRequested = false
 
@@ -198,6 +217,22 @@ object AppUpdateManager {
         }
 
         if (currentDownloadJob?.isActive == true) return
+
+        val version = updateInfo.latestVersion
+        val initialBytes = try {
+            val part = File(File(context.cacheDir, "updates"), "update_${version}.apk.part")
+            if (part.exists()) part.length() else 0L
+        } catch (_: Exception) { 0L }
+
+        // Immediately update state so UI transitions in 0 milliseconds
+        val knownTotal = if (updateInfo.apkSizeBytes > 0L) updateInfo.apkSizeBytes else 0L
+        val initialPct = if (knownTotal > 0L) ((initialBytes * 100) / knownTotal).toInt().coerceIn(0, 100) else 0
+        _downloadState.value = AppUpdateDownloadState.Downloading(
+            progress = initialPct,
+            downloadedBytes = initialBytes,
+            totalBytes = knownTotal,
+            version = version
+        )
 
         currentDownloadJob = downloadScope.launch {
             val version = updateInfo.latestVersion
@@ -292,6 +327,8 @@ object AppUpdateManager {
                         existingBytes + streamLength
                     } else if (streamLength > 0) {
                         streamLength
+                    } else if (updateInfo.apkSizeBytes > 0L) {
+                        updateInfo.apkSizeBytes
                     } else {
                         0L
                     }

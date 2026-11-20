@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Code
@@ -91,6 +92,7 @@ fun AboutLegalScreen(
     var isCheckingUpdates by remember { mutableStateOf(false) }
     var updateResult by remember { mutableStateOf<UpdateInfo?>(null) }
     var showUpToDateDialog by remember { mutableStateOf(false) }
+    var showWhatsNewDialog by remember { mutableStateOf(false) }
     val downloadState by AppUpdateManager.downloadState.collectAsState()
 
     val packageInfo = remember(context) {
@@ -200,40 +202,54 @@ fun AboutLegalScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Button(
-                        onClick = {
-                            if (!isCheckingUpdates) {
-                                isCheckingUpdates = true
-                                scope.launch {
-                                    try {
-                                        val info = AppUpdateManager.checkForUpdates(context)
-                                        updateResult = info
-                                        if (!info.hasUpdate) {
-                                            showUpToDateDialog = true
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                if (!isCheckingUpdates) {
+                                    isCheckingUpdates = true
+                                    scope.launch {
+                                        try {
+                                            val info = AppUpdateManager.checkForUpdates(context)
+                                            updateResult = info
+                                            if (!info.hasUpdate) {
+                                                showUpToDateDialog = true
+                                            }
+                                        } catch (_: Exception) {
+                                            android.widget.Toast.makeText(context, context.getString(R.string.about_update_check_failed), android.widget.Toast.LENGTH_SHORT).show()
+                                        } finally {
+                                            isCheckingUpdates = false
                                         }
-                                    } catch (_: Exception) {
-                                        android.widget.Toast.makeText(context, context.getString(R.string.about_update_check_failed), android.widget.Toast.LENGTH_SHORT).show()
-                                    } finally {
-                                        isCheckingUpdates = false
                                     }
                                 }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (isCheckingUpdates) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(18.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(stringResource(R.string.about_checking_updates))
+                            } else {
+                                Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(stringResource(R.string.about_check_for_updates))
                             }
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (isCheckingUpdates) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.about_checking_updates))
-                        } else {
-                            Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.about_check_for_updates))
+                        }
+
+                        OutlinedButton(
+                            onClick = { showWhatsNewDialog = true },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(stringResource(R.string.whats_new_dialog_title))
                         }
                     }
 
@@ -598,6 +614,9 @@ fun AboutLegalScreen(
                     }
                 }
             )
+        }
+        if (showWhatsNewDialog) {
+            WhatsNewDialog(onDismissRequest = { showWhatsNewDialog = false })
         }
     }
 }

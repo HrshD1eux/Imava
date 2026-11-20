@@ -128,6 +128,7 @@
 | **Background Service & Wi-Fi Lock** | `ImavaDropService.kt`, `WifiManager.WifiLock` | Runs as a foreground service with high-performance Wi-Fi lock. Minimizing the app or turning off the screen does **not** terminate transfers. |
 | **Offline Hotspot Fallback Guidance** | `ImavaDropDialog.kt` | Automatically detects when no Wi-Fi router is present and displays a 1-tap responsive guidance banner routing the user to Android Hotspot settings, enabling offline 80–100 MB/s transfers anywhere without internet or permissions. |
 | **System Share Sheet Entry ("Imava Drop")** | `ImavaDropShareActivity.kt`, `ImavaDropShareHelper.kt` | Appears directly in Android's System Share Sheet (`ACTION_SEND` / `ACTION_SEND_MULTIPLE` for `image/*` and `video/*`). Stages external `content://` FileProvider URIs cleanly so you can drop photos or videos straight from WhatsApp, Chrome, or Telegram onto your PC without unlocking the main gallery. |
+| **Persistent Transfer History & Audit Trail** | `ImavaDropHistoryDao.kt`, `ImavaDropHistoryDialog.kt` | Room-backed audit log (`imava_drop_history`) recording sent and received files, exact byte sizes, client IP address, timestamps, direction filter chips (All/Sent/Received), and 1-tap direct opening of received media. |
 
 ---
 
@@ -204,3 +205,5 @@ Subtle, high-leverage features built natively into Imava that solve daily mobile
 16. **Discrete Laplacian Blurry Photo Detector**: Pure-math edge variance analysis on downscaled thumbnails to flag out-of-focus or motion-blurred shots in milliseconds with zero ML bloat.
 17. **Deterministic Smart Albums**: Instant rule-based classification for giant videos (>500MB), burst sequences, screenshots, current-year captures, and user-tagged media without heavy AI models.
 18. **Zero-Flicker Synchronous Auto-Fit Typography Engine**: Single-pass `rememberTextMeasurer` layout engine that dynamically scales action button typography down to fit compact viewports (320dp/360dp) across all 13 supported languages.
+19. **In-App What's New Interactive Hub**: In-app categorized release highlights with version history chips (`v1.1.120`, `v1.1.112`, `v1.1.42`) directly reachable from Settings and About & Legal.
+20. **Responsive Zero-Latency App Updater**: Instantaneous download transition with direct GitHub asset byte sizing and automated fallback to browser downloads when standalone APK assets are absent.
