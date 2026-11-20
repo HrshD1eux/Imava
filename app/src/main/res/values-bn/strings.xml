@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">ডেটা রিকভারি রোধ করতে মাল্টি-পাস CSPRNG সেক্টর জিরোয়িং এবং ডিরেক্টরি আনলিঙ্কিং।</string>
     <string name="wn_v42_deepscan_title">সাব-100ms তাৎক্ষণিক ডিপ মিডিয়া স্ক্যান</string>
     <string name="wn_v42_deepscan_desc">মেসেজিং অ্যাপ এবং ক্লোন স্পেসের লুকানো মিডিয়া উন্মোচনে মাল্টি-প্যাটার্ন SQLite ফাইলসিস্টেম স্ক্যান।</string>
+    <string name="wn_v121_whats_new_title">ইন-অ্যাপ রিলিজ নোট হাব</string>
+    <string name="wn_v121_whats_new_desc">সেটিংস এবং অ্যাবাউটে সংস্করণ ইতিহাস চিপসহ শ্রেণীবদ্ধ রিলিজ প্রদর্শন।</string>
+    <string name="wn_v121_updater_title">ল্যাটেন্সিহীন অ্যাপ আপডেটার</string>
+    <string name="wn_v121_updater_desc">GitHub থেকে প্যাকেজের আকার শনাক্তকরণ এবং ব্রাউজার ডাউনলোডের বিকল্পসহ তাৎক্ষণিক UI ডাউনলোড।</string>
+    <string name="wn_v121_perm_title">নির্ভরযোগ্য অনুমতি নিয়ন্ত্রণ</string>
+    <string name="wn_v121_perm_desc">হ্যাপটিক ফিডব্যাকযুক্ত সহজলভ্য 50dp টগল যা OEM স্ক্রিনে মিস টাচ প্রতিরোধ করে।</string>
+    <string name="wn_v119_vault_cache_title">ভল্ট স্ট্রিমিং ও ডিক্রিপশন পাইপলাইন</string>
+    <string name="wn_v119_vault_cache_desc">এনক্রিপ্ট করা ভল্ট ভিডিও এবং উচ্চ-রেজোলিউশনের ছবি ক্যাশিংয়ের জন্য ক্ষণস্থায়ী প্লেব্যাক পুনঃস্থাপন।</string>
+    <string name="wn_v119_decoy_loading_title">খালি ডিকয় ভল্ট লোডিং সমাধান</string>
+    <string name="wn_v119_decoy_loading_desc">খালি ডিকয় ভল্টে সরাসরি খালি অবস্থা দেখিয়ে অনন্ত লোডিং স্পিনারের সমস্যা সমাধান করা হয়েছে।</string>
+    <string name="wn_v119_atomic_delete_title">MediaStore পারমাণবিক অপসারণ</string>
+    <string name="wn_v119_atomic_delete_desc">MediaStore থেকে পারমাণবিক অপসারণ এবং আসল ও নকল ভল্টের মধ্যে কঠোর SQLite বিচ্ছিন্নতা নিশ্চিত।</string>
 </resources>

@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">Sobrescrita de setores CSPRNG multipasse e desvinculação para eliminação irrecuperável.</string>
     <string name="wn_v42_deepscan_title">Verificação profunda instantânea (&lt;100ms)</string>
     <string name="wn_v42_deepscan_desc">Extração SQLite multipadrão que encontra mídias ocultas de apps de mensagens e espaços clonados.</string>
+    <string name="wn_v121_whats_new_title">Central de novidades integrada</string>
+    <string name="wn_v121_whats_new_desc">Exibição categorizada em Configurações e Sobre com seletor de histórico de versões.</string>
+    <string name="wn_v121_updater_title">Atualizador sem latência</string>
+    <string name="wn_v121_updater_desc">Transição imediata de download na interface com tamanho do pacote do GitHub e fallback no navegador.</string>
+    <string name="wn_v121_perm_title">Controles táteis de permissões</string>
+    <string name="wn_v121_perm_desc">Seletor segmentado acessível de 50dp com resposta tátil que evita toques perdidos em telas OEM.</string>
+    <string name="wn_v119_vault_cache_title">Canal de reprodução e descriptografia do cofre</string>
+    <string name="wn_v119_vault_cache_desc">Pipelines de reprodução efêmeros restaurados para vídeos criptografados e cache de fotos de alta resolução no cofre.</string>
+    <string name="wn_v119_decoy_loading_title">Correção de estado vazio no cofre falso</string>
+    <string name="wn_v119_decoy_loading_desc">Corrigido o carregamento infinito em cofres falsos vazios exibindo o estado neutro imediatamente.</string>
+    <string name="wn_v119_atomic_delete_title">Exclusão atômica no MediaStore</string>
+    <string name="wn_v119_atomic_delete_desc">Exclusão atômica garantida no MediaStore e isolamento estrito SQLite entre o cofre real e o falso.</string>
 </resources>

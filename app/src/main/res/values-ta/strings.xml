@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">தரவு மீட்டெடுப்பைத் தடுக்க பல-பாஸ் CSPRNG துறை பூஜ்ஜியமாக்கல் மற்றும் கோப்பக இணைப்பு நீக்கம்.</string>
     <string name="wn_v42_deepscan_title">சப்-100ms உடனடி ஆழமான ஊடக ஸ்கேன்</string>
     <string name="wn_v42_deepscan_desc">செய்தியிடல் பயன்பாடுகள் மற்றும் குளோன் இடைவெளிகளில் மறைக்கப்பட்ட ஊடகங்களை வெளிக்கொணர பல-முறைமை SQLite ஸ்கேன்.</string>
+    <string name="wn_v121_whats_new_title">பயன்பாட்டின் புதிய வெளியீட்டு மையம்</string>
+    <string name="wn_v121_whats_new_desc">அமைப்புகள் மற்றும் அறிமுகத்தில் பதிப்பு வரலாற்று சில்லுகளுடன் வகைப்படுத்தப்பட்ட அம்சங்கள்.</string>
+    <string name="wn_v121_updater_title">தாமதமில்லா புதுப்பிப்பாளர்</string>
+    <string name="wn_v121_updater_desc">GitHub-லிருந்து தொகுப்பு அளவு கண்டறிதல் மற்றும் உலாவி பதிவிறக்க ஆதரவுடன் உடனடி பதிவிறக்கம்.</string>
+    <string name="wn_v121_perm_title">துல்லியமான அனுமதி கட்டுப்பாடுகள்</string>
+    <string name="wn_v121_perm_desc">OEM திரைகளில் தவறான தொடுதல்களைத் தடுக்கும் ஹாப்டிக் பின்னூட்டத்துடன் கூடிய அணுகக்கூடிய 50dp மாற்றி.</string>
+    <string name="wn_v119_vault_cache_title">வால்ட் பிளேபேக் மற்றும் மறைகுறியாக்க பைப்லைன்</string>
+    <string name="wn_v119_vault_cache_desc">மறைகுறியாக்கப்பட்ட பெட்டக வீடியோ மற்றும் உயர் தெளிவுத்திறன் புகைப்படங்களுக்கான தற்காலிக பிளேபேக் மீட்பு.</string>
+    <string name="wn_v119_decoy_loading_title">வெற்று போலி பெட்டக ஏற்றுதல் தீர்வு</string>
+    <string name="wn_v119_decoy_loading_desc">வெற்று போலி பெட்டகத்தில் உடனடி வெற்று நிலையை காண்பிப்பதன் மூலம் சுழல் ஏற்றுதல் சரி செய்யப்பட்டது.</string>
+    <string name="wn_v119_atomic_delete_title">MediaStore அணு நீக்கம்</string>
+    <string name="wn_v119_atomic_delete_desc">MediaStore-லிருந்து பாதுகாப்பான நீக்கம் மற்றும் அசல், போலி பெட்டகங்களுக்கிடையேயான கடுமையான SQLite தனிமைப்படுத்தல்.</string>
 </resources>

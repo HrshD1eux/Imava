@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">Sobreescritura de sectores CSPRNG multipaso y desenlace de directorio para borrado antirrecuperación.</string>
     <string name="wn_v42_deepscan_title">Escaneo profundo instantáneo de medios (&lt;100ms)</string>
     <string name="wn_v42_deepscan_desc">Extracción SQLite multipatrón que desentierra medios ocultos en apps de mensajería y espacios clonados.</string>
+    <string name="wn_v121_whats_new_title">Centro de novedades integrado</string>
+    <string name="wn_v121_whats_new_desc">Visualización categorizada en Ajustes e Información y legal con selector de historial de versiones.</string>
+    <string name="wn_v121_updater_title">Actualizador sin latencia</string>
+    <string name="wn_v121_updater_desc">Transición instantánea de descarga en interfaz con detección de tamaño desde GitHub y descarga alternativa en navegador.</string>
+    <string name="wn_v121_perm_title">Controles táctiles de permisos</string>
+    <string name="wn_v121_perm_desc">Selector segmentado accesible de 50dp con respuesta háptica que previene pulsaciones perdidas en pantallas OEM.</string>
+    <string name="wn_v119_vault_cache_title">Canal de descifrado y reproducción de bóveda</string>
+    <string name="wn_v119_vault_cache_desc">Canales de reproducción efímeros restablecidos para vídeos cifrados y caché de fotos de alta resolución en la bóveda.</string>
+    <string name="wn_v119_decoy_loading_title">Corrección de estado vacío en bóveda falsa</string>
+    <string name="wn_v119_decoy_loading_desc">Corregido el indicador de carga infinita en bóvedas señuelo vacías mostrando el estado vacío de inmediato.</string>
+    <string name="wn_v119_atomic_delete_title">Desvinculación atómica de MediaStore</string>
+    <string name="wn_v119_atomic_delete_desc">Eliminación atómica garantizada en MediaStore y aislamiento estricto de SQLite entre bóveda real y señuelo.</string>
 </resources>

@@ -9,9 +9,12 @@ import org.junit.Test
 class WhatsNewRepositoryTest {
 
     @Test
-    fun testGetReleasesIsNotEmpty() {
+    fun testGetReleasesContainsCurrentAndLastTwoVersions() {
         val releases = WhatsNewRepository.getReleases()
-        assertFalse("Releases list should not be empty", releases.isEmpty())
+        assertEquals("Should contain exactly 3 releases (current and last 2)", 3, releases.size)
+        assertEquals(WhatsNewRepository.CURRENT_VERSION_NAME, releases[0].version)
+        assertEquals("1.1.120", releases[1].version)
+        assertEquals("1.1.119", releases[2].version)
     }
 
     @Test
@@ -21,7 +24,7 @@ class WhatsNewRepositoryTest {
         assertEquals(WhatsNewRepository.CURRENT_VERSION_NAME, latest.version)
         assertTrue("Latest release must be marked current", latest.isCurrent)
         assertFalse("Items for latest release must not be empty", latest.items.isEmpty())
-        assertTrue("Items count should cover all major changes", latest.items.size >= 8)
+        assertTrue("Items count should cover all major changes", latest.items.size >= 4)
     }
 
     @Test
@@ -45,8 +48,12 @@ class WhatsNewRepositoryTest {
         assertNotNull("${WhatsNewRepository.CURRENT_VERSION_NAME} must exist", vLatest)
         assertEquals(WhatsNewRepository.CURRENT_VERSION_NAME, vLatest?.version)
 
-        val v112 = releases.find { it.version == "1.1.112" }
-        assertNotNull("1.1.112 must exist", v112)
-        assertEquals("1.1.112", v112?.version)
+        val v120 = releases.find { it.version == "1.1.120" }
+        assertNotNull("1.1.120 must exist", v120)
+        assertEquals("1.1.120", v120?.version)
+
+        val v119 = releases.find { it.version == "1.1.119" }
+        assertNotNull("1.1.119 must exist", v119)
+        assertEquals("1.1.119", v119?.version)
     }
 }

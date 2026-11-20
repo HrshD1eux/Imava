@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">ડેટા પુનઃપ્રાપ્તિ અટકાવવા માટે મલ્ટી-પાસ CSPRNG સેક્ટર ઝીરોઇંગ અને ડિરેક્ટરી અનલિંકિંગ.</string>
     <string name="wn_v42_deepscan_title">સબ-100ms ત્વરિત ડીપ મીડિયા સ્કેન</string>
     <string name="wn_v42_deepscan_desc">મેસેજિંગ એપ્સ અને ક્લોન સ્પેસમાં છુપાયેલા મીડિયાને શોધવા માટે મલ્ટી-પેટર્ન SQLite સ્કેન.</string>
+    <string name="wn_v121_whats_new_title">ઇન-એપ રિલીઝ નોટ્સ હબ</string>
+    <string name="wn_v121_whats_new_desc">સેટિંગ્સ અને અબાઉટમાં વર્ઝન ઇતિહાસ ચિપ્સ સાથે વર્ગીકૃત રિલીઝ સુવિધાઓ.</string>
+    <string name="wn_v121_updater_title">શૂન્ય-વિલંબિત એપ અપડેટર</string>
+    <string name="wn_v121_updater_desc">GitHub પરથી પેકેજ સાઇઝ શોધ અને બ્રાઉઝર ડાઉનલોડ વિકલ્પ સાથે તાત્કાલિક UI ડાઉનલોડ શરૂઆત.</string>
+    <string name="wn_v121_perm_title">ચોક્કસ પરવાનગી નિયંત્રણો</string>
+    <string name="wn_v121_perm_desc">હેપ્ટિક ફીડબેક સાથે સુલભ 50dp ટોગલ જે OEM સ્ક્રીન પર મિસ ટચ અટકાવે છે.</string>
+    <string name="wn_v119_vault_cache_title">વોલ્ટ પ્લેબેક અને ડિક્રિપ્શન પાઇપલાઇન</string>
+    <string name="wn_v119_vault_cache_desc">એન્ક્રિપ્ટેડ વોલ્ટ વિડિઓ અને ઉચ્ચ-રિઝોલ્યુશન ફોટો કેશિંગ માટે અસ્થાયી પ્લેબેક પાઇપલાઇન પુનઃસ્થાપિત.</string>
+    <string name="wn_v119_decoy_loading_title">ખાલી નકલી વોલ્ટ લોડિંગ સુધારો</string>
+    <string name="wn_v119_decoy_loading_desc">ખાલી નકલી વોલ્ટ પર તાત્કાલિક ખાલી સ્થિતિ બતાવીને અનંત લોડિંગ સ્પિનરની સમસ્યા ઉકેલી.</string>
+    <string name="wn_v119_atomic_delete_title">MediaStore સુરક્ષિત નિકાલ</string>
+    <string name="wn_v119_atomic_delete_desc">MediaStore માંથી સુરક્ષિત નિકાલ અને વાસ્તવિક તેમજ નકલી વોલ્ટ વચ્ચે કડક SQLite અલગતા.</string>
 </resources>

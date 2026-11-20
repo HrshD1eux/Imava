@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">डेटा पुनर्प्राप्ती रोखण्यासाठी मल्टी-पास CSPRNG सेक्टर झिरोइंग आणि डायरेक्टरी अनलिंकिंग.</string>
     <string name="wn_v42_deepscan_title">उप-100ms त्वरित डीप मीडिया स्कॅन</string>
     <string name="wn_v42_deepscan_desc">मेसेजिंग ॲप्स आणि क्लोन स्पेसमध्ये लपलेला मीडिया शोधण्यासाठी मल्टी-पॅटर्न SQLite स्कॅन.</string>
+    <string name="wn_v121_whats_new_title">इन-ॲप रिलीज नोट्स केंद्र</string>
+    <string name="wn_v121_whats_new_desc">सेटिंग्ज आणि अ‍ॅबाउटमध्ये आवृत्ती इतिहास चिप्ससह वर्गीकृत वैशिष्ट्ये पहा.</string>
+    <string name="wn_v121_updater_title">शून्य-विलंबता ॲप अपडेटर</string>
+    <string name="wn_v121_updater_desc">GitHub कडून पॅकेज आकार शोधणे आणि ब्राउझर डाउनलोड पर्यायासह त्वरित UI डाउनलोड सुरुवात.</string>
+    <string name="wn_v121_perm_title">सुलभ परवानगी नियंत्रणे</string>
+    <string name="wn_v121_perm_desc">हॅप्टिक फीडबॅकसह सुलभ 50dp टॉगल जे OEM स्क्रीनवर चुकीचे टच टाळते.</string>
+    <string name="wn_v119_vault_cache_title">व्हॉल्ट प्लेबॅक आणि डिक्रिप्शन पाइपलाइन</string>
+    <string name="wn_v119_vault_cache_desc">एनक्रिप्ट केलेल्या व्हॉल्ट व्हिडिओ आणि उच्च-रिझोल्यूशन फोटो कॅशिंगसाठी तात्पुरती प्लेबॅक पाइपलाइन पुनर्संचयित.</string>
+    <string name="wn_v119_decoy_loading_title">रिकाम्या बनावट व्हॉल्ट लोडिंग सुधारणा</string>
+    <string name="wn_v119_decoy_loading_desc">रिकाम्या बनावट व्हॉल्टवर त्वरित रिक्त स्थिती दाखवून अखंड लोडिंग स्पिनरची समस्या सोडवली.</string>
+    <string name="wn_v119_atomic_delete_title">MediaStore सुरक्षित हटवणे</string>
+    <string name="wn_v119_atomic_delete_desc">MediaStore मधून सुरक्षित हटवणे आणि मूळ व बनावट व्हॉल्टमध्ये कठोर SQLite अलगीकरण.</string>
 </resources>

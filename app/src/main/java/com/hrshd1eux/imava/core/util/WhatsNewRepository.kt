@@ -33,6 +33,32 @@ object WhatsNewRepository {
                 isCurrent = true,
                 items = listOf(
                     WhatsNewItem(
+                        titleRes = R.string.wn_v120_drop_history_title,
+                        descRes = R.string.wn_v120_drop_history_desc,
+                        category = WhatsNewCategory.FEATURES
+                    ),
+                    WhatsNewItem(
+                        titleRes = R.string.wn_v121_whats_new_title,
+                        descRes = R.string.wn_v121_whats_new_desc,
+                        category = WhatsNewCategory.FEATURES
+                    ),
+                    WhatsNewItem(
+                        titleRes = R.string.wn_v121_updater_title,
+                        descRes = R.string.wn_v121_updater_desc,
+                        category = WhatsNewCategory.PERFORMANCE
+                    ),
+                    WhatsNewItem(
+                        titleRes = R.string.wn_v121_perm_title,
+                        descRes = R.string.wn_v121_perm_desc,
+                        category = WhatsNewCategory.FIXES
+                    )
+                )
+            ),
+            VersionRelease(
+                version = "1.1.120",
+                isCurrent = false,
+                items = listOf(
+                    WhatsNewItem(
                         titleRes = R.string.wn_v120_keystore_title,
                         descRes = R.string.wn_v120_keystore_desc,
                         category = WhatsNewCategory.SECURITY
@@ -51,11 +77,6 @@ object WhatsNewRepository {
                         titleRes = R.string.wn_v120_drop_limit_title,
                         descRes = R.string.wn_v120_drop_limit_desc,
                         category = WhatsNewCategory.SECURITY
-                    ),
-                    WhatsNewItem(
-                        titleRes = R.string.wn_v120_drop_history_title,
-                        descRes = R.string.wn_v120_drop_history_desc,
-                        category = WhatsNewCategory.FEATURES
                     ),
                     WhatsNewItem(
                         titleRes = R.string.wn_v120_trash_title,
@@ -80,34 +101,23 @@ object WhatsNewRepository {
                 )
             ),
             VersionRelease(
-                version = "1.1.112",
+                version = "1.1.119",
                 isCurrent = false,
                 items = listOf(
                     WhatsNewItem(
-                        titleRes = R.string.wn_v112_decoy_title,
-                        descRes = R.string.wn_v112_decoy_desc,
-                        category = WhatsNewCategory.SECURITY
+                        titleRes = R.string.wn_v119_vault_cache_title,
+                        descRes = R.string.wn_v119_vault_cache_desc,
+                        category = WhatsNewCategory.FIXES
                     ),
                     WhatsNewItem(
-                        titleRes = R.string.wn_v112_autofit_title,
-                        descRes = R.string.wn_v112_autofit_desc,
-                        category = WhatsNewCategory.FEATURES
-                    )
-                )
-            ),
-            VersionRelease(
-                version = "1.1.42",
-                isCurrent = false,
-                items = listOf(
-                    WhatsNewItem(
-                        titleRes = R.string.wn_v42_shredder_title,
-                        descRes = R.string.wn_v42_shredder_desc,
-                        category = WhatsNewCategory.SECURITY
+                        titleRes = R.string.wn_v119_decoy_loading_title,
+                        descRes = R.string.wn_v119_decoy_loading_desc,
+                        category = WhatsNewCategory.FIXES
                     ),
                     WhatsNewItem(
-                        titleRes = R.string.wn_v42_deepscan_title,
-                        descRes = R.string.wn_v42_deepscan_desc,
-                        category = WhatsNewCategory.PERFORMANCE
+                        titleRes = R.string.wn_v119_atomic_delete_title,
+                        descRes = R.string.wn_v119_atomic_delete_desc,
+                        category = WhatsNewCategory.SECURITY
                     )
                 )
             )

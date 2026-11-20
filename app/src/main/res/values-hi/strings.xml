@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">डेटा पुनर्प्राप्ति को रोकने के लिए मल्टी-पास CSPRNG सेक्टर ज़ीरोइंग और डायरेक्टरी अनलिंकिंग।</string>
     <string name="wn_v42_deepscan_title">उप-100ms त्वरित डीप मीडिया स्कैन</string>
     <string name="wn_v42_deepscan_desc">मल्टी-पैटर्न SQLite फ़ाइलसिस्टम स्कैन मैसेजिंग ऐप्स और क्लोन स्पेस में छिपे मीडिया को तुरंत ढूंढता है।</string>
+    <string name="wn_v121_whats_new_title">इन-ऐप रिलीज़ नोट्स हब</string>
+    <string name="wn_v121_whats_new_desc">सेटिंग्स और अबाउट में वर्शन हिस्ट्री चिप्स के साथ वर्गीकृत रिलीज़ विवरण।</string>
+    <string name="wn_v121_updater_title">शून्य-विलंबता ऐप अपडेटर</string>
+    <string name="wn_v121_updater_desc">GitHub से पैकेज साइज़ और ब्राउज़र डाउनलोड फ़ॉलबैक के साथ तत्काल UI डाउनलोड शुरुआत।</string>
+    <string name="wn_v121_perm_title">सुगम परमिशन नियंत्रण</string>
+    <string name="wn_v121_perm_desc">हैप्टिक फीडबैक के साथ सुलभ 50dp टॉगल जो OEM स्क्रीन पर मिस टच को रोकता है।</string>
+    <string name="wn_v119_vault_cache_title">वॉल्ट प्लेबैक व डिक्रिप्शन पाइपलाइन</string>
+    <string name="wn_v119_vault_cache_desc">एन्क्रिप्टेड वॉल्ट वीडियो और हाई-रेज़ोल्यूशन फोटो कैश के लिए तात्कालिक प्लेबैक पाइपलाइन बहाल।</string>
+    <string name="wn_v119_decoy_loading_title">खाली नकली वॉल्ट लोडिंग समाधान</string>
+    <string name="wn_v119_decoy_loading_desc">खाली नकली वॉल्ट में तुरंत खाली स्थिति दिखाकर अनंत लोडिंग स्पिनर की समस्या हल की गई।</string>
+    <string name="wn_v119_atomic_delete_title">MediaStore का सुरक्षित निष्कासन</string>
+    <string name="wn_v119_atomic_delete_desc">MediaStore से सुरक्षित निष्कासन और असली व नकली वॉल्ट में पूर्ण SQLite अलगाव सुनिश्चित।</string>
 </resources>

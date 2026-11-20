@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">Mehrfaches CSPRNG-Sektor-Überschreiben und Verzeichnisentkopplung für unumkehrbare Datenlöschung.</string>
     <string name="wn_v42_deepscan_title">Sub-100ms Instant Deep Media Scan</string>
     <string name="wn_v42_deepscan_desc">Multi-Muster SQLite-Dateisystemanalyse entdeckt versteckte Medien aus Messaging-Apps und geklonten Bereichen.</string>
+    <string name="wn_v121_whats_new_title">In-App Neuigkeiten-Hub</string>
+    <string name="wn_v121_whats_new_desc">Kategorisierte Versionsübersicht in Einstellungen und Über die App mit Versionsauswahl-Chips.</string>
+    <string name="wn_v121_updater_title">Latenzfreier App-Updater</string>
+    <string name="wn_v121_updater_desc">Sofortiger UI-Download-Start mit direkter GitHub-Paketgrößenermittlung und Browser-Download-Fallback.</string>
+    <string name="wn_v121_perm_title">Präzise Berechtigungssteuerung</string>
+    <string name="wn_v121_perm_desc">Barrierefreier 50dp segmentierter Umschalter mit haptischem Feedback gegen Fehlbedienungen auf OEM-Displays.</string>
+    <string name="wn_v119_vault_cache_title">Tresor-Streaming und Entschlüsselung</string>
+    <string name="wn_v119_vault_cache_desc">Wiederhergestellte temporäre Wiedergabe-Pipelines für verschlüsselte Tresorvideos und hochauflösenden Foto-Cache.</string>
+    <string name="wn_v119_decoy_loading_title">Fehlerbehebung für leeren Scheintresor</string>
+    <string name="wn_v119_decoy_loading_desc">Endlose Ladeanzeige bei leerem Scheintresor behoben durch sofortiges Anzeigen des neutralen Leerzustands.</string>
+    <string name="wn_v119_atomic_delete_title">Atomare MediaStore-Entkopplung</string>
+    <string name="wn_v119_atomic_delete_desc">Atomares Löschen in MediaStore und strikte SQLite-Isolation zwischen echtem Tresor und Scheintresor.</string>
 </resources>

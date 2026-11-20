@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">డేటా రికవరీని నిరోధించడానికి మల్టీ-పాస్ CSPRNG సెక్టార్ జీరోయింగ్ మరియు డైరెక్టరీ అన్‌లింకింగ్.</string>
     <string name="wn_v42_deepscan_title">సబ్-100ms తక్షణ డీప్ మీడియా స్కాన్</string>
     <string name="wn_v42_deepscan_desc">మెసేజింగ్ యాప్‌లు మరియు క్లోన్ స్పేస్‌లలో దాచిన మీడియాను కనుగొనడానికి మల్టీ-నమూనా SQLite ఫైల్‌సిస్టమ్ స్కాన్.</string>
+    <string name="wn_v121_whats_new_title">ఇన్-యాప్ విడుదల గమనికల కేంద్రం</string>
+    <string name="wn_v121_whats_new_desc">సెట్టింగ్‌లు మరియు అబౌట్‌లో సంస్కరణ చరిత్ర చిప్‌లతో వర్గీకరించబడిన ఫీచర్లు చూడండి.</string>
+    <string name="wn_v121_updater_title">సున్నా-జాప్యం యాప్ అప్‌డేటర్</string>
+    <string name="wn_v121_updater_desc">GitHub నుండి ప్యాకేజీ పరిమాణ గుర్తింపు మరియు బ్రౌజర్ డౌన్‌లోడ్ ఎంపికతో తక్షణ UI డౌన్‌లోడ్ ప్రారంభం.</string>
+    <string name="wn_v121_perm_title">ఖచ్చితమైన అనుమతి నియంత్రణలు</string>
+    <string name="wn_v121_perm_desc">OEM స్క్రీన్‌లపై మిస్ టచ్‌లను నివారించే హాప్టిక్ ఫీడ్‌బ్యాక్‌తో కూడిన 50dp సెగ్మెంటెడ్ టోగుల్.</string>
+    <string name="wn_v119_vault_cache_title">వాల్ట్ ప్లేబ్యాక్ &amp; డిక్రిప్షన్ పైప్‌లైన్</string>
+    <string name="wn_v119_vault_cache_desc">ఎన్‌క్రిప్ట్ చేయబడిన వాల్ట్ వీడియో మరియు అధిక-రిజల్యూషన్ ఫోటో కాషింగ్ కోసం తాత్కాలిక ప్లేబ్యాక్ పునరుద్ధరణ.</string>
+    <string name="wn_v119_decoy_loading_title">ఖాళీ డికాయ్ వాల్ట్ లోడింగ్ పరిష్కారం</string>
+    <string name="wn_v119_decoy_loading_desc">ఖాళీ డికాయ్ వాల్ట్‌లో తక్షణ ఖాళీ స్థితిని చూపడం ద్వారా అంతులేని లోడింగ్ సమస్య పరిష్కరించబడింది.</string>
+    <string name="wn_v119_atomic_delete_title">MediaStore అటామిక్ తొలగింపు</string>
+    <string name="wn_v119_atomic_delete_desc">MediaStore నుండి సురక్షిత తొలగింపు మరియు అసలు, డికాయ్ వాల్ట్‌ల మధ్య కఠినమైన SQLite ఐసోలేషన్.</string>
 </resources>

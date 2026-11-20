@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">Multi-pass CSPRNG sector zeroing and directory unlinking for anti-recovery data erasure.</string>
     <string name="wn_v42_deepscan_title">Sub-100ms Instant Deep Media Scan</string>
     <string name="wn_v42_deepscan_desc">Multi-pattern SQLite filesystem carving unearthing hidden media across messaging apps and cloned spaces.</string>
+    <string name="wn_v121_whats_new_title">In-App Release Notes Hub</string>
+    <string name="wn_v121_whats_new_desc">Categorized release showcase in Settings and About &amp; Legal with version history chips.</string>
+    <string name="wn_v121_updater_title">Zero-Latency App Updater</string>
+    <string name="wn_v121_updater_desc">Instant UI download transition with direct GitHub package size extraction and browser download fallback.</string>
+    <string name="wn_v121_perm_title">High-Tactile Permission Controls</string>
+    <string name="wn_v121_perm_desc">Accessible 50dp high segmented toggle with haptic feedback, eliminating missed touches across diverse OEM screens.</string>
+    <string name="wn_v119_vault_cache_title">Vault Stream &amp; Decryption Pipeline</string>
+    <string name="wn_v119_vault_cache_desc">Restored ephemeral playback pipelines for encrypted vault video and high-resolution photo caching.</string>
+    <string name="wn_v119_decoy_loading_title">Decoy Empty State Fix</string>
+    <string name="wn_v119_decoy_loading_desc">Resolved infinite loading spinner on empty decoy vaults by serving immediate empty collection state.</string>
+    <string name="wn_v119_atomic_delete_title">Atomic MediaStore Unlinking</string>
+    <string name="wn_v119_atomic_delete_desc">Enforced atomic MediaStore deletion and strict decoy and master vault SQLite isolation.</string>
 </resources>

@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">Многопроходное обнуление секторов CSPRNG и отсоединение каталога для безвозвратного удаления.</string>
     <string name="wn_v42_deepscan_title">Мгновенное глубокое сканирование (&lt;100мс)</string>
     <string name="wn_v42_deepscan_desc">Многошаблонный парсинг SQLite находит скрытые файлы из мессенджеров и клонированных пространств.</string>
+    <string name="wn_v121_whats_new_title">Встроенный центр обновлений</string>
+    <string name="wn_v121_whats_new_desc">Категоризированный обзор в Настройках и О приложении с переключателем версий.</string>
+    <string name="wn_v121_updater_title">Мгновенный загрузчик обновлений</string>
+    <string name="wn_v121_updater_desc">Мгновенный переход к загрузке в UI с определением размера из GitHub и переходом в браузер.</string>
+    <string name="wn_v121_perm_title">Удобные элементы разрешений</string>
+    <string name="wn_v121_perm_desc">Сегментированный переключатель 50dp с тактильным откликом для предотвращения промахов на OEM-экранах.</string>
+    <string name="wn_v119_vault_cache_title">Воспроизведение и расшифровка хранилища</string>
+    <string name="wn_v119_vault_cache_desc">Восстановлены временные пайплайны воспроизведения зашифрованных видео и кэширования фото высокого разрешения.</string>
+    <string name="wn_v119_decoy_loading_title">Исправление пустого ложного хранилища</string>
+    <string name="wn_v119_decoy_loading_desc">Устранена бесконечная загрузка в пустом ложном хранилище за счет немедленного показа пустого состояния.</string>
+    <string name="wn_v119_atomic_delete_title">Атомарное удаление MediaStore</string>
+    <string name="wn_v119_atomic_delete_desc">Обеспечено атомарное удаление в MediaStore и строгая изоляция SQLite между реальным и ложным хранилищем.</string>
 </resources>

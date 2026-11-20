@@ -1547,4 +1547,16 @@
     <string name="wn_v42_shredder_desc">Écrasement de secteurs CSPRNG multi-passes et déliaison pour effacement anti-récupération.</string>
     <string name="wn_v42_deepscan_title">Analyse approfondie instantanée (&lt;100ms)</string>
     <string name="wn_v42_deepscan_desc">Extraction SQLite multi-motifs révélant les médias cachés des messageries et espaces clonés.</string>
+    <string name="wn_v121_whats_new_title">Espace nouveautés intégré</string>
+    <string name="wn_v121_whats_new_desc">Présentation par catégories dans Paramètres et À propos avec sélection d\'historique des versions.</string>
+    <string name="wn_v121_updater_title">Mise à jour sans latence</string>
+    <string name="wn_v121_updater_desc">Transition immédiate du téléchargement avec détection de taille GitHub et secours navigateur.</string>
+    <string name="wn_v121_perm_title">Contrôles tactiles des autorisations</string>
+    <string name="wn_v121_perm_desc">Sélecteur segmenté ergonomique de 50dp avec retour haptique évitant les clics manqués sur tous les écrans.</string>
+    <string name="wn_v119_vault_cache_title">Lecture et déchiffrement du coffre</string>
+    <string name="wn_v119_vault_cache_desc">Restauration des flux éphémères pour les vidéos chiffrées et la mise en cache haute résolution du coffre.</string>
+    <string name="wn_v119_decoy_loading_title">Correction d\'état vide du leurre</string>
+    <string name="wn_v119_decoy_loading_desc">Suppression du chargement infini sur coffre leurre vide avec affichage immédiat de l\'état neutre.</string>
+    <string name="wn_v119_atomic_delete_title">Suppression atomique MediaStore</string>
+    <string name="wn_v119_atomic_delete_desc">Suppression atomique MediaStore et isolation stricte SQLite entre le coffre réel et le leurre.</string>
 </resources>
