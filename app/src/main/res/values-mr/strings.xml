@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">रिकाम्या बनावट व्हॉल्टवर त्वरित रिक्त स्थिती दाखवून अखंड लोडिंग स्पिनरची समस्या सोडवली.</string>
     <string name="wn_v119_atomic_delete_title">MediaStore सुरक्षित हटवणे</string>
     <string name="wn_v119_atomic_delete_desc">MediaStore मधून सुरक्षित हटवणे आणि मूळ व बनावट व्हॉल्टमध्ये कठोर SQLite अलगीकरण.</string>
+    <string name="wn_v123_adaptive_title">अनुकूलनीय एकल-ओळ आवृत्ती रचना</string>
+    <string name="wn_v123_adaptive_desc">सर्व स्क्रीन आकारांवर आवृत्ती बॅज आणि चिप्स एकाच ओळीत राहतील याची खात्री करणारी रचना.</string>
 </resources>

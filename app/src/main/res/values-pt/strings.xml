@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">Corrigido o indicador de carregamento infinito em cofres falsos vazios mostrando o estado neutro de imediato.</string>
     <string name="wn_v119_atomic_delete_title">Eliminação atómica no MediaStore</string>
     <string name="wn_v119_atomic_delete_desc">Eliminação atómica garantida no MediaStore e isolamento estrito SQLite entre o cofre real e o falso.</string>
+    <string name="wn_v123_adaptive_title">Arquitetura adaptável de versão em linha única</string>
+    <string name="wn_v123_adaptive_desc">Layout responsivo garantindo que os emblemas e seletores de versão permaneçam em linha única em qualquer ecrã.</string>
 </resources>

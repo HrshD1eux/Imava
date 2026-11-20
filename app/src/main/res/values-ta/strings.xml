@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">வெற்று போலி பெட்டகத்தில் உடனடி வெற்று நிலையை காண்பிப்பதன் மூலம் சுழல் ஏற்றுதல் சரி செய்யப்பட்டது.</string>
     <string name="wn_v119_atomic_delete_title">MediaStore அணு நீக்கம்</string>
     <string name="wn_v119_atomic_delete_desc">MediaStore-லிருந்து பாதுகாப்பான நீக்கம் மற்றும் அசல், போலி பெட்டகங்களுக்கிடையேயான கடுமையான SQLite தனிமைப்படுத்தல்.</string>
+    <string name="wn_v123_adaptive_title">தகவமைப்பு ஒற்றை-வரி பதிப்பு கட்டமைப்பு</string>
+    <string name="wn_v123_adaptive_desc">அனைத்து திரை அளவுகளிலும் பதிப்பு பேட்ஜ்கள் மற்றும் சில்லுகள் ஒரே வரியில் இருப்பதை உறுதி செய்யும் வடிவமைப்பு.</string>
 </resources>

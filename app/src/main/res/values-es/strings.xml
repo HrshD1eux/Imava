@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">Corregido el indicador de carga infinita en bóvedas señuelo vacías mostrando el estado vacío de inmediato.</string>
     <string name="wn_v119_atomic_delete_title">Desvinculación atómica de MediaStore</string>
     <string name="wn_v119_atomic_delete_desc">Eliminación atómica garantizada en MediaStore y aislamiento estricto de SQLite entre bóveda real y señuelo.</string>
+    <string name="wn_v123_adaptive_title">Arquitectura adaptable de versión en una línea</string>
+    <string name="wn_v123_adaptive_desc">Diseño adaptable que garantiza que las insignias y chips de versión permanezcan en una sola línea en cualquier pantalla.</string>
 </resources>

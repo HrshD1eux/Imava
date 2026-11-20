@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">Suppression du chargement infini sur coffre leurre vide avec affichage immédiat de l\'état neutre.</string>
     <string name="wn_v119_atomic_delete_title">Suppression atomique MediaStore</string>
     <string name="wn_v119_atomic_delete_desc">Suppression atomique MediaStore et isolation stricte SQLite entre le coffre réel et le leurre.</string>
+    <string name="wn_v123_adaptive_title">Architecture adaptative de version sur une ligne</string>
+    <string name="wn_v123_adaptive_desc">Mise en page réactive garantissant que les badges et sélecteurs de version restent sur une seule ligne.</string>
 </resources>

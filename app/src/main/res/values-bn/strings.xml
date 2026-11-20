@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">খালি ডিকয় ভল্টে সরাসরি খালি অবস্থা দেখিয়ে অনন্ত লোডিং স্পিনারের সমস্যা সমাধান করা হয়েছে।</string>
     <string name="wn_v119_atomic_delete_title">MediaStore পারমাণবিক অপসারণ</string>
     <string name="wn_v119_atomic_delete_desc">MediaStore থেকে পারমাণবিক অপসারণ এবং আসল ও নকল ভল্টের মধ্যে কঠোর SQLite বিচ্ছিন্নতা নিশ্চিত।</string>
+    <string name="wn_v123_adaptive_title">অভিযোজিত একক-লাইন সংস্করণ আর্কিটেকচার</string>
+    <string name="wn_v123_adaptive_desc">প্রতিক্রিয়াশীল বিন্যাস যা নিশ্চিত করে সংস্করণ ব্যাজ এবং চিপগুলি সমস্ত স্ক্রিনে একক লাইনে থাকে।</string>
 </resources>

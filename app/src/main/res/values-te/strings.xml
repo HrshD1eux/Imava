@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">ఖాళీ డికాయ్ వాల్ట్‌లో తక్షణ ఖాళీ స్థితిని చూపడం ద్వారా అంతులేని లోడింగ్ సమస్య పరిష్కరించబడింది.</string>
     <string name="wn_v119_atomic_delete_title">MediaStore అటామిక్ తొలగింపు</string>
     <string name="wn_v119_atomic_delete_desc">MediaStore నుండి సురక్షిత తొలగింపు మరియు అసలు, డికాయ్ వాల్ట్‌ల మధ్య కఠినమైన SQLite ఐసోలేషన్.</string>
+    <string name="wn_v123_adaptive_title">అనుకూల సింగిల్-లైన్ వెర్షన్ నిర్మాణం</string>
+    <string name="wn_v123_adaptive_desc">అన్ని స్క్రీన్ వెడల్పులలో వెర్షన్ బ్యాడ్జ్‌లు మరియు చిప్‌లు ఒకే లైన్‌లో ఉండేలా చేసే ప్రతిస్పందనాత్మక లేఅవుట్.</string>
 </resources>

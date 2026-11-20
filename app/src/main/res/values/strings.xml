@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">Resolved infinite loading spinner on empty decoy vaults by serving immediate empty collection state.</string>
     <string name="wn_v119_atomic_delete_title">Atomic MediaStore Unlinking</string>
     <string name="wn_v119_atomic_delete_desc">Enforced atomic MediaStore deletion and strict decoy and master vault SQLite isolation.</string>
+    <string name="wn_v123_adaptive_title">Adaptive Single-Line Version Architecture</string>
+    <string name="wn_v123_adaptive_desc">Responsive layout ensuring version badges and chips stay on a single line across all screen widths and font scales.</string>
 </resources>

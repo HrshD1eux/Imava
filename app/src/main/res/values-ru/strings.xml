@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">Устранена бесконечная загрузка в пустом ложном хранилище за счет немедленного показа пустого состояния.</string>
     <string name="wn_v119_atomic_delete_title">Атомарное удаление MediaStore</string>
     <string name="wn_v119_atomic_delete_desc">Обеспечено атомарное удаление в MediaStore и строгая изоляция SQLite между реальным и ложным хранилищем.</string>
+    <string name="wn_v123_adaptive_title">Адаптивная однострочная архитектура версий</string>
+    <string name="wn_v123_adaptive_desc">Адаптивная верстка, гарантирующая отображение бейджей и чипов версий в одну строку при любых размерах экрана.</string>
 </resources>

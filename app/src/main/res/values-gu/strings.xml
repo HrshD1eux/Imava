@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">ખાલી નકલી વોલ્ટ પર તાત્કાલિક ખાલી સ્થિતિ બતાવીને અનંત લોડિંગ સ્પિનરની સમસ્યા ઉકેલી.</string>
     <string name="wn_v119_atomic_delete_title">MediaStore સુરક્ષિત નિકાલ</string>
     <string name="wn_v119_atomic_delete_desc">MediaStore માંથી સુરક્ષિત નિકાલ અને વાસ્તવિક તેમજ નકલી વોલ્ટ વચ્ચે કડક SQLite અલગતા.</string>
+    <string name="wn_v123_adaptive_title">અનુકૂલનશીલ સિંગલ-લાઇન વર્ઝન આર્કિટેક્ચર</string>
+    <string name="wn_v123_adaptive_desc">બધા સ્ક્રીન કદ પર વર્ઝન બેજ અને ચિપ્સ એક જ લાઇન પર રહે તેની ખાતરી કરતું લેઆઉટ.</string>
 </resources>

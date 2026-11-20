@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">Endlose Ladeanzeige bei leerem Scheintresor behoben durch sofortiges Anzeigen des neutralen Leerzustands.</string>
     <string name="wn_v119_atomic_delete_title">Atomare MediaStore-Entkopplung</string>
     <string name="wn_v119_atomic_delete_desc">Atomares Löschen in MediaStore und strikte SQLite-Isolation zwischen echtem Tresor und Scheintresor.</string>
+    <string name="wn_v123_adaptive_title">Adaptive einzeilige Versionsarchitektur</string>
+    <string name="wn_v123_adaptive_desc">Responsives Layout, das sicherstellt, dass Versions-Badges und -Chips auf allen Bildschirmgrößen einzeilig bleiben.</string>
 </resources>

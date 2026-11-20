@@ -1559,4 +1559,6 @@
     <string name="wn_v119_decoy_loading_desc">खाली नकली वॉल्ट में तुरंत खाली स्थिति दिखाकर अनंत लोडिंग स्पिनर की समस्या हल की गई।</string>
     <string name="wn_v119_atomic_delete_title">MediaStore का सुरक्षित निष्कासन</string>
     <string name="wn_v119_atomic_delete_desc">MediaStore से सुरक्षित निष्कासन और असली व नकली वॉल्ट में पूर्ण SQLite अलगाव सुनिश्चित।</string>
+    <string name="wn_v123_adaptive_title">अनुकूली एकल-पंक्ति वर्शन वास्तुकला</string>
+    <string name="wn_v123_adaptive_desc">अनुकूल डिज़ाइन जो सुनिश्चित करता है कि वर्शन बैज और चिप्स सभी स्क्रीन आकारों पर एक ही पंक्ति में रहें।</string>
 </resources>
