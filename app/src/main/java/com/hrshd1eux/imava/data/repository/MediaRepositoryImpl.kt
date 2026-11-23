@@ -138,6 +138,7 @@ class MediaRepositoryImpl @Inject constructor(
                 // Progressive expansion: if library has more items, load next batch without choking CPU/disk
                 val total = mediaStoreDataSource.getTotalMediaCount(bucketId, null, mediaType)
                 if (total > 200) {
+                    kotlinx.coroutines.delay(800) // Yield CPU/disk I/O to Pager during cold start
                     val fullList = loadMediaPaged(limit = 5000, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
                     if (fullList.size != initialBatch.size || fullList != initialBatch) {
                         emit(fullList)
@@ -195,7 +196,7 @@ class MediaRepositoryImpl @Inject constructor(
     ): List<MediaItem> = withContext(Dispatchers.IO) {
         val isAscending = (sortOrder == com.hrshd1eux.imava.ui.SortOrder.OLDEST_FIRST)
         val thirdPartyMedia = try {
-            getCleanedThirdPartyMedia(bucketId, mediaType)
+            getCleanedThirdPartyMedia(bucketId, mediaType, allowSyncFetch = (bucketId != null))
         } catch (_: Exception) {
             emptyList()
         }
@@ -1967,5 +1968,19 @@ class MediaRepositoryImpl @Inject constructor(
 
     override fun invalidateThirdPartyCache() {
         thirdPartyCacheTime = 0L
+    }
+
+    override suspend fun getAllMediaItemsDirect(): List<MediaItem> = withContext(Dispatchers.IO) {
+        mediaStoreDataSource.fetchMedia(limit = 0, offset = 0)
+    }
+
+    override suspend fun getAllMetadata(): List<MediaMetadataEntity> = withContext(Dispatchers.IO) {
+        metadataDao.getAllMetadata()
+    }
+
+    override suspend fun restoreMetadata(items: List<MediaMetadataEntity>) = withContext(Dispatchers.IO) {
+        items.chunked(500).forEach { chunk ->
+            metadataDao.insertOrUpdateBatch(chunk)
+        }
     }
 }

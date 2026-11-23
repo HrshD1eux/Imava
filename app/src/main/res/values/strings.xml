@@ -1561,4 +1561,21 @@
     <string name="wn_v119_atomic_delete_desc">Enforced atomic MediaStore deletion and strict decoy and master vault SQLite isolation.</string>
     <string name="wn_v123_adaptive_title">Adaptive Single-Line Version Architecture</string>
     <string name="wn_v123_adaptive_desc">Responsive layout ensuring version badges and chips stay on a single line across all screen widths and font scales.</string>
+
+    <!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">Restore Tags &amp; Favorites</string>
+    <string name="restore_backup_desc">Found existing backup from %1$s containing %2$d tagged items and %3$d favorites.</string>
+    <string name="restore_backup_subtext">Restoring will associate your tags and favorites with your local media library without altering your physical files.</string>
+    <string name="restore">Restore</string>
+    <string name="not_now">Not Now</string>
+    <string name="restore_backup_success">Restored %1$d tags and %2$d favorites successfully!</string>
+    <string name="restore_backup_none_found">No valid backup found to restore.</string>
+    <string name="settings_backup_restore_title">Backup &amp; Restore</string>
+    <string name="settings_auto_backup_title">Automatic Metadata Backup</string>
+    <string name="settings_auto_backup_desc">Silently backup tags and favorites to Documents/Imava</string>
+    <string name="settings_backup_info_note">Backups are stored in your public Documents folder and survive app uninstallation.</string>
+    <string name="settings_backup_now">Backup Now</string>
+    <string name="settings_restore_backup">Restore Backup</string>
+    <string name="settings_backup_success">Metadata backup created successfully in Documents/Imava!</string>
+    <string name="settings_backup_empty_or_fail">No tags or favorites found to backup.</string>
 </resources>

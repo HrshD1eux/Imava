@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">Atomares Löschen in MediaStore und strikte SQLite-Isolation zwischen echtem Tresor und Scheintresor.</string>
     <string name="wn_v123_adaptive_title">Adaptive einzeilige Versionsarchitektur</string>
     <string name="wn_v123_adaptive_desc">Responsives Layout, das sicherstellt, dass Versions-Badges und -Chips auf allen Bildschirmgrößen einzeilig bleiben.</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">Tags und Favoriten wiederherstellen</string>
+    <string name="restore_backup_desc">Vorhandenes Backup vom %1$s mit %2$d getaggten Elementen und %3$d Favoriten gefunden.</string>
+    <string name="restore_backup_subtext">Die Wiederherstellung verknüpft Ihre Tags und Favoriten mit Ihrer Medienbibliothek, ohne Ihre Dateien zu verändern.</string>
+    <string name="restore">Wiederherstellen</string>
+    <string name="not_now">Nicht jetzt</string>
+    <string name="restore_backup_success">%1$d Tags und %2$d Favoriten erfolgreich wiederhergestellt!</string>
+    <string name="restore_backup_none_found">Kein gültiges Backup zum Wiederherstellen gefunden.</string>
+    <string name="settings_backup_restore_title">Sichern &amp; Wiederherstellen</string>
+    <string name="settings_auto_backup_title">Automatisches Metadaten-Backup</string>
+    <string name="settings_auto_backup_desc">Tags und Favoriten automatisch in Dokumente/Imava sichern</string>
+    <string name="settings_backup_info_note">Backups werden im öffentlichen Dokumente-Ordner gespeichert und überstehen eine Deinstallation.</string>
+    <string name="settings_backup_now">Jetzt sichern</string>
+    <string name="settings_restore_backup">Backup wiederherstellen</string>
+    <string name="settings_backup_success">Metadaten-Backup erfolgreich in Dokumente/Imava erstellt!</string>
+    <string name="settings_backup_empty_or_fail">Keine Tags oder Favoriten zum Sichern gefunden.</string>
 </resources>

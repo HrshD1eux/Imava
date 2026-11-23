@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">MediaStore থেকে পারমাণবিক অপসারণ এবং আসল ও নকল ভল্টের মধ্যে কঠোর SQLite বিচ্ছিন্নতা নিশ্চিত।</string>
     <string name="wn_v123_adaptive_title">অভিযোজিত একক-লাইন সংস্করণ আর্কিটেকচার</string>
     <string name="wn_v123_adaptive_desc">প্রতিক্রিয়াশীল বিন্যাস যা নিশ্চিত করে সংস্করণ ব্যাজ এবং চিপগুলি সমস্ত স্ক্রিনে একক লাইনে থাকে।</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">ট্যাগ এবং প্রিয় পুনরুদ্ধার করুন</string>
+    <string name="restore_backup_desc">%1$s এর ব্যাকআপ পাওয়া গেছে যাতে %2$d ট্যাগ করা আইটেম এবং %3$d প্রিয় রয়েছে।</string>
+    <string name="restore_backup_subtext">পুনরুদ্ধার আপনার আসল ফাইল পরিবর্তন না করে আপনার মিডিয়া লাইব্রেরির সাথে ট্যাগ ও প্রিয় যুক্ত করবে।</string>
+    <string name="restore">পুনরুদ্ধার</string>
+    <string name="not_now">এখন নয়</string>
+    <string name="restore_backup_success">%1$d ট্যাগ এবং %2$d প্রিয় সফলভাবে পুনরুদ্ধার করা হয়েছে!</string>
+    <string name="restore_backup_none_found">পুনরুদ্ধার করার জন্য কোনো বৈধ ব্যাকআপ পাওয়া যায়নি।</string>
+    <string name="settings_backup_restore_title">ব্যাকআপ ও পুনরুদ্ধার</string>
+    <string name="settings_auto_backup_title">স্বয়ংক্রিয় মেটাডেটা ব্যাকআপ</string>
+    <string name="settings_auto_backup_desc">Documents/Imava-তে ট্যাগ এবং প্রিয় স্বয়ংক্রিয় ব্যাকআপ রাখুন</string>
+    <string name="settings_backup_info_note">ব্যাকআপগুলি সর্বজনীন Documents ফোল্ডারে সংরক্ষিত থাকে এবং আনইনস্টল করলেও মুছে যায় না।</string>
+    <string name="settings_backup_now">এখন ব্যাকআপ নিন</string>
+    <string name="settings_restore_backup">ব্যাকআপ পুনরুদ্ধার</string>
+    <string name="settings_backup_success">Documents/Imava-তে সফলভাবে মেটাডেটা ব্যাকআপ তৈরি হয়েছে!</string>
+    <string name="settings_backup_empty_or_fail">ব্যাকআপের জন্য কোনো ট্যাগ বা প্রিয় পাওয়া যায়নি।</string>
 </resources>

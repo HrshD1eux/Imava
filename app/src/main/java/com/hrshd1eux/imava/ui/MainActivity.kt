@@ -259,6 +259,25 @@ class MainActivity : FragmentActivity() {
                         com.hrshd1eux.imava.ui.common.AppLockScreen(onUnlockClick = { promptAppUnlock() })
                     } else if (hasPermissions || viewModel.isExternalViewIntent) {
                         MainScreenLayout(viewModel)
+
+                        val pendingBackup by viewModel.pendingRestoreBackupInfo.collectAsState()
+                        if (pendingBackup != null) {
+                            com.hrshd1eux.imava.ui.common.RestoreBackupDialog(
+                                backupInfo = pendingBackup!!,
+                                onConfirm = {
+                                    viewModel.confirmRestorePrompt { result ->
+                                        android.widget.Toast.makeText(
+                                            this@MainActivity,
+                                            getString(R.string.restore_backup_success, result.restoredTagsCount, result.restoredFavoritesCount),
+                                            android.widget.Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                },
+                                onDismiss = {
+                                    viewModel.dismissRestorePrompt()
+                                }
+                            )
+                        }
                         
                         val editingItem = viewModel.editingMediaItem
                         if (editingItem != null) {

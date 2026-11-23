@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">MediaStore માંથી સુરક્ષિત નિકાલ અને વાસ્તવિક તેમજ નકલી વોલ્ટ વચ્ચે કડક SQLite અલગતા.</string>
     <string name="wn_v123_adaptive_title">અનુકૂલનશીલ સિંગલ-લાઇન વર્ઝન આર્કિટેક્ચર</string>
     <string name="wn_v123_adaptive_desc">બધા સ્ક્રીન કદ પર વર્ઝન બેજ અને ચિપ્સ એક જ લાઇન પર રહે તેની ખાતરી કરતું લેઆઉટ.</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">ટૅગ્સ અને મનપસંદ પુનઃસ્થાપિત કરો</string>
+    <string name="restore_backup_desc">%1$s તારીખનો બેકઅપ મળ્યો જેમાં %2$d ટૅગ કરેલી આઇટમ્સ અને %3$d મનપસંદ છે.</string>
+    <string name="restore_backup_subtext">પુનઃસ્થાપિત કરવાથી તમારી મૂળ ફાઇલો બદલ્યા વિના ટૅગ્સ અને મનપસંદ મીડિયા લાઇબ્રેરી સાથે લિંક થશે.</string>
+    <string name="restore">પુનઃસ્થાપિત કરો</string>
+    <string name="not_now">હમણાં નહીં</string>
+    <string name="restore_backup_success">%1$d ટૅગ્સ અને %2$d મનપસંદ સફળતાપૂર્વક પુનઃસ્થાપિત થયા!</string>
+    <string name="restore_backup_none_found">પુનઃસ્થાપિત કરવા માટે કોઈ માન્ય બેકઅપ મળ્યો નથી.</string>
+    <string name="settings_backup_restore_title">બેકઅપ અને પુનઃસ્થાપના</string>
+    <string name="settings_auto_backup_title">સ્વચાલિત મેટાડેટા બેકઅપ</string>
+    <string name="settings_auto_backup_desc">Documents/Imava માં ટૅગ્સ અને મનપસંદનો શાંતિપૂર્ણ બેકઅપ લો</string>
+    <string name="settings_backup_info_note">બેકઅપ તમારા સાર્વજનિક Documents ફોલ્ડરમાં સંગ્રહિત થાય છે અને અનઇન્સ્ટોલ પછી પણ રહે છે.</string>
+    <string name="settings_backup_now">હમણાં બેકઅપ લો</string>
+    <string name="settings_restore_backup">બેકઅપ પુનઃસ્થાપિત કરો</string>
+    <string name="settings_backup_success">Documents/Imava માં મેટાડેટા બેકઅપ સફળતાપૂર્વક બનાવાયો!</string>
+    <string name="settings_backup_empty_or_fail">બેકઅપ લેવા માટે કોઈ ટૅગ્સ અથવા મનપસંદ મળ્યા નથી.</string>
 </resources>

@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">MediaStore मधून सुरक्षित हटवणे आणि मूळ व बनावट व्हॉल्टमध्ये कठोर SQLite अलगीकरण.</string>
     <string name="wn_v123_adaptive_title">अनुकूलनीय एकल-ओळ आवृत्ती रचना</string>
     <string name="wn_v123_adaptive_desc">सर्व स्क्रीन आकारांवर आवृत्ती बॅज आणि चिप्स एकाच ओळीत राहतील याची खात्री करणारी रचना.</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">टॅग्ज आणि आवडी पुनर्संचयित करा</string>
+    <string name="restore_backup_desc">%1$s चा बॅकअप सापडला ज्यामध्ये %2$d टॅग केलेले आयटम आणि %3$d आवडी आहेत।</string>
+    <string name="restore_backup_subtext">पुनर्संचयित केल्याने तुमच्या मूळ फाइल्स न बदलता टॅग्ज आणि आवडी मीडिया लायब्ररीशी जोडल्या जातील।</string>
+    <string name="restore">पुनर्संचयित करा</string>
+    <string name="not_now">आत्ता नाही</string>
+    <string name="restore_backup_success">%1$d टॅग्ज आणि %2$d आवडी यशस्वीरीत्या पुनर्संचयित केल्या!</string>
+    <string name="restore_backup_none_found">पुनर्संचयित करण्यासाठी कोणताही वैध बॅकअप सापडला नाही।</string>
+    <string name="settings_backup_restore_title">बॅकअप आणि पुनर्संचयित</string>
+    <string name="settings_auto_backup_title">स्वयंचलित मेटाडेटा बॅकअप</string>
+    <string name="settings_auto_backup_desc">Documents/Imava मध्ये टॅग्ज आणि आवडींचा पार्श्वभूमी बॅकअप घ्या</string>
+    <string name="settings_backup_info_note">बॅकअप सार्वजनिक Documents फोल्डरमध्ये सेव्ह केले जातात आणि अनइन्स्टॉल केल्यावरही सुरक्षित राहतात।</string>
+    <string name="settings_backup_now">आत्ता बॅकअप घ्या</string>
+    <string name="settings_restore_backup">बॅकअप पुनर्संचयित करा</string>
+    <string name="settings_backup_success">Documents/Imava मध्ये मेटाडेटा बॅकअप यशस्वीरीत्या तयार झाला!</string>
+    <string name="settings_backup_empty_or_fail">बॅकअप घेण्यासाठी कोणतेही टॅग्ज किंवा आवडी सापडल्या नाहीत।</string>
 </resources>

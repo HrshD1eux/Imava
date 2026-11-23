@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">MediaStore-லிருந்து பாதுகாப்பான நீக்கம் மற்றும் அசல், போலி பெட்டகங்களுக்கிடையேயான கடுமையான SQLite தனிமைப்படுத்தல்.</string>
     <string name="wn_v123_adaptive_title">தகவமைப்பு ஒற்றை-வரி பதிப்பு கட்டமைப்பு</string>
     <string name="wn_v123_adaptive_desc">அனைத்து திரை அளவுகளிலும் பதிப்பு பேட்ஜ்கள் மற்றும் சில்லுகள் ஒரே வரியில் இருப்பதை உறுதி செய்யும் வடிவமைப்பு.</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">குறிச்சொற்கள் &amp; விருப்பங்களை மீட்டமை</string>
+    <string name="restore_backup_desc">%1$s தேதியிட்ட காப்புநகல் கண்டறியப்பட்டது, இதில் %2$d குறிச்சொற்கள் மற்றும் %3$d விருப்பங்கள் உள்ளன.</string>
+    <string name="restore_backup_subtext">மீட்டமைப்பது உங்கள் அசல் கோப்புகளை மாற்றாமல் குறிச்சொற்கள் மற்றும் விருப்பங்களை உங்கள் நூலகத்துடன் இணைக்கும்.</string>
+    <string name="restore">மீட்டமை</string>
+    <string name="not_now">இப்போது இல்லை</string>
+    <string name="restore_backup_success">%1$d குறிச்சொற்கள் மற்றும் %2$d விருப்பங்கள் வெற்றிகரமாக மீட்டமைக்கப்பட்டன!</string>
+    <string name="restore_backup_none_found">மீட்டமைக்க செல்லுபடியாகும் காப்புநகல் எதுவும் கிடைக்கவில்லை.</string>
+    <string name="settings_backup_restore_title">காப்புநகல் &amp; மீட்டமைப்பு</string>
+    <string name="settings_auto_backup_title">தானியங்கி மெட்டாடேட்டா காப்புநகல்</string>
+    <string name="settings_auto_backup_desc">Documents/Imava இல் குறிச்சொற்கள் மற்றும் விருப்பங்களை தானாகக் காப்புநகல் எடுக்கவும்</string>
+    <string name="settings_backup_info_note">காப்புநகல்கள் உங்கள் பொது Documents கோப்புறையில் சேமிக்கப்பட்டு நீக்கத்திற்குப் பிறகும் இருக்கும்.</string>
+    <string name="settings_backup_now">இப்போது காப்புநகல் எடு</string>
+    <string name="settings_restore_backup">காப்புநகலை மீட்டமை</string>
+    <string name="settings_backup_success">Documents/Imava இல் மெட்டாடேட்டா காப்புநகல் வெற்றிகரமாக உருவாக்கப்பட்டது!</string>
+    <string name="settings_backup_empty_or_fail">காப்புநகல் எடுக்க எந்த குறிச்சொற்களும் அல்லது விருப்பங்களும் இல்லை.</string>
 </resources>

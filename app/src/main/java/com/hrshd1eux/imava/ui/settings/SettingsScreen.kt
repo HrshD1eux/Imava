@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fingerprint
@@ -65,6 +66,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
@@ -1156,6 +1158,98 @@ fun SettingsScreen(
                             Text(stringResource(R.string.scanning_device))
                         } else {
                             Text(stringResource(R.string.action_scan_now))
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
+            SettingsCategoryHeader(title = stringResource(R.string.settings_backup_restore_title), icon = Icons.Default.Backup)
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    val isAutoBackup by viewModel.isAutoBackupEnabled.collectAsState()
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.settings_auto_backup_title),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(R.string.settings_auto_backup_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = isAutoBackup,
+                            onCheckedChange = {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                viewModel.setAutoBackupEnabled(it)
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = stringResource(R.string.settings_backup_info_note),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                viewModel.triggerManualBackup { success ->
+                                    val msg = if (success) {
+                                        context.getString(R.string.settings_backup_success)
+                                    } else {
+                                        context.getString(R.string.settings_backup_empty_or_fail)
+                                    }
+                                    android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(stringResource(R.string.settings_backup_now))
+                        }
+
+                        Button(
+                            onClick = {
+                                com.hrshd1eux.imava.core.util.HapticUtil.performSelection(context)
+                                viewModel.triggerManualRestore { result ->
+                                    val msg = if (result.totalRestored > 0) {
+                                        context.getString(R.string.restore_backup_success, result.restoredTagsCount, result.restoredFavoritesCount)
+                                    } else {
+                                        context.getString(R.string.restore_backup_none_found)
+                                    }
+                                    android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(stringResource(R.string.settings_restore_backup))
                         }
                     }
                 }

@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">Exclusão atômica garantida no MediaStore e isolamento estrito SQLite entre o cofre real e o falso.</string>
     <string name="wn_v123_adaptive_title">Arquitetura adaptável de versão em linha única</string>
     <string name="wn_v123_adaptive_desc">Layout responsivo garantindo que os emblemas e seletores de versão permaneçam em linha única em qualquer tela.</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">Restaurar marcadores e favoritos</string>
+    <string name="restore_backup_desc">Backup existente encontrado de %1$s contendo %2$d itens marcados e %3$d favoritos.</string>
+    <string name="restore_backup_subtext">A restauração associará seus marcadores e favoritos à sua biblioteca local sem alterar seus arquivos físicos.</string>
+    <string name="restore">Restaurar</string>
+    <string name="not_now">Agora não</string>
+    <string name="restore_backup_success">%1$d marcadores e %2$d favoritos restaurados com sucesso!</string>
+    <string name="restore_backup_none_found">Nenhum backup válido encontrado para restaurar.</string>
+    <string name="settings_backup_restore_title">Backup e restauração</string>
+    <string name="settings_auto_backup_title">Backup automático de metadados</string>
+    <string name="settings_auto_backup_desc">Fazer backup silencioso de marcadores e favoritos em Documentos/Imava</string>
+    <string name="settings_backup_info_note">Os backups são salvos na sua pasta pública de Documentos e sobrevivem à desinstalação.</string>
+    <string name="settings_backup_now">Fazer backup agora</string>
+    <string name="settings_restore_backup">Restaurar backup</string>
+    <string name="settings_backup_success">Backup de metadados criado com sucesso em Documentos/Imava!</string>
+    <string name="settings_backup_empty_or_fail">Nenhum marcador ou favorito encontrado para backup.</string>
 </resources>

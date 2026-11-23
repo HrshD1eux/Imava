@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">Suppression atomique MediaStore et isolation stricte SQLite entre le coffre réel et le leurre.</string>
     <string name="wn_v123_adaptive_title">Architecture adaptative de version sur une ligne</string>
     <string name="wn_v123_adaptive_desc">Mise en page réactive garantissant que les badges et sélecteurs de version restent sur une seule ligne.</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">Restaurer tags et favoris</string>
+    <string name="restore_backup_desc">Sauvegarde existante trouvée du %1$s contenant %2$d éléments étiquetés et %3$d favoris.</string>
+    <string name="restore_backup_subtext">La restauration associera vos tags et favoris à votre bibliothèque locale sans modifier vos fichiers physiques.</string>
+    <string name="restore">Restaurer</string>
+    <string name="not_now">Pas maintenant</string>
+    <string name="restore_backup_success">%1$d tags et %2$d favoris restaurés avec succès !</string>
+    <string name="restore_backup_none_found">Aucune sauvegarde valide trouvée pour la restauration.</string>
+    <string name="settings_backup_restore_title">Sauvegarde &amp; Restauration</string>
+    <string name="settings_auto_backup_title">Sauvegarde automatique des métadonnées</string>
+    <string name="settings_auto_backup_desc">Sauvegarder discrètement les tags et favoris dans Documents/Imava</string>
+    <string name="settings_backup_info_note">Les sauvegardes sont conservées dans votre dossier Documents public et survivent à la désinstallation.</string>
+    <string name="settings_backup_now">Sauvegarder maintenant</string>
+    <string name="settings_restore_backup">Restaurer la sauvegarde</string>
+    <string name="settings_backup_success">Sauvegarde des métadonnées créée avec succès dans Documents/Imava !</string>
+    <string name="settings_backup_empty_or_fail">Aucun tag ou favori trouvé à sauvegarder.</string>
 </resources>

@@ -1561,4 +1561,21 @@
     <string name="wn_v119_atomic_delete_desc">Eliminación atómica garantizada en MediaStore y aislamiento estricto de SQLite entre bóveda real y señuelo.</string>
     <string name="wn_v123_adaptive_title">Arquitectura adaptable de versión en una línea</string>
     <string name="wn_v123_adaptive_desc">Diseño adaptable que garantiza que las insignias y chips de versión permanezcan en una sola línea en cualquier pantalla.</string>
+
+    <!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">Restaurar etiquetas y favoritos</string>
+    <string name="restore_backup_desc">Se encontró una copia de seguridad existente del %1$s con %2$d elementos etiquetados y %3$d favoritos.</string>
+    <string name="restore_backup_subtext">La restauración asociará sus etiquetas y favoritos con su biblioteca local sin modificar sus archivos físicos.</string>
+    <string name="restore">Restaurar</string>
+    <string name="not_now">Ahora no</string>
+    <string name="restore_backup_success">¡Se restauraron %1$d etiquetas y %2$d favoritos correctamente!</string>
+    <string name="restore_backup_none_found">No se encontró ninguna copia de seguridad válida para restaurar.</string>
+    <string name="settings_backup_restore_title">Copia de seguridad y restauración</string>
+    <string name="settings_auto_backup_title">Copia de seguridad automática de metadatos</string>
+    <string name="settings_auto_backup_desc">Copia de seguridad silenciosa de etiquetas y favoritos en Documentos/Imava</string>
+    <string name="settings_backup_info_note">Las copias de seguridad se guardan en su carpeta pública de Documentos y sobreviven a la desinstalación.</string>
+    <string name="settings_backup_now">Hacer copia ahora</string>
+    <string name="settings_restore_backup">Restaurar copia</string>
+    <string name="settings_backup_success">¡Copia de seguridad creada correctamente en Documentos/Imava!</string>
+    <string name="settings_backup_empty_or_fail">No se encontraron etiquetas ni favoritos para respaldar.</string>
 </resources>

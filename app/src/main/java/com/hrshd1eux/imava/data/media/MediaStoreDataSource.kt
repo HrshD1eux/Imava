@@ -17,6 +17,7 @@ import android.provider.MediaStore
 import com.hrshd1eux.imava.data.model.MediaItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -186,10 +187,8 @@ class MediaStoreDataSource @Inject constructor(
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
         val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
-        val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
         val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
-        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
-        val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
+        val baseCondition = "$mediaTypeCondition$notTrashedSql$notPendingSql"
 
         val effectiveBucketIds = if (!bucketIds.isNullOrEmpty()) bucketIds else if (bucketId != null) listOf(bucketId) else null
         val selection = if (!effectiveBucketIds.isNullOrEmpty()) {
@@ -254,10 +253,8 @@ class MediaStoreDataSource @Inject constructor(
 
         val mediaTypeCondition = getMediaTypeCondition(mediaType)
         val notTrashedSql = if (!includeTrashed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
-        val notTrashPathSql = if (!includeTrashed) " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')" else ""
         val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
-        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
-        val baseCondition = "$mediaTypeCondition$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
+        val baseCondition = "$mediaTypeCondition$notTrashedSql$notPendingSql"
 
         val effectiveBucketIds = if (!bucketIds.isNullOrEmpty()) bucketIds else if (bucketId != null) listOf(bucketId) else null
         val selection = if (!effectiveBucketIds.isNullOrEmpty()) {
@@ -306,7 +303,10 @@ class MediaStoreDataSource @Inject constructor(
         cursor?.use {
             val indices = MediaCursorIndices(it)
             while (it.moveToNext()) {
-                mediaList.add(it.extractMediaItem(indices))
+                val item = it.extractMediaItem(indices)
+                if (includeTrashed || !item.isTrashed) {
+                    mediaList.add(item)
+                }
             }
         }
 
@@ -350,7 +350,11 @@ class MediaStoreDataSource @Inject constructor(
                         }
                     }
                     if (pathsToScan.isNotEmpty()) {
-                        MediaScannerConnection.scanFile(context, pathsToScan.toTypedArray(), null, null)
+                        kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                MediaScannerConnection.scanFile(context, pathsToScan.toTypedArray(), null, null)
+                            } catch (_: Exception) {}
+                        }
                     }
                 }
                 if (addedAny && mediaList.size > 1) {
@@ -420,7 +424,10 @@ class MediaStoreDataSource @Inject constructor(
         cursor?.use {
             val indices = MediaCursorIndices(it)
             while (it.moveToNext()) {
-                mediaList.add(it.extractMediaItem(indices))
+                val item = it.extractMediaItem(indices)
+                if (!item.isTrashed) {
+                    mediaList.add(item)
+                }
             }
         }
         mediaList
@@ -431,10 +438,8 @@ class MediaStoreDataSource @Inject constructor(
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
         val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
-        val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
         val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
-        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
-        val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
+        val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notPendingSql"
 
         val cursor = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -555,10 +560,8 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Files.FileColumns.DATE_TAKEN
         )
         val notTrashedSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) " AND (is_trashed IS NULL OR is_trashed = 0)" else ""
-        val notTrashPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trashed%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.trash%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/imava_trash/%')"
         val notPendingSql = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) " AND (is_pending IS NULL OR is_pending = 0)" else ""
-        val notPendingPathSql = " AND (${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.pending-%')"
-        val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notTrashPathSql$notPendingSql$notPendingPathSql"
+        val selection = "${getMediaTypeCondition(MediaTypeFilter.ALL)}$notTrashedSql$notPendingSql"
 
         val bucketCounts = mutableMapOf<Long, Int>()
         val bucketNames = mutableMapOf<Long, String>()
@@ -782,7 +785,10 @@ class MediaStoreDataSource @Inject constructor(
         cursor?.use {
             val indices = MediaCursorIndices(it)
             while (it.moveToNext()) {
-                mediaList.add(it.extractMediaItem(indices))
+                val item = it.extractMediaItem(indices)
+                if (!item.isTrashed) {
+                    mediaList.add(item)
+                }
             }
         }
 
@@ -977,7 +983,10 @@ class MediaStoreDataSource @Inject constructor(
         cursor?.use {
             val indices = MediaCursorIndices(it)
             while (it.moveToNext()) {
-                mediaList.add(it.extractMediaItem(indices))
+                val item = it.extractMediaItem(indices)
+                if (!item.isTrashed) {
+                    mediaList.add(item)
+                }
             }
         }
 

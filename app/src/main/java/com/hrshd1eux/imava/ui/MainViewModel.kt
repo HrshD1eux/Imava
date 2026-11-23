@@ -271,6 +271,70 @@ class MainViewModel @Inject constructor(
     private val _batchOperationProgress = MutableStateFlow<BatchProgress?>(null)
     val batchOperationProgress: StateFlow<BatchProgress?> = _batchOperationProgress.asStateFlow()
 
+    private val _isAutoBackupEnabled = MutableStateFlow(
+        com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.isAutoBackupEnabled(application)
+    )
+    val isAutoBackupEnabled: StateFlow<Boolean> = _isAutoBackupEnabled.asStateFlow()
+
+    fun setAutoBackupEnabled(enabled: Boolean) {
+        _isAutoBackupEnabled.value = enabled
+        com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.setAutoBackupEnabled(application, enabled)
+        if (enabled) {
+            scheduleAutoBackup()
+        }
+    }
+
+    private val _pendingRestoreBackupInfo = MutableStateFlow<com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.BackupInfo?>(null)
+    val pendingRestoreBackupInfo: StateFlow<com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.BackupInfo?> = _pendingRestoreBackupInfo.asStateFlow()
+
+    fun dismissRestorePrompt() {
+        _pendingRestoreBackupInfo.value = null
+        com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.setPromptedRestore(application, true)
+    }
+
+    fun confirmRestorePrompt(onComplete: (com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.RestoreResult) -> Unit) {
+        _pendingRestoreBackupInfo.value = null
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.restoreBackup(application, repository)
+            refreshAll()
+            withContext(Dispatchers.Main) {
+                onComplete(result)
+            }
+        }
+    }
+
+    fun triggerManualBackup(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val allMeta = repository.getAllMetadata()
+            val success = com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.performBackup(application, allMeta)
+            withContext(Dispatchers.Main) {
+                onResult(success)
+            }
+        }
+    }
+
+    fun triggerManualRestore(onResult: (com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.RestoreResult) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.restoreBackup(application, repository)
+            refreshAll()
+            withContext(Dispatchers.Main) {
+                onResult(result)
+            }
+        }
+    }
+
+    private var backupJob: kotlinx.coroutines.Job? = null
+    fun scheduleAutoBackup() {
+        backupJob?.cancel()
+        backupJob = viewModelScope.launch(Dispatchers.IO) {
+            kotlinx.coroutines.delay(2000L)
+            if (com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.isAutoBackupEnabled(application)) {
+                val allMeta = repository.getAllMetadata()
+                com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.performBackup(application, allMeta)
+            }
+        }
+    }
+
     fun updateBatchProgress(title: String, current: Int, total: Int, isIndeterminate: Boolean = false) {
         _batchOperationProgress.value = BatchProgress(title, current, total, isIndeterminate)
     }
@@ -1708,6 +1772,23 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+
+        // Check for existing metadata backup on fresh install / first launch
+        viewModelScope.launch(Dispatchers.IO) {
+            kotlinx.coroutines.delay(1500L) // Wait for initial frame render to stay instant
+            if (!com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.hasPromptedRestore(application)) {
+                val backup = com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.detectBackup(application)
+                if (backup != null) {
+                    val allMeta = repository.getAllMetadata()
+                    val hasExistingData = allMeta.any { it.tags.isNotBlank() || it.isFavorite }
+                    if (!hasExistingData) {
+                        _pendingRestoreBackupInfo.value = backup
+                    } else {
+                        com.hrshd1eux.imava.core.util.MetadataAutoBackupManager.setPromptedRestore(application, true)
+                    }
+                }
+            }
+        }
     }
 
     var pendingRenameItem: MediaItem? = null
@@ -2055,6 +2136,7 @@ class MainViewModel @Inject constructor(
                 }
             }
             refreshAll()
+            scheduleAutoBackup()
         }
     }
 
@@ -2069,6 +2151,7 @@ class MainViewModel @Inject constructor(
                 }
             }
             refreshAll()
+            scheduleAutoBackup()
         }
     }
 
@@ -2082,6 +2165,7 @@ class MainViewModel @Inject constructor(
             repository.bulkUpdateMediaTags(itemIds, tagsToAdd, tagsToRemove)
             selectionState.clear()
             refreshAll()
+            scheduleAutoBackup()
         }
     }
 
@@ -2091,6 +2175,7 @@ class MainViewModel @Inject constructor(
             repository.toggleFavoriteBatch(selectedIds)
             selectionState.clear()
             refreshAll()
+            scheduleAutoBackup()
         }
     }
 

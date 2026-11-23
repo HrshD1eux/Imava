@@ -1561,4 +1561,20 @@
     <string name="wn_v119_atomic_delete_desc">Обеспечено атомарное удаление в MediaStore и строгая изоляция SQLite между реальным и ложным хранилищем.</string>
     <string name="wn_v123_adaptive_title">Адаптивная однострочная архитектура версий</string>
     <string name="wn_v123_adaptive_desc">Адаптивная верстка, гарантирующая отображение бейджей и чипов версий в одну строку при любых размерах экрана.</string>
+<!-- Metadata Auto-Backup & Restore -->
+    <string name="restore_backup_title">Восстановить теги и избранное</string>
+    <string name="restore_backup_desc">Найдена резервная копия от %1$s, содержащая %2$d тегов и %3$d избранных.</string>
+    <string name="restore_backup_subtext">Восстановление свяжет ваши теги и избранное с локальной медиатекой без изменения исходных файлов.</string>
+    <string name="restore">Восстановить</string>
+    <string name="not_now">Не сейчас</string>
+    <string name="restore_backup_success">Успешно восстановлено %1$d тегов и %2$d избранных!</string>
+    <string name="restore_backup_none_found">Резервная копия для восстановления не найдена.</string>
+    <string name="settings_backup_restore_title">Резервное копирование и восстановление</string>
+    <string name="settings_auto_backup_title">Автобэкап метаданных</string>
+    <string name="settings_auto_backup_desc">Фоновое сохранение тегов и избранного в Документы/Imava</string>
+    <string name="settings_backup_info_note">Резервные копии сохраняются в папке Документы и не удаляются при удалении приложения.</string>
+    <string name="settings_backup_now">Создать копию</string>
+    <string name="settings_restore_backup">Восстановить копию</string>
+    <string name="settings_backup_success">Резервная копия метаданных успешно создана в Документы/Imava!</string>
+    <string name="settings_backup_empty_or_fail">Нет тегов или избранного для резервного копирования.</string>
 </resources>
