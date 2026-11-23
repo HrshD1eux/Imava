@@ -1,6 +1,8 @@
 package com.hrshd1eux.imava.ui.albums
 
 import android.content.Context
+import android.content.ContentUris
+import android.provider.MediaStore
 import android.net.Uri
 import androidx.compose.ui.res.stringResource
 import com.hrshd1eux.imava.R
@@ -109,7 +111,6 @@ fun AlbumsScreen(
     val hidden by viewModel.hidden.collectAsState()
     val videosCount by viewModel.videosCount.collectAsState()
     val smartAlbumCounts by viewModel.smartAlbumCounts.collectAsState()
-    val allMedia by viewModel.visibleMediaItems.collectAsState()
     val throwbackMemories by viewModel.throwbackMemories.collectAsState()
 
     val context = LocalContext.current
@@ -134,37 +135,20 @@ fun AlbumsScreen(
     val vaultConfigVersion by viewModel.vaultConfigVersion.collectAsState()
     val isVaultUnlocked by viewModel.isVaultUnlocked.collectAsState()
 
-    // Real-time lookup of newest media item URI by bucket ID directly from live timeline
-    val latestMediaByBucketId = remember(allMedia) {
-        val map = mutableMapOf<Long, Uri>()
-        for (item in allMedia) {
-            if (!map.containsKey(item.bucketId)) {
-                map[item.bucketId] = item.uri
-            }
-        }
-        map
+    val resolveAlbumCount = remember {
+        { bucket: BucketInfo -> bucket.count }
     }
 
-    val resolveAlbumCount = remember(allMedia) {
+    val resolveAlbumCoverUri = remember(customAlbumCovers) {
         { bucket: BucketInfo ->
-            if (allMedia.isNotEmpty()) {
-                allMedia.count { it.bucketId == bucket.id || (bucket.mergedBucketIds.isNotEmpty() && it.bucketId in bucket.mergedBucketIds) }
-            } else {
-                bucket.count
-            }
-        }
-    }
-
-    val resolveAlbumCoverUri = remember(allMedia, customAlbumCovers, latestMediaByBucketId) {
-        { bucket: BucketInfo ->
-            val liveCount = resolveAlbumCount(bucket)
-            if (liveCount <= 0) {
+            if (bucket.count <= 0) {
                 null
             } else {
                 val customMediaId = customAlbumCovers[bucket.id]
-                val customUri = if (customMediaId != null) allMedia.find { it.id == customMediaId }?.uri else null
-                val liveCoverUri = bucket.mergedBucketIds.firstNotNullOfOrNull { latestMediaByBucketId[it] }
-                customUri ?: liveCoverUri ?: (if (allMedia.isEmpty()) bucket.coverUri else null)
+                val customUri = if (customMediaId != null) {
+                    ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), customMediaId)
+                } else null
+                customUri ?: bucket.coverUri
             }
         }
     }

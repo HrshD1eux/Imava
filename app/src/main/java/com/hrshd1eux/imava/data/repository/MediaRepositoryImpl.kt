@@ -131,10 +131,13 @@ class MediaRepositoryImpl @Inject constructor(
                 isThirdPartyFetching = true
                 thirdPartyScanScope.launch {
                     try {
+                        kotlinx.coroutines.delay(2500) // Yield CPU and SQLite completely to cold boot first frame
                         val fresh = fetchThirdPartyAppMedia()
-                        thirdPartyCache = fresh
-                        thirdPartyCacheTime = System.currentTimeMillis()
-                        mediaStoreDataSource.notifySecondaryMediaChanged()
+                        if (fresh.isNotEmpty() && fresh != thirdPartyCache) {
+                            thirdPartyCache = fresh
+                            thirdPartyCacheTime = System.currentTimeMillis()
+                            mediaStoreDataSource.notifySecondaryMediaChanged()
+                        }
                     } catch (_: Exception) {
                     } finally {
                         isThirdPartyFetching = false
@@ -2001,6 +2004,7 @@ class MediaRepositoryImpl @Inject constructor(
 
     override fun invalidateThirdPartyCache() {
         thirdPartyCacheTime = 0L
+        mediaStoreDataSource.invalidateBucketsCache()
     }
 
     override suspend fun getAllMediaItemsDirect(): List<MediaItem> = withContext(Dispatchers.IO) {

@@ -31,6 +31,7 @@ import com.hrshd1eux.imava.data.model.TimelineItem
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.drop
 import com.hrshd1eux.imava.data.model.isVideo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -241,7 +242,7 @@ class MainViewModel @Inject constructor(
     private val _isManualDeepScanning = MutableStateFlow(false)
     val isManualDeepScanning: StateFlow<Boolean> = _isManualDeepScanning.asStateFlow()
 
-    private val _isInitialScanning = MutableStateFlow(true)
+    private val _isInitialScanning = MutableStateFlow(false)
     val isInitialScanning: StateFlow<Boolean> = _isInitialScanning.asStateFlow()
 
     fun setInitialScanningFinished() {
@@ -847,67 +848,9 @@ class MainViewModel @Inject constructor(
     val lastDeletedMediaId: StateFlow<Long?> = _lastDeletedMediaId.asStateFlow()
 
     val visibleBuckets: StateFlow<List<BucketInfo>> = combine(
-        _buckets, albumState.excludedBucketIds, albumState.albumSortOrder, albumState.mergeSameNamedAlbums, mediaItems
-    ) { list: List<BucketInfo>, excluded: Set<String>, sortOrder: AlbumSortOrder, mergeEnabled: Boolean, rawMedia: List<MediaItem> ->
-        val rawList = if (list.isNotEmpty()) {
-            list
-        } else if (rawMedia.isNotEmpty()) {
-            // Self-healing fallback: derive albums directly from in-memory media items if MediaStore query fails or is delayed
-            rawMedia.groupBy { it.bucketId }.mapNotNull { (bId, items) ->
-                if (bId == 0L || items.isEmpty()) null
-                else {
-                    val first = items.first()
-                    val bName = first.bucketName.ifBlank {
-                        val parent = first.path.substringBeforeLast('/', "")
-                        if (parent.isNotBlank()) parent.substringAfterLast('/') else "Unknown"
-                    }
-                    val newest = items.maxByOrNull { it.dateTaken } ?: first
-                    BucketInfo(
-                        id = bId,
-                        name = bName,
-                        count = items.size,
-                        path = first.path.substringBeforeLast('/', ""),
-                        mergedBucketIds = listOf(bId),
-                        paths = items.map { it.path.substringBeforeLast('/', "") }.filter { it.isNotBlank() }.distinct(),
-                        coverUri = newest.uri,
-                        latestDateTaken = newest.dateTaken
-                    )
-                }
-            }
-        } else {
-            emptyList()
-        }
-
-        val reconciledList = if (rawMedia.isNotEmpty()) {
-            val createdAlbumNames = application.getSharedPreferences("user_albums", Context.MODE_PRIVATE)
-                .getStringSet("created_albums", emptySet()) ?: emptySet()
-            
-            rawList.mapNotNull { bucket ->
-                val matchingMedia = rawMedia.filter { it.bucketId == bucket.id || it.bucketId in bucket.mergedBucketIds }
-                if (matchingMedia.isNotEmpty()) {
-                    val newest = matchingMedia.maxByOrNull { it.dateTaken } ?: matchingMedia.first()
-                    bucket.copy(
-                        count = matchingMedia.size,
-                        coverUri = newest.uri,
-                        latestDateTaken = newest.dateTaken
-                    )
-                } else {
-                    // Check if this is an empty user-created album whose directory still exists on disk
-                    val isCreatedAlbum = createdAlbumNames.any { it.equals(bucket.name, ignoreCase = true) }
-                    val dirExists = !bucket.path.isNullOrBlank() && java.io.File(bucket.path).exists()
-                    if (isCreatedAlbum && dirExists) {
-                        bucket.copy(count = 0, coverUri = null, latestDateTaken = 0L)
-                    } else {
-                        // Ghost bucket whose media has been deleted or directory no longer exists -> filter out!
-                        null
-                    }
-                }
-            }
-        } else {
-            rawList
-        }
-
-        val filtered = reconciledList.filter { !excluded.contains(it.id.toString()) }
+        _buckets, albumState.excludedBucketIds, albumState.albumSortOrder, albumState.mergeSameNamedAlbums
+    ) { list: List<BucketInfo>, excluded: Set<String>, sortOrder: AlbumSortOrder, mergeEnabled: Boolean ->
+        val filtered = list.filter { !excluded.contains(it.id.toString()) }
         val processed = if (mergeEnabled) {
             filtered.groupBy { it.name.trim().lowercase(java.util.Locale.ROOT) }.map { (_, group) ->
                 val primary = group.first()
@@ -931,7 +874,7 @@ class MainViewModel @Inject constructor(
             AlbumSortOrder.COUNT_DESC -> processed.sortedByDescending { it.count }
             AlbumSortOrder.RECENT -> processed.sortedByDescending { it.latestDateTaken }
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
 
 
@@ -1734,11 +1677,9 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             @OptIn(FlowPreview::class)
             repository.observeMediaChanges()
-                .debounce(200)
+                .drop(1) // Ignore initial registration emit so cold boot doesn't refreshAll() in-flight
+                .debounce(500)
                 .collectLatest {
-                    // Option E: Invalidate third-party cache on any MediaStore change
-                    // so new WhatsApp/Telegram files appear on next refresh without
-                    // waiting for the 60s TTL.
                     repository.invalidateThirdPartyCache()
                     refreshAll()
                 }
