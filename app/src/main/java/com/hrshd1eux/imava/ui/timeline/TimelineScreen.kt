@@ -324,6 +324,7 @@ fun TimelineScreen(
     LaunchedEffect(lazyPagingItems.itemCount) {
         if (lazyPagingItems.itemCount > 0 && !viewModel.hasAppInitiallyLoaded.value) {
             viewModel.hasAppInitiallyLoaded.value = true
+            viewModel.setInitialScanningFinished()
         }
     }
 

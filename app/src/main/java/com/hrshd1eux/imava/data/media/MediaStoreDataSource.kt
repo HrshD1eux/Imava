@@ -85,6 +85,10 @@ class MediaStoreDataSource @Inject constructor(
 
     fun fetchSecondaryMediaIds(): List<Long> = secondaryDiskMediaCache.map { it.id }
 
+    fun notifySecondaryMediaChanged() {
+        _secondaryMediaChanges.tryEmit(Unit)
+    }
+
     fun observeMediaStore(): Flow<Unit> = merge(
         callbackFlow {
             val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {

@@ -238,15 +238,22 @@ class MainViewModel @Inject constructor(
     private val _isDeepScanning = MutableStateFlow(false)
     val isDeepScanning: StateFlow<Boolean> = _isDeepScanning.asStateFlow()
 
+    private val _isManualDeepScanning = MutableStateFlow(false)
+    val isManualDeepScanning: StateFlow<Boolean> = _isManualDeepScanning.asStateFlow()
+
     private val _isInitialScanning = MutableStateFlow(true)
     val isInitialScanning: StateFlow<Boolean> = _isInitialScanning.asStateFlow()
 
+    fun setInitialScanningFinished() {
+        _isInitialScanning.value = false
+    }
+
     val isLibraryScanning: StateFlow<Boolean> = combine(
-        _isDeepScanning,
+        _isManualDeepScanning,
         _isInitialScanning
-    ) { deepScanning, initialScanning ->
-        deepScanning || initialScanning
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+    ) { manualScanning, initialScanning ->
+        manualScanning || initialScanning
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private val _lastDeepScanCount = MutableStateFlow(
         galleryPrefs.getInt("last_deep_scan_count", 0)
@@ -283,6 +290,9 @@ class MainViewModel @Inject constructor(
         if (!force && !isAutoDeepScanEnabled) return
 
         lastAutoScanTimestamp = now
+        if (isManual) {
+            _isManualDeepScanning.value = true
+        }
         viewModelScope.launch(Dispatchers.IO) {
             _isDeepScanning.value = true
             try {
@@ -303,6 +313,9 @@ class MainViewModel @Inject constructor(
                 e.printStackTrace()
             } finally {
                 _isDeepScanning.value = false
+                if (isManual) {
+                    _isManualDeepScanning.value = false
+                }
             }
         }
     }
@@ -1673,7 +1686,7 @@ class MainViewModel @Inject constructor(
                 repository.purgeExpiredTrashMedia()
                 com.hrshd1eux.imava.core.util.AppUpdateManager.cleanUpOldUpdates(application)
                 com.hrshd1eux.imava.core.util.VaultCacheManager.clearCache(application)
-                kotlinx.coroutines.delay(2000) // defer scan for cold boot performance
+                kotlinx.coroutines.delay(6000) // defer background scan to idle time after cold boot
                 if (isAutoDeepScanEnabled) {
                     triggerAutoDeepScan()
                 }

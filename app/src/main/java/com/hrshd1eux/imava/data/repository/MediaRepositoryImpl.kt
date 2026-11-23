@@ -92,10 +92,31 @@ class MediaRepositoryImpl @Inject constructor(
     @Volatile private var thirdPartyCache: List<MediaItem> = emptyList()
     @Volatile private var thirdPartyCacheTime: Long = 0L
     private val THIRD_PARTY_CACHE_TTL = 60_000L // 60 seconds
+    private val thirdPartyScanScope = kotlinx.coroutines.CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
+    @Volatile private var isThirdPartyFetching = false
 
-    private suspend fun getCachedThirdPartyMedia(): List<MediaItem> {
+    private suspend fun getCachedThirdPartyMedia(allowSyncFetch: Boolean = true): List<MediaItem> {
         val now = System.currentTimeMillis()
         if (now - thirdPartyCacheTime < THIRD_PARTY_CACHE_TTL && thirdPartyCache.isNotEmpty()) {
+            return thirdPartyCache
+        }
+        if (!allowSyncFetch) {
+            // Fast-path for instant cold boot: return empty list immediately so the UI renders in <15ms,
+            // while launching an asynchronous background scan to fetch and merge third-party media seamlessly.
+            if (!isThirdPartyFetching) {
+                isThirdPartyFetching = true
+                thirdPartyScanScope.launch {
+                    try {
+                        val fresh = fetchThirdPartyAppMedia()
+                        thirdPartyCache = fresh
+                        thirdPartyCacheTime = System.currentTimeMillis()
+                        mediaStoreDataSource.notifySecondaryMediaChanged()
+                    } catch (_: Exception) {
+                    } finally {
+                        isThirdPartyFetching = false
+                    }
+                }
+            }
             return thirdPartyCache
         }
         val fresh = try { fetchThirdPartyAppMedia() } catch (_: Exception) { emptyList() }
@@ -126,8 +147,8 @@ class MediaRepositoryImpl @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    private suspend fun getCleanedThirdPartyMedia(bucketId: Long?, mediaType: MediaTypeFilter): List<MediaItem> {
-        val raw = getCachedThirdPartyMedia() // Option C: use cache instead of always fetching
+    private suspend fun getCleanedThirdPartyMedia(bucketId: Long?, mediaType: MediaTypeFilter, allowSyncFetch: Boolean = true): List<MediaItem> {
+        val raw = getCachedThirdPartyMedia(allowSyncFetch) // Option C: use cache instead of always fetching
         val filtered = when (mediaType) {
             MediaTypeFilter.ALL -> raw
             MediaTypeFilter.IMAGES -> raw.filterIsInstance<MediaItem.Photo>()

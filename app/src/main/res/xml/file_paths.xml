@@ -3,4 +3,8 @@
     <!-- Exposes subfolders in cache directory for secure sharing & updates -->
     <cache-path name="shared_images" path="shared_images/" />
     <cache-path name="updates" path="updates/" />
+    <!-- Exposes external cache for large media (e.g. 4K videos from vault) -->
+    <external-cache-path name="shared_media_ext" path="shared_media/" />
+    <!-- Exposes public external storage files for direct zero-copy sharing -->
+    <external-path name="external_files" path="." />
 </paths>
