@@ -369,7 +369,9 @@ class MainViewModel @Inject constructor(
                     .putInt("last_deep_scan_new_count", result.newCount)
                     .putLong("last_deep_scan_timestamp", System.currentTimeMillis())
                     .apply()
-                refreshAll()
+                if (result.newCount > 0 || isManual) {
+                    refreshAll()
+                }
                 triggerAutoScrub()
                 if (isManual) {
                     _deepScanCompletionEvent.emit(result)
@@ -1685,15 +1687,21 @@ class MainViewModel @Inject constructor(
                 }
         }
 
-        // cleanup & auto deep scan after boot
+        // cleanup & throttled auto deep scan after boot
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.purgeExpiredTrashMedia()
                 com.hrshd1eux.imava.core.util.AppUpdateManager.cleanUpOldUpdates(application)
                 com.hrshd1eux.imava.core.util.VaultCacheManager.clearCache(application)
-                kotlinx.coroutines.delay(6000) // defer background scan to idle time after cold boot
+                kotlinx.coroutines.delay(12000) // defer background scan to idle time after cold boot
                 if (isAutoDeepScanEnabled) {
-                    triggerAutoDeepScan()
+                    val lastScan = galleryPrefs.getLong("last_deep_scan_timestamp", 0L)
+                    val now = System.currentTimeMillis()
+                    val cacheEmpty = repository.getSecondaryDiskMedia().isEmpty()
+                    // Only auto-scan on boot if cache is empty or older than 24 hours to prevent battery/CPU strain on low-end devices
+                    if (cacheEmpty || (now - lastScan > 86_400_000L)) {
+                        triggerAutoDeepScan()
+                    }
                 }
                 val activeIds = repository.getActiveMediaIds()
                 if (activeIds.isNotEmpty()) {
@@ -1701,16 +1709,6 @@ class MainViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            }
-        }
-
-        // Periodic background deep scan while app is running
-        viewModelScope.launch(Dispatchers.IO) {
-            while (isActive) {
-                kotlinx.coroutines.delay(45_000L)
-                if (isAutoDeepScanEnabled && !_isDeepScanning.value) {
-                    triggerAutoDeepScan()
-                }
             }
         }
 

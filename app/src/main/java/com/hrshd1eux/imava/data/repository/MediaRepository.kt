@@ -69,6 +69,7 @@ interface MediaRepository {
     fun evictSecondaryDiskItem(mediaId: Long, path: String = "")
     fun observeMediaChanges(): Flow<Unit>
     fun invalidateThirdPartyCache()
+    fun getSecondaryDiskMedia(): List<MediaItem>
     suspend fun getAllMediaItemsDirect(): List<MediaItem>
     suspend fun getAllMetadata(): List<com.hrshd1eux.imava.data.database.MediaMetadataEntity>
     suspend fun restoreMetadata(items: List<com.hrshd1eux.imava.data.database.MediaMetadataEntity>)

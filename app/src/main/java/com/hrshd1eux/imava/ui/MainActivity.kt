@@ -355,10 +355,10 @@ class MainActivity : FragmentActivity() {
             e.printStackTrace()
         }
         viewModel.onAppForegrounded(this)
+        val previouslyHadPermissions = hasPermissionsState.value
         checkPermissions()
-        if (hasPermissionsState.value) {
+        if (!previouslyHadPermissions && hasPermissionsState.value) {
             viewModel.refreshAll()
-            viewModel.triggerAutoDeepScan()
         }
 
         updatePrivacyShield(isLeaving = false)

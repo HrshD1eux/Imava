@@ -86,6 +86,8 @@ class MediaStoreDataSource @Inject constructor(
 
     fun fetchSecondaryMediaIds(): List<Long> = secondaryDiskMediaCache.map { it.id }
 
+    fun getSecondaryDiskMedia(): List<MediaItem> = secondaryDiskMediaCache
+
     fun notifySecondaryMediaChanged() {
         invalidateBucketsCache()
         _secondaryMediaChanges.tryEmit(Unit)
@@ -1056,29 +1058,25 @@ class MediaStoreDataSource @Inject constructor(
             val text = file.readText()
             if (text.isBlank()) return
             val jsonArray = org.json.JSONArray(text)
-            val items = mutableListOf<MediaItem>()
+            val items = ArrayList<MediaItem>(jsonArray.length())
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
-                val path = obj.getString("path")
-                val diskFile = java.io.File(path)
-                if (!diskFile.exists() ||
-                    diskFile.name.startsWith(".trashed", ignoreCase = true) ||
-                    diskFile.name.startsWith(".trash", ignoreCase = true) ||
-                    diskFile.name.contains(".trashed-", ignoreCase = true) ||
+                val path = obj.optString("path", "")
+                if (path.isBlank() ||
                     path.contains("/imava_trash/") ||
                     path.contains("/.trashed") ||
                     path.contains("/.Trash")
                 ) continue
                 val id = obj.optLong("id", kotlin.math.abs(path.hashCode().toLong()).coerceAtLeast(1L))
                 val mimeType = obj.optString("mimeType", "image/jpeg")
-                val dateTaken = obj.optLong("dateTaken", diskFile.lastModified())
-                val size = obj.optLong("size", diskFile.length())
+                val dateTaken = obj.optLong("dateTaken", 0L)
+                val size = obj.optLong("size", 0L)
                 val width = obj.optInt("width", 0)
                 val height = obj.optInt("height", 0)
-                val bucketId = obj.optLong("bucketId", diskFile.parentFile?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L)
-                val bucketName = obj.optString("bucketName", diskFile.parentFile?.name ?: "Unknown")
+                val bucketId = obj.optLong("bucketId", 0L)
+                val bucketName = obj.optString("bucketName", "Unknown")
                 val isVideo = obj.optBoolean("isVideo", mimeType.startsWith("video/"))
-                val uri = android.net.Uri.fromFile(diskFile)
+                val uri = android.net.Uri.fromFile(java.io.File(path))
 
                 val item = if (isVideo) {
                     MediaItem.Video(

@@ -124,8 +124,18 @@ class MediaRepositoryImpl @Inject constructor(
         if (now - thirdPartyCacheTime < THIRD_PARTY_CACHE_TTL && thirdPartyCache.isNotEmpty()) {
             return thirdPartyCache
         }
+
+        // Fast path: Immediately check if secondaryDiskMediaCache already has cached items from deep scan!
+        // This is 100% in-memory (0ms) and provides the deep scan items on frame 1 of cold boot.
+        val diskItems = mediaStoreDataSource.getSecondaryDiskMedia()
+        if (diskItems.isNotEmpty()) {
+            thirdPartyCache = diskItems
+            thirdPartyCacheTime = now
+            return diskItems
+        }
+
         if (!allowSyncFetch) {
-            // Fast-path for instant cold boot: return empty list immediately so the UI renders in <15ms,
+            // Fast-path when cache is truly empty: return empty list immediately so the UI renders in <15ms,
             // while launching an asynchronous background scan to fetch and merge third-party media seamlessly.
             if (!isThirdPartyFetching) {
                 isThirdPartyFetching = true
@@ -2006,6 +2016,8 @@ class MediaRepositoryImpl @Inject constructor(
         thirdPartyCacheTime = 0L
         mediaStoreDataSource.invalidateBucketsCache()
     }
+
+    override fun getSecondaryDiskMedia(): List<MediaItem> = mediaStoreDataSource.getSecondaryDiskMedia()
 
     override suspend fun getAllMediaItemsDirect(): List<MediaItem> = withContext(Dispatchers.IO) {
         mediaStoreDataSource.fetchMedia(limit = 0, offset = 0)
