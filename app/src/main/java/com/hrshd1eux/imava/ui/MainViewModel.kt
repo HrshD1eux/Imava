@@ -1711,8 +1711,9 @@ class MainViewModel @Inject constructor(
                 if (isAutoDeepScanEnabled) {
                     val lastScan = galleryPrefs.getLong("last_deep_scan_timestamp", 0L)
                     val now = System.currentTimeMillis()
-                    // Only auto-scan on boot if cache is empty or older than 24 hours to prevent battery/CPU strain on low-end devices
-                    if (cacheEmpty || (now - lastScan > 86_400_000L)) {
+                    // Auto-scan on boot only if cache is completely empty or on weekly maintenance schedule (7 days)
+                    // Discovered media is now permanently persisted in Room DB, so daily cold boot rescans are unnecessary
+                    if (cacheEmpty || (now - lastScan > 7 * 86_400_000L)) {
                         triggerAutoDeepScan()
                     }
                 }

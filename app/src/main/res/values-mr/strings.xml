@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">रिफ्रेश करताना डिस्कवरील प्रत्यक्ष अस्तित्व आणि ट्रॅश स्थिती तपासून हटवलेल्या फाइल्स पुन्हा येणे थांबवले आहे.</string>
     <string name="wn_v132_cache_init_perf_title">स्टार्टअप कॅशे ऑप्टिमायझेशन</string>
     <string name="wn_v132_cache_init_perf_desc">ॲप सुरू होताच कॅश केलेला मीडिया लगेच उपलब्ध करण्यासाठी स्टार्टअप क्रम व्यवस्थित केला आहे.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">शोधलेल्या मीडियासाठी कायमस्वरूपी डेटाबेस</string>
+    <string name="wn_v133_room_db_persistence_desc">लपवलेला मीडिया आता थेट रूम डेटाबेसमध्ये कायमचा जतन केला जातो, जो हटवेपर्यंत ॲप रीस्टार्ट झाल्यावरही उपलब्ध राहतो.</string>
+    <string name="wn_v133_zero_rescan_boot_title">पुन्हा स्कॅन न करता त्वरित स्टार्टअप</string>
+    <string name="wn_v133_zero_rescan_boot_desc">ॲप पुन्हा उघडताना अनावश्यक स्टोरेज स्कॅनिंग बंद केले. शोधलेला मीडिया बॅटरी खर्च न होता त्वरित दिसतो.</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite स्कीमा मायग्रेशन v11</string>
+    <string name="wn_v133_database_migration_v11_desc">जलद शोधासाठी इंडेक्स केलेली discovered_media सारणी आणि जुन्या JSON कॅशमधून स्वयंचलित डेटा स्थलांतर जोडले.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">रिअल-टाइम डिलीशन आणि ट्रॅश सिंक</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">ट्रॅश केलेल्या किंवा नष्ट केलेल्या फाइल्स फोन पुन्हा स्कॅन न करता त्वरित मेमरी व डेटाबेसमधून काढून टाकल्या जातात.</string>
 </resources>

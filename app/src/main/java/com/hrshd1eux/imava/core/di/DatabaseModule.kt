@@ -98,6 +98,30 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_10_11 = object : androidx.room.migration.Migration(10, 11) {
+        override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS `discovered_media` (
+                    `id` INTEGER NOT NULL,
+                    `path` TEXT NOT NULL,
+                    `mimeType` TEXT NOT NULL,
+                    `dateTaken` INTEGER NOT NULL,
+                    `size` INTEGER NOT NULL,
+                    `width` INTEGER NOT NULL,
+                    `height` INTEGER NOT NULL,
+                    `durationMs` INTEGER NOT NULL,
+                    `bucketId` INTEGER NOT NULL,
+                    `bucketName` TEXT NOT NULL,
+                    `isVideo` INTEGER NOT NULL,
+                    PRIMARY KEY(`id`)
+                )
+            """.trimIndent())
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_discovered_media_path` ON `discovered_media`(`path`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_discovered_media_dateTaken` ON `discovered_media`(`dateTaken`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_discovered_media_bucketId` ON `discovered_media`(`bucketId`)")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): GalleryDatabase {
@@ -126,6 +150,12 @@ object DatabaseModule {
     @Singleton
     fun provideImavaDropHistoryDao(db: GalleryDatabase): com.hrshd1eux.imava.data.database.ImavaDropHistoryDao {
         return db.imavaDropHistoryDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDiscoveredMediaDao(db: GalleryDatabase): com.hrshd1eux.imava.data.database.DiscoveredMediaDao {
+        return db.discoveredMediaDao()
     }
 }
 

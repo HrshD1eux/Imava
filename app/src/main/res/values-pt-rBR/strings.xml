@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">Valida a presença física no disco e o status da lixeira ao atualizar, impedindo que arquivos excluídos reapareçam.</string>
     <string name="wn_v132_cache_init_perf_title">Otimização do cache de inicialização</string>
     <string name="wn_v132_cache_init_perf_desc">Inicialização reordenada para que os itens em cache fiquem prontos no início sem travamentos da interface.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">Banco de dados persistente de itens descobertos</string>
+    <string name="wn_v133_room_db_persistence_desc">Mídias ocultas agora são salvas permanentemente no banco de dados Room, preservando itens entre reinicializações até que sejam excluídos.</string>
+    <string name="wn_v133_zero_rescan_boot_title">Inicialização rápida sem nova verificação</string>
+    <string name="wn_v133_zero_rescan_boot_desc">Eliminadas verificações redundantes ao reabrir o app. Os itens aparecem instantaneamente sem gastar bateria nem rastrear o armazenamento.</string>
+    <string name="wn_v133_database_migration_v11_title">Migração do esquema SQLite v11</string>
+    <string name="wn_v133_database_migration_v11_desc">Tabela discovered_media indexada para consultas imediatas e migração automática do cache JSON legado.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">Sincronização em tempo real de itens excluídos</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">Arquivos na lixeira ou triturados são excluídos imediatamente da memória e do banco de dados sem verificar o telefone novamente.</string>
 </resources>

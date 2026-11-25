@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">Prüft physische Existenz und Papierkorb-Status beim Aktualisieren, damit gelöschte Dateien nicht wieder auftauchen.</string>
     <string name="wn_v132_cache_init_perf_title">Start-Cache-Optimierung</string>
     <string name="wn_v132_cache_init_perf_desc">Neu geordnete Initialisierung, damit zwischengespeicherte Medien beim Start ohne UI-Ruckler sofort bereitstehen.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">Permanente Datenbank für entdeckte Medien</string>
+    <string name="wn_v133_room_db_persistence_desc">Versteckte Medien werden jetzt dauerhaft in einer Room-Datenbank gespeichert und bleiben bis zum Löschen nach Neustarts erhalten.</string>
+    <string name="wn_v133_zero_rescan_boot_title">Schneller Start ohne erneuten Scan</string>
+    <string name="wn_v133_zero_rescan_boot_desc">Überflüssige Dateisystem-Scans beim Öffnen der App beseitigt. Entdeckte Medien erscheinen sofort ohne Akkuverbrauch.</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite-Schema-Migration v11</string>
+    <string name="wn_v133_database_migration_v11_desc">Indizierte Tabelle discovered_media für relationale Abfragen und automatische Migration des alten JSON-Caches.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">Echtzeit-Synchronisierung gelöschter Dateien</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">Gelöschte oder geschredderte Dateien werden sofort aus dem Arbeitsspeicher und der Datenbank entfernt, ohne das Gerät neu zu scannen.</string>
 </resources>

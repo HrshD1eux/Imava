@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">রিফ্রেশের সময় ডিস্কে ফাইলের প্রকৃত উপস্থিতি ও ট্র্যাশ অবস্থা যাচাই করে মুছে ফেলা ফাইল পুনরায় আসা বন্ধ করা হয়েছে।</string>
     <string name="wn_v132_cache_init_perf_title">স্টার্টআপ ক্যাশ অপ্টিমাইজেশন</string>
     <string name="wn_v132_cache_init_perf_desc">অ্যাপ চালুর সাথে সাথে ক্যাশ করা মিডিয়া অবিলম্বে প্রদর্শন করতে স্টার্টআপ প্রক্রিয়া পুনর্বিন্যাস করা হয়েছে।</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">আবিষ্কৃত মিডিয়ার স্থায়ী ডাটাবেস</string>
+    <string name="wn_v133_room_db_persistence_desc">লুকানো মিডিয়া এখন সরাসরি রুম ডাটাবেসে স্থায়ীভাবে সংরক্ষিত থাকে, যাতে মুছে না ফেলা পর্যন্ত অ্যাপ রিস্টার্টেও তা অক্ষত থাকে।</string>
+    <string name="wn_v133_zero_rescan_boot_title">পুনঃস্ক্যান ছাড়াই দ্রুত স্টার্টআপ</string>
+    <string name="wn_v133_zero_rescan_boot_desc">অ্যাপ চালুর সময় অপ্রয়োজনীয় স্টোরেজ স্ক্যান বন্ধ করা হয়েছে। আবিষ্কৃত মিডিয়া ব্যাটারি খরচ ছাড়াই অবিলম্বে প্রদর্শিত হয়।</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite স্কিমা মাইগ্রেশন v11</string>
+    <string name="wn_v133_database_migration_v11_desc">দ্রুত অনুসন্ধানের জন্য ইনডেক্সযুক্ত discovered_media টেবিল এবং পুরানো JSON ক্যাশ থেকে স্বয়ংক্রিয় স্থানান্তর যুক্ত করা হয়েছে।</string>
+    <string name="wn_v133_lazy_deletion_sync_title">রিয়েল-টাইম ট্র্যাশ ও অপসারণ সমন্বয়</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">ট্র্যাশে পাঠানো বা বিনষ্ট করা ফাইলগুলি ফোন পুনরায় স্ক্যান না করেই তাৎক্ষণিকভাবে মেমরি ও ডাটাবেস থেকে সরানো হয়।</string>
 </resources>

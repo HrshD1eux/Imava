@@ -30,13 +30,13 @@ object WhatsNewRepository {
 
     val CURRENT_VERSION_NAME: String
         get() = try {
-            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.132" }
+            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.133" }
         } catch (_: Throwable) {
-            "1.1.132"
+            "1.1.133"
         }
 
     fun getReleases(currentVersion: String = CURRENT_VERSION_NAME): List<VersionRelease> {
-        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.132" }
+        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.133" }
         val v1 = getPreviousVersion(v0, 1)
         val v2 = getPreviousVersion(v0, 2)
 
@@ -77,7 +77,29 @@ object WhatsNewRepository {
         val clean = sanitizeVersion(version)
         val patch = clean.substringAfterLast(".").toIntOrNull() ?: 0
         return when {
-            patch >= 132 -> listOf(
+            patch >= 133 -> listOf(
+                WhatsNewItem(
+                    titleRes = R.string.wn_v133_room_db_persistence_title,
+                    descRes = R.string.wn_v133_room_db_persistence_desc,
+                    category = WhatsNewCategory.STORAGE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v133_zero_rescan_boot_title,
+                    descRes = R.string.wn_v133_zero_rescan_boot_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v133_database_migration_v11_title,
+                    descRes = R.string.wn_v133_database_migration_v11_desc,
+                    category = WhatsNewCategory.FEATURES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v133_lazy_deletion_sync_title,
+                    descRes = R.string.wn_v133_lazy_deletion_sync_desc,
+                    category = WhatsNewCategory.FIXES
+                )
+            )
+            patch == 132 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v132_ghost_thumb_purger_title,
                     descRes = R.string.wn_v132_ghost_thumb_purger_desc,

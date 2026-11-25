@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">Vérifie la présence physique sur le disque et l\'état de la corbeille lors de l\'actualisation pour éviter que les fichiers supprimés réapparaissent.</string>
     <string name="wn_v132_cache_init_perf_title">Optimisation du cache au démarrage</string>
     <string name="wn_v132_cache_init_perf_desc">Réorganisation de l\'initialisation pour que les médias en cache soient prêts dès le lancement sans blocage de l\'interface.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">Base de données persistante des médias découverts</string>
+    <string name="wn_v133_room_db_persistence_desc">Les fichiers cachés sont désormais enregistrés de manière permanente dans la base Room et conservés au redémarrage jusqu\'à leur suppression.</string>
+    <string name="wn_v133_zero_rescan_boot_title">Démarrage rapide sans nouvelle analyse</string>
+    <string name="wn_v133_zero_rescan_boot_desc">Suppression des analyses redondantes à l\'ouverture. Les médias découverts s\'affichent instantanément sans vider la batterie.</string>
+    <string name="wn_v133_database_migration_v11_title">Migration de schéma SQLite v11</string>
+    <string name="wn_v133_database_migration_v11_desc">Table discovered_media indexée pour des requêtes instantanées et migration automatique de l\'ancien cache JSON.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">Synchronisation des suppressions en temps réel</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">Les fichiers mis à la corbeille ou détruits sont immédiatement évincés de la mémoire et de la base sans réanalyser l\'appareil.</string>
 </resources>

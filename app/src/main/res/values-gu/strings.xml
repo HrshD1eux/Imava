@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">રિફ્રેશ વખતે વાસ્તવિક હાજરી અને ટ્રૅશ સ્થિતિ ચકાસીને કાઢી નાખેલ ફાઇલોને ફરી દેખાતી અટકાવે છે.</string>
     <string name="wn_v132_cache_init_perf_title">સ્ટાર્ટઅપ કેશ ઓપ્ટિમાઇઝેશન</string>
     <string name="wn_v132_cache_init_perf_desc">ઍપ શરૂ થતાં જ કૅશ થયેલ મીડિયા તરત ઉપલબ્ધ થાય તે માટે પ્રારંભિક પ્રક્રિયા સુવ્યવસ્થિત કરવામાં આવી છે.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">શોધાયેલ મીડિયા માટે કાયમી ડેટાબેઝ</string>
+    <string name="wn_v133_room_db_persistence_desc">છુપાયેલ મીડિયા હવે સીધું રૂમ ડેટાબેઝમાં કાયમી ધોરણે સંગ્રહિત થાય છે, જેથી કાઢી ન નાખો ત્યાં સુધી ઍપ રીસ્ટાર્ટ પર પણ ઉપલબ્ધ રહે છે.</string>
+    <string name="wn_v133_zero_rescan_boot_title">ફરીથી સ્કેન કર્યા વિના ઝડપી સ્ટાર્ટઅપ</string>
+    <string name="wn_v133_zero_rescan_boot_desc">ઍપ ફરીથી ખોલતી વખતે બિનજરૂરી સ્ટોરેજ સ્કેનિંગ દૂર કરવામાં આવ્યું. બેટરી વપરાશ વિના શોધાયેલ મીડિયા તરત દેખાય છે.</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite સ્કીમા સ્થળાંતર v11</string>
+    <string name="wn_v133_database_migration_v11_desc">ઝડપી ક્વેરી માટે ઇન્ડેક્ષ્ડ discovered_media ટેબલ અને જૂની JSON કેશમાંથી સ્વચાલિત ડેટા સ્થળાંતર ઉમેરાયું.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">રીઅલ-ટાઇમ ડિલીશન અને ટ્રૅશ સિંક</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">ટ્રૅશ અથવા નાશ કરેલ છુપાયેલી ફાઇલો ઉપકરણને ફરીથી સ્કેન કર્યા વિના તરત જ મેમરી અને ડેટાબેઝમાંથી દૂર થાય છે.</string>
 </resources>

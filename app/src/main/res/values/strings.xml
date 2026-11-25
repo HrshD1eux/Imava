@@ -1632,4 +1632,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">Verified physical disk presence and trash status on refresh, preventing deleted or trashed files from recurring in your timeline.</string>
     <string name="wn_v132_cache_init_perf_title">Startup Cache Optimization</string>
     <string name="wn_v132_cache_init_perf_desc">Re-ordered startup initialization to make cached media ready immediately on launch without null checks or UI stalls.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">Persistent Discovered Media Database</string>
+    <string name="wn_v133_room_db_persistence_desc">Hidden and deep-scan media are now permanently saved in a dedicated Room database, preserving discovered items across restarts until deleted.</string>
+    <string name="wn_v133_zero_rescan_boot_title">Zero-Rescan Cold Boot</string>
+    <string name="wn_v133_zero_rescan_boot_desc">Eliminated redundant filesystem scans on app reopen. Discovered media appears instantly on frame 1 without battery drain or storage crawling.</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite Schema Migration v11</string>
+    <string name="wn_v133_database_migration_v11_desc">Added indexed discovered_media table for relational querying and automatic one-time migration from legacy JSON cache.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">Real-Time Deletion &amp; Trash Sync</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">Trashed or deleted hidden files are instantly evicted from memory and persistent database storage without rescanning the phone.</string>
 </resources>

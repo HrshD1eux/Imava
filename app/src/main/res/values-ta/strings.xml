@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">புதுப்பிக்கும் போது சேமிப்பகத்தில் கோப்பின் இருப்பு மற்றும் குப்பை நிலையை சரிபார்த்து, நீக்கப்பட்டவை மீண்டும் வருவதைத் தடுக்கிறது.</string>
     <string name="wn_v132_cache_init_perf_title">தொடக்க தற்காலிக நினைவக மேம்படுத்தல்</string>
     <string name="wn_v132_cache_init_perf_desc">ஆப் தொடங்கும் போதே தற்காலிக சேமிப்பில் உள்ள மீடியாக்கள் உடனடியாக கிடைக்க தொடக்க செயல்முறை மறுசீரமைக்கப்பட்டுள்ளது.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">கண்டறியப்பட்ட மீடியாவிற்கான நிரந்தர தரவுத்தளம்</string>
+    <string name="wn_v133_room_db_persistence_desc">மறைக்கப்பட்ட மீடியா இப்போது ரூம் தரவுத்தளத்தில் நிரந்தரமாக சேமிக்கப்படுகிறது, நீக்கும் வரை ஆப் மறுதொடக்கத்திலும் மாறாமல் இருக்கும்.</string>
+    <string name="wn_v133_zero_rescan_boot_title">மறு-ஸ்கேன் இல்லாத உடனடி தொடக்கம்</string>
+    <string name="wn_v133_zero_rescan_boot_desc">ஆப் மீண்டும் திறக்கும் போது தேவையற்ற நினைவக ஸ்கேனிங் நீக்கப்பட்டது. பேட்டரி விரயமின்றி கண்டறியப்பட்ட மீடியா உடனே தோன்றும்.</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite திட்ட இடம்பெயர்வு v11</string>
+    <string name="wn_v133_database_migration_v11_desc">விரைவான வினவல்களுக்கு குறியீட்டுடன் கூடிய discovered_media அட்டவணை மற்றும் பழைய JSON தற்காலிக சேமிப்பிலிருந்து தானியங்கி இடம்பெயர்வு.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">நிகழ்நேர நீக்கம் &amp; குப்பை ஒத்திசைவு</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">குப்பைக்கு நகர்த்தப்பட்ட அல்லது அழிக்கப்பட்ட கோப்புகள் தொலைபேசியை மீண்டும் ஸ்கேன் செய்யாமல் நினைவகம் மற்றும் தரவுத்தளத்திலிருந்து உடனே நீக்கப்படும்.</string>
 </resources>

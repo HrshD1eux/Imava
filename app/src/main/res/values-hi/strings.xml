@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">रिफ्रेश पर वास्तविक डिस्क मौजूदगी और ट्रैश स्थिति की पुष्टि करता है, जिससे हटाई गई फाइलें दोबारा प्रकट नहीं होतीं।</string>
     <string name="wn_v132_cache_init_perf_title">स्टार्टअप कैशे अनुकूलन</string>
     <string name="wn_v132_cache_init_perf_desc">ऐप शुरू होते ही कैश्ड मीडिया तुरंत उपलब्ध कराने के लिए स्टार्टअप प्रक्रिया को अनुकूलित किया गया है।</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">खोजे गए मीडिया के लिए स्थायी डेटाबेस</string>
+    <string name="wn_v133_room_db_persistence_desc">छिपे हुए मीडिया को अब स्थायी रूप से रूम डेटाबेस में सहेजा गया है, जिससे वे डिलीट होने तक ऐप बंद करने पर भी बने रहते हैं।</string>
+    <string name="wn_v133_zero_rescan_boot_title">बिना दोबारा स्कैन किए त्वरित स्टार्टअप</string>
+    <string name="wn_v133_zero_rescan_boot_desc">ऐप दोबारा खोलने पर अनावश्यक फाइल स्कैन बंद किए गए। खोजा गया मीडिया बिना बैटरी खर्च के तुरंत दिखाई देता है।</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite स्कीमा माइग्रेशन v11</string>
+    <string name="wn_v133_database_migration_v11_desc">त्वरित डेटा लोड के लिए इंडेक्स्ड discovered_media तालिका और पुराने JSON कैशे से स्वचालित माइग्रेशन जोड़ा गया।</string>
+    <string name="wn_v133_lazy_deletion_sync_title">रीयल-टाइम डिलीशन और ट्रैश सिंक</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">ट्रैश या श्रेड की गई छिपी फाइलों को डिवाइस को दोबारा स्कैन किए बिना तुरंत मेमोरी और डेटाबेस से हटा दिया जाता है।</string>
 </resources>

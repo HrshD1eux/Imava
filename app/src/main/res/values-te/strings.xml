@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">రిఫ్రెష్ చేసినప్పుడు డిస్క్‌లో అసలు ఉనికి మరియు ట్రాష్ స్థితిని ధృవీకరించి, తొలగించిన ఫైళ్లు తిరిగి కనిపించకుండా చేస్తుంది.</string>
     <string name="wn_v132_cache_init_perf_title">స్టార్టప్ కాష్ ఆప్టిమైజేషన్</string>
     <string name="wn_v132_cache_init_perf_desc">యాప్ ప్రారంభమైన వెంటనే కాష్ చేయబడిన మీడియా సిద్ధంగా ఉండేలా స్టార్టప్ క్రమాన్ని మెరుగుపరిచాము.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">గుర్తించిన మీడియా కోసం శాశ్వత డేటాబేస్</string>
+    <string name="wn_v133_room_db_persistence_desc">దాచిన మీడియా ఇప్పుడు శాశ్వతంగా రూమ్ డేటాబేస్‌లో భద్రపరచబడుతుంది, తొలగించే వరకు యాప్ రీస్టార్ట్ అయినా స్థిరంగా ఉంటుంది.</string>
+    <string name="wn_v133_zero_rescan_boot_title">రీ-స్కాన్ లేని వేగవంతమైన స్టార్టప్</string>
+    <string name="wn_v133_zero_rescan_boot_desc">యాప్ తిరిగి తెరిచినప్పుడు అనవసరమైన స్టోరేజ్ స్కానింగ్ తొలగించబడింది. బ్యాటరీ ఖర్చు లేకుండా గుర్తించిన మీడియా వెంటనే కనిపిస్తుంది.</string>
+    <string name="wn_v133_database_migration_v11_title">SQLite స్కీమా మైగ్రేషన్ v11</string>
+    <string name="wn_v133_database_migration_v11_desc">వేగవంతమైన క్వెరీల కోసం ఇండెక్స్ చేసిన discovered_media పట్టిక మరియు పాత JSON కాష్ నుండి ఆటోమేటిక్ మైగ్రేషన్ జోడించబడింది.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">రియల్-టైమ్ తొలగింపు &amp; ట్రాష్ సమకాలీకరణ</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">ట్రాష్ లేదా ష్రెడ్ చేసిన దాచిన ఫైళ్లు ఫోన్‌ను మళ్లీ స్కాన్ చేయకుండానే మెమరీ మరియు డేటాబేస్ నుండి వెంటనే తొలగించబడతాయి.</string>
 </resources>

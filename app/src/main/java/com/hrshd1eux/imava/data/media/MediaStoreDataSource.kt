@@ -115,7 +115,8 @@ enum class MediaTypeFilter {
 }
 
 class MediaStoreDataSource @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val discoveredMediaDao: com.hrshd1eux.imava.data.database.DiscoveredMediaDao? = null
 ) {
     private val contentResolver: ContentResolver get() = context.contentResolver
     private val _secondaryMediaChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -1114,6 +1115,14 @@ class MediaStoreDataSource @Inject constructor(
         }
         if (cacheUpdated) {
             saveCacheToDisk()
+            if (discoveredMediaDao != null) {
+                try {
+                    val entities = secondaryDiskMediaCache.map {
+                        com.hrshd1eux.imava.data.database.DiscoveredMediaEntity.fromMediaItem(it)
+                    }
+                    discoveredMediaDao.insertOrUpdateBatch(entities)
+                } catch (_: Exception) {}
+            }
         }
 
         mediaList
@@ -1147,6 +1156,15 @@ class MediaStoreDataSource @Inject constructor(
             secondaryDiskMediaCache.removeAll(toRemove.toSet())
             count = toRemove.size
             saveCacheToDisk()
+            if (discoveredMediaDao != null) {
+                kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        discoveredMediaDao.purgeThumbnails()
+                        val removedIds = toRemove.map { it.id }
+                        discoveredMediaDao.deleteByIds(removedIds)
+                    } catch (_: Exception) {}
+                }
+            }
             notifySecondaryMediaChanged()
         }
         return count
@@ -1156,6 +1174,16 @@ class MediaStoreDataSource @Inject constructor(
         val removed = secondaryDiskMediaCache.removeAll { it.id == id || (path.isNotBlank() && it.path == path) }
         if (removed) {
             saveCacheToDisk()
+        }
+        if (discoveredMediaDao != null) {
+            kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    discoveredMediaDao.deleteById(id)
+                    if (path.isNotBlank()) {
+                        discoveredMediaDao.deleteByPath(path)
+                    }
+                } catch (_: Exception) {}
+            }
         }
     }
 
@@ -1191,6 +1219,54 @@ class MediaStoreDataSource @Inject constructor(
     }
 
     private fun loadCacheFromDisk() {
+        loadLegacyCacheFromDisk()
+
+        // Sync with persistent Room Database
+        if (discoveredMediaDao != null) {
+            kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val dbEntities = discoveredMediaDao.getAllDiscoveredMedia()
+                    if (dbEntities.isNotEmpty()) {
+                        val validItems = dbEntities.mapNotNull { entity ->
+                            val pLower = entity.path.lowercase(java.util.Locale.ROOT)
+                            val nLower = fileDisplayName(entity.path)
+                            val isThumb = pLower.contains("/.thumbnails/") ||
+                                pLower.contains("/thumbnails/") ||
+                                pLower.contains("/.cache/") ||
+                                pLower.contains("/cache/") ||
+                                pLower.contains("/.thumbs/") ||
+                                pLower.contains("/thumbs/") ||
+                                nLower.startsWith(".thumb") ||
+                                nLower.startsWith("thumb_")
+                            if (!isThumb && java.io.File(entity.path).exists()) {
+                                entity.toMediaItem()
+                            } else {
+                                null
+                            }
+                        }
+                        secondaryDiskMediaCache.clear()
+                        secondaryDiskMediaCache.addAll(validItems)
+                        saveCacheToDisk()
+                        notifySecondaryMediaChanged()
+
+                        val staleIds = dbEntities.filter { !java.io.File(it.path).exists() }.map { it.id }
+                        if (staleIds.isNotEmpty()) {
+                            discoveredMediaDao.deleteByIds(staleIds)
+                        }
+                    } else if (secondaryDiskMediaCache.isNotEmpty()) {
+                        val entities = secondaryDiskMediaCache.map {
+                            com.hrshd1eux.imava.data.database.DiscoveredMediaEntity.fromMediaItem(it)
+                        }
+                        discoveredMediaDao.insertOrUpdateBatch(entities)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    private fun loadLegacyCacheFromDisk() {
         try {
             val dirPath = try { context.filesDir?.path } catch (e: Exception) { null }
             if (dirPath.isNullOrEmpty()) return
@@ -1410,6 +1486,16 @@ class MediaStoreDataSource @Inject constructor(
                 secondaryDiskMediaCache.clear()
                 secondaryDiskMediaCache.addAll(discoveredItems)
                 saveCacheToDisk()
+                if (discoveredMediaDao != null && discoveredItems.isNotEmpty()) {
+                    try {
+                        val entities = discoveredItems.map {
+                            com.hrshd1eux.imava.data.database.DiscoveredMediaEntity.fromMediaItem(it)
+                        }
+                        discoveredMediaDao.insertOrUpdateBatch(entities)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             }
 
             if (unindexedFiles.isNotEmpty()) {

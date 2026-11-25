@@ -1631,4 +1631,14 @@
     <string name="wn_v132_delete_resurrection_fix_desc">Проверяет физическое наличие файлов и статус корзины при обновлении, предотвращая повторное появление удаленных файлов.</string>
     <string name="wn_v132_cache_init_perf_title">Оптимизация кэша при запуске</string>
     <string name="wn_v132_cache_init_perf_desc">Переупорядоченная инициализация для мгновенной готовности кэшированных данных при старте без пауз в интерфейсе.</string>
+
+    <!-- What's New v1.1.133 -->
+    <string name="wn_v133_room_db_persistence_title">Постоянная база данных найденных медиа</string>
+    <string name="wn_v133_room_db_persistence_desc">Скрытые медиафайлы теперь надежно сохраняются в базе данных Room и остаются доступны после перезапуска вплоть до удаления.</string>
+    <string name="wn_v133_zero_rescan_boot_title">Мгновенный запуск без повторного сканирования</string>
+    <string name="wn_v133_zero_rescan_boot_desc">Устранены лишние сканирования файловой системы при запуске. Найденные файлы отображаются мгновенно без расхода батареи.</string>
+    <string name="wn_v133_database_migration_v11_title">Миграция схемы SQLite v11</string>
+    <string name="wn_v133_database_migration_v11_desc">Индексированная таблица discovered_media для мгновенных запросов и автоматический перенос данных из старого JSON-кэша.</string>
+    <string name="wn_v133_lazy_deletion_sync_title">Синхронизация удаления файлов в реальном времени</string>
+    <string name="wn_v133_lazy_deletion_sync_desc">Удаленные или уничтоженные файлы мгновенно исключаются из памяти и базы данных без повторного сканирования устройства.</string>
 </resources>
