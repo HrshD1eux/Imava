@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW फॉरमॅट, WMV आणि दुय्यम प्रोफाइल डिरेक्टरीसाठी समर्थन जोडले.</string>
     <string name="wn_v131_perf_optimization_title">सिंगल-पास लायब्ररी प्रवाह</string>
     <string name="wn_v131_perf_optimization_desc">अणु सिंगल-पास क्वेरीने अनुक्रमिक पेजिंग बदलले, ज्यामुळे लोड त्वरित होते.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">घोस्ट थंबनेल क्लिनर आणि श्रेडर</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">निरुपयोगी थंबनेल्स स्वच्छ करते, डिस्क फाइल्स नष्ट करते, मीडियास्टोअर नोंदी हटवते आणि मेमरी कॅशे त्वरित रिकामी करते.</string>
+    <string name="wn_v132_target_app_discovery_title">अचूक ॲप मीडिया शोध</string>
+    <string name="wn_v132_target_app_discovery_desc">लपवलेल्या मीडियाचा शोध केवळ व्हॉट्सॲप, टेलिग्राम, इन्स्टाग्राम, स्नॅपचॅट, मेसेंजर, डिस्कॉर्ड, सिग्नल आणि व्हॉल्टपुरता मर्यादित करतो.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">हटवलेल्या फाइल्सचे पुनरागमन निराकरण</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">रिफ्रेश करताना डिस्कवरील प्रत्यक्ष अस्तित्व आणि ट्रॅश स्थिती तपासून हटवलेल्या फाइल्स पुन्हा येणे थांबवले आहे.</string>
+    <string name="wn_v132_cache_init_perf_title">स्टार्टअप कॅशे ऑप्टिमायझेशन</string>
+    <string name="wn_v132_cache_init_perf_desc">ॲप सुरू होताच कॅश केलेला मीडिया लगेच उपलब्ध करण्यासाठी स्टार्टअप क्रम व्यवस्थित केला आहे.</string>
 </resources>

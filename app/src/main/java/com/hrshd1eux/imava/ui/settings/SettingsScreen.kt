@@ -896,9 +896,8 @@ fun SettingsScreen(
                         onClick = {
                             if (!isPurgingThumbnails) {
                                 isPurgingThumbnails = true
-                                purgeScope.launch {
-                                    com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
-                                    val result = com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.purgeAndShredGhostThumbnails(context)
+                                com.hrshd1eux.imava.core.util.HapticUtil.performClick(context)
+                                viewModel.purgeGhostThumbnails(context) { result ->
                                     val mbStr = String.format(java.util.Locale.getDefault(), "%.2f", result.bytesReclaimed / (1024.0 * 1024.0))
                                     val mbFreed = context.getString(R.string.settings_mb_fmt, mbStr)
                                     android.widget.Toast.makeText(

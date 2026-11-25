@@ -1622,4 +1622,14 @@
     <string name="wn_v131_broad_format_desc">Compatibilidad añadida para SVG, AVIF, formatos RAW, WMV y directorios de perfiles secundarios.</string>
     <string name="wn_v131_perf_optimization_title">Flujo de biblioteca de paso único</string>
     <string name="wn_v131_perf_optimization_desc">Se reemplazó la paginación secuencial por una consulta atómica de un solo paso, eliminando retrasos.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">Limpiador de miniaturas fantasma</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">Limpia a fondo miniaturas huérfanas, destruye archivos en disco, elimina registros de MediaStore y purga la memoria caché al instante.</string>
+    <string name="wn_v132_target_app_discovery_title">Detección estricta de aplicaciones</string>
+    <string name="wn_v132_target_app_discovery_desc">Limita el escaneo oculto a WhatsApp, Telegram, Instagram, Snapchat, Messenger, Discord, Signal y cajas fuertes, omitiendo cachés del sistema.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">Corrección de elementos eliminados recurrentes</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">Comprueba la existencia real en disco y el estado de papelera al actualizar, evitando que los archivos eliminados reaparezcan.</string>
+    <string name="wn_v132_cache_init_perf_title">Optimización de caché de inicio</string>
+    <string name="wn_v132_cache_init_perf_desc">Reorganizada la inicialización para que los medios en caché estén listos al instante sin pausas en la interfaz.</string>
 </resources>

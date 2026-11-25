@@ -1,3 +1,12 @@
+## 🚀 What's New in Imava v1.1.132
+
+* **Ghost Thumbnail Auto-Purger & Shredder**: Fixed ghost thumbnail purge pipeline to completely shred disk artifacts, permanently delete corresponding MediaStore records, evict stale cache entries, and trigger an immediate UI refresh.
+* **Strict Target-App Media Discovery**: Hardened deep scanning to focus strictly on genuine user social, messaging, and privacy apps (WhatsApp, Telegram, Instagram, Snapchat, Messenger, Discord, Signal, Twitter/X, Reddit, TikTok, and user vaults), permanently excluding OS/system thumbnail caches (`.thumbnails`, `.cache`, `.thumbs`).
+* **Elimination of Deleted Item Resurrection**: Resolved the loop where deleted or trashed items reappeared upon refresh by verifying physical file existence before query resolution and ensuring trashed items are never untrashed unless re-downloaded.
+* **High-Performance In-Memory Cache Initialization**: Re-ordered data source initialization so in-memory secondary disk caches are immediately ready upon startup, guaranteeing zero null references, instant rendering, and zero UI stalls.
+
+---
+
 ## 🚀 What's New in Imava v1.1.131
 
 * **100% Accurate Hidden & .nomedia Discovery**: Completely resolved the MediaStore `media_type = 0` black-hole trap and 22-path hardcoded pattern limits. Secondary filesystem scan and MediaStore queries now operate in total synergy, accurately discovering and indexing all hidden media across user directories.

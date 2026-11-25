@@ -820,4 +820,22 @@ class MediaRepositoryImplTest {
         assertTrue(results.any { it.id == 201L })
         assertTrue(results.any { it.id == 205L })
     }
+
+    @Test
+    fun testPurgeThumbnailCaches_delegatesToDataSource() = runBlocking {
+        val fakeDao = FakeMetadataDao()
+        val mockContext = mockk<Context>(relaxed = true)
+        val mockDataSource = mockk<MediaStoreDataSource>(relaxed = true)
+
+        coEvery { mockDataSource.purgeThumbnailCaches() } returns 42
+
+        val repository = MediaRepositoryImpl(
+            context = mockContext,
+            mediaStoreDataSource = mockDataSource,
+            metadataDao = fakeDao
+        )
+
+        val purged = repository.purgeThumbnailCaches()
+        assertEquals(42, purged)
+    }
 }

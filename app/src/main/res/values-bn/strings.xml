@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW ফর্ম্যাট, WMV এবং সেকেন্ডারি প্রোফাইল ডিরেক্টরি সমর্থন যোগ করা হয়েছে।</string>
     <string name="wn_v131_perf_optimization_title">সিঙ্গেল-পাস লাইব্রেরি প্রবাহ</string>
     <string name="wn_v131_perf_optimization_desc">ধারাবাহিক পেজিং পরিবর্তন করে সিঙ্গেল-পাস কোয়েরি যুক্ত করা হয়েছে যাতে লোডিং দ্রুত হয়।</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">ঘোস্ট থাম্বনেইল ক্লিনার ও শ্রেডার</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">অপ্রয়োজনীয় থাম্বনেইল পরিষ্কার করে, ডিস্ক ফাইল বিনষ্ট করে, মিডিয়াস্টোর তথ্য মুছে ফেলে এবং তাৎক্ষণিকভাবে মেমরি ক্যাশ খালি করে।</string>
+    <string name="wn_v132_target_app_discovery_title">সুনির্দিষ্ট অ্যাপ মিডিয়া সন্ধান</string>
+    <string name="wn_v132_target_app_discovery_desc">লুকানো মিডিয়া সন্ধানকে কেবল হোয়াটসঅ্যাপ, টেলিগ্রাম, ইনস্টাগ্রাম, স্ন্যাপচ্যাট, মেসেঞ্জার, ডিসকর্ড, সিগন্যাল এবং ভল্টে সীমাবদ্ধ করে।</string>
+    <string name="wn_v132_delete_resurrection_fix_title">মুছে ফেলা ফাইলের পুনরাবৃত্তি সমাধান</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">রিফ্রেশের সময় ডিস্কে ফাইলের প্রকৃত উপস্থিতি ও ট্র্যাশ অবস্থা যাচাই করে মুছে ফেলা ফাইল পুনরায় আসা বন্ধ করা হয়েছে।</string>
+    <string name="wn_v132_cache_init_perf_title">স্টার্টআপ ক্যাশ অপ্টিমাইজেশন</string>
+    <string name="wn_v132_cache_init_perf_desc">অ্যাপ চালুর সাথে সাথে ক্যাশ করা মিডিয়া অবিলম্বে প্রদর্শন করতে স্টার্টআপ প্রক্রিয়া পুনর্বিন্যাস করা হয়েছে।</string>
 </resources>

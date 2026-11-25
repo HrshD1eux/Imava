@@ -83,13 +83,17 @@ class MediaRepositoryImpl @Inject constructor(
             if (meta.isTrashed && meta.originalPath.isNotBlank()) {
                 val file = java.io.File(meta.originalPath)
                 if (file.exists() && file.isFile && file.length() > 0L && !file.name.startsWith(".trashed")) {
-                    // Physical file physically exists at originalPath: the file was re-downloaded (e.g. via WhatsApp)
-                    // or replaced with live media. Clear stale trashed state in DB so the media item appears immediately.
-                    try {
-                        metadataDao.updateTrashed(meta.mediaId, false, 0L)
-                        cleanupImavaTrashFile(meta.mediaId)
-                    } catch (_: Exception) {}
-                    return@mapNotNull null
+                    val filesDirPath = try { context.filesDir?.path } catch (_: Exception) { null }
+                    val trashDir = if (!filesDirPath.isNullOrEmpty()) java.io.File(filesDirPath, "imava_trash") else null
+                    val hasTrashedCopy = trashDir != null && trashDir.exists() && !trashDir.listFiles { _, name -> name.startsWith("${meta.mediaId}_") }.isNullOrEmpty()
+                    // ONLY treat as re-downloaded if there is no copy in imava_trash and the file was modified after being trashed
+                    if (!hasTrashedCopy && meta.trashTime > 0L && file.lastModified() > meta.trashTime) {
+                        try {
+                            metadataDao.updateTrashed(meta.mediaId, false, 0L)
+                            cleanupImavaTrashFile(meta.mediaId)
+                        } catch (_: Exception) {}
+                        return@mapNotNull null
+                    }
                 }
             }
             meta
@@ -101,7 +105,9 @@ class MediaRepositoryImpl @Inject constructor(
 
     private fun cleanupImavaTrashFile(mediaId: Long) {
         try {
-            val trashDir = java.io.File(context.filesDir, "imava_trash")
+            val filesDirPath = try { context.filesDir?.path } catch (_: Exception) { null }
+            if (filesDirPath.isNullOrEmpty()) return
+            val trashDir = java.io.File(filesDirPath, "imava_trash")
             if (trashDir.exists()) {
                 trashDir.listFiles { _, name -> name.startsWith("${mediaId}_") }?.forEach { tf ->
                     try { tf.delete() } catch (_: Exception) {}
@@ -2027,6 +2033,10 @@ class MediaRepositoryImpl @Inject constructor(
 
     override fun evictSecondaryDiskItem(mediaId: Long, path: String) {
         mediaStoreDataSource.evictItem(mediaId, path)
+    }
+
+    override suspend fun purgeThumbnailCaches(): Int = withContext(Dispatchers.IO) {
+        mediaStoreDataSource.purgeThumbnailCaches()
     }
 
     override fun invalidateThirdPartyCache() {

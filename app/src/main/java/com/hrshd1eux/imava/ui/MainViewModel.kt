@@ -399,6 +399,18 @@ class MainViewModel @Inject constructor(
         return result
     }
 
+    fun purgeGhostThumbnails(context: Context, onComplete: ((com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.PurgeResult) -> Unit)? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val res = com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.purgeAndShredGhostThumbnails(context)
+            repository.purgeThumbnailCaches()
+            repository.invalidateThirdPartyCache()
+            refreshAll()
+            withContext(Dispatchers.Main) {
+                onComplete?.invoke(res)
+            }
+        }
+    }
+
     private val _autoScrubBucketIds = MutableStateFlow<Set<String>>(
         galleryPrefs.getStringSet("auto_scrub_bucket_ids", emptySet()) ?: emptySet()
     )

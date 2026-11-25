@@ -239,9 +239,8 @@ fun StorageDoctorScreen(
                             onClick = {
                                 if (!isPurgingGhostThumbs) {
                                     isPurgingGhostThumbs = true
-                                    scope.launch {
-                                        HapticUtil.performClick(context)
-                                        val res = com.hrshd1eux.imava.core.util.ThumbnailPurgeUtil.purgeAndShredGhostThumbnails(context)
+                                    HapticUtil.performClick(context)
+                                    viewModel.purgeGhostThumbnails(context) { res ->
                                         val freedStr = StorageDoctorUtils.formatBytes(res.bytesReclaimed)
                                         Toast.makeText(context, context.getString(R.string.doctor_shredded_thumbs_toast_fmt, res.filesPurged, freedStr), Toast.LENGTH_SHORT).show()
                                         HapticUtil.performSuccess(context)

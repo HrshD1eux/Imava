@@ -143,6 +143,13 @@ object ThumbnailPurgeUtil {
             e.printStackTrace()
         }
 
+        // Delete any ghost thumbnail records from MediaStore database
+        try {
+            val collection = android.provider.MediaStore.Files.getContentUri("external")
+            val selection = "${android.provider.MediaStore.Files.FileColumns.DATA} LIKE '%/.thumbnails/%' OR ${android.provider.MediaStore.Files.FileColumns.DATA} LIKE '%/thumbnails/%' OR ${android.provider.MediaStore.Files.FileColumns.DATA} LIKE '%/.thumbs/%' OR ${android.provider.MediaStore.Files.FileColumns.DATA} LIKE '%/thumbs/%'"
+            context.contentResolver.delete(collection, selection, null)
+        } catch (_: Exception) {}
+
         PurgeResult(
             filesPurged = purgedCount,
             bytesReclaimed = bytesReclaimed,

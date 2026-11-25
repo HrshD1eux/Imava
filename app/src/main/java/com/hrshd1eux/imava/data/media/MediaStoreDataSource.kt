@@ -30,6 +30,7 @@ import javax.inject.Inject
 private const val QUERY_ARG_MATCH_NOMEDIA = "android:query-arg-match-nomedia"
 
 private val THIRD_PARTY_PATH_PATTERNS = arrayOf(
+    // WhatsApp (Personal, Business, Mods)
     "%/WhatsApp/%Sent/%",
     "%/WhatsApp/%Private/%",
     "%/WhatsApp/%Animated Gifs/%",
@@ -41,17 +42,48 @@ private val THIRD_PARTY_PATH_PATTERNS = arrayOf(
     "%/FMWhatsApp/%",
     "%/YoWhatsApp/%",
     "%/WhatsApp Plus/%",
+    "%/com.whatsapp/%",
+    "%/com.whatsapp.w4b/%",
+
+    // Telegram
     "%/Telegram/%",
-    "%/Discord/%",
+    "%/org.telegram.messenger/%",
+
+    // Instagram
+    "%/Instagram/%",
+    "%/com.instagram.android/%",
+
+    // Snapchat
     "%/Snapchat/%",
+    "%/com.snapchat.android/%",
+
+    // Messenger & Facebook
+    "%/Messenger/%",
+    "%/Facebook/%",
+    "%/com.facebook.orca/%",
+
+    // Other social & messaging apps
+    "%/Discord/%",
+    "%/com.discord/%",
     "%/Signal/%",
+    "%/org.thoughtcrime.securesms/%",
     "%/Viber/%",
+    "%/Twitter/%",
+    "%/com.twitter.android/%",
+    "%/Reddit/%",
+    "%/TikTok/%",
+    "%/WeChat/%",
+    "%/MicroMsg/%",
+    "%/Line/%",
+
+    // Vaults & Privacy Folders
     "%/%.hidden/%",
     "%/%.secret/%",
     "%/%.vault/%",
     "%/%.private/%",
     "%/%.calculator/%",
-    "%/%.nomedia%"
+    "%/%.safe/%",
+    "%/%.locked/%"
 )
 
 private val THIRD_PARTY_SELECTION: String by lazy {
@@ -61,7 +93,14 @@ private val THIRD_PARTY_SELECTION: String by lazy {
     val imageExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.gif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heic' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.bmp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.dng' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.svg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.arw' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.cr2' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.cr3' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.nef' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.nrw' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.raf' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.orf' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.rw2' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.pef' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.srw')"
     val videoExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mkv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mov' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avi' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webm' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3gp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m4v' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.wmv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.flv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.asf' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3g2' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m2ts')"
     val mediaMatch = "($imageExtensions OR $videoExtensions OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
-    "(($pathConditions) AND $mediaMatch) OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND $mediaMatch)"
+
+    // Strictly exclude all system thumbnail and cache directories from MediaStore queries
+    val notThumbnailSql = "(${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.thumbnails/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/thumbnails/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.cache/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/cache/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.thumbs/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/thumbs/%' AND ${MediaStore.Files.FileColumns.DISPLAY_NAME} NOT LIKE '.thumb%' AND ${MediaStore.Files.FileColumns.DISPLAY_NAME} NOT LIKE 'thumb_%')"
+
+    // Only target recognized app hidden media or user storage folders, strictly excluding thumbnail caches
+    val userFolderNomedia = "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND (${MediaStore.Files.FileColumns.DATA} LIKE '%/Pictures/%' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%/DCIM/%' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%/Download/%' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%/Documents/%' OR ${MediaStore.Files.FileColumns.DATA} LIKE '%/Movies/%'))"
+
+    "((($pathConditions) OR $userFolderNomedia) AND $mediaMatch AND $notThumbnailSql)"
 }
 
 data class DeepScanResult(
@@ -80,9 +119,11 @@ class MediaStoreDataSource @Inject constructor(
 ) {
     private val contentResolver: ContentResolver get() = context.contentResolver
     private val _secondaryMediaChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val secondaryDiskMediaCache = java.util.concurrent.CopyOnWriteArrayList<MediaItem>()
 
     init {
         loadCacheFromDisk()
+        purgeThumbnailCaches()
     }
 
     fun fetchSecondaryMediaIds(): List<Long> = secondaryDiskMediaCache.map { it.id }
@@ -172,10 +213,11 @@ class MediaStoreDataSource @Inject constructor(
     )
 
     private fun getMediaTypeCondition(mediaType: MediaTypeFilter): String {
+        val notThumbnail = "AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.thumbnails/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/thumbnails/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.cache/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/cache/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/.thumbs/%' AND ${MediaStore.Files.FileColumns.DATA} NOT LIKE '%/thumbs/%'"
         return when (mediaType) {
-            MediaTypeFilter.ALL -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND (${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')))"
-            MediaTypeFilter.IMAGES -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE} OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%'))"
-            MediaTypeFilter.VIDEOS -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO} OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'))"
+            MediaTypeFilter.ALL -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND (${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%') $notThumbnail))"
+            MediaTypeFilter.IMAGES -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE} OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' $notThumbnail))"
+            MediaTypeFilter.VIDEOS -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO} OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%' $notThumbnail))"
         }
     }
 
@@ -828,7 +870,8 @@ class MediaStoreDataSource @Inject constructor(
 
     private val directoriesToSkip = setOf(
         "data", "obb", ".git", ".gradle", "node_modules", ".stversions",
-        ".trash", ".trashed", ".recycle", ".temp", ".tmp", "imava_trash"
+        ".thumbnails", "thumbnails", ".cache", "cache", ".thumbs", "thumbs",
+        ".trash", ".trashed", ".recycle", ".temp", ".tmp", "imava_trash", "lost.dir"
     )
 
     private fun getStorageRoots(): List<java.io.File> {
@@ -1006,7 +1049,19 @@ class MediaStoreDataSource @Inject constructor(
             val indices = MediaCursorIndices(it)
             while (it.moveToNext()) {
                 val item = it.extractMediaItem(indices)
-                if (!item.isTrashed) {
+                val pLower = item.path.lowercase(java.util.Locale.ROOT)
+                val nLower = fileDisplayName(item.path)
+                val isThumbnailOrCache = pLower.contains("/.thumbnails/") ||
+                    pLower.contains("/thumbnails/") ||
+                    pLower.contains("/.cache/") ||
+                    pLower.contains("/cache/") ||
+                    pLower.contains("/.thumbs/") ||
+                    pLower.contains("/thumbs/") ||
+                    nLower.startsWith(".thumb") ||
+                    nLower.startsWith("thumb_")
+
+                // Ensure file is not trashed, is not a thumbnail/cache file, and physically exists on disk
+                if (!item.isTrashed && !isThumbnailOrCache && java.io.File(item.path).exists()) {
                     mediaList.add(item)
                 }
             }
@@ -1017,7 +1072,18 @@ class MediaStoreDataSource @Inject constructor(
         if (secondaryDiskMediaCache.isNotEmpty()) {
             val existingPaths = mediaList.mapTo(HashSet()) { it.path }
             for (cachedItem in secondaryDiskMediaCache) {
-                if (cachedItem.path !in existingPaths) {
+                val pLower = cachedItem.path.lowercase(java.util.Locale.ROOT)
+                val nLower = fileDisplayName(cachedItem.path)
+                val isThumbnailOrCache = pLower.contains("/.thumbnails/") ||
+                    pLower.contains("/thumbnails/") ||
+                    pLower.contains("/.cache/") ||
+                    pLower.contains("/cache/") ||
+                    pLower.contains("/.thumbs/") ||
+                    pLower.contains("/thumbs/") ||
+                    nLower.startsWith(".thumb") ||
+                    nLower.startsWith("thumb_")
+
+                if (cachedItem.path !in existingPaths && !isThumbnailOrCache && java.io.File(cachedItem.path).exists()) {
                     existingPaths.add(cachedItem.path)
                     mediaList.add(cachedItem)
                 }
@@ -1029,7 +1095,18 @@ class MediaStoreDataSource @Inject constructor(
         var cacheUpdated = false
         val diskPaths = secondaryDiskMediaCache.mapTo(HashSet(secondaryDiskMediaCache.size)) { it.path }
         for (item in mediaList) {
-            if (item.path.isNotBlank() && item.path !in diskPaths) {
+            val pLower = item.path.lowercase(java.util.Locale.ROOT)
+            val nLower = fileDisplayName(item.path)
+            val isThumbnailOrCache = pLower.contains("/.thumbnails/") ||
+                pLower.contains("/thumbnails/") ||
+                pLower.contains("/.cache/") ||
+                pLower.contains("/cache/") ||
+                pLower.contains("/.thumbs/") ||
+                pLower.contains("/thumbs/") ||
+                nLower.startsWith(".thumb") ||
+                nLower.startsWith("thumb_")
+
+            if (item.path.isNotBlank() && item.path !in diskPaths && !isThumbnailOrCache && java.io.File(item.path).exists()) {
                 diskPaths.add(item.path)
                 secondaryDiskMediaCache.add(item)
                 cacheUpdated = true
@@ -1042,7 +1119,38 @@ class MediaStoreDataSource @Inject constructor(
         mediaList
     }
 
-    private val secondaryDiskMediaCache = java.util.concurrent.CopyOnWriteArrayList<MediaItem>()
+    private fun fileDisplayName(path: String): String {
+        return path.substringAfterLast('/').lowercase(java.util.Locale.ROOT)
+    }
+
+    fun purgeThumbnailCaches(): Int {
+        var count = 0
+        val toRemove = mutableListOf<MediaItem>()
+        for (item in secondaryDiskMediaCache) {
+            val pLower = item.path.lowercase(java.util.Locale.ROOT)
+            val nLower = fileDisplayName(item.path)
+            if (pLower.contains("/.thumbnails/") ||
+                pLower.contains("/thumbnails/") ||
+                pLower.contains("/.cache/") ||
+                pLower.contains("/cache/") ||
+                pLower.contains("/.thumbs/") ||
+                pLower.contains("/thumbs/") ||
+                nLower.startsWith(".thumb") ||
+                nLower.startsWith("thumb_") ||
+                item.path.isBlank() ||
+                !java.io.File(item.path).exists()
+            ) {
+                toRemove.add(item)
+            }
+        }
+        if (toRemove.isNotEmpty()) {
+            secondaryDiskMediaCache.removeAll(toRemove.toSet())
+            count = toRemove.size
+            saveCacheToDisk()
+            notifySecondaryMediaChanged()
+        }
+        return count
+    }
 
     fun evictItem(id: Long, path: String = "") {
         val removed = secondaryDiskMediaCache.removeAll { it.id == id || (path.isNotBlank() && it.path == path) }
@@ -1053,7 +1161,9 @@ class MediaStoreDataSource @Inject constructor(
 
     private fun saveCacheToDisk() {
         try {
-            val file = java.io.File(context.filesDir, "deep_scan_cache.json")
+            val dirPath = try { context.filesDir?.path } catch (e: Exception) { null }
+            if (dirPath.isNullOrEmpty()) return
+            val file = java.io.File(dirPath, "deep_scan_cache.json")
             val jsonArray = org.json.JSONArray()
             for (item in secondaryDiskMediaCache) {
                 val obj = org.json.JSONObject()
@@ -1072,7 +1182,7 @@ class MediaStoreDataSource @Inject constructor(
                 }
                 jsonArray.put(obj)
             }
-            val tempFile = java.io.File(context.filesDir, "deep_scan_cache.json.tmp")
+            val tempFile = java.io.File(dirPath, "deep_scan_cache.json.tmp")
             tempFile.writeText(jsonArray.toString())
             tempFile.renameTo(file)
         } catch (e: Exception) {
@@ -1082,7 +1192,9 @@ class MediaStoreDataSource @Inject constructor(
 
     private fun loadCacheFromDisk() {
         try {
-            val file = java.io.File(context.filesDir, "deep_scan_cache.json")
+            val dirPath = try { context.filesDir?.path } catch (e: Exception) { null }
+            if (dirPath.isNullOrEmpty()) return
+            val file = java.io.File(dirPath, "deep_scan_cache.json")
             if (!file.exists()) return
             val text = file.readText()
             if (text.isBlank()) return
@@ -1091,10 +1203,20 @@ class MediaStoreDataSource @Inject constructor(
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
                 val path = obj.optString("path", "")
+                val pathLower = path.lowercase(java.util.Locale.ROOT)
+                val nameLower = fileDisplayName(path)
                 if (path.isBlank() ||
                     path.contains("/imava_trash/") ||
                     path.contains("/.trashed") ||
                     path.contains("/.Trash") ||
+                    pathLower.contains("/.thumbnails/") ||
+                    pathLower.contains("/thumbnails/") ||
+                    pathLower.contains("/.cache/") ||
+                    pathLower.contains("/cache/") ||
+                    pathLower.contains("/.thumbs/") ||
+                    pathLower.contains("/thumbs/") ||
+                    nameLower.startsWith(".thumb") ||
+                    nameLower.startsWith("thumb_") ||
                     !java.io.File(path).exists()
                 ) continue
                 val id = obj.optLong("id", kotlin.math.abs(path.hashCode().toLong()).coerceAtLeast(1L))
@@ -1174,6 +1296,9 @@ class MediaStoreDataSource @Inject constructor(
                                 return@onEnter false
                             }
                             if (directoriesToSkip.contains(nameLower) ||
+                                nameLower.startsWith(".thumb") ||
+                                nameLower.contains("thumb") ||
+                                nameLower.startsWith(".cache") ||
                                 nameLower.startsWith(".trash") ||
                                 nameLower.startsWith(".recycle") ||
                                 nameLower.contains("trashed") ||
@@ -1192,18 +1317,27 @@ class MediaStoreDataSource @Inject constructor(
                         .onFail { _, _ -> }
                         .forEach fileWalk@{ file ->
                             try {
-                                if (file.isFile && file.length() > 0L) {
+                                if (file.isFile && file.length() > 1024L) {
                                     val fileName = file.name
-                                    // Skip trashed files and artifacts
+                                    val absPath = file.absolutePath
+                                    val pathLower = absPath.lowercase(java.util.Locale.ROOT)
+                                    // Skip trashed files, thumbnails, and cache artifacts
                                     if (fileName.startsWith(".trashed", ignoreCase = true) ||
                                         fileName.startsWith(".trash", ignoreCase = true) ||
-                                        fileName.contains(".trashed-", ignoreCase = true)
+                                        fileName.contains(".trashed-", ignoreCase = true) ||
+                                        fileName.startsWith(".thumb", ignoreCase = true) ||
+                                        fileName.startsWith("thumb_", ignoreCase = true) ||
+                                        pathLower.contains("/.thumbnails/") ||
+                                        pathLower.contains("/thumbnails/") ||
+                                        pathLower.contains("/.cache/") ||
+                                        pathLower.contains("/cache/") ||
+                                        pathLower.contains("/.thumbs/") ||
+                                        pathLower.contains("/thumbs/")
                                     ) {
                                         return@fileWalk
                                     }
                                     val ext = file.extension.lowercase(java.util.Locale.ROOT)
                                     if (validMediaExtensions.contains(ext)) {
-                                        val absPath = file.absolutePath
                                         val isKnownActive = absPath in mediaStorePaths
                                         val isKnownTrashed = absPath in trashedPaths
                                         // If not known as active media in MediaStore, discover and index it!

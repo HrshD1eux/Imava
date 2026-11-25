@@ -67,6 +67,7 @@ interface MediaRepository {
     suspend fun saveOcrText(mediaId: Long, text: String)
     suspend fun getOcrText(mediaId: Long): String?
     fun evictSecondaryDiskItem(mediaId: Long, path: String = "")
+    suspend fun purgeThumbnailCaches(): Int
     fun observeMediaChanges(): Flow<Unit>
     fun invalidateThirdPartyCache()
     fun getSecondaryDiskMedia(): List<MediaItem>

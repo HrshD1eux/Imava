@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">Ajout de la détection pour SVG, AVIF, formats RAW, WMV et dossiers de profils secondaires.</string>
     <string name="wn_v131_perf_optimization_title">Flux de bibliothèque en une seule passe</string>
     <string name="wn_v131_perf_optimization_desc">Remplacement de la pagination par blocs par une requête atomique en une seule passe.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">Nettoyeur de miniatures fantômes</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">Nettoie les miniatures orphelines, détruit les fichiers sur disque, efface les entrées MediaStore et purge le cache mémoire instantanément.</string>
+    <string name="wn_v132_target_app_discovery_title">Détection ciblée des applications</string>
+    <string name="wn_v132_target_app_discovery_desc">Restreint la découverte cachée à WhatsApp, Telegram, Instagram, Snapchat, Messenger, Discord, Signal et coffres, sans les caches système.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">Correction des fichiers supprimés récurrents</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">Vérifie la présence physique sur le disque et l\'état de la corbeille lors de l\'actualisation pour éviter que les fichiers supprimés réapparaissent.</string>
+    <string name="wn_v132_cache_init_perf_title">Optimisation du cache au démarrage</string>
+    <string name="wn_v132_cache_init_perf_desc">Réorganisation de l\'initialisation pour que les médias en cache soient prêts dès le lancement sans blocage de l\'interface.</string>
 </resources>

@@ -30,13 +30,13 @@ object WhatsNewRepository {
 
     val CURRENT_VERSION_NAME: String
         get() = try {
-            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.131" }
+            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.132" }
         } catch (_: Throwable) {
-            "1.1.131"
+            "1.1.132"
         }
 
     fun getReleases(currentVersion: String = CURRENT_VERSION_NAME): List<VersionRelease> {
-        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.131" }
+        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.132" }
         val v1 = getPreviousVersion(v0, 1)
         val v2 = getPreviousVersion(v0, 2)
 
@@ -77,7 +77,29 @@ object WhatsNewRepository {
         val clean = sanitizeVersion(version)
         val patch = clean.substringAfterLast(".").toIntOrNull() ?: 0
         return when {
-            patch >= 131 -> listOf(
+            patch >= 132 -> listOf(
+                WhatsNewItem(
+                    titleRes = R.string.wn_v132_ghost_thumb_purger_title,
+                    descRes = R.string.wn_v132_ghost_thumb_purger_desc,
+                    category = WhatsNewCategory.STORAGE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v132_target_app_discovery_title,
+                    descRes = R.string.wn_v132_target_app_discovery_desc,
+                    category = WhatsNewCategory.FEATURES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v132_delete_resurrection_fix_title,
+                    descRes = R.string.wn_v132_delete_resurrection_fix_desc,
+                    category = WhatsNewCategory.FIXES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v132_cache_init_perf_title,
+                    descRes = R.string.wn_v132_cache_init_perf_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                )
+            )
+            patch == 131 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v131_nomedia_accuracy_title,
                     descRes = R.string.wn_v131_nomedia_accuracy_desc,

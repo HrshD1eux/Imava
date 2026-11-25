@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">Unterstützung für SVG, AVIF, RAW-Formate, WMV und sekundäre Profilverzeichnisse hinzugefügt.</string>
     <string name="wn_v131_perf_optimization_title">Single-Pass-Bibliotheksablauf</string>
     <string name="wn_v131_perf_optimization_desc">Sequenzielle Paginierung durch atomare Einzelabfrage ersetzt, wodurch Ruckler vermieden werden.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">Geister-Thumbnail-Bereiniger</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">Bereinigt verwaiste Vorschaubilder, schreddert Dateien, löscht MediaStore-Einträge und leert den Speicher-Cache sofort.</string>
+    <string name="wn_v132_target_app_discovery_title">Gezielte App-Medienerkennung</string>
+    <string name="wn_v132_target_app_discovery_desc">Beschränkt versteckte Medien auf WhatsApp, Telegram, Instagram, Snapchat, Messenger, Discord, Signal und Tresore ohne System-Caches.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">Fehlerbehebung gelöschter Dateien</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">Prüft physische Existenz und Papierkorb-Status beim Aktualisieren, damit gelöschte Dateien nicht wieder auftauchen.</string>
+    <string name="wn_v132_cache_init_perf_title">Start-Cache-Optimierung</string>
+    <string name="wn_v132_cache_init_perf_desc">Neu geordnete Initialisierung, damit zwischengespeicherte Medien beim Start ohne UI-Ruckler sofort bereitstehen.</string>
 </resources>

@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW ఫార్మాట్లు, WMV మరియు ద్వితీయ ప్రొఫైల్ డైరెక్టరీల మద్దతు జోడించబడింది.</string>
     <string name="wn_v131_perf_optimization_title">సింగిల్-పాస్ లైబ్రరీ ఫ్లో</string>
     <string name="wn_v131_perf_optimization_desc">వరుస పేజింగ్‌ను సింగిల్-పాస్ క్వెరీతో భర్తీ చేసి వేగవంతమైన లోడింగ్‌ను అందించాం.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">ఘోస్ట్ థంబ్‌నెయిల్ క్లీనర్ &amp; ష్రెడ్డర్</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">అనవసరమైన థంబ్‌నెయిల్స్‌ను శుభ్రం చేస్తుంది, డిస్క్ ఫైళ్లను తొలగిస్తుంది, మీడియాస్టోర్ రికార్డులను క్లియర్ చేస్తుంది మరియు మెమరీ కాష్‌ను తక్షణమే ఖాళీ చేస్తుంది.</string>
+    <string name="wn_v132_target_app_discovery_title">నిర్దిష్ట యాప్ మీడియా గుర్తింపు</string>
+    <string name="wn_v132_target_app_discovery_desc">దాచిన మీడియా శోధనను వాట్సాప్, టెలిగ్రామ్, ఇన్‌స్టాగ్రామ్, స్నాప్‌చాట్, మెసెంజర్, డిస్కార్డ్, సిగ్నల్ మరియు వాల్ట్‌లకు మాత్రమే పరిమితం చేస్తుంది.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">తొలగించిన ఫైల్స్ పునరావృత సమస్య పరిష్కారం</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">రిఫ్రెష్ చేసినప్పుడు డిస్క్‌లో అసలు ఉనికి మరియు ట్రాష్ స్థితిని ధృవీకరించి, తొలగించిన ఫైళ్లు తిరిగి కనిపించకుండా చేస్తుంది.</string>
+    <string name="wn_v132_cache_init_perf_title">స్టార్టప్ కాష్ ఆప్టిమైజేషన్</string>
+    <string name="wn_v132_cache_init_perf_desc">యాప్ ప్రారంభమైన వెంటనే కాష్ చేయబడిన మీడియా సిద్ధంగా ఉండేలా స్టార్టప్ క్రమాన్ని మెరుగుపరిచాము.</string>
 </resources>

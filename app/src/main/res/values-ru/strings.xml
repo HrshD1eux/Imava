@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">Добавлена поддержка SVG, AVIF, форматов RAW, WMV и каталогов вторичных профилей.</string>
     <string name="wn_v131_perf_optimization_title">Однопроходная загрузка библиотеки</string>
     <string name="wn_v131_perf_optimization_desc">Последовательная пагинация заменена атомарным запросом за один проход без скачков нагрузки.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">Очиститель фантомных миниатюр</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">Глубоко очищает миниатюры, уничтожает файлы на диске, удаляет записи MediaStore и мгновенно сбрасывает кэш в памяти.</string>
+    <string name="wn_v132_target_app_discovery_title">Точный поиск медиа из приложений</string>
+    <string name="wn_v132_target_app_discovery_desc">Ограничивает поиск скрытых файлов WhatsApp, Telegram, Instagram, Snapchat, Messenger, Discord, Signal и сейфами без системных кэшей.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">Устранение возврата удаленных файлов</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">Проверяет физическое наличие файлов и статус корзины при обновлении, предотвращая повторное появление удаленных файлов.</string>
+    <string name="wn_v132_cache_init_perf_title">Оптимизация кэша при запуске</string>
+    <string name="wn_v132_cache_init_perf_desc">Переупорядоченная инициализация для мгновенной готовности кэшированных данных при старте без пауз в интерфейсе.</string>
 </resources>

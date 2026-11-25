@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW ફોર્મેટ્સ, WMV અને ગૌણ પ્રોફાઇલ ડિરેક્ટરીઓ માટે સપોર્ટ ઉમેરાયો.</string>
     <string name="wn_v131_perf_optimization_title">સિંગલ-પાસ લાઇબ્રેરી પ્રવાહ</string>
     <string name="wn_v131_perf_optimization_desc">શ્રેણીબદ્ધ પેજીંગને સિંગલ-પાસ ક્વેરીથી બદલવામાં આવ્યું જેથી ઝડપી લોડ થાય.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">ઘોસ્ટ થંબનેલ ક્લીનર અને શ્રૅડર</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">બિનજરૂરી થંબનેલ્સ સાફ કરે છે, ડિસ્ક ફાઇલો નષ્ટ કરે છે, મીડિયાસ્ટોર રેકોર્ડ્સ કાઢી નાખે છે અને મેમરી કેશ તાત્કાલિક સાફ કરે છે.</string>
+    <string name="wn_v132_target_app_discovery_title">ચોક્કસ એપ્લિકેશન મીડિયા શોધ</string>
+    <string name="wn_v132_target_app_discovery_desc">છુપાયેલ મીડિયા શોધને માત્ર વોટ્સએપ, ટેલિગ્રામ, ઇન્સ્ટાગ્રામ, સ્નેપચેટ, મેસેન્જર, ડિસકોર્ડ, સિગ્નલ અને વૉલ્ટ સુધી મર્યાદિત કરે છે.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">કાઢી નાખેલ ફાઇલો ફરી આવતી અટકાવો</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">રિફ્રેશ વખતે વાસ્તવિક હાજરી અને ટ્રૅશ સ્થિતિ ચકાસીને કાઢી નાખેલ ફાઇલોને ફરી દેખાતી અટકાવે છે.</string>
+    <string name="wn_v132_cache_init_perf_title">સ્ટાર્ટઅપ કેશ ઓપ્ટિમાઇઝેશન</string>
+    <string name="wn_v132_cache_init_perf_desc">ઍપ શરૂ થતાં જ કૅશ થયેલ મીડિયા તરત ઉપલબ્ધ થાય તે માટે પ્રારંભિક પ્રક્રિયા સુવ્યવસ્થિત કરવામાં આવી છે.</string>
 </resources>

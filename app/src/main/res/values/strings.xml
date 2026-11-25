@@ -1622,4 +1622,14 @@
     <string name="wn_v131_broad_format_desc">Added native discovery and decoding for SVG, AVIF, RAW formats, WMV, and secondary profile directories.</string>
     <string name="wn_v131_perf_optimization_title">Single-Pass Library Flow</string>
     <string name="wn_v131_perf_optimization_desc">Replaced serial 10-chunk paging with an atomic single-pass query, eliminating UI pop-in and CPU spikes.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">Ghost Thumbnail Purger &amp; Shredder</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">Deep cleans orphaned thumbnails, shreds disk artifacts, clears MediaStore thumbnail rows, and purges memory caches immediately.</string>
+    <string name="wn_v132_target_app_discovery_title">Strict Target-App Discovery</string>
+    <string name="wn_v132_target_app_discovery_desc">Restricts hidden media discovery strictly to WhatsApp, Telegram, Instagram, Snapchat, Messenger, Discord, Signal, and privacy vaults while skipping OS thumbnail caches.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">Fix Deleted Item Resurrection</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">Verified physical disk presence and trash status on refresh, preventing deleted or trashed files from recurring in your timeline.</string>
+    <string name="wn_v132_cache_init_perf_title">Startup Cache Optimization</string>
+    <string name="wn_v132_cache_init_perf_desc">Re-ordered startup initialization to make cached media ready immediately on launch without null checks or UI stalls.</string>
 </resources>

@@ -1621,4 +1621,14 @@
     <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW வடிவங்கள், WMV மற்றும் இரண்டாம் நிலை சுயவிவரக் கோப்பகங்களுக்கான ஆதரவு சேர்க்கப்பட்டது.</string>
     <string name="wn_v131_perf_optimization_title">ஒற்றை-பாஸ் நூலக ஓட்டம்</string>
     <string name="wn_v131_perf_optimization_desc">தொடர் பேஜிங் மாற்றப்பட்டு ஒரே முறையில் ஏற்றும் அட்டவணை வினவல் மூலம் வேகம் கூட்டப்பட்டது.</string>
+
+    <!-- What's New v1.1.132 -->
+    <string name="wn_v132_ghost_thumb_purger_title">பேய் சிறுபடங்கள் நீக்கி &amp; அழிப்பான்</string>
+    <string name="wn_v132_ghost_thumb_purger_desc">தேவையற்ற சிறுபடங்களை நீக்குகிறது, கோப்புகளை அழிக்கிறது, மீடியாஸ்டோர் பதிவுகளை நீக்குகிறது மற்றும் நினைவக தற்காலிக சேமிப்பை உடனடியாக அழிக்கிறது.</string>
+    <string name="wn_v132_target_app_discovery_title">துல்லியமான ஆப் மீடியா கண்டறிதல்</string>
+    <string name="wn_v132_target_app_discovery_desc">மறைக்கப்பட்ட மீடியா தேடலை வாட்ஸ்அப், டெலிகிராம், இன்ஸ்டாகிராம், ஸ்னாப்சாட், மெசஞ்சர், டிஸ்கார்ட், சிக்னல் மற்றும் பெட்டகங்களுக்கு மட்டும் கட்டுப்படுத்துகிறது.</string>
+    <string name="wn_v132_delete_resurrection_fix_title">நீக்கப்பட்ட கோப்புகள் மீண்டும் தோன்றுதல் சரிசெய்தல்</string>
+    <string name="wn_v132_delete_resurrection_fix_desc">புதுப்பிக்கும் போது சேமிப்பகத்தில் கோப்பின் இருப்பு மற்றும் குப்பை நிலையை சரிபார்த்து, நீக்கப்பட்டவை மீண்டும் வருவதைத் தடுக்கிறது.</string>
+    <string name="wn_v132_cache_init_perf_title">தொடக்க தற்காலிக நினைவக மேம்படுத்தல்</string>
+    <string name="wn_v132_cache_init_perf_desc">ஆப் தொடங்கும் போதே தற்காலிக சேமிப்பில் உள்ள மீடியாக்கள் உடனடியாக கிடைக்க தொடக்க செயல்முறை மறுசீரமைக்கப்பட்டுள்ளது.</string>
 </resources>
