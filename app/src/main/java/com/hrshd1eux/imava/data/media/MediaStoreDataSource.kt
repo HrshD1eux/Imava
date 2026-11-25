@@ -59,8 +59,9 @@ private val THIRD_PARTY_SELECTION: String by lazy {
         "${MediaStore.Files.FileColumns.DATA} LIKE ?"
     }
     val imageExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.jpeg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.png' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.gif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heic' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.heif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.bmp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.dng' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.svg' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avif' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.arw' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.cr2' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.cr3' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.nef' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.nrw' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.raf' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.orf' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.rw2' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.pef' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.srw')"
-    val videoExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mkv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mov' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avi' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webm' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3gp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m4v')"
-    "($pathConditions) AND ($imageExtensions OR $videoExtensions OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
+    val videoExtensions = "(${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mp4' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mkv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.mov' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.avi' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.webm' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3gp' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m4v' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.wmv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.flv' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.asf' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.3g2' OR ${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE '%.m2ts')"
+    val mediaMatch = "($imageExtensions OR $videoExtensions OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')"
+    "(($pathConditions) AND $mediaMatch) OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND $mediaMatch)"
 }
 
 data class DeepScanResult(
@@ -172,9 +173,9 @@ class MediaStoreDataSource @Inject constructor(
 
     private fun getMediaTypeCondition(mediaType: MediaTypeFilter): String {
         return when (mediaType) {
-            MediaTypeFilter.ALL -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
-            MediaTypeFilter.IMAGES -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}"
-            MediaTypeFilter.VIDEOS -> "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}"
+            MediaTypeFilter.ALL -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND (${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%')))"
+            MediaTypeFilter.IMAGES -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE} OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%'))"
+            MediaTypeFilter.VIDEOS -> "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO} OR (${MediaStore.Files.FileColumns.MEDIA_TYPE} = 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'))"
         }
     }
 
@@ -821,13 +822,13 @@ class MediaStoreDataSource @Inject constructor(
 
     private val validMediaExtensions = setOf(
         "jpg", "jpeg", "png", "webp", "gif", "heic", "heif", "bmp", "dng",
-        "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v"
+        "svg", "avif", "arw", "cr2", "cr3", "nef", "nrw", "raf", "orf", "rw2", "pef", "srw",
+        "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v", "wmv", "asf", "3g2", "m2ts"
     )
 
     private val directoriesToSkip = setOf(
-        "data", "obb", ".git", ".gradle", "node_modules", ".cache",
-        ".thumbnails", ".stversions", ".trash", ".trashed", ".recycle",
-        ".temp", ".tmp", "imava_trash"
+        "data", "obb", ".git", ".gradle", "node_modules", ".stversions",
+        ".trash", ".trashed", ".recycle", ".temp", ".tmp", "imava_trash"
     )
 
     private fun getStorageRoots(): List<java.io.File> {
@@ -860,6 +861,16 @@ class MediaStoreDataSource @Inject constructor(
             }
         } catch (_: Exception) {}
 
+        // Dual Messenger & secondary user profile storage paths (Samsung, Xiaomi, Work Profiles)
+        listOf("/storage/emulated/999", "/storage/emulated/10", "/storage/emulated/1").forEach { path ->
+            try {
+                val f = java.io.File(path)
+                if (f.exists() && f.canRead() && !roots.contains(f)) {
+                    roots.add(f)
+                }
+            } catch (_: Exception) {}
+        }
+
         return roots
     }
 
@@ -867,7 +878,10 @@ class MediaStoreDataSource @Inject constructor(
         val paths = HashSet<String>(2048)
         val collection = MediaStore.Files.getContentUri("external")
         val projection = arrayOf(MediaStore.Files.FileColumns.DATA)
-        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'image/%' OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE 'video/%'"
+        // Only select MEDIA_TYPE_IMAGE and MEDIA_TYPE_VIDEO without nomedia
+        // so that files in .nomedia directories are NOT marked as active in MediaStore,
+        // allowing scanSecondaryMediaDirectories() to discover and index them!
+        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN (${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val queryArgs = Bundle().apply {
@@ -1010,6 +1024,21 @@ class MediaStoreDataSource @Inject constructor(
             }
         }
 
+        // Keep secondaryDiskMediaCache updated and persisted so on next app cold boot,
+        // all discovered hidden items are loaded immediately from deep_scan_cache.json in 0ms!
+        var cacheUpdated = false
+        val diskPaths = secondaryDiskMediaCache.mapTo(HashSet(secondaryDiskMediaCache.size)) { it.path }
+        for (item in mediaList) {
+            if (item.path.isNotBlank() && item.path !in diskPaths) {
+                diskPaths.add(item.path)
+                secondaryDiskMediaCache.add(item)
+                cacheUpdated = true
+            }
+        }
+        if (cacheUpdated) {
+            saveCacheToDisk()
+        }
+
         mediaList
     }
 
@@ -1065,7 +1094,8 @@ class MediaStoreDataSource @Inject constructor(
                 if (path.isBlank() ||
                     path.contains("/imava_trash/") ||
                     path.contains("/.trashed") ||
-                    path.contains("/.Trash")
+                    path.contains("/.Trash") ||
+                    !java.io.File(path).exists()
                 ) continue
                 val id = obj.optLong("id", kotlin.math.abs(path.hashCode().toLong()).coerceAtLeast(1L))
                 val mimeType = obj.optString("mimeType", "image/jpeg")
@@ -1185,8 +1215,8 @@ class MediaStoreDataSource @Inject constructor(
                                                 unindexedFiles.add(absPath)
                                             }
                                             val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
-                                                ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")) "video/$ext" else "image/jpeg"
-                                            val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v")
+                                                ?: if (ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v", "wmv", "asf", "3g2", "m2ts")) "video/$ext" else "image/jpeg"
+                                            val isVideo = mimeType.startsWith("video/") || ext in listOf("mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v", "wmv", "asf", "3g2", "m2ts")
                                             val parent = file.parentFile
                                             val bucketId = parent?.absolutePath?.lowercase(java.util.Locale.ROOT)?.hashCode()?.toLong() ?: 0L
                                             val parentName = parent?.name ?: "Unknown"
@@ -1271,6 +1301,10 @@ class MediaStoreDataSource @Inject constructor(
                                 "ts" -> "video/mp2t"
                                 "flv" -> "video/x-flv"
                                 "m4v" -> "video/x-m4v"
+                                "wmv" -> "video/x-ms-wmv"
+                                "asf" -> "video/x-ms-asf"
+                                "3g2" -> "video/3gpp2"
+                                "m2ts" -> "video/mp2t"
                                 else -> null
                             }
                     }.toTypedArray()

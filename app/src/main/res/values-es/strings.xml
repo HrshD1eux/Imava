@@ -1612,4 +1612,14 @@
     <string name="wn_v129_lang_parity_desc">Localización completa de todas las novedades, optimizaciones de almacenamiento y correcciones en 13 idiomas nativos.</string>
     <string name="wn_v129_unit_test_title">Pruebas de regresión automatizadas</string>
     <string name="wn_v129_unit_test_desc">Conjunto de pruebas unitarias que previene regresiones de versión, enlaces rotos y pantallas vacías.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">Detección precisa de ocultos y .nomedia</string>
+    <string name="wn_v131_nomedia_accuracy_desc">Se eliminó el fallo de indexación tipo 0 de MediaStore para descubrir todos los archivos ocultos.</string>
+    <string name="wn_v131_instant_hidden_title">Archivos ocultos instantáneos en el fotograma 1</string>
+    <string name="wn_v131_instant_hidden_desc">Los archivos ocultos en caché aparecen en el primer fotograma sin retrasos de 2,5 segundos.</string>
+    <string name="wn_v131_broad_format_title">Soporte ampliado de formatos de medios</string>
+    <string name="wn_v131_broad_format_desc">Compatibilidad añadida para SVG, AVIF, formatos RAW, WMV y directorios de perfiles secundarios.</string>
+    <string name="wn_v131_perf_optimization_title">Flujo de biblioteca de paso único</string>
+    <string name="wn_v131_perf_optimization_desc">Se reemplazó la paginación secuencial por una consulta atómica de un solo paso, eliminando retrasos.</string>
 </resources>

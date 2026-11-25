@@ -1612,4 +1612,14 @@
     <string name="wn_v129_lang_parity_desc">Seamless localization covering all feature updates, storage optimizations, and bug fixes across 13 native locales.</string>
     <string name="wn_v129_unit_test_title">Automated Regression Tests</string>
     <string name="wn_v129_unit_test_desc">Comprehensive unit test suite preventing version regressions, broken resource links, and empty release screens.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">Accurate Hidden &amp; .nomedia Discovery</string>
+    <string name="wn_v131_nomedia_accuracy_desc">Eliminated the MediaStore type-0 indexing trap and hardcoded path limits to discover all hidden media across your storage.</string>
+    <string name="wn_v131_instant_hidden_title">Instant Frame-1 Hidden Media</string>
+    <string name="wn_v131_instant_hidden_desc">Cached secondary and hidden files now appear on frame 1 without delay or 2.5-second background lags.</string>
+    <string name="wn_v131_broad_format_title">Expanded Media Format Support</string>
+    <string name="wn_v131_broad_format_desc">Added native discovery and decoding for SVG, AVIF, RAW formats, WMV, and secondary profile directories.</string>
+    <string name="wn_v131_perf_optimization_title">Single-Pass Library Flow</string>
+    <string name="wn_v131_perf_optimization_desc">Replaced serial 10-chunk paging with an atomic single-pass query, eliminating UI pop-in and CPU spikes.</string>
 </resources>

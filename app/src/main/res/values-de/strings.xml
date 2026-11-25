@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">Vollständige Lokalisierung aller Funktionsupdates, Speicheroptimierungen und Fehlerbehebungen in 13 Sprachen.</string>
     <string name="wn_v129_unit_test_title">Automatisierte Regressionstests</string>
     <string name="wn_v129_unit_test_desc">Umfassende Unit-Test-Suite verhindert Versionsregressionen, fehlerhafte Ressourcen-Links und leere Ansichten.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">Präzise Erkennung von versteckten &amp; .nomedia</string>
+    <string name="wn_v131_nomedia_accuracy_desc">MediaStore Typ-0-Indexierungsfalle behoben, um alle versteckten Mediendateien zu entdecken.</string>
+    <string name="wn_v131_instant_hidden_title">Versteckte Medien sofort ab Frame 1</string>
+    <string name="wn_v131_instant_hidden_desc">Zwischengespeicherte versteckte Dateien erscheinen sofort ab Frame 1 ohne 2,5-Sekunden-Verzögerung.</string>
+    <string name="wn_v131_broad_format_title">Erweiterte Medienformatunterstützung</string>
+    <string name="wn_v131_broad_format_desc">Unterstützung für SVG, AVIF, RAW-Formate, WMV und sekundäre Profilverzeichnisse hinzugefügt.</string>
+    <string name="wn_v131_perf_optimization_title">Single-Pass-Bibliotheksablauf</string>
+    <string name="wn_v131_perf_optimization_desc">Sequenzielle Paginierung durch atomare Einzelabfrage ersetzt, wodurch Ruckler vermieden werden.</string>
 </resources>

@@ -1,3 +1,12 @@
+## 🚀 What's New in Imava v1.1.131
+
+* **100% Accurate Hidden & .nomedia Discovery**: Completely resolved the MediaStore `media_type = 0` black-hole trap and 22-path hardcoded pattern limits. Secondary filesystem scan and MediaStore queries now operate in total synergy, accurately discovering and indexing all hidden media across user directories.
+* **Instant Frame-1 Hidden Media Rendering**: Cached secondary and `.nomedia` media items are now fully preserved in the initial timeline batch rather than truncated by camera photo limits. Discovered hidden files appear on frame 1 without delay or 2.5-second background lags.
+* **Expanded Media Format & Dual Profile Support**: Added comprehensive detection and decoding support for SVG, AVIF, RAW formats (CR2, NEF, ARW, etc.), WMV, and secondary user/Dual Messenger profile storage paths (`/storage/emulated/999`).
+* **Single-Pass Progressive Flow Architecture**: Replaced the 10-chunk serial while-loop query in progressive library flow with an atomic single-pass unpaged query, eliminating UI pop-in and CPU spikes during cold launch.
+
+---
+
 ## 🚀 What's New in Imava v1.1.130
 
 * **Automated Release Notes Hub & Rule Enforcement**: Strictly enforced development policy and pre-commit audit ensuring release notes and What's New dialogs are permanently synchronized with active versions across all 13 supported languages.

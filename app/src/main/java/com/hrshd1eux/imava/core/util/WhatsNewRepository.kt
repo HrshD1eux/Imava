@@ -30,13 +30,13 @@ object WhatsNewRepository {
 
     val CURRENT_VERSION_NAME: String
         get() = try {
-            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.130" }
+            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.131" }
         } catch (_: Throwable) {
-            "1.1.130"
+            "1.1.131"
         }
 
     fun getReleases(currentVersion: String = CURRENT_VERSION_NAME): List<VersionRelease> {
-        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.130" }
+        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.131" }
         val v1 = getPreviousVersion(v0, 1)
         val v2 = getPreviousVersion(v0, 2)
 
@@ -77,7 +77,29 @@ object WhatsNewRepository {
         val clean = sanitizeVersion(version)
         val patch = clean.substringAfterLast(".").toIntOrNull() ?: 0
         return when {
-            patch >= 130 -> listOf(
+            patch >= 131 -> listOf(
+                WhatsNewItem(
+                    titleRes = R.string.wn_v131_nomedia_accuracy_title,
+                    descRes = R.string.wn_v131_nomedia_accuracy_desc,
+                    category = WhatsNewCategory.FEATURES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v131_instant_hidden_title,
+                    descRes = R.string.wn_v131_instant_hidden_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v131_broad_format_title,
+                    descRes = R.string.wn_v131_broad_format_desc,
+                    category = WhatsNewCategory.STORAGE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v131_perf_optimization_title,
+                    descRes = R.string.wn_v131_perf_optimization_desc,
+                    category = WhatsNewCategory.FIXES
+                )
+            )
+            patch == 130 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v129_whats_new_rule_title,
                     descRes = R.string.wn_v129_whats_new_rule_desc,

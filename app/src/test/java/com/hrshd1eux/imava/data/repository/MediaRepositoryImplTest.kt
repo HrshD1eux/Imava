@@ -765,4 +765,59 @@ class MediaRepositoryImplTest {
             tempFile.delete()
         }
     }
+
+    @Test
+    fun testLoadMediaPaged_initialBatch_preservesAllThirdPartyHiddenItems() = runBlocking {
+        val fakeDao = FakeMetadataDao()
+        val mockContext = mockk<Context>(relaxed = true)
+        val mockDataSource = mockk<MediaStoreDataSource>(relaxed = true)
+
+        val mockUri = mockk<Uri>(relaxed = true)
+        val primaryItems = (1..200).map { i ->
+            MediaItem.Photo(
+                id = i.toLong(),
+                uri = mockUri,
+                path = "/storage/emulated/0/DCIM/Camera/IMG_$i.jpg",
+                mimeType = "image/jpeg",
+                dateTaken = 2000L + i,
+                size = 1000L,
+                width = 100,
+                height = 100,
+                bucketId = 1L,
+                bucketName = "Camera"
+            )
+        }
+
+        val hiddenItems = (201..205).map { i ->
+            MediaItem.Photo(
+                id = i.toLong(),
+                uri = mockUri,
+                path = "/storage/emulated/0/Pictures/Hidden/photo_$i.jpg",
+                mimeType = "image/jpeg",
+                dateTaken = 500L, // Older than primary camera photos
+                size = 1000L,
+                width = 100,
+                height = 100,
+                bucketId = 2L,
+                bucketName = "Hidden"
+            )
+        }
+
+        coEvery { mockDataSource.fetchMedia(any(), any(), any(), any(), any(), any(), any()) } returns primaryItems
+        coEvery { mockDataSource.fetchThirdPartyAppMedia() } returns hiddenItems
+        coEvery { mockDataSource.getSecondaryDiskMedia() } returns hiddenItems
+
+        val repository = MediaRepositoryImpl(
+            context = mockContext,
+            mediaStoreDataSource = mockDataSource,
+            metadataDao = fakeDao
+        )
+
+        // For initialBatch (offset == 0), taking limit + thirdPartySlice ensures hidden items
+        // are preserved rather than truncated by recent primary photos
+        val results = repository.loadMediaPaged(limit = 200, offset = 0)
+        assertEquals(205, results.size)
+        assertTrue(results.any { it.id == 201L })
+        assertTrue(results.any { it.id == 205L })
+    }
 }

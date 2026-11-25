@@ -34,7 +34,7 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
         rawMimeType
     } else {
         android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext) ?: when (ext) {
-            "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v" -> "video/$ext"
+            "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v", "wmv", "asf", "3g2", "m2ts" -> "video/$ext"
             "jpg", "jpeg" -> "image/jpeg"
             "png" -> "image/png"
             "webp" -> "image/webp"
@@ -122,18 +122,19 @@ fun Cursor.extractMediaItem(indices: MediaCursorIndices): MediaItem {
     val isVideo = mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO ||
         mimeType.startsWith("video/") ||
         when (ext) {
-            "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v" -> true
+            "mp4", "mkv", "mov", "avi", "webm", "3gp", "ts", "flv", "m4v", "wmv", "asf", "3g2", "m2ts", "vob", "ogv" -> true
             else -> false
         }
 
     // Files with media_type=0 (e.g. WhatsApp Sent in .nomedia dirs) cannot be resolved
-    // via images/videos content URIs — use the generic Files URI which resolves any media_type.
+    // reliably via images/videos content URIs — use direct file URI if available,
+    // or generic Files URI which resolves any media_type.
     val uri = when {
         id <= 0L && path.isNotBlank() ->
             android.net.Uri.fromFile(java.io.File(path))
         mediaType != MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE &&
         mediaType != MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO ->
-            ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), id)
+            if (path.isNotBlank() && java.io.File(path).exists()) android.net.Uri.fromFile(java.io.File(path)) else ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), id)
         isVideo ->
             ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
         else ->

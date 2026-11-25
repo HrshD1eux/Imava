@@ -1693,11 +1693,12 @@ class MainViewModel @Inject constructor(
                 repository.purgeExpiredTrashMedia()
                 com.hrshd1eux.imava.core.util.AppUpdateManager.cleanUpOldUpdates(application)
                 com.hrshd1eux.imava.core.util.VaultCacheManager.clearCache(application)
-                kotlinx.coroutines.delay(12000) // defer background scan to idle time after cold boot
+                val cacheEmpty = repository.getSecondaryDiskMedia().isEmpty()
+                val scanDelay = if (cacheEmpty) 1500L else 12000L // Fast scan on empty cache, defer to idle time when cached
+                kotlinx.coroutines.delay(scanDelay)
                 if (isAutoDeepScanEnabled) {
                     val lastScan = galleryPrefs.getLong("last_deep_scan_timestamp", 0L)
                     val now = System.currentTimeMillis()
-                    val cacheEmpty = repository.getSecondaryDiskMedia().isEmpty()
                     // Only auto-scan on boot if cache is empty or older than 24 hours to prevent battery/CPU strain on low-end devices
                     if (cacheEmpty || (now - lastScan > 86_400_000L)) {
                         triggerAutoDeepScan()

@@ -131,6 +131,23 @@ class MediaRepositoryImpl @Inject constructor(
         if (diskItems.isNotEmpty()) {
             thirdPartyCache = diskItems
             thirdPartyCacheTime = now
+            if (!isThirdPartyFetching) {
+                isThirdPartyFetching = true
+                thirdPartyScanScope.launch {
+                    try {
+                        kotlinx.coroutines.delay(300)
+                        val fresh = fetchThirdPartyAppMedia()
+                        if (fresh.isNotEmpty() && fresh != thirdPartyCache) {
+                            thirdPartyCache = fresh
+                            thirdPartyCacheTime = System.currentTimeMillis()
+                            mediaStoreDataSource.notifySecondaryMediaChanged()
+                        }
+                    } catch (_: Exception) {
+                    } finally {
+                        isThirdPartyFetching = false
+                    }
+                }
+            }
             return diskItems
         }
 
@@ -141,7 +158,7 @@ class MediaRepositoryImpl @Inject constructor(
                 isThirdPartyFetching = true
                 thirdPartyScanScope.launch {
                     try {
-                        kotlinx.coroutines.delay(2500) // Yield CPU and SQLite completely to cold boot first frame
+                        kotlinx.coroutines.delay(200) // Yield CPU to cold boot first frame render
                         val fresh = fetchThirdPartyAppMedia()
                         if (fresh.isNotEmpty() && fresh != thirdPartyCache) {
                             thirdPartyCache = fresh
@@ -179,7 +196,7 @@ class MediaRepositoryImpl @Inject constructor(
                 if (initialBatch.size >= 200) {
                     coroutineScope {
                         launch {
-                            val fullList = loadMediaPaged(limit = 5000, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
+                            val fullList = loadMediaPaged(limit = Int.MAX_VALUE, offset = 0, bucketId = bucketId, sortOrder = sortOrder, mediaType = mediaType)
                             if (fullList.size != initialBatch.size) {
                                 send(fullList)
                             }
@@ -358,7 +375,7 @@ class MediaRepositoryImpl @Inject constructor(
         val thirdPartySlice = sortedThirdParty.drop(unindexedBefore).take(limit)
         val combined = (resultList + thirdPartySlice).distinctBy { it.path }
         val sortedCombined = if (isAscending) combined.sortedBy { it.dateTaken } else combined.sortedByDescending { it.dateTaken }
-        return@withContext sortedCombined.take(limit)
+        return@withContext if (offset == 0) sortedCombined.take(limit + thirdPartySlice.size) else sortedCombined.take(limit)
     }
 
     override suspend fun getTotalMediaCount(

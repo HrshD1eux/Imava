@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">১৩টি ভাষায় সমস্ত নতুন ফিচার, স্টোরেজ অপ্টিমাইজেশন এবং সমাধানগুলির সম্পূর্ণ অনুবাদ।</string>
     <string name="wn_v129_unit_test_title">স্বয়ংক্রিয় রিগ্রেশন পরীক্ষা</string>
     <string name="wn_v129_unit_test_desc">ব্যাপক ইউনিট টেস্ট স্যুট সংস্করণের ত্রুটি, ভাঙা লিঙ্ক এবং ফাঁকা রিলিজ স্ক্রিন প্রতিরোধ করে।</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">সঠিক লুকানো এবং .nomedia মিডিয়া সন্ধান</string>
+    <string name="wn_v131_nomedia_accuracy_desc">সমস্ত লুকানো মিডিয়া আবিষ্কার করতে MediaStore টাইপ-০ ইনডেক্সিং সমস্যা সমাধান করা হয়েছে।</string>
+    <string name="wn_v131_instant_hidden_title">ফ্রেম ১-এ তাৎক্ষণিক লুকানো মিডিয়া</string>
+    <string name="wn_v131_instant_hidden_desc">ক্যাশে থাকা লুকানো ফাইলগুলি এখন ২.৫ সেকেন্ডের বিলম্ব ছাড়াই তাৎক্ষণিকভাবে প্রদর্শিত হয়।</string>
+    <string name="wn_v131_broad_format_title">সম্প্রসারিত মিডিয়া ফর্ম্যাট সমর্থন</string>
+    <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW ফর্ম্যাট, WMV এবং সেকেন্ডারি প্রোফাইল ডিরেক্টরি সমর্থন যোগ করা হয়েছে।</string>
+    <string name="wn_v131_perf_optimization_title">সিঙ্গেল-পাস লাইব্রেরি প্রবাহ</string>
+    <string name="wn_v131_perf_optimization_desc">ধারাবাহিক পেজিং পরিবর্তন করে সিঙ্গেল-পাস কোয়েরি যুক্ত করা হয়েছে যাতে লোডিং দ্রুত হয়।</string>
 </resources>

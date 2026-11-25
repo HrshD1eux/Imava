@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">13 స్థానిక భాషల్లో అన్ని కొత్త ఫీచర్లు, స్టోరేజ్ ఆప్టిమైజేషన్లు మరియు బగ్ పరిష్కారాల పూర్తి అనువాదం.</string>
     <string name="wn_v129_unit_test_title">ఆటోమేటెడ్ రిగ్రెషన్ పరీక్షలు</string>
     <string name="wn_v129_unit_test_desc">వెర్షన్ తిరోగమనాలు, విరిగిన రిసోర్స్ లింక్‌లు మరియు ఖాళీ విడుదల స్క్రీన్‌లను నిరోధించే సమగ్ర యూనిట్ పరీక్షలు.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">ఖచ్చితమైన దాచిన &amp; .nomedia మీడియా గుర్తింపు</string>
+    <string name="wn_v131_nomedia_accuracy_desc">అన్ని దాచిన మీడియాను కనుగొనడానికి MediaStore టైప్-0 ఇండెక్సింగ్ సమస్య పరిష్కరించబడింది.</string>
+    <string name="wn_v131_instant_hidden_title">ఫ్రేమ్ 1 లో తక్షణ దాచిన మీడియా</string>
+    <string name="wn_v131_instant_hidden_desc">కాష్ చేసిన దాచిన ఫైల్స్ ఇప్పుడు 2.5 సెకన్ల ఆలస్యం లేకుండా మొదటి ఫ్రేమ్‌లోనే కనిపిస్తాయి.</string>
+    <string name="wn_v131_broad_format_title">విస్తరించిన మీడియా ఫార్మాట్ మద్దతు</string>
+    <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW ఫార్మాట్లు, WMV మరియు ద్వితీయ ప్రొఫైల్ డైరెక్టరీల మద్దతు జోడించబడింది.</string>
+    <string name="wn_v131_perf_optimization_title">సింగిల్-పాస్ లైబ్రరీ ఫ్లో</string>
+    <string name="wn_v131_perf_optimization_desc">వరుస పేజింగ్‌ను సింగిల్-పాస్ క్వెరీతో భర్తీ చేసి వేగవంతమైన లోడింగ్‌ను అందించాం.</string>
 </resources>

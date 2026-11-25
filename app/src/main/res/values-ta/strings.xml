@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">13 மொழிகளிலும் அனைத்து புதிய அம்சங்கள், சேமிப்பக மேம்பாடுகள் மற்றும் பிழை திருத்தங்களுக்கான முழுமையான மொழிபெயர்ப்பு.</string>
     <string name="wn_v129_unit_test_title">தானியங்கி பின்னடைவு சோதனைகள்</string>
     <string name="wn_v129_unit_test_desc">பதிப்புப் பின்னடைவுகள், உடைந்த இணைப்புப் பிழைகள் மற்றும் வெற்றுத் திரைகளைத் தடுக்கும் முழுமையான சோதனைத் தொகுப்பு.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">துல்லியமான மறைக்கப்பட்ட &amp; .nomedia ஊடகக் கண்டறிதல்</string>
+    <string name="wn_v131_nomedia_accuracy_desc">அனைத்து மறைக்கப்பட்ட ஊடகங்களையும் கண்டறிய MediaStore வகை-0 குறியீட்டு பிழை சரிசெய்யப்பட்டது.</string>
+    <string name="wn_v131_instant_hidden_title">ஃபிரேம் 1-ல் உடனடி மறைக்கப்பட்ட ஊடகம்</string>
+    <string name="wn_v131_instant_hidden_desc">கேச் செய்யப்பட்ட மறைக்கப்பட்ட கோப்புகள் இப்போது 2.5 வினாடி தாமதமின்றி உடனடியாகத் தோன்றும்.</string>
+    <string name="wn_v131_broad_format_title">விரிவாக்கப்பட்ட ஊடக வடிவமைப்பு ஆதரவு</string>
+    <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW வடிவங்கள், WMV மற்றும் இரண்டாம் நிலை சுயவிவரக் கோப்பகங்களுக்கான ஆதரவு சேர்க்கப்பட்டது.</string>
+    <string name="wn_v131_perf_optimization_title">ஒற்றை-பாஸ் நூலக ஓட்டம்</string>
+    <string name="wn_v131_perf_optimization_desc">தொடர் பேஜிங் மாற்றப்பட்டு ஒரே முறையில் ஏற்றும் அட்டவணை வினவல் மூலம் வேகம் கூட்டப்பட்டது.</string>
 </resources>

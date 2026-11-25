@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">Localisation complète couvrant toutes les fonctionnalités, optimisations de stockage et correctifs dans 13 langues.</string>
     <string name="wn_v129_unit_test_title">Tests de régression automatisés</string>
     <string name="wn_v129_unit_test_desc">Suite complète de tests unitaires empêchant les régressions de version, les liens rompus et les écrans vides.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">Découverte précise des fichiers cachés et .nomedia</string>
+    <string name="wn_v131_nomedia_accuracy_desc">Correction du piège d\'indexation de type 0 de MediaStore pour détecter tous les médias cachés.</string>
+    <string name="wn_v131_instant_hidden_title">Médias cachés instantanés dès la première image</string>
+    <string name="wn_v131_instant_hidden_desc">Les fichiers cachés en cache s\'affichent dès la 1ère image sans latence de 2,5 secondes.</string>
+    <string name="wn_v131_broad_format_title">Prise en charge étendue des formats de médias</string>
+    <string name="wn_v131_broad_format_desc">Ajout de la détection pour SVG, AVIF, formats RAW, WMV et dossiers de profils secondaires.</string>
+    <string name="wn_v131_perf_optimization_title">Flux de bibliothèque en une seule passe</string>
+    <string name="wn_v131_perf_optimization_desc">Remplacement de la pagination par blocs par une requête atomique en une seule passe.</string>
 </resources>

@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">१३ प्रादेशिक भाषांमध्ये सर्व नवीन वैशिष्ट्ये, स्टोरेज ऑप्टिमायझेशन आणि त्रुटी निवारणाचे परिपूर्ण भाषांतर।</string>
     <string name="wn_v129_unit_test_title">स्वयंचलित रीग्रेशन चाचण्या</string>
     <string name="wn_v129_unit_test_desc">सर्वसमावेशक युनिट टेस्ट संच आवृत्ती रिग्रेशन, तुटलेले रिसोर्स लिंक्स आणि रिकामे रिलीज स्क्रीन प्रतिबंधित करतो।</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">अचूक लपवलेली आणि .nomedia मीडिया शोध</string>
+    <string name="wn_v131_nomedia_accuracy_desc">सर्व लपवलेले मीडिया शोधण्यासाठी MediaStore टाइप-० इंडेक्सिंग त्रुटी दूर केली.</string>
+    <string name="wn_v131_instant_hidden_title">फ्रेम १ वर तत्काळ लपवलेले मीडिया</string>
+    <string name="wn_v131_instant_hidden_desc">कॅश केलेल्या लपवलेल्या फाइल्स आता २.५ सेकंदांच्या विलंबाशिवाय पहिल्या फ्रेमवर लगेच दिसतात.</string>
+    <string name="wn_v131_broad_format_title">विस्तारित मीडिया फॉरमॅट सपोर्ट</string>
+    <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW फॉरमॅट, WMV आणि दुय्यम प्रोफाइल डिरेक्टरीसाठी समर्थन जोडले.</string>
+    <string name="wn_v131_perf_optimization_title">सिंगल-पास लायब्ररी प्रवाह</string>
+    <string name="wn_v131_perf_optimization_desc">अणु सिंगल-पास क्वेरीने अनुक्रमिक पेजिंग बदलले, ज्यामुळे लोड त्वरित होते.</string>
 </resources>

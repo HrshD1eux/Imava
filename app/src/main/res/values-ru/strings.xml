@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">Полная локализация всех обновлений, оптимизаций хранилища и исправлений на 13 языках.</string>
     <string name="wn_v129_unit_test_title">Автоматические тесты регрессии</string>
     <string name="wn_v129_unit_test_desc">Набор модульных тестов, предотвращающий регрессии версий, битые ссылки на ресурсы и пустые экраны обновлений.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">Точное обнаружение скрытых файлов и .nomedia</string>
+    <string name="wn_v131_nomedia_accuracy_desc">Устранена ошибка индексации MediaStore type-0 для обнаружения всех скрытых медиафайлов.</string>
+    <string name="wn_v131_instant_hidden_title">Мгновенный показ скрытых медиа с 1-го кадра</string>
+    <string name="wn_v131_instant_hidden_desc">Кэшированные скрытые файлы теперь появляются мгновенно без задержки в 2,5 секунды.</string>
+    <string name="wn_v131_broad_format_title">Расширенная поддержка медиаформатов</string>
+    <string name="wn_v131_broad_format_desc">Добавлена поддержка SVG, AVIF, форматов RAW, WMV и каталогов вторичных профилей.</string>
+    <string name="wn_v131_perf_optimization_title">Однопроходная загрузка библиотеки</string>
+    <string name="wn_v131_perf_optimization_desc">Последовательная пагинация заменена атомарным запросом за один проход без скачков нагрузки.</string>
 </resources>

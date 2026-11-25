@@ -1611,4 +1611,14 @@
     <string name="wn_v129_lang_parity_desc">13 મૂળ ભાષાઓમાં તમામ નવી સુવિધાઓ, સ્ટોરેજ ઓપ્ટિમાઇઝેશન અને બગ ફિક્સનું સંપૂર્ણ ભાષાંતર.</string>
     <string name="wn_v129_unit_test_title">સ્વચાલિત રીગ્રેશન પરીક્ષણો</string>
     <string name="wn_v129_unit_test_desc">વ્યાપક યુનિટ ટેસ્ટ સ્યુટ વર્ઝન રીગ્રેશન, તૂટેલી લિંક્સ અને ખાલી રિલીઝ સ્ક્રીનને અટકાવે છે.</string>
+
+    <!-- What's New v1.1.131 -->
+    <string name="wn_v131_nomedia_accuracy_title">ચોક્કસ છુપાયેલ અને .nomedia મીડિયા શોધ</string>
+    <string name="wn_v131_nomedia_accuracy_desc">બધા છુપાયેલા મીડિયાને શોધવા માટે MediaStore પ્રકાર-0 ઇન્ડેક્સિંગ સમસ્યા હલ કરવામાં આવી.</string>
+    <string name="wn_v131_instant_hidden_title">ફ્રેમ 1 પર તરત જ છુપાયેલ મીડિયા</string>
+    <string name="wn_v131_instant_hidden_desc">કેશ કરેલી છુપાયેલી ફાઇલો હવે 2.5 સેકન્ડના વિલંબ વિના ફ્રેમ 1 પર તરત જ દેખાય છે.</string>
+    <string name="wn_v131_broad_format_title">વિસ્તૃત મીડિયા ફોર્મેટ સપોર્ટ</string>
+    <string name="wn_v131_broad_format_desc">SVG, AVIF, RAW ફોર્મેટ્સ, WMV અને ગૌણ પ્રોફાઇલ ડિરેક્ટરીઓ માટે સપોર્ટ ઉમેરાયો.</string>
+    <string name="wn_v131_perf_optimization_title">સિંગલ-પાસ લાઇબ્રેરી પ્રવાહ</string>
+    <string name="wn_v131_perf_optimization_desc">શ્રેણીબદ્ધ પેજીંગને સિંગલ-પાસ ક્વેરીથી બદલવામાં આવ્યું જેથી ઝડપી લોડ થાય.</string>
 </resources>
