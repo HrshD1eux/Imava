@@ -1,13 +1,13 @@
-## 🚀 What's New in Imava v1.1.129
+## 🚀 What's New in Imava v1.1.130
 
 * **Automated Release Notes Hub & Rule Enforcement**: Strictly enforced development policy and pre-commit audit ensuring release notes and What's New dialogs are permanently synchronized with active versions across all 13 supported languages.
 * **Pre-Commit Integrity Shield**: Integrated automated git hook blocking any commits if release documentation, version branches, or translations are missing or incomplete.
-* **Full 13-Language What's New Parity**: Comprehensive multilingual localization across all release highlights for modern updates (v1.1.124 through v1.1.129).
+* **Full 13-Language What's New Parity**: Comprehensive multilingual localization across all release highlights for modern updates (v1.1.124 through v1.1.130).
 * **Automated Version Regression Unit Tests**: Hardened unit test suite guaranteeing that active versions have distinct, verified release items with valid Android resource identifiers.
 
 ---
 
-## 🚀 What's New in Imava v1.1.128
+## 🚀 What's New in Imava v1.1.129
 
 * **Persistent Deep Media Scan Cache**: Scanned media items are now persisted in local cache and instantly exposed upon cold boot, completely eliminating disappearing items, blank states, and redundant re-scans.
 * **Thermal & Battery Protection Shield**: Eliminated continuous 45-second background scan loops and heavy `onResume()` filesystem traversals, safeguarding low-end devices from thermal throttling, battery drain, and UI stutter.
@@ -16,7 +16,7 @@
 
 ---
 
-## 🚀 What's New in Imava v1.1.127
+## 🚀 What's New in Imava v1.1.128
 
 * **Cold Boot Reload Loop Elimination**: Removed artificial 800ms delays and serial count queries, ensuring the media timeline appears instantly on cold startup.
 * **Indexed SQL Query Engine**: Stripped unindexed 30-LIKE wildcard queries that bypassed SQLite B-tree indexes and caused CPU spikes during library scan.

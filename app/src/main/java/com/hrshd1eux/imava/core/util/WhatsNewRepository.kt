@@ -30,13 +30,13 @@ object WhatsNewRepository {
 
     val CURRENT_VERSION_NAME: String
         get() = try {
-            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.129" }
+            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.130" }
         } catch (_: Throwable) {
-            "1.1.129"
+            "1.1.130"
         }
 
     fun getReleases(currentVersion: String = CURRENT_VERSION_NAME): List<VersionRelease> {
-        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.129" }
+        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.130" }
         val v1 = getPreviousVersion(v0, 1)
         val v2 = getPreviousVersion(v0, 2)
 
@@ -77,7 +77,7 @@ object WhatsNewRepository {
         val clean = sanitizeVersion(version)
         val patch = clean.substringAfterLast(".").toIntOrNull() ?: 0
         return when {
-            patch >= 129 -> listOf(
+            patch >= 130 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v129_whats_new_rule_title,
                     descRes = R.string.wn_v129_whats_new_rule_desc,
@@ -99,7 +99,7 @@ object WhatsNewRepository {
                     category = WhatsNewCategory.FIXES
                 )
             )
-            patch == 128 -> listOf(
+            patch == 129 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v128_deepscan_persist_title,
                     descRes = R.string.wn_v128_deepscan_persist_desc,
@@ -121,7 +121,7 @@ object WhatsNewRepository {
                     category = WhatsNewCategory.FEATURES
                 )
             )
-            patch == 127 -> listOf(
+            patch == 128 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v127_reload_loop_title,
                     descRes = R.string.wn_v127_reload_loop_desc,
@@ -143,7 +143,7 @@ object WhatsNewRepository {
                     category = WhatsNewCategory.PERFORMANCE
                 )
             )
-            patch in 124..126 -> listOf(
+            patch in 124..127 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v125_autobackup_title,
                     descRes = R.string.wn_v125_autobackup_desc,

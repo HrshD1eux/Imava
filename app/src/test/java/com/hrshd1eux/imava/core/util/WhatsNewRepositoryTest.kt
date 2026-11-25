@@ -10,6 +10,12 @@ class WhatsNewRepositoryTest {
 
     @Test
     fun testGetReleasesContainsCurrentAndLastTwoVersions() {
+        val releases130 = WhatsNewRepository.getReleases("1.1.130")
+        assertEquals("Should contain exactly 3 releases (current and last 2)", 3, releases130.size)
+        assertEquals("1.1.130", releases130[0].version)
+        assertEquals("1.1.129", releases130[1].version)
+        assertEquals("1.1.128", releases130[2].version)
+
         val releases129 = WhatsNewRepository.getReleases("1.1.129")
         assertEquals("Should contain exactly 3 releases (current and last 2)", 3, releases129.size)
         assertEquals("1.1.129", releases129[0].version)
@@ -100,17 +106,17 @@ class WhatsNewRepositoryTest {
 
     @Test
     fun testFindReleaseByVersion() {
-        val releases = WhatsNewRepository.getReleases("1.1.129")
-        val vLatest = releases.find { it.version == "1.1.129" }
-        assertNotNull("1.1.129 must exist", vLatest)
-        assertEquals("1.1.129", vLatest?.version)
+        val releases = WhatsNewRepository.getReleases("1.1.130")
+        val vLatest = releases.find { it.version == "1.1.130" }
+        assertNotNull("1.1.130 must exist", vLatest)
+        assertEquals("1.1.130", vLatest?.version)
+
+        val v129 = releases.find { it.version == "1.1.129" }
+        assertNotNull("1.1.129 must exist", v129)
+        assertEquals("1.1.129", v129?.version)
 
         val v128 = releases.find { it.version == "1.1.128" }
         assertNotNull("1.1.128 must exist", v128)
         assertEquals("1.1.128", v128?.version)
-
-        val v127 = releases.find { it.version == "1.1.127" }
-        assertNotNull("1.1.127 must exist", v127)
-        assertEquals("1.1.127", v127?.version)
     }
 }
