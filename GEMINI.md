@@ -26,6 +26,15 @@ Whenever any new feature is implemented:
 
 ## 5. Verification Rule
 Before committing any changes:
+- Run `python scripts/verify_whats_new.py` (ensure release notes are up to date across all 13 languages)
 - Run `./gradlew compileDebugKotlin`
 - Run `./gradlew testDebugUnitTest`
 - Ensure zero broken tests and zero compilation regressions.
+
+## 6. What's New & Release Notes Rule
+Before every commit that bumps the version, adds features, or fixes bugs:
+- **`WhatsNewRepository.kt`**: Update `CURRENT_VERSION_NAME` and add dedicated release notes in `getItemsForVersion()` matching the active `versionName` in `app/build.gradle.kts`.
+- **`RELEASE_NOTES.md`**: Add the new release section with bullet points summarizing security, performance, storage, features, and fixes.
+- **Localization**: Add all `wn_v<version>_*` string keys (titles and descriptions) across all 13 supported language directories (`values`, `values-es`, `values-pt`, `values-pt-rBR`, `values-de`, `values-ru`, `values-fr`, `values-hi`, `values-bn`, `values-mr`, `values-te`, `values-ta`, `values-gu`).
+- **Automated Enforcement**: Enforced via `scripts/verify_whats_new.py`, git `pre-commit` hook, and `WhatsNewRepositoryTest.kt`. Commits are blocked if What's New is out of date.
+

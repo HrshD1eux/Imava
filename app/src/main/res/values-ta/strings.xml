@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">காப்புநகலை மீட்டமை</string>
     <string name="settings_backup_success">Documents/Imava இல் மெட்டாடேட்டா காப்புநகல் வெற்றிகரமாக உருவாக்கப்பட்டது!</string>
     <string name="settings_backup_empty_or_fail">காப்புநகல் எடுக்க எந்த குறிச்சொற்களும் அல்லது விருப்பங்களும் இல்லை.</string>
+
+    <string name="wn_v128_deepscan_persist_title">நிலையான ஆழமான மீடியா ஸ்கேன்</string>
+    <string name="wn_v128_deepscan_persist_desc">ஸ்கேன் செய்யப்பட்ட மீடியாக்கள் உள்ளூர் நினைவகத்தில் சேமிக்கப்படுவதால், மறுதொடக்கத்தில் கோப்புகள் மறைவது தடுக்கப்படுகிறது.</string>
+    <string name="wn_v128_lowend_perf_title">வெப்பம் &amp; பேட்டரி பாதுகாப்பு</string>
+    <string name="wn_v128_lowend_perf_desc">தொடர்ச்சியான 45 வினாடி பின்னணி ஸ்கேன் சுழற்சிகள் நீக்கப்பட்டு, குறைந்த திறன் கொண்ட போன்கள் சூடாவது தடுக்கப்படுகிறது.</string>
+    <string name="wn_v128_btree_index_title">B-Tree ஒற்றை-நெடுவரிசை வரிசைப்படுத்தல்</string>
+    <string name="wn_v128_btree_index_desc">B-Tree அட்டவணைப்படுத்தப்பட்ட வினவல்கள் மூலம் கர்சர் தொடக்க தாமதம் குறைக்கப்பட்டுள்ளது.</string>
+    <string name="wn_v128_album_streamline_title">தாமதமற்ற ஆல்பங்கள்</string>
+    <string name="wn_v128_album_streamline_desc">தாவல்களை மாற்றும்போது தாமதமின்றி நேரடியாக ஆல்பங்கள் தொகுக்கப்படுகின்றன.</string>
+    <string name="wn_v127_reload_loop_title">மறுதொடக்கம் சுழற்சி தீர்வு</string>
+    <string name="wn_v127_reload_loop_desc">800மி.வி தாமதங்கள் நீக்கப்பட்டு, மீடியா காலவரிசை உடனுக்குடன் திரையில் தோன்றும்.</string>
+    <string name="wn_v127_sql_index_title">அட்டவணைப்படுத்தப்பட்ட SQL வினவல் பொறி</string>
+    <string name="wn_v127_sql_index_desc">செயலியை மந்தமாக்கும் 30 குறியிடப்படாத LIKE வினவல்கள் அகற்றப்பட்டன.</string>
+    <string name="wn_v127_memory_cache_title">நினைவகத்தில் குறிச்சொற்கள் &amp; விருப்பங்கள்</string>
+    <string name="wn_v127_memory_cache_desc">நினைவக கேச்சிங் மூலம் தரவுத்தளத்தில் மீண்டும் மீண்டும் தேடுவது தவிர்க்கப்படுகிறது.</string>
+    <string name="wn_v127_album_stall_title">ஒற்றை-படி ஆல்பம் தொகுப்பு</string>
+    <string name="wn_v127_album_stall_desc">ஆல்பம் அல்காரிதம் O(N×M) இலிருந்து O(N) ஆக மேம்படுத்தப்பட்டு ஆல்பங்கள் விரைவாகத் திறக்கப்படுகின்றன.</string>
+    <string name="wn_v125_autobackup_title">பொது சேமிப்பக தானியங்கி காப்புநகல்</string>
+    <string name="wn_v125_autobackup_desc">குறிச்சொற்கள் மற்றும் விருப்பங்கள் ஆவணங்கள் பகுதியில் சேமிக்கப்படும், செயலியை நீக்கினாலும் அழியாது.</string>
+    <string name="wn_v125_restore_prompt_title">மீண்டும் நிறுவும்போது மீட்பு அறிவிப்பு</string>
+    <string name="wn_v125_restore_prompt_desc">மீண்டும் நிறுவும்போது பழைய காப்புநகலைக் கண்டறிந்து ஒரே தொடுதலில் மீட்க உதவுகிறது.</string>
+    <string name="wn_v125_video_share_title">ஜீரோ-காப்பி வீடியோ பகிர்வு</string>
+    <string name="wn_v125_video_share_desc">பெரிய 4K வீடியோக்களைப் பகிரும்போது நினைவகக் கோளாறுகளைத் தடுக்க நேரடி ஸ்ட்ரீமிங்.</string>
+    <string name="wn_v125_instant_timeline_title">40மி.வி-க்கும் குறைவான உடனடி காலவரிசை</string>
+    <string name="wn_v125_instant_timeline_desc">ஸ்னாப்ஷாட் மெமரி மூலம் புகைப்படங்கள் தோன்றும் நேரம் 2,500மி.வி-யிலிருந்து 40மி.வி-க்கும் கீழ் குறைந்துள்ளது.</string>
+
+    <string name="wn_v129_whats_new_rule_title">தானியங்கி வெளியீட்டுக் குறிப்புகள் மையம்</string>
+    <string name="wn_v129_whats_new_rule_desc">வெளியீட்டுக் குறிப்புகள் 13 மொழிகளிலும் எப்போதும் புதுப்பிக்கப்பட்டிருப்பதை உறுதிசெய்யும் கட்டாயச் சரிபார்ப்பு.</string>
+    <string name="wn_v129_audit_hook_title">கமிட் முந்தைய நம்பகத்தன்மை பாதுகாப்பு</string>
+    <string name="wn_v129_audit_hook_desc">கமிட் செய்வதற்கு முன் பில்ட் பதிப்புகள், ஆவணங்கள் மற்றும் பலமொழி சரங்களை தணிக்கை செய்யும் தானியங்கி ஜிட் ஹூக்.</string>
+    <string name="wn_v129_lang_parity_title">அனைத்து 13 மொழிகளிலும் முழுமையான சமநிலை</string>
+    <string name="wn_v129_lang_parity_desc">13 மொழிகளிலும் அனைத்து புதிய அம்சங்கள், சேமிப்பக மேம்பாடுகள் மற்றும் பிழை திருத்தங்களுக்கான முழுமையான மொழிபெயர்ப்பு.</string>
+    <string name="wn_v129_unit_test_title">தானியங்கி பின்னடைவு சோதனைகள்</string>
+    <string name="wn_v129_unit_test_desc">பதிப்புப் பின்னடைவுகள், உடைந்த இணைப்புப் பிழைகள் மற்றும் வெற்றுத் திரைகளைத் தடுக்கும் முழுமையான சோதனைத் தொகுப்பு.</string>
 </resources>

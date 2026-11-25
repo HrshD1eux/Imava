@@ -30,13 +30,13 @@ object WhatsNewRepository {
 
     val CURRENT_VERSION_NAME: String
         get() = try {
-            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.123" }
+            sanitizeVersion(com.hrshd1eux.imava.BuildConfig.VERSION_NAME).ifBlank { "1.1.129" }
         } catch (_: Throwable) {
-            "1.1.123"
+            "1.1.129"
         }
 
     fun getReleases(currentVersion: String = CURRENT_VERSION_NAME): List<VersionRelease> {
-        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.123" }
+        val v0 = sanitizeVersion(currentVersion).ifBlank { "1.1.129" }
         val v1 = getPreviousVersion(v0, 1)
         val v2 = getPreviousVersion(v0, 2)
 
@@ -77,7 +77,95 @@ object WhatsNewRepository {
         val clean = sanitizeVersion(version)
         val patch = clean.substringAfterLast(".").toIntOrNull() ?: 0
         return when {
-            patch >= 123 -> listOf(
+            patch >= 129 -> listOf(
+                WhatsNewItem(
+                    titleRes = R.string.wn_v129_whats_new_rule_title,
+                    descRes = R.string.wn_v129_whats_new_rule_desc,
+                    category = WhatsNewCategory.FEATURES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v129_audit_hook_title,
+                    descRes = R.string.wn_v129_audit_hook_desc,
+                    category = WhatsNewCategory.SECURITY
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v129_lang_parity_title,
+                    descRes = R.string.wn_v129_lang_parity_desc,
+                    category = WhatsNewCategory.FEATURES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v129_unit_test_title,
+                    descRes = R.string.wn_v129_unit_test_desc,
+                    category = WhatsNewCategory.FIXES
+                )
+            )
+            patch == 128 -> listOf(
+                WhatsNewItem(
+                    titleRes = R.string.wn_v128_deepscan_persist_title,
+                    descRes = R.string.wn_v128_deepscan_persist_desc,
+                    category = WhatsNewCategory.STORAGE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v128_lowend_perf_title,
+                    descRes = R.string.wn_v128_lowend_perf_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v128_btree_index_title,
+                    descRes = R.string.wn_v128_btree_index_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v128_album_streamline_title,
+                    descRes = R.string.wn_v128_album_streamline_desc,
+                    category = WhatsNewCategory.FEATURES
+                )
+            )
+            patch == 127 -> listOf(
+                WhatsNewItem(
+                    titleRes = R.string.wn_v127_reload_loop_title,
+                    descRes = R.string.wn_v127_reload_loop_desc,
+                    category = WhatsNewCategory.FIXES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v127_sql_index_title,
+                    descRes = R.string.wn_v127_sql_index_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v127_memory_cache_title,
+                    descRes = R.string.wn_v127_memory_cache_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v127_album_stall_title,
+                    descRes = R.string.wn_v127_album_stall_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                )
+            )
+            patch in 124..126 -> listOf(
+                WhatsNewItem(
+                    titleRes = R.string.wn_v125_autobackup_title,
+                    descRes = R.string.wn_v125_autobackup_desc,
+                    category = WhatsNewCategory.STORAGE
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v125_restore_prompt_title,
+                    descRes = R.string.wn_v125_restore_prompt_desc,
+                    category = WhatsNewCategory.FEATURES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v125_video_share_title,
+                    descRes = R.string.wn_v125_video_share_desc,
+                    category = WhatsNewCategory.FIXES
+                ),
+                WhatsNewItem(
+                    titleRes = R.string.wn_v125_instant_timeline_title,
+                    descRes = R.string.wn_v125_instant_timeline_desc,
+                    category = WhatsNewCategory.PERFORMANCE
+                )
+            )
+            patch == 123 -> listOf(
                 WhatsNewItem(
                     titleRes = R.string.wn_v123_adaptive_title,
                     descRes = R.string.wn_v123_adaptive_desc,

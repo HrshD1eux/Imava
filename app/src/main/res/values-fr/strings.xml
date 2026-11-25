@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">Restaurer la sauvegarde</string>
     <string name="settings_backup_success">Sauvegarde des métadonnées créée avec succès dans Documents/Imava !</string>
     <string name="settings_backup_empty_or_fail">Aucun tag ou favori trouvé à sauvegarder.</string>
+
+    <string name="wn_v128_deepscan_persist_title">Analyse approfondie persistante</string>
+    <string name="wn_v128_deepscan_persist_desc">Les fichiers multimédias analysés sont conservés dans le cache local, évitant leur disparition et les réanalyses au démarrage à froid.</string>
+    <string name="wn_v128_lowend_perf_title">Protection thermique et batterie</string>
+    <string name="wn_v128_lowend_perf_desc">Suppression des boucles de 45 secondes et des analyses onResume pour protéger les appareils modestes contre la surchauffe.</string>
+    <string name="wn_v128_btree_index_title">Tri B-Tree à colonne unique</string>
+    <string name="wn_v128_btree_index_desc">Remplacement des tris composés par des requêtes indexées B-Tree à colonne unique, réduisant la latence du curseur.</string>
+    <string name="wn_v128_album_streamline_title">Albums sans latence</string>
+    <string name="wn_v128_album_streamline_desc">Regroupement direct en cache sans lectures bloquantes du système de fichiers lors du changement d\'onglet.</string>
+    <string name="wn_v127_reload_loop_title">Suppression de la boucle de démarrage</string>
+    <string name="wn_v127_reload_loop_desc">Retrait des délais artificiels de 800 ms et des requêtes de comptage en série pour un affichage instantané de la chronologie.</string>
+    <string name="wn_v127_sql_index_title">Moteur de requêtes SQL indexé</string>
+    <string name="wn_v127_sql_index_desc">Suppression des requêtes avec 30 filtres LIKE non indexés qui saturaient le processeur.</string>
+    <string name="wn_v127_memory_cache_title">Cache en mémoire des tags et favoris</string>
+    <string name="wn_v127_memory_cache_desc">Le cache en mémoire pour les tags et favoris élimine les requêtes répétées vers la base de données.</string>
+    <string name="wn_v127_album_stall_title">Regroupement d\'albums en une seule passe</string>
+    <string name="wn_v127_album_stall_desc">Algorithme optimisé de O(N×M) à O(N), éliminant les blocages lors de l\'ouverture des Albums.</string>
+    <string name="wn_v125_autobackup_title">Sauvegarde auto dans le stockage public</string>
+    <string name="wn_v125_autobackup_desc">Sauvegarde silencieuse des tags et favoris dans Documents publics, conservée après la désinstallation de l\'application.</string>
+    <string name="wn_v125_restore_prompt_title">Restauration à la réinstallation</string>
+    <string name="wn_v125_restore_prompt_desc">Détecte les sauvegardes existantes lors d\'une réinstallation et propose une restauration en un clic.</string>
+    <string name="wn_v125_video_share_title">Partage vidéo sans copie intermédiaire</string>
+    <string name="wn_v125_video_share_desc">Diffusion en continu évitant les dépassements de mémoire lors du partage de vidéos 4K volumineuses.</string>
+    <string name="wn_v125_instant_timeline_title">Chronologie instantanée sous 40 ms</string>
+    <string name="wn_v125_instant_timeline_desc">Le cache mémoire réduit le temps d\'affichage initial des photos de 2 500 ms à moins de 40 ms.</string>
+
+    <string name="wn_v129_whats_new_rule_title">Hub automatisé des notes de version</string>
+    <string name="wn_v129_whats_new_rule_desc">Vérification stricte pré-commit garantissant la mise à jour des notes de version dans les 13 langues.</string>
+    <string name="wn_v129_audit_hook_title">Bouclier d\'intégrité pré-commit</string>
+    <string name="wn_v129_audit_hook_desc">Hook git automatisé contrôlant les versions de build, la documentation et les chaînes multilingues avant chaque commit.</string>
+    <string name="wn_v129_lang_parity_title">Parité complète dans les 13 langues</string>
+    <string name="wn_v129_lang_parity_desc">Localisation complète couvrant toutes les fonctionnalités, optimisations de stockage et correctifs dans 13 langues.</string>
+    <string name="wn_v129_unit_test_title">Tests de régression automatisés</string>
+    <string name="wn_v129_unit_test_desc">Suite complète de tests unitaires empêchant les régressions de version, les liens rompus et les écrans vides.</string>
 </resources>

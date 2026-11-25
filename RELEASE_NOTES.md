@@ -1,3 +1,48 @@
+## 🚀 What's New in Imava v1.1.129
+
+* **Automated Release Notes Hub & Rule Enforcement**: Strictly enforced development policy and pre-commit audit ensuring release notes and What's New dialogs are permanently synchronized with active versions across all 13 supported languages.
+* **Pre-Commit Integrity Shield**: Integrated automated git hook blocking any commits if release documentation, version branches, or translations are missing or incomplete.
+* **Full 13-Language What's New Parity**: Comprehensive multilingual localization across all release highlights for modern updates (v1.1.124 through v1.1.129).
+* **Automated Version Regression Unit Tests**: Hardened unit test suite guaranteeing that active versions have distinct, verified release items with valid Android resource identifiers.
+
+---
+
+## 🚀 What's New in Imava v1.1.128
+
+* **Persistent Deep Media Scan Cache**: Scanned media items are now persisted in local cache and instantly exposed upon cold boot, completely eliminating disappearing items, blank states, and redundant re-scans.
+* **Thermal & Battery Protection Shield**: Eliminated continuous 45-second background scan loops and heavy `onResume()` filesystem traversals, safeguarding low-end devices from thermal throttling, battery drain, and UI stutter.
+* **B-Tree Single-Column Indexed Queries**: Optimized MediaStore cursor sorting by replacing compound multi-column ordering with single-column B-Tree indexed queries, slashing cursor latency.
+* **Zero-Latency Albums Navigation**: Streamlined album grouping directly from cached items without blocking synchronous file stats or recursive directory crawls when switching tabs.
+
+---
+
+## 🚀 What's New in Imava v1.1.127
+
+* **Cold Boot Reload Loop Elimination**: Removed artificial 800ms delays and serial count queries, ensuring the media timeline appears instantly on cold startup.
+* **Indexed SQL Query Engine**: Stripped unindexed 30-LIKE wildcard queries that bypassed SQLite B-tree indexes and caused CPU spikes during library scan.
+* **In-Memory Tag & Favorite Cache**: In-memory caching for tags and favorites eliminates per-item database lookups during timeline render.
+* **Single-Pass Album Grouping**: Optimized album aggregation algorithm from $O(N \times M)$ down to $O(N)$, resolving UI stalls when opening Albums.
+
+---
+
+## 🚀 What's New in Imava v1.1.125
+
+* **Public Storage Auto-Backup**: Silently and securely backs up tags and favorites to public Documents storage (`/sdcard/Documents/Imava/imava_metadata_backup.json`), surviving app uninstalls and reinstalls.
+* **Reinstall Metadata Restore**: Automatically detects existing tag and favorite backups on cold reinstall and offers a one-tap restore prompt, with user toggle in Settings.
+* **Zero-Copy Video Sharing Pipeline**: Direct streaming content provider eliminates out-of-memory crashes and disk exhaustion when sharing large 4K videos.
+* **Sub-40ms Instant Timeline**: Snapshot memory cache brings first-frame photo rendering down from 2,500ms to under 40ms.
+
+---
+
+## 🚀 What's New in Imava v1.1.123
+
+* **Adaptive Single-Line Version Architecture**: Responsive layout ensuring version badges, updater controls, download progress, and dialog buttons stay on a single line across all screen widths and font scales.
+* **Dynamic 3-Version In-App Release Notes**: Release showcase in Settings and About & Legal with version history chips scoped to current and recent releases.
+* **Zero-Latency App Updater**: Instant UI download transition with direct GitHub package size extraction and browser download fallback.
+* **High-Tactile Permission Controls**: Accessible 50dp high segmented toggle with haptic feedback, eliminating missed touches across diverse OEM screens.
+
+---
+
 ## 🚀 What's New in Imava v1.1.120
 
 * **Hardware Keystore WebDAV Credential Encryption**: WebDAV server passwords and authentication secrets are now encrypted via hardware-backed AndroidKeyStore AES-256-GCM (`VaultCrypto`) prior to disk persistence, with seamless background migration from legacy configurations.

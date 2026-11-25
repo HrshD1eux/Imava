@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">బ్యాకప్‌ను పునరుద్ధరించండి</string>
     <string name="settings_backup_success">Documents/Imava లో మెటాడేటా బ్యాకప్ విజయవంతంగా సృష్టించబడింది!</string>
     <string name="settings_backup_empty_or_fail">బ్యాకప్ చేయడానికి ట్యాగ్‌లు లేదా ఇష్టమైనవి ఏవీ కనుగొనబడలేదు.</string>
+
+    <string name="wn_v128_deepscan_persist_title">శాశ్వత డీప్ మీడియా స్కాన్</string>
+    <string name="wn_v128_deepscan_persist_desc">స్కాన్ చేసిన మీడియా అంశాలు స్థానిక కాష్‌లో భద్రపరచబడతాయి, కోల్డ్ బూట్‌లో అంశాలు మాయం కావడం ఆగిపోయింది.</string>
+    <string name="wn_v128_lowend_perf_title">థర్మల్ &amp; బ్యాటరీ రక్షణ</string>
+    <string name="wn_v128_lowend_perf_desc">నిరంతర 45-సెకన్ల బ్యాక్‌గ్రౌండ్ స్కాన్ లూప్‌లు తొలగించబడ్డాయి, తక్కువ సామర్థ్యం గల ఫోన్లు వేడెక్కకుండా రక్షణ.</string>
+    <string name="wn_v128_btree_index_title">B-Tree సింగిల్-కాలమ్ క్రమబద్ధీకరణ</string>
+    <string name="wn_v128_btree_index_desc">సింగిల్-కాలమ్ B-Tree ఇండెక్స్ ప్రశ్నల ద్వారా కర్సర్ ప్రారంభ ఆలస్యం గణనీయంగా తగ్గింది.</string>
+    <string name="wn_v128_album_streamline_title">ఆలస్యం లేని ఆల్బమ్‌లు</string>
+    <string name="wn_v128_album_streamline_desc">ట్యాబ్‌లు మార్చేటప్పుడు ఫైల్ తనిఖీల అవసరం లేకుండా నేరుగా కాష్ నుండి ఆల్బమ్ సమూహాలు.</string>
+    <string name="wn_v127_reload_loop_title">కోల్డ్ బూట్ లూప్ పరిష్కారం</string>
+    <string name="wn_v127_reload_loop_desc">800ms ఆలస్యం మరియు నిరంతర లెక్కింపు ప్రశ్నలను తొలగించి, మీడియా టైమ్‌లైన్ తక్షణమే కనిపించేలా చేశాము.</string>
+    <string name="wn_v127_sql_index_title">ఇండెక్స్డ్ SQL క్వెరీ ఇంజిన్</string>
+    <string name="wn_v127_sql_index_desc">CPU పై భారం మోపే 30 అన్‌ఇండెక్స్డ్ LIKE వైల్డ్‌కార్డ్ ప్రశ్నలను తొలగించాము.</string>
+    <string name="wn_v127_memory_cache_title">మెమరీలో ట్యాగ్‌లు &amp; ఇష్టమైనవి కాష్</string>
+    <string name="wn_v127_memory_cache_desc">ఇన్-మెమరీ కాషింగ్ ద్వారా డేటాబేస్ శోధనలు తగ్గి వేగం పెరిగింది.</string>
+    <string name="wn_v127_album_stall_title">సింగిల్-పాస్ ఆల్బమ్ సమూహం</string>
+    <string name="wn_v127_album_stall_desc">ఆల్బమ్ అల్గోరిథం O(N×M) నుండి O(N)కి ఆప్టిమైజ్ చేయబడి ఆల్బమ్‌లు తెరవడం మరింత వేగవంతమైంది.</string>
+    <string name="wn_v125_autobackup_title">పబ్లిక్ స్టోరేజ్ ఆటో-బ్యాకప్</string>
+    <string name="wn_v125_autobackup_desc">ట్యాగ్‌లు మరియు ఇష్టమైనవి పబ్లిక్ డాక్యుమెంట్లలో భద్రపరచబడతాయి, యాప్ అన్‌ఇన్‌స్టాల్ చేసినా అవి పోవు.</string>
+    <string name="wn_v125_restore_prompt_title">రీఇన్‌స్టాల్ పునరుద్ధరణ ప్రాంప్ట్</string>
+    <string name="wn_v125_restore_prompt_desc">యాప్ మళ్లీ ఇన్‌స్టాల్ చేసినప్పుడు పాత బ్యాకప్‌ను గుర్తించి ఒక్క ట్యాప్‌తో పునరుద్ధరిస్తుంది.</string>
+    <string name="wn_v125_video_share_title">జీరో-కాపీ వీడియో షేరింగ్</string>
+    <string name="wn_v125_video_share_desc">పెద్ద 4K వీడియోలను షేర్ చేసేటప్పుడు మెమరీ క్రాష్ కాకుండా డైరెక్ట్ స్ట్రీమింగ్.</string>
+    <string name="wn_v125_instant_timeline_title">40ms కంటే వేగవంతమైన టైమ్‌లైన్</string>
+    <string name="wn_v125_instant_timeline_desc">స్నాప్‌షాట్ మెమరీ కాష్ ద్వారా ఫోటోల లోడ్ సమయం 2,500ms నుండి 40ms లోపలికి తగ్గించబడింది.</string>
+
+    <string name="wn_v129_whats_new_rule_title">ఆటోమేటెడ్ విడుదల గమనికల హబ్</string>
+    <string name="wn_v129_whats_new_rule_desc">ప్రీ-కమిట్ ధృవీకరణ ద్వారా విడుదల గమనికలు అన్ని 13 భాషల్లో ఎల్లప్పుడూ తాజాగానే ఉంటాయని నిర్ధారిస్తుంది.</string>
+    <string name="wn_v129_audit_hook_title">ప్రీ-కమిట్ సమగ్రత రక్షణ</string>
+    <string name="wn_v129_audit_hook_desc">కమిట్ చేయడానికి ముందు బిల్డ్ వెర్షన్లు, డాక్యుమెంటేషన్ మరియు బహుభాషా స్ట్రింగ్లను ఆడిట్ చేసే ఆటోమేటెడ్ గిట్ హుక్.</string>
+    <string name="wn_v129_lang_parity_title">అన్ని 13 భాషల్లో పూర్తి సమానత్వం</string>
+    <string name="wn_v129_lang_parity_desc">13 స్థానిక భాషల్లో అన్ని కొత్త ఫీచర్లు, స్టోరేజ్ ఆప్టిమైజేషన్లు మరియు బగ్ పరిష్కారాల పూర్తి అనువాదం.</string>
+    <string name="wn_v129_unit_test_title">ఆటోమేటెడ్ రిగ్రెషన్ పరీక్షలు</string>
+    <string name="wn_v129_unit_test_desc">వెర్షన్ తిరోగమనాలు, విరిగిన రిసోర్స్ లింక్‌లు మరియు ఖాళీ విడుదల స్క్రీన్‌లను నిరోధించే సమగ్ర యూనిట్ పరీక్షలు.</string>
 </resources>

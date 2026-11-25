@@ -1578,4 +1578,38 @@
     <string name="settings_restore_backup">Restore Backup</string>
     <string name="settings_backup_success">Metadata backup created successfully in Documents/Imava!</string>
     <string name="settings_backup_empty_or_fail">No tags or favorites found to backup.</string>
+
+    <string name="wn_v128_deepscan_persist_title">Persistent Deep Media Scan</string>
+    <string name="wn_v128_deepscan_persist_desc">Scanned media items are now persisted in local cache, eliminating disappearing items and redundant re-scans on cold boot.</string>
+    <string name="wn_v128_lowend_perf_title">Thermal &amp; Battery Shield</string>
+    <string name="wn_v128_lowend_perf_desc">Eliminated continuous 45-second background scan loops and onResume filesystem walks, protecting low-end devices from thermal throttling.</string>
+    <string name="wn_v128_btree_index_title">B-Tree Single-Column Sort</string>
+    <string name="wn_v128_btree_index_desc">Replaced compound-column cursor sorts with single-column B-Tree indexed queries, slashing cursor initialization latency.</string>
+    <string name="wn_v128_album_streamline_title">Zero-Latency Albums</string>
+    <string name="wn_v128_album_streamline_desc">Direct cached album grouping without blocking file stats or redundant directory crawls when switching tabs.</string>
+    <string name="wn_v127_reload_loop_title">Cold Boot Loop Elimination</string>
+    <string name="wn_v127_reload_loop_desc">Removed artificial 800ms delays and serial count queries, ensuring the media timeline appears instantly on startup.</string>
+    <string name="wn_v127_sql_index_title">Indexed SQL Query Engine</string>
+    <string name="wn_v127_sql_index_desc">Stripped unindexed 30-LIKE wildcard queries that bypassed SQLite B-tree indexes and caused CPU spikes.</string>
+    <string name="wn_v127_memory_cache_title">In-Memory Tag &amp; Favorite Cache</string>
+    <string name="wn_v127_memory_cache_desc">In-memory caching for tags and favorites eliminates per-item database lookups on timeline render.</string>
+    <string name="wn_v127_album_stall_title">Single-Pass Album Grouping</string>
+    <string name="wn_v127_album_stall_desc">Optimized album aggregation algorithm from O(N×M) down to O(N), resolving UI stalls when opening Albums.</string>
+    <string name="wn_v125_autobackup_title">Public Storage Auto-Backup</string>
+    <string name="wn_v125_autobackup_desc">Silently and securely backs up tags and favorites to public Documents storage, surviving app uninstalls.</string>
+    <string name="wn_v125_restore_prompt_title">Reinstall Restore Prompt</string>
+    <string name="wn_v125_restore_prompt_desc">Detects existing tag and favorite backups on cold reinstall and offers a one-tap restore.</string>
+    <string name="wn_v125_video_share_title">Zero-Copy Video Sharing</string>
+    <string name="wn_v125_video_share_desc">Direct streaming content provider eliminates out-of-memory crashes and disk exhaustion when sharing large 4K videos.</string>
+    <string name="wn_v125_instant_timeline_title">Sub-40ms Instant Timeline</string>
+    <string name="wn_v125_instant_timeline_desc">Snapshot memory cache brings first-frame photo rendering down from 2,500ms to under 40ms.</string>
+
+    <string name="wn_v129_whats_new_rule_title">Automated Release Notes Hub</string>
+    <string name="wn_v129_whats_new_rule_desc">Enforced strict version parity rules and pre-commit verification ensuring What\'s New notes are always up to date across all 13 languages.</string>
+    <string name="wn_v129_audit_hook_title">Pre-Commit Integrity Shield</string>
+    <string name="wn_v129_audit_hook_desc">Automated git hook auditing build versions, release documentation, and multilingual string catalogs prior to commit.</string>
+    <string name="wn_v129_lang_parity_title">Full 13-Language Parity</string>
+    <string name="wn_v129_lang_parity_desc">Seamless localization covering all feature updates, storage optimizations, and bug fixes across 13 native locales.</string>
+    <string name="wn_v129_unit_test_title">Automated Regression Tests</string>
+    <string name="wn_v129_unit_test_desc">Comprehensive unit test suite preventing version regressions, broken resource links, and empty release screens.</string>
 </resources>

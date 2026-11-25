@@ -1578,4 +1578,38 @@
     <string name="settings_restore_backup">Restaurar copia</string>
     <string name="settings_backup_success">¡Copia de seguridad creada correctamente en Documentos/Imava!</string>
     <string name="settings_backup_empty_or_fail">No se encontraron etiquetas ni favoritos para respaldar.</string>
+
+    <string name="wn_v128_deepscan_persist_title">Escaneo profundo persistente</string>
+    <string name="wn_v128_deepscan_persist_desc">Los elementos escaneados ahora persisten en caché local, eliminando archivos desaparecidos y reescaneos en inicio en frío.</string>
+    <string name="wn_v128_lowend_perf_title">Protección térmica y de batería</string>
+    <string name="wn_v128_lowend_perf_desc">Eliminados los bucles de escaneo de 45 segundos y recorridos en onResume, protegiendo dispositivos de gama baja contra el sobrecalentamiento.</string>
+    <string name="wn_v128_btree_index_title">Ordenación B-Tree de una columna</string>
+    <string name="wn_v128_btree_index_desc">Reemplazada la ordenación compuesta por consultas indexadas en B-Tree de una sola columna, reduciendo la latencia del cursor.</string>
+    <string name="wn_v128_album_streamline_title">Álbumes sin latencia</string>
+    <string name="wn_v128_album_streamline_desc">Agrupación directa de álbumes en caché sin comprobaciones de archivos bloqueantes ni escaneos repetidos al cambiar de pestaña.</string>
+    <string name="wn_v127_reload_loop_title">Eliminación de bucle de arranque</string>
+    <string name="wn_v127_reload_loop_desc">Eliminados los retrasos de 800 ms y consultas de recuento en serie, permitiendo que la cronología aparezca al instante.</string>
+    <string name="wn_v127_sql_index_title">Motor de consultas SQL indexado</string>
+    <string name="wn_v127_sql_index_desc">Eliminadas las consultas con 30 comodines LIKE sin indexar que saturaban la CPU.</string>
+    <string name="wn_v127_memory_cache_title">Caché en memoria de etiquetas y favoritos</string>
+    <string name="wn_v127_memory_cache_desc">La caché en memoria para etiquetas y favoritos elimina consultas individuales a la base de datos.</string>
+    <string name="wn_v127_album_stall_title">Agrupación de álbumes en un solo paso</string>
+    <string name="wn_v127_album_stall_desc">Algoritmo de álbumes optimizado de O(N×M) a O(N), eliminando bloqueos al abrir Álbumes.</string>
+    <string name="wn_v125_autobackup_title">Copia automática en almacenamiento público</string>
+    <string name="wn_v125_autobackup_desc">Copia de seguridad silenciosa de etiquetas y favoritos en Documentos públicos, que sobrevive a la desinstalación.</string>
+    <string name="wn_v125_restore_prompt_title">Aviso de restauración tras reinstalación</string>
+    <string name="wn_v125_restore_prompt_desc">Detecta copias de seguridad existentes tras reinstalar y permite restaurarlas con un toque.</string>
+    <string name="wn_v125_video_share_title">Compartir vídeo sin copia intermedia</string>
+    <string name="wn_v125_video_share_desc">Proveedor de contenido por streaming directo que elimina fallos de memoria al compartir vídeos 4K.</string>
+    <string name="wn_v125_instant_timeline_title">Cronología instantánea sub-40ms</string>
+    <string name="wn_v125_instant_timeline_desc">La caché de instantáneas reduce el renderizado inicial de fotos de 2500 ms a menos de 40 ms.</string>
+
+    <string name="wn_v129_whats_new_rule_title">Centro automatizado de notas de versión</string>
+    <string name="wn_v129_whats_new_rule_desc">Verificación obligatoria previa al commit que garantiza notas de versión actualizadas en los 13 idiomas.</string>
+    <string name="wn_v129_audit_hook_title">Escudo de integridad pre-commit</string>
+    <string name="wn_v129_audit_hook_desc">Hook de git automatizado que audita versiones, documentación y catálogos de cadenas multilingües antes de confirmar.</string>
+    <string name="wn_v129_lang_parity_title">Paridad completa en 13 idiomas</string>
+    <string name="wn_v129_lang_parity_desc">Localización completa de todas las novedades, optimizaciones de almacenamiento y correcciones en 13 idiomas nativos.</string>
+    <string name="wn_v129_unit_test_title">Pruebas de regresión automatizadas</string>
+    <string name="wn_v129_unit_test_desc">Conjunto de pruebas unitarias que previene regresiones de versión, enlaces rotos y pantallas vacías.</string>
 </resources>

@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">Restaurar backup</string>
     <string name="settings_backup_success">Backup de metadados criado com sucesso em Documentos/Imava!</string>
     <string name="settings_backup_empty_or_fail">Nenhum marcador ou favorito encontrado para backup.</string>
+
+    <string name="wn_v128_deepscan_persist_title">Varredura profunda persistente</string>
+    <string name="wn_v128_deepscan_persist_desc">Itens verificados agora persistem no cache local, eliminando itens sumidos e novas varreduras no início a frio.</string>
+    <string name="wn_v128_lowend_perf_title">Proteção térmica e de bateria</string>
+    <string name="wn_v128_lowend_perf_desc">Eliminados ciclos contínuos de 45 segundos e varreduras no onResume, protegendo dispositivos mais modestos do sobreaquecimento.</string>
+    <string name="wn_v128_btree_index_title">Ordenação B-Tree de coluna única</string>
+    <string name="wn_v128_btree_index_desc">Substituída a ordenação composta por consultas indexadas B-Tree de coluna única, reduzindo a latência do cursor.</string>
+    <string name="wn_v128_album_streamline_title">Álbuns com latência zero</string>
+    <string name="wn_v128_album_streamline_desc">Agrupamento direto em cache sem verificações bloqueantes ao trocar de aba.</string>
+    <string name="wn_v127_reload_loop_title">Eliminação de ciclo de recarregamento</string>
+    <string name="wn_v127_reload_loop_desc">Removidos atrasos de 800 ms e consultas de contagem em série, exibindo a linha do tempo instantaneamente.</string>
+    <string name="wn_v127_sql_index_title">Motor SQL com índices</string>
+    <string name="wn_v127_sql_index_desc">Removidas consultas com 30 filtros LIKE não indexados que sobrecarregavam a CPU.</string>
+    <string name="wn_v127_memory_cache_title">Cache em memória de tags e favoritos</string>
+    <string name="wn_v127_memory_cache_desc">Cache em memória de tags e favoritos elimina consultas repetidas ao banco de dados.</string>
+    <string name="wn_v127_album_stall_title">Agrupamento de álbuns em passo único</string>
+    <string name="wn_v127_album_stall_desc">Otimizado de O(N×M) para O(N), eliminando travamentos ao abrir Álbuns.</string>
+    <string name="wn_v125_autobackup_title">Backup automático em armazenamento público</string>
+    <string name="wn_v125_autobackup_desc">Backup silencioso de tags e favoritos em Documentos públicos, resistindo à desinstalação.</string>
+    <string name="wn_v125_restore_prompt_title">Aviso de restauração na reinstalação</string>
+    <string name="wn_v125_restore_prompt_desc">Detecta backups de tags e favoritos ao reinstalar e permite restauração com um toque.</string>
+    <string name="wn_v125_video_share_title">Compartilhamento de vídeo zero-copy</string>
+    <string name="wn_v125_video_share_desc">Streaming direto que elimina falhas de memória e esgotamento de disco ao compartilhar vídeos 4K.</string>
+    <string name="wn_v125_instant_timeline_title">Linha do tempo instantânea sub-40ms</string>
+    <string name="wn_v125_instant_timeline_desc">Cache de memória instantâneo reduz o carregamento inicial de fotos de 2.500 ms para menos de 40 ms.</string>
+
+    <string name="wn_v129_whats_new_rule_title">Central automatizada de notas da versão</string>
+    <string name="wn_v129_whats_new_rule_desc">Verificação pré-commit obrigatória que garante notas de versão sempre atualizadas nos 13 idiomas.</string>
+    <string name="wn_v129_audit_hook_title">Escudo de integridade pré-commit</string>
+    <string name="wn_v129_audit_hook_desc">Hook automatizado do git que audita versões, documentação e catálogos multilíngues antes do commit.</string>
+    <string name="wn_v129_lang_parity_title">Paridade total em 13 idiomas</string>
+    <string name="wn_v129_lang_parity_desc">Localização perfeita abrangendo todas as novidades, otimizações de armazenamento e correções nos 13 idiomas.</string>
+    <string name="wn_v129_unit_test_title">Testes automatizados de regressão</string>
+    <string name="wn_v129_unit_test_desc">Conjunto abrangente de testes unitários prevenindo regressões de versão, links quebrados e telas vazias.</string>
 </resources>

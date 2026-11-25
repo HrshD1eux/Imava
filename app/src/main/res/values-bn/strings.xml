@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">ব্যাকআপ পুনরুদ্ধার</string>
     <string name="settings_backup_success">Documents/Imava-তে সফলভাবে মেটাডেটা ব্যাকআপ তৈরি হয়েছে!</string>
     <string name="settings_backup_empty_or_fail">ব্যাকআপের জন্য কোনো ট্যাগ বা প্রিয় পাওয়া যায়নি।</string>
+
+    <string name="wn_v128_deepscan_persist_title">স্থায়ী ডিপ মিডিয়া স্ক্যান</string>
+    <string name="wn_v128_deepscan_persist_desc">স্ক্যান করা মিডিয়া আইটেমগুলি লোকাল ক্যাশে সংরক্ষিত থাকে, ফলে কোল্ড বুটে মিডিয়া হারিয়ে যাওয়া বন্ধ হয়েছে।</string>
+    <string name="wn_v128_lowend_perf_title">থার্মাল ও ব্যাটারি সুরক্ষা</string>
+    <string name="wn_v128_lowend_perf_desc">ধারাবাহিক ৪৫-সেকেন্ড ব্যাকগ্রাউন্ড স্ক্যান লুপ অপসারণ করা হয়েছে, যা কম বাজেটের ডিভাইসকে গরম হওয়া থেকে রক্ষা করে।</string>
+    <string name="wn_v128_btree_index_title">B-Tree সিঙ্গল-কলাম সর্ট</string>
+    <string name="wn_v128_btree_index_desc">সিঙ্গল-কলাম B-Tree ইন্ডেক্সড কোয়েরির মাধ্যমে কার্সার প্রস্তুত করার গতি বহুগুণ বাড়ানো হয়েছে।</string>
+    <string name="wn_v128_album_streamline_title">ল্যাটেন্সি-হীন অ্যালবাম</string>
+    <string name="wn_v128_album_streamline_desc">ট্যাব পরিবর্তনের সময় ফাইল চেকিং ছাড়াই সরাসরি ক্যাশ থেকে দ্রুত অ্যালবাম গ্রুপিং।</string>
+    <string name="wn_v127_reload_loop_title">কোল্ড বুট লুপ সমাধান</string>
+    <string name="wn_v127_reload_loop_desc">অপ্রয়োজনীয় ৮০০ মিমি বিলম্ব এবং সিরিয়াল কোয়েরি দূর করে তাত্ক্ষণিক মিডিয়া টাইমলাইন নিশ্চিত করা হয়েছে।</string>
+    <string name="wn_v127_sql_index_title">ইন্ডেক্সড SQL কোয়েরি ইঞ্জিন</string>
+    <string name="wn_v127_sql_index_desc">অনিবন্ধিত ৩০-LIKE ওয়াইল্ডকার্ড কোয়েরি অপসারণ করা হয়েছে যা প্রসেসরের ওপর চাপ সৃষ্টি করত।</string>
+    <string name="wn_v127_memory_cache_title">মেমোরিতে ট্যাগ ও ফেভারিট ক্যাশ</string>
+    <string name="wn_v127_memory_cache_desc">ইন-মেমোরি ক্যাশিংয়ের মাধ্যমে প্রতি আইটেমের জন্য ডেটাবেস অনুসন্ধান বন্ধ করা হয়েছে।</string>
+    <string name="wn_v127_album_stall_title">একক ধাপে অ্যালবাম গ্রুপিং</string>
+    <string name="wn_v127_album_stall_desc">অ্যালবাম অ্যালগরিদম O(N×M) থেকে O(N)-এ রূপান্তর করে অ্যালবাম খোলার সময় ল্যাগ দূর করা হয়েছে।</string>
+    <string name="wn_v125_autobackup_title">পাবলিক স্টোরেজে অটো-ব্যাকআপ</string>
+    <string name="wn_v125_autobackup_desc">ট্যাগ ও পছন্দসই আইটেম পাবলিক ডকুমেন্টস স্টোরেজে ব্যাকআপ থাকে, অ্যাপ আনইনস্টল করলেও মুছে যায় না।</string>
+    <string name="wn_v125_restore_prompt_title">পুনঃসংস্থাপন রিস্টোর প্রম্পট</string>
+    <string name="wn_v125_restore_prompt_desc">নতুন করে ইনস্টল করার পর সংরক্ষিত ব্যাকআপ শনাক্ত করে এক ট্যাপে পুনরুদ্ধারের সুযোগ দেয়।</string>
+    <string name="wn_v125_video_share_title">জিরো-কপি ভিডিও শেয়ারিং</string>
+    <string name="wn_v125_video_share_desc">ডিরেক্ট স্ট্রিমিং বড় 4K ভিডিও শেয়ার করার সময় মেমোরি ক্র্যাশ প্রতিরোধ করে।</string>
+    <string name="wn_v125_instant_timeline_title">৪০ মিলিসেকেন্ডের মধ্যে টাইমলাইন</string>
+    <string name="wn_v125_instant_timeline_desc">স্ন্যাপশট মেমোরি ক্যাশ প্রথম ফ্রেমের ফটো রেন্ডারিং ২,৫০০ মিমি থেকে কমিয়ে ৪০ মিমি-র নিচে নামিয়ে এনেছে।</string>
+
+    <string name="wn_v129_whats_new_rule_title">স্বয়ংক্রিয় রিলিজ নোটস হাব</string>
+    <string name="wn_v129_whats_new_rule_desc">কমিটের পূর্বে যাচাইকরণ নিশ্চিত করে যে রিলিজ নোটগুলি সর্বদা ১৩টি ভাষায় আপডেট থাকবে।</string>
+    <string name="wn_v129_audit_hook_title">কমিট-পূর্ব অখণ্ডতা সুরক্ষা</string>
+    <string name="wn_v129_audit_hook_desc">স্বয়ংক্রিয় গিট হুক কমিট করার আগে বিল্ড সংস্করণ, ডকুমেন্টেশন এবং বহুভাষিক স্ট্রিং যাচাই করে।</string>
+    <string name="wn_v129_lang_parity_title">১৩টি ভাষায় পূর্ণ সামঞ্জস্য</string>
+    <string name="wn_v129_lang_parity_desc">১৩টি ভাষায় সমস্ত নতুন ফিচার, স্টোরেজ অপ্টিমাইজেশন এবং সমাধানগুলির সম্পূর্ণ অনুবাদ।</string>
+    <string name="wn_v129_unit_test_title">স্বয়ংক্রিয় রিগ্রেশন পরীক্ষা</string>
+    <string name="wn_v129_unit_test_desc">ব্যাপক ইউনিট টেস্ট স্যুট সংস্করণের ত্রুটি, ভাঙা লিঙ্ক এবং ফাঁকা রিলিজ স্ক্রিন প্রতিরোধ করে।</string>
 </resources>

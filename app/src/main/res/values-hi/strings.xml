@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">बैकअप पुनर्स्थापित करें</string>
     <string name="settings_backup_success">Documents/Imava में मेटाडेटा बैकअप सफलतापूर्वक बनाया गया!</string>
     <string name="settings_backup_empty_or_fail">बैकअप के लिए कोई टैग या पसंदीदा नहीं मिला।</string>
+
+    <string name="wn_v128_deepscan_persist_title">स्थायी डीप मीडिया स्कैन</string>
+    <string name="wn_v128_deepscan_persist_desc">स्कैन किए गए मीडिया आइटम अब स्थानीय कैश में सुरक्षित रहते हैं, जिससे कोल्ड बूट पर गायब होने और पुनः स्कैन की समस्या समाप्त हो गई है।</string>
+    <string name="wn_v128_lowend_perf_title">थर्मल और बैटरी सुरक्षा</string>
+    <string name="wn_v128_lowend_perf_desc">लगातार 45-सेकंड के बैकग्राउंड लूप और onResume स्कैन को हटाया गया, जिससे कम क्षमता वाले डिवाइस गर्म होने से बचते हैं।</string>
+    <string name="wn_v128_btree_index_title">B-Tree सिंगल-कॉलम सॉर्ट</string>
+    <string name="wn_v128_btree_index_desc">कंपाउंड कर्सर सॉर्ट को सिंगल-कॉलम B-Tree इंडेक्स क्वेरी से बदला गया, जिससे कर्सर लेटेंसी काफी कम हो गई।</string>
+    <string name="wn_v128_album_streamline_title">शून्य-विलंब एल्बम</string>
+    <string name="wn_v128_album_streamline_desc">टैब बदलते समय बिना किसी ब्लॉकिंग फाइल चेक के सीधे कैश से त्वरित एल्बम समूहीकरण।</string>
+    <string name="wn_v127_reload_loop_title">कोल्ड बूट लूप का समाधान</string>
+    <string name="wn_v127_reload_loop_desc">800ms की देरी और सीरियल काउंट क्वेरी को हटाया गया, जिससे मीडिया टाइमलाइन ऐप खुलते ही तुरंत दिखाई देती है।</string>
+    <string name="wn_v127_sql_index_title">इंडेक्सयुक्त SQL क्वेरी इंजन</string>
+    <string name="wn_v127_sql_index_desc">30 बिना इंडेक्स वाली LIKE वाइल्डकार्ड क्वेरी को हटाया गया जो CPU लोड बढ़ा रही थीं।</string>
+    <string name="wn_v127_memory_cache_title">मेमोरी में टैग और पसंदीदा कैश</string>
+    <string name="wn_v127_memory_cache_desc">टैग और पसंदीदा के लिए इन-मेमोरी कैशिंग से डेटाबेस पर बार-बार होने वाले लोड से मुक्ति मिली।</string>
+    <string name="wn_v127_album_stall_title">सिंगल-पास एल्बम समूहीकरण</string>
+    <string name="wn_v127_album_stall_desc">एल्बम एल्गोरिदम को O(N×M) से घटाकर O(N) किया गया, जिससे एल्बम खोलते समय रुकावट बंद हो गई।</string>
+    <string name="wn_v125_autobackup_title">सार्वजनिक स्टोरेज में स्वतः बैकअप</string>
+    <string name="wn_v125_autobackup_desc">टैग और पसंदीदा को सार्वजनिक दस्तावेज़ फ़ोल्डर में सुरक्षित रूप से सहेजता है, जो ऐप अनइंस्टॉल होने पर भी नहीं मिटता।</string>
+    <string name="wn_v125_restore_prompt_title">पुनर्स्थापना प्रॉम्प्ट</string>
+    <string name="wn_v125_restore_prompt_desc">ऐप दोबारा इंस्टॉल करने पर मौजूदा बैकअप को पहचानकर एक स्पर्श में पुनर्स्थापित करने की सुविधा देता है।</string>
+    <string name="wn_v125_video_share_title">ज़ीरो-कॉपी वीडियो शेयरिंग</string>
+    <string name="wn_v125_video_share_desc">डायरेक्ट स्ट्रीमिंग प्रोवाइडर बड़े 4K वीडियो साझा करते समय मेमोरी क्रैश और स्टोरेज भरने से बचाता है।</string>
+    <string name="wn_v125_instant_timeline_title">40ms से कम में त्वरित टाइमलाइन</string>
+    <string name="wn_v125_instant_timeline_desc">स्नैपशॉट मेमोरी कैश से फोटो लोड होने का समय 2,500ms से घटकर 40ms से भी कम हो गया।</string>
+
+    <string name="wn_v129_whats_new_rule_title">स्वचालित रिलीज़ नोट्स हब</string>
+    <string name="wn_v129_whats_new_rule_desc">प्री-कमिट सत्यापन यह सुनिश्चित करता है कि व्हाट्स न्यू नोट्स सभी 13 भाषाओं में हमेशा अपडेट रहें।</string>
+    <string name="wn_v129_audit_hook_title">प्री-कमिट इंटीग्रिटी शील्ड</string>
+    <string name="wn_v129_audit_hook_desc">स्वचालित गिट हुक कमिट से पहले बिल्ड संस्करण, दस्तावेज़ीकरण और बहुभाषी स्ट्रिंग्स का ऑडिट करता है।</string>
+    <string name="wn_v129_lang_parity_title">सभी 13 भाषाओं में पूर्ण समानता</string>
+    <string name="wn_v129_lang_parity_desc">13 मूल भाषाओं में सभी नए फीचर्स, स्टोरेज ऑप्टिमाइजेशन और बग फिक्स का पूर्ण अनुवाद।</string>
+    <string name="wn_v129_unit_test_title">स्वचालित रिग्रेशन परीक्षण</string>
+    <string name="wn_v129_unit_test_desc">व्यापक यूनिट टेस्ट सुइट संस्करण रिग्रेशन, टूटे हुए संसाधन लिंक और खाली रिलीज़ स्क्रीन को रोकता है।</string>
 </resources>

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Git pre-commit hook to enforce GEMINI.md rules and sync screenshots
+
+# 1. Enforce GEMINI.md Rule 6: What's New & Release Notes Verification
+echo "🔍 Checking What's New & Release Notes..."
+PYTHON_BIN=""
+if command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+elif command -v py >/dev/null 2>&1; then
+    PYTHON_BIN="py"
+fi
+
+if [ -n "$PYTHON_BIN" ]; then
+    $PYTHON_BIN scripts/verify_whats_new.py
+    STATUS=$?
+    if [ $STATUS -ne 0 ]; then
+        echo "❌ Pre-commit check failed: What's New release notes are out of date or incomplete."
+        echo "👉 Fix according to GEMINI.md Rule 6 before committing."
+        exit 1
+    fi
+else
+    echo "⚠️ Python not found in PATH; skipping What's New pre-commit script."
+fi
+
+# 2. Check if any files in screenshots/ are added, modified, or deleted in the index
+CHANGED=$(git diff --cached --name-only | grep -E '^screenshots/')
+
+if [ -n "$CHANGED" ]; then
+    echo "📸 Screenshot changes detected! Running auto-sync..."
+    if [ -n "$PYTHON_BIN" ]; then
+        $PYTHON_BIN scripts/sync_screenshots.py
+    fi
+
+    # Automatically stage synced files
+    git add docs/screenshots/ docs/index.html README.md
+    echo "✅ Staged docs/screenshots, docs/index.html, and README.md with updated screenshots."
+fi

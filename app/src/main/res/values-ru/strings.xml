@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">Восстановить копию</string>
     <string name="settings_backup_success">Резервная копия метаданных успешно создана в Документы/Imava!</string>
     <string name="settings_backup_empty_or_fail">Нет тегов или избранного для резервного копирования.</string>
+
+    <string name="wn_v128_deepscan_persist_title">Постоянное глубокое сканирование</string>
+    <string name="wn_v128_deepscan_persist_desc">Найденные медиафайлы сохраняются в локальном кэше, исключая исчезновение файлов и повторное сканирование при холодном старте.</string>
+    <string name="wn_v128_lowend_perf_title">Защита от нагрева и разряда</string>
+    <string name="wn_v128_lowend_perf_desc">Устранены 45-секундные фоновые циклы и сканирование в onResume, защищая бюджетные устройства от перегрева и троттлинга.</string>
+    <string name="wn_v128_btree_index_title">Одноколоночная сортировка B-Tree</string>
+    <string name="wn_v128_btree_index_desc">Составная сортировка заменена на индексированные запросы B-Tree по одной колонке, снижая задержку курсора.</string>
+    <string name="wn_v128_album_streamline_title">Альбомы без задержки</string>
+    <string name="wn_v128_album_streamline_desc">Прямая группировка альбомов из кэша без блокирующих операций с файлами при переключении вкладок.</string>
+    <string name="wn_v127_reload_loop_title">Устранение цикла перезагрузки</string>
+    <string name="wn_v127_reload_loop_desc">Удалены задержки в 800 мс и последовательные подсчеты, медиалента отображается мгновенно.</string>
+    <string name="wn_v127_sql_index_title">Индексированный движок SQL-запросов</string>
+    <string name="wn_v127_sql_index_desc">Удалены неиндексированные запросы с 30 условиями LIKE, вызывавшие скачки нагрузки на процессор.</string>
+    <string name="wn_v127_memory_cache_title">Кэш тегов и избранного в памяти</string>
+    <string name="wn_v127_memory_cache_desc">Кэширование тегов и избранного в оперативной памяти устраняет постоянные обращения к базе данных.</string>
+    <string name="wn_v127_album_stall_title">Однопроходная группировка альбомов</string>
+    <string name="wn_v127_album_stall_desc">Алгоритм альбомов оптимизирован с O(N×M) до O(N), предотвращая зависания при открытии вкладки Альбомы.</string>
+    <string name="wn_v125_autobackup_title">Автобэкап в общее хранилище</string>
+    <string name="wn_v125_autobackup_desc">Автоматическое резервное копирование тегов и избранного в Документы, сохраняющееся после удаления приложения.</string>
+    <string name="wn_v125_restore_prompt_title">Восстановление при переустановке</string>
+    <string name="wn_v125_restore_prompt_desc">Обнаруживает бэкап при чистой переустановке и предлагает восстановить данные в одно касание.</string>
+    <string name="wn_v125_video_share_title">Отправка видео без копирования</string>
+    <string name="wn_v125_video_share_desc">Прямой потоковый провайдер контента предотвращает сбои из-за нехватки памяти при отправке больших 4K-видео.</string>
+    <string name="wn_v125_instant_timeline_title">Мгновенная лента быстрее 40 мс</string>
+    <string name="wn_v125_instant_timeline_desc">Кэш снимков памяти снижает время первого отображения фото с 2500 мс до менее 40 мс.</string>
+
+    <string name="wn_v129_whats_new_rule_title">Автоматизированный центр обновлений</string>
+    <string name="wn_v129_whats_new_rule_desc">Строгая проверка перед коммитом гарантирует актуальность описания обновлений на всех 13 языках.</string>
+    <string name="wn_v129_audit_hook_title">Защита целостности перед коммитом</string>
+    <string name="wn_v129_audit_hook_desc">Автоматический git-хук, проверяющий версии сборки, документацию и многоязычные строки перед коммитом.</string>
+    <string name="wn_v129_lang_parity_title">Полная поддержка 13 языков</string>
+    <string name="wn_v129_lang_parity_desc">Полная локализация всех обновлений, оптимизаций хранилища и исправлений на 13 языках.</string>
+    <string name="wn_v129_unit_test_title">Автоматические тесты регрессии</string>
+    <string name="wn_v129_unit_test_desc">Набор модульных тестов, предотвращающий регрессии версий, битые ссылки на ресурсы и пустые экраны обновлений.</string>
 </resources>

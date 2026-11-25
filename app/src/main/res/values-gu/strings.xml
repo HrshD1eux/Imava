@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">બેકઅપ પુનઃસ્થાપિત કરો</string>
     <string name="settings_backup_success">Documents/Imava માં મેટાડેટા બેકઅપ સફળતાપૂર્વક બનાવાયો!</string>
     <string name="settings_backup_empty_or_fail">બેકઅપ લેવા માટે કોઈ ટૅગ્સ અથવા મનપસંદ મળ્યા નથી.</string>
+
+    <string name="wn_v128_deepscan_persist_title">કાયમી ડીપ મીડિયા સ્કેન</string>
+    <string name="wn_v128_deepscan_persist_desc">સ્કેન થયેલ મીડિયા આઇટમ્સ લોકલ કેશમાં સચવાય છે, જેથી ફરીથી શરૂ કરતી વખતે આઇટમ્સ ગાયબ થતી નથી.</string>
+    <string name="wn_v128_lowend_perf_title">ગરમી અને બેટરી સુરક્ષા</string>
+    <string name="wn_v128_lowend_perf_desc">સતત 45-સેકન્ડના બેકગ્રાઉન્ડ સ્કેન લૂપ્સ દૂર કર્યા, જેનાથી સામાન્ય ફોન ગરમ થતા અટકે છે.</string>
+    <string name="wn_v128_btree_index_title">B-Tree સિંગલ-કૉલમ સૉર્ટ</string>
+    <string name="wn_v128_btree_index_desc">સિંગલ-કૉલમ B-Tree ઇન્ડેક્સ ક્વેરી દ્વારા કર્સર લોડ થવાનો સમય ઘણો ઘટાડ્યો.</string>
+    <string name="wn_v128_album_streamline_title">શૂન્ય-વિલંબ આલ્બમ્સ</string>
+    <string name="wn_v128_album_streamline_desc">ટેબ બદલતી વખતે ફાઇલ ચેકિંગ વિના સીધા કેશમાંથી ઝડપી આલ્બમ જૂથબંધી.</string>
+    <string name="wn_v127_reload_loop_title">કોલ્ડ બૂટ લૂપ નિવારણ</string>
+    <string name="wn_v127_reload_loop_desc">800ms નો કૃત્રિમ વિલંબ દૂર કર્યો જેથી મીડિયા ટાઇમલાઇન તરત જ પ્રદર્શિત થાય છે.</string>
+    <string name="wn_v127_sql_index_title">ઇન્ડેક્સ્ડ SQL ક્વેરી એન્જિન</string>
+    <string name="wn_v127_sql_index_desc">CPU પર ભાર વધારતી 30 અનઇન્ડેક્સ્ડ LIKE ક્વેરીઝ દૂર કરી.</string>
+    <string name="wn_v127_memory_cache_title">મેમરીમાં ટૅગ્સ અને મનપસંદ કેશ</string>
+    <string name="wn_v127_memory_cache_desc">ઇન-મેમરી કેશિંગથી ડેટાબેઝ પર વારંવાર થતી ક્વેરીઝ બંધ થઈ.</string>
+    <string name="wn_v127_album_stall_title">સિંગલ-પાસ આલ્બમ જૂથબંધી</string>
+    <string name="wn_v127_album_stall_desc">આલ્બમ અલ્ગોરિધમ O(N×M) થી ઘટાડી O(N) કરીને આલ્બમ્સ ખોલવાની ગતિ વધારી.</string>
+    <string name="wn_v125_autobackup_title">જાહેર સ્ટોરેજમાં ઓટો-બેકઅપ</string>
+    <string name="wn_v125_autobackup_desc">ટૅગ્સ અને મનપસંદ જાહેર દસ્તાવેજોમાં સુરક્ષિત રહે છે, જે એપ અનઇન્સ્ટોલ કરવા છતાં ડિલીટ થતા નથી.</string>
+    <string name="wn_v125_restore_prompt_title">રીઇન્સ્ટોલ પુનઃપ્રાપ્તિ પ્રોમ્પ્ટ</string>
+    <string name="wn_v125_restore_prompt_desc">એપ ફરીથી ઇન્સ્ટોલ કરતી વખતે જૂનું બેકઅપ શોધીને એક ટૅપમાં ડેટા પુનઃસ્થાપિત કરે છે.</string>
+    <string name="wn_v125_video_share_title">ઝીરો-કૉપી વિડિઓ શેરિંગ</string>
+    <string name="wn_v125_video_share_desc">મોટા 4K વિડિઓ શેર કરતી વખતે મેમરી ક્રેશ અટકાવવા માટે ડાયરેક્ટ સ્ટ્રીમિંગ.</string>
+    <string name="wn_v125_instant_timeline_title">40ms થી ઓછી ઝડપી ટાઇમલાઇન</string>
+    <string name="wn_v125_instant_timeline_desc">સ્નેપશોટ મેમરી કેશ દ્વારા ફોટા લોડ થવાનો સમય 2,500ms થી ઘટીને 40ms થી ઓછો થયો.</string>
+
+    <string name="wn_v129_whats_new_rule_title">સ્વચાલિત રિલીઝ નોટ્સ હબ</string>
+    <string name="wn_v129_whats_new_rule_desc">પ્રી-કમિટ વેરિફિકેશન સુનિશ્ચિત કરે છે કે વોટ્સ ન્યૂ નોટ્સ તમામ 13 ભાષાઓમાં હંમેશા અપડેટ રહે.</string>
+    <string name="wn_v129_audit_hook_title">પ્રી-કમિટ ઇન્ટિગ્રિટી શિલ્ડ</string>
+    <string name="wn_v129_audit_hook_desc">સ્વચાલિત ગિટ હૂક કમિટ કરતા પહેલાં બિલ્ડ વર્ઝન, દસ્તાવેજીકરણ અને બહુભાષી શબ્દમાળાઓનું ઓડિટ કરે છે.</string>
+    <string name="wn_v129_lang_parity_title">તમામ 13 ભાષાઓમાં સંપૂર્ણ સમાનતા</string>
+    <string name="wn_v129_lang_parity_desc">13 મૂળ ભાષાઓમાં તમામ નવી સુવિધાઓ, સ્ટોરેજ ઓપ્ટિમાઇઝેશન અને બગ ફિક્સનું સંપૂર્ણ ભાષાંતર.</string>
+    <string name="wn_v129_unit_test_title">સ્વચાલિત રીગ્રેશન પરીક્ષણો</string>
+    <string name="wn_v129_unit_test_desc">વ્યાપક યુનિટ ટેસ્ટ સ્યુટ વર્ઝન રીગ્રેશન, તૂટેલી લિંક્સ અને ખાલી રિલીઝ સ્ક્રીનને અટકાવે છે.</string>
 </resources>

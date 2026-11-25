@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">Backup wiederherstellen</string>
     <string name="settings_backup_success">Metadaten-Backup erfolgreich in Dokumente/Imava erstellt!</string>
     <string name="settings_backup_empty_or_fail">Keine Tags oder Favoriten zum Sichern gefunden.</string>
+
+    <string name="wn_v128_deepscan_persist_title">Persistenter Tiefenscan</string>
+    <string name="wn_v128_deepscan_persist_desc">Gescannte Mediendateien bleiben im lokalen Cache erhalten, wodurch verschwindende Elemente und Neuscans beim Kaltstart entfallen.</string>
+    <string name="wn_v128_lowend_perf_title">Hitze- &amp; Akkuschutz</string>
+    <string name="wn_v128_lowend_perf_desc">Kontinuierliche 45-Sekunden-Hintergrundscans und Dateisystemüberprüfungen bei onResume wurden entfernt, um Drosselung auf Einstiegsgeräten zu verhindern.</string>
+    <string name="wn_v128_btree_index_title">Einspaltige B-Tree-Sortierung</string>
+    <string name="wn_v128_btree_index_desc">Zusammengesetzte Cursor-Sortierungen durch einspaltige B-Tree-indizierte Abfragen ersetzt, was die Cursor-Latenz drastisch senkt.</string>
+    <string name="wn_v128_album_streamline_title">Latenzfreie Alben</string>
+    <string name="wn_v128_album_streamline_desc">Direkte Gruppierung im Cache ohne blockierende Dateiprüfungen beim Wechseln von Tabs.</string>
+    <string name="wn_v127_reload_loop_title">Kaltstartschleife behoben</string>
+    <string name="wn_v127_reload_loop_desc">Künstliche 800-ms-Verzögerungen und serielle Zählabfragen entfernt – die Medien-Zeitleiste erscheint sofort.</string>
+    <string name="wn_v127_sql_index_title">Indizierte SQL-Abfragen</string>
+    <string name="wn_v127_sql_index_desc">Nicht-indizierte 30-LIKE-Platzhalterabfragen entfernt, die SQLite-Indizes umgingen und CPU-Spitzen verursachten.</string>
+    <string name="wn_v127_memory_cache_title">Arbeitsspeicher-Cache für Tags &amp; Favoriten</string>
+    <string name="wn_v127_memory_cache_desc">In-Memory-Caching für Tags und Favoriten vermeidet wiederholte Datenbankabfragen pro Medienelement.</string>
+    <string name="wn_v127_album_stall_title">Single-Pass Album-Gruppierung</string>
+    <string name="wn_v127_album_stall_desc">Album-Algorithmus von O(N×M) auf O(N) optimiert, wodurch Verzögerungen beim Öffnen von Alben behoben wurden.</string>
+    <string name="wn_v125_autobackup_title">Automatisches Backup im öffentlichen Speicher</string>
+    <string name="wn_v125_autobackup_desc">Sichert Tags und Favoriten geräuschlos im öffentlichen Dokumente-Ordner – übersteht die Deinstallation der App.</string>
+    <string name="wn_v125_restore_prompt_title">Wiederherstellungsabfrage nach Neuinstallation</string>
+    <string name="wn_v125_restore_prompt_desc">Erkennt vorhandene Backups bei Neuinstallation und ermöglicht die Wiederherstellung mit einem Fingertipp.</string>
+    <string name="wn_v125_video_share_title">Zero-Copy Video-Freigabe</string>
+    <string name="wn_v125_video_share_desc">Direkter Streaming-Content-Provider verhindert Speicherüberläufe beim Teilen großer 4K-Videos.</string>
+    <string name="wn_v125_instant_timeline_title">Sub-40ms Sofort-Zeitleiste</string>
+    <string name="wn_v125_instant_timeline_desc">Snapshot-Speicher-Cache senkt die initiale Fotoanzeige von 2.500 ms auf unter 40 ms.</string>
+
+    <string name="wn_v129_whats_new_rule_title">Automatisiertes Versionshinweise-Hub</string>
+    <string name="wn_v129_whats_new_rule_desc">Strenge Pre-Commit-Prüfung stellt sicher, dass Versionshinweise in allen 13 Sprachen aktuell sind.</string>
+    <string name="wn_v129_audit_hook_title">Pre-Commit Integritätsschutz</string>
+    <string name="wn_v129_audit_hook_desc">Automatisierter Git-Hook zur Überprüfung von Build-Versionen, Dokumentation und mehrsprachigen Zeichenketten vor jedem Commit.</string>
+    <string name="wn_v129_lang_parity_title">Vollständige Parität in 13 Sprachen</string>
+    <string name="wn_v129_lang_parity_desc">Vollständige Lokalisierung aller Funktionsupdates, Speicheroptimierungen und Fehlerbehebungen in 13 Sprachen.</string>
+    <string name="wn_v129_unit_test_title">Automatisierte Regressionstests</string>
+    <string name="wn_v129_unit_test_desc">Umfassende Unit-Test-Suite verhindert Versionsregressionen, fehlerhafte Ressourcen-Links und leere Ansichten.</string>
 </resources>

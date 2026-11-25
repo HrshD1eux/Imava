@@ -1577,4 +1577,38 @@
     <string name="settings_restore_backup">बॅकअप पुनर्संचयित करा</string>
     <string name="settings_backup_success">Documents/Imava मध्ये मेटाडेटा बॅकअप यशस्वीरीत्या तयार झाला!</string>
     <string name="settings_backup_empty_or_fail">बॅकअप घेण्यासाठी कोणतेही टॅग्ज किंवा आवडी सापडल्या नाहीत।</string>
+
+    <string name="wn_v128_deepscan_persist_title">कायमस्वरूपी डीप मीडिया स्कॅन</string>
+    <string name="wn_v128_deepscan_persist_desc">स्कॅन केलेले मीडिया घटक आता स्थानिक कॅशमध्ये सुरक्षित राहतात, ज्यामुळे ॲप सुरू होताना घटक गायब होत नाहीत।</string>
+    <string name="wn_v128_lowend_perf_title">थर्मल आणि बॅटरी संरक्षण</string>
+    <string name="wn_v128_lowend_perf_desc">सतत ४५-सेकंद चालणारे बॅकग्राउंड स्कॅन लूप काढून टाकले, ज्यामुळे कमी क्षमतेचे फोन तापण्यापासून वाचतात।</string>
+    <string name="wn_v128_btree_index_title">B-Tree सिंगल-कॉलम सॉर्ट</string>
+    <string name="wn_v128_btree_index_desc">सिंगल-कॉलम B-Tree इंडेक्स क्वेरी वापरून कर्सर इनिशिएलायझेशनचा वेग वाढवला।</string>
+    <string name="wn_v128_album_streamline_title">शून्य-विलंब अल्बम</string>
+    <string name="wn_v128_album_streamline_desc">टॅब बदलताना अडथळा आणणाऱ्या फाइल तपासण्यांशिवाय थेट कॅशमधून त्वरित अल्बम गटबद्धीकरण।</string>
+    <string name="wn_v127_reload_loop_title">कोल्ड बूट लूपचे निवारण</string>
+    <string name="wn_v127_reload_loop_desc">८०० मिलीसेकंदांचा कृत्रिम उशीर आणि सिरीयल मोजणी क्वेरी काढून मीडिया टाइमलाइन लगेच लोड होते।</string>
+    <string name="wn_v127_sql_index_title">इंडेक्स केलेले SQL क्वेरी इंजिन</string>
+    <string name="wn_v127_sql_index_desc">CPU वर ताण आणणाऱ्या ३० अनइंडेक्स LIKE वाइल्डकार्ड क्वेरी काढून टाकल्या।</string>
+    <string name="wn_v127_memory_cache_title">मेमरीमध्ये टॅग आणि आवडी कॅश</string>
+    <string name="wn_v127_memory_cache_desc">इन-मेमरी कॅशिंगमुळे डेटाबेसवर वारंवार होणाऱ्या क्वेरी बंद झाल्या।</string>
+    <string name="wn_v127_album_stall_title">सिंगल-पास अल्बम गटबद्धीकरण</string>
+    <string name="wn_v127_album_stall_desc">अल्बम अल्गोरिदम O(N×M) वरून O(N) केल्यामुळे अल्बम उघडताना होणारा लॅग पूर्णपणे थांबला।</string>
+    <string name="wn_v125_autobackup_title">पब्लिक स्टोरेजमध्ये ऑटो-बॅकअप</string>
+    <string name="wn_v125_autobackup_desc">टॅग आणि फेव्हरेट्स सार्वजनिक डॉक्युमेंट्स स्टोरेजमध्ये सेव्ह राहतात, ॲप अनइन्स्टॉल केल्यावरही नष्ट होत नाहीत।</string>
+    <string name="wn_v125_restore_prompt_title">पुनर्स्थापना प्रॉम्ट</string>
+    <string name="wn_v125_restore_prompt_desc">ॲप पुन्हा इन्स्टॉल केल्यावर जुना बॅकअप ओळखून एका टॅपमध्ये डेटा रिस्टोअर करतो।</string>
+    <string name="wn_v125_video_share_title">झिरो-कॉपी व्हिडिओ शेअरिंग</string>
+    <string name="wn_v125_video_share_desc">मोठे 4K व्हिडिओ शेअर करताना मेमरी क्रॅश आणि स्टोरेज भरणे टाळण्यासाठी डायरेक्ट स्ट्रीमिंग।</string>
+    <string name="wn_v125_instant_timeline_title">४० मिलीसेकंदात जलद टाइमलाइन</string>
+    <string name="wn_v125_instant_timeline_desc">स्नॅपशॉट मेमरी कॅशमुळे फोटो लोड होण्याचा वेळ २५०० मिलीसेकंदांवरून थेट ४० मिलीसेकंदांच्या खाली आला।</string>
+
+    <string name="wn_v129_whats_new_rule_title">स्वयंचलित रिलीज नोट्स हब</string>
+    <string name="wn_v129_whats_new_rule_desc">कमिट-पूर्व पडताळणीमुळे व्हॉट्स न्यू नोट्स सर्व १३ भाषांमध्ये नेहमी अद्ययावत राहतील याची खात्री होते।</string>
+    <string name="wn_v129_audit_hook_title">कमिट-पूर्व इंटिग्रिटी शील्ड</string>
+    <string name="wn_v129_audit_hook_desc">स्वयंचलित गिट हुक कमिट करण्यापूर्वी बिल्ड व्हर्जन, दस्तऐवजीकरण आणि बहुभाषिक स्ट्रिंग्सचे ऑडिट करतो।</string>
+    <string name="wn_v129_lang_parity_title">सर्व १३ भाषांमध्ये परिपूर्णता</string>
+    <string name="wn_v129_lang_parity_desc">१३ प्रादेशिक भाषांमध्ये सर्व नवीन वैशिष्ट्ये, स्टोरेज ऑप्टिमायझेशन आणि त्रुटी निवारणाचे परिपूर्ण भाषांतर।</string>
+    <string name="wn_v129_unit_test_title">स्वयंचलित रीग्रेशन चाचण्या</string>
+    <string name="wn_v129_unit_test_desc">सर्वसमावेशक युनिट टेस्ट संच आवृत्ती रिग्रेशन, तुटलेले रिसोर्स लिंक्स आणि रिकामे रिलीज स्क्रीन प्रतिबंधित करतो।</string>
 </resources>
